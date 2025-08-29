@@ -1,12 +1,11 @@
 import Cabecera from "../componentes/Cabecera"
 
-
-const PaginaInicial = () => {
+const EstructuraBase = ({ children }) => {
     return(
         <>
             <Cabecera />
-            <h1>Pagina Inicial</h1>
+            <main> {children} </main>
         </>
     )
 }
-export default PaginaInicial
+export default EstructuraBase

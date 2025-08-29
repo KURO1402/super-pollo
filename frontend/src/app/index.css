@@ -8,3 +8,11 @@
 
   --font-sans: "Roboto", sans-serif;
 }
+
+.fondo-madera-oscuro{
+  background-image: url('../../public/Fondo_madera_oscuro.png');
+  background-size: cover;
+  background-position: center;
+  width: 100vw;
+  height: 85vh;
+}

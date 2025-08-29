@@ -1,10 +1,10 @@
 import { useRoutes } from "react-router-dom";
-import PaginaInicial from "../modulos/sitio-publico/layout/PaginaInicial";
+import Inicio from "../modulos/sitio-publico/paginas/Inicio";
 
 const AppRutas = () => {
     const rutas = useRoutes([
         //rutas públicas
-        { path: '/', element: <PaginaInicial /> },
+        { path: '/', element: <Inicio /> },
     ])
     return rutas
 }
