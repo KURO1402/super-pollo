@@ -10,7 +10,7 @@
 }
 
 .fondo-madera-oscuro{
-  background-image: url('../../public/Fondo_madera_oscuro.png');
+  background-image: url('/Fondo_madera_oscuro.png');
   background-size: cover;
   background-position: center;
   width: 100vw;

@@ -37,7 +37,7 @@ const IntroduccionSeccion = () => {
       />
 
       {/* Contenido */}
-      <div className="relative z-30 max-w-7xl mx-auto px-6 py-20 grid grid-cols-1 lg:grid-cols-2 items-center gap-10 min-h-screen">
+      <div className="relative z-30 max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-2 items-center gap-10 min-h-screen transform -translate-y-16">
         <div ref={textoReferencia} className="opacity-0 text-center lg:text-left">
           <h2 id="hero-heading" className="text-3xl md:text-4xl font-semibold text-amarillo mb-4">
             LOS MEJORES

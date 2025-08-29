@@ -1,6 +1,6 @@
 const enlaces = [
-  { nombre: "INICIO", href: "#" },
-  { nombre: "NOSOTROS", href: "#" },
+  { nombre: "INICIO", href: "#introduccion" },
+  { nombre: "NOSOTROS", href: "#nosotros" },
   { nombre: "MENÚ", href: "#" },
   { nombre: "RESERVACIONES", href: "#" },
   { nombre: "CONTACTO", href: "#" },
