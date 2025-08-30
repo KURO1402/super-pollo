@@ -2,6 +2,7 @@ import IntroduccionSeccion from "../secciones/IntroduccionSeccion"
 import MenuSeccion from "../secciones/MenuSeccion"
 import NosotrosSeccion from "../secciones/NosotrosSeccion"
 import ReservaSeccion from "../secciones/ReservaSeccion"
+import TrabajaNosotrosSeccion from "../secciones/TrabajaNosotrosSeccion"
 
 const Inicio = () => {
     return (
@@ -10,6 +11,7 @@ const Inicio = () => {
             <NosotrosSeccion />
             <MenuSeccion />
             <ReservaSeccion />
+            <TrabajaNosotrosSeccion />
         </>
     )
 }
