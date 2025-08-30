@@ -24,7 +24,7 @@ const IntroduccionSeccion = () => {
   return (
     <section
       id="introduccion"
-      className="fondo-madera-oscuro relative w-full h-screen md:h-[80vh] lg:h-screen text-white overflow-hidden px-4 md:px-8 lg:px-16 py-6"
+      className="fondo-madera-oscuro relative w-full text-white overflow-hidden"
       aria-labelledby="hero-heading"
     >
       {/* decorativos */}

@@ -9,10 +9,36 @@
   --font-sans: "Roboto", sans-serif;
 }
 
-.fondo-madera-oscuro{
+.fondo-madera-oscuro {
   background-image: url('/Fondo_madera_oscuro.png');
   background-size: cover;
   background-position: center;
-  width: 100vw;
-  height: 85vh;
+  width: 100%;
+  min-height: 50vh; /* Altura mínima en móvil */
+}
+
+/* Para pantallas grandes */
+@media (min-width: 1024px) {
+  .fondo-madera-oscuro {
+    width: 100vw;
+    height: 85vh;
+    min-height: auto;
+  }
+}
+
+.fondo-cortando-pollo {
+  background-image: url('/Fondo_cortando_pollo_1.png');
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  min-height: 50vh;
+}
+
+/* Para pantallas grandes */
+@media (min-width: 1024px) {
+  .fondo-cortando-pollo {
+    width: 100vw;
+    height: 85vh;
+    min-height: auto;
+  }
 }
