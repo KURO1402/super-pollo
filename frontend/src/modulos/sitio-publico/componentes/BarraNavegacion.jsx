@@ -1,9 +1,9 @@
 const enlaces = [
   { nombre: "INICIO", href: "#introduccion" },
   { nombre: "NOSOTROS", href: "#nosotros" },
-  { nombre: "MENÚ", href: "#" },
-  { nombre: "RESERVACIONES", href: "#" },
-  { nombre: "CONTACTO", href: "#" },
+  { nombre: "MENÚ", href: "#menu" },
+  { nombre: "RESERVACIONES", href: "#reservaciones" },
+  { nombre: "CONTACTO", href: "#contacto" },
 ];
 
 const BarraNavegacion = () => {

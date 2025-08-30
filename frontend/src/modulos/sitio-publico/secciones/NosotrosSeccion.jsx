@@ -10,7 +10,7 @@ import TarjetaInformativa from "../componentes/TarjetaInformativa";
 
 const NosotrosSeccion = () => {
   return (
-    <section id="nosotros" className="bg-azul-primario w-full py-16 md:py-20 lg:py-24 px-4 md:px-8 lg:px-16" aria-labelledby="nosotros-cabecera">
+    <section id="nosotros" className="bg-azul-secundario w-full py-16 md:py-20 lg:py-24 px-4 md:px-8 lg:px-16" aria-labelledby="nosotros-cabecera">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Columna izquierda */}
@@ -40,7 +40,7 @@ const NosotrosSeccion = () => {
                 id="nosotros-cabecera"
                 className="text-4xl md:text-5xl font-bold text-white mb-6"
               >
-                SOBRE <span className="text-red-500">NOSOTROS</span>
+                SOBRE <span className="text-rojo">NOSOTROS</span>
               </h2>
               <div className="w-20 h-1 bg-red-500 mx-auto lg:mx-0 mb-8"></div>
               <p className="text-gray-100 text-lg md:text-xl leading-relaxed mb-8">

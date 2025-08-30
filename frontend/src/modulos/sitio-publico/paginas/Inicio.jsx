@@ -1,4 +1,5 @@
 import IntroduccionSeccion from "../secciones/IntroduccionSeccion"
+import MenuSeccion from "../secciones/MenuSeccion"
 import NosotrosSeccion from "../secciones/NosotrosSeccion"
 
 const Inicio = () => {
@@ -6,6 +7,7 @@ const Inicio = () => {
         <>
             <IntroduccionSeccion />
             <NosotrosSeccion />
+            <MenuSeccion />
         </>
     )
 }
