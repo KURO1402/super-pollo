@@ -2,9 +2,8 @@ import FormularioReserva from "../componentes/FormularioReserva";
 
 const ReservaSeccion = () => {
   return (
-    <section id="reservaciones" className="relative overflow-hidden">
-      {/*fondo con imagen */}
-      <div className="fondo-cortando-pollo relative">
+    <section id="reservaciones" className="relative overflow-hidden fondo-cortando-pollo">
+      {/* <div className="fondo-cortando-pollo relative"> */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 lg:py-4">
           <div className="flex flex-col lg:flex-row lg:items-center lg:min-h-[75vh]">
             {/*texto (arriba en móvil, izquierda en escritorrio) */}
@@ -32,7 +31,7 @@ const ReservaSeccion = () => {
             </div>
           </div>
         </div>
-      </div>
+      {/* </div> */}
 
       {/*texto adicional solo para movil y tablet */}
       <div className="lg:hidden bg-gray-900 p-8">
