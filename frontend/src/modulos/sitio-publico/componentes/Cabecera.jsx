@@ -1,16 +1,9 @@
-{/* React */}
 import { useState } from "react";
-
-{/* Iconos */}
 import { BsPerson } from "react-icons/bs";
 import { HiMenu, HiX } from "react-icons/hi";
-
-{/* Componentes */}
 import BarraNavegacion from "./BarraNavegacion";
 import BotonIniciarSesion from "./BotonIniciarSesion";
 import BotonRegistro from "./BotonRegistro";
-
-{/* Imagenes */}
 import NombreEmpresa from "../../../assets/imagenes/Nombre_Empresa.png";
 import Logo from "../../../assets/imagenes/Logo.svg";
 
@@ -18,7 +11,7 @@ const Cabecera = () => {
   const [menuAbierto, setMenuAbierto] = useState(false);
 
   return (
-    <header className="bg-azul-secundario shadow-md">
+    <header className="bg-azul-secundario shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo y titulo */}
