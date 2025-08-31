@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-amarillo: #ffa10a;
+  --color-rojo: #d00000;
+  --color-azul-primario: #021627;
+  --color-azul-secundario: #010b14;
+
+  --font-sans: "Roboto", sans-serif;
+}
+
+.fondo-madera-oscuro {
+  background-image: url('/Fondo_madera_oscuro.png');
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  min-height: 50vh; /* Altura mínima en móvil */
+}
+
+/* Para pantallas grandes */
+@media (min-width: 1024px) {
+  .fondo-madera-oscuro {
+    width: 100vw;
+    height: 85vh;
+    min-height: auto;
+  }
+}
+
+.fondo-cortando-pollo {
+  background-image: url('/Fondo_cortando_pollo_1.png');
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  min-height: 50vh;
+}
+
+/* Para pantallas grandes */
+@media (min-width: 1024px) {
+  .fondo-cortando-pollo {
+    width: 100vw;
+    height: 87vh;
+    min-height: auto;
+  }
+}
