@@ -6,7 +6,13 @@ import Inicio from "../modulos/sitio-publico/paginas/Inicio";
 import Registro from "../modulos/sitio-publico/paginas/Registro";
 import InicioSesion from "../modulos/sitio-publico/paginas/InicioSesion";
 
+// importamos el hook 
+import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
+
 const AppRutas = () => {
+    // activamos el hook para que haga scroll al inicio en cada cambio de ruta
+    useScrollAlInicio();
+    // definimos la estructura de rutas 
     const rutas = useRoutes([
         //rutas públicas 
         {    
@@ -23,7 +29,8 @@ const AppRutas = () => {
             ]
         },
     ])
-    return rutas
+    // retornamos las rutas generadas 
+    return rutas;
 }
 
 export default AppRutas
