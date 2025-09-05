@@ -41,6 +41,11 @@ export const registroValidacion = yup.object().shape({
     .string()
     .required('Debes confirmar tu contraseña')
     .oneOf([yup.ref('clave')], 'Las contraseñas no coinciden'), // debe ser igual a "clave'
+  
+  // validacion para el select 
+  tipoDocumentoUsuario: yup
+    .string()
+    .required('El tipo de documento es obligatorio'), 
    
   /// validacion para el campo numeroDocumentoUsuario'
   numeroDocumentoUsuario: yup
