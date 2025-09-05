@@ -8,6 +8,7 @@ import InicioSesion from "../modulos/sitio-publico/paginas/InicioSesion";
 
 // importamos el hook 
 import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
+import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -28,6 +29,8 @@ const AppRutas = () => {
                 { path: '/inicio-sesion', element: <InicioSesion /> },
             ]
         },
+        // Cualquier ruta que no existe
+        { path: '*', element: <NotFound /> }
     ])
     // retornamos las rutas generadas 
     return rutas;
