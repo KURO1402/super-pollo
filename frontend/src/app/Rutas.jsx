@@ -1,10 +1,27 @@
+// importamos useRoutes de react-router-dom para definir todas las rutas en un solo lugar como un arreglo de objetos
 import { useRoutes } from "react-router-dom";
+
+import EstructuraBase from "../modulos/sitio-publico/layout/EstructuraBase";
 import Inicio from "../modulos/sitio-publico/paginas/Inicio";
+import Registro from "../modulos/sitio-publico/paginas/Registro";
+import InicioSesion from "../modulos/sitio-publico/paginas/InicioSesion";
 
 const AppRutas = () => {
     const rutas = useRoutes([
-        //rutas públicas
-        { path: '/', element: <Inicio /> },
+        //rutas públicas 
+        {    
+            // se define la ruta padre raíz de la pagina web 
+            // además la estructura base que se renderizará en cada ruta hija que coincida
+            path: '/', element: <EstructuraBase />, 
+            // estas rutas se renderizan en el Outlet del componente EstructuraBase
+            children: [
+                // index : true significa que es la ruta predeterminada cuando se visita a '/'
+                { index: true, element: <Inicio /> },
+                // las demás rutas 
+                { path: '/registro', element: <Registro /> },
+                { path: '/inicio-sesion', element: <InicioSesion /> },
+            ]
+        },
     ])
     return rutas
 }
