@@ -1,14 +1,21 @@
 // importamos useRoutes de react-router-dom para definir todas las rutas en un solo lugar como un arreglo de objetos
 import { useRoutes } from "react-router-dom";
 
+// Sitio publico
 import EstructuraBase from "../modulos/sitio-publico/layout/EstructuraBase";
 import Inicio from "../modulos/sitio-publico/paginas/Inicio";
 import Registro from "../modulos/sitio-publico/paginas/Registro";
 import InicioSesion from "../modulos/sitio-publico/paginas/InicioSesion";
 
+// Administrador
+import EstructuraBaseAdmin from "../modulos/panel-administrador/layout/EstructuraBaseAdmin";
+import PanelDeControl from "../modulos/panel-administrador/paginas/PanelDeControl";
+
+// Página no encontrada
+import NotFound from "../modulos/sitio-publico/paginas/NotFound";
+
 // importamos el hook 
 import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
-import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -30,7 +37,15 @@ const AppRutas = () => {
             ]
         },
         // Cualquier ruta que no existe
-        { path: '*', element: <NotFound /> }
+        { path: '*', element: <NotFound /> },
+
+        // rutas de administrador
+        {
+            path: '/admin', element: <EstructuraBaseAdmin />,
+            children: [
+                { index: true, element: <PanelDeControl />}
+            ]
+        }
     ])
     // retornamos las rutas generadas 
     return rutas;
