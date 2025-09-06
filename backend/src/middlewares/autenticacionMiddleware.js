@@ -17,14 +17,14 @@ const autenticacionToken = (req, res, next) => {
   }
 
   // Ahora verificamos que el token proporcionado sea igual al proporcionado al iniciar sesion o que se ha modificado su contenido
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, usuario) => {
     if (err) {
         //si se cumple la condicion le negamos el acceso con un status 403(Forbidden)
       return res.status(403).json({ message: 'Token inválido o expirado' });
     }
 
     // Aqui se pone la informacion decodificada del token y se le adjunta a la solicitud(request)
-    req.user = user;
+    req.usuario = usuario;
     //Llamamos a next que hace que se ejecute la siguiente funcion
     next();
   });
