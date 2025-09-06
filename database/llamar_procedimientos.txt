@@ -67,6 +67,12 @@ async function actualizarUsuario(data) {
   return rows;
 }
 
+/* LLAMAR AL PROCEDIMIENTO actualizarClave */
+async function actualizarClave(idUsuario, clave) {
+  const [rows] = await pool.query("CALL actualizarClave(?, ?)", [idUsuario, clave]);
+  return rows;
+}
+
 /* LLAMAR AL PROCEDIMIENTO eliminarUsuario */
 async function eliminarUsuario(idUsuario) {
   const [rows] = await pool.query("CALL eliminarUsuario(?)", [idUsuario]);

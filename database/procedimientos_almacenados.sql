@@ -97,6 +97,17 @@ BEGIN
         idTipoDocumento = p_idTipoDocumento
    WHERE idUsuario = p_idUsuario;
 END //
+
+/* PROCEDIMIENTO ALMACENADO actualizarClave */  
+CREATE PROCEDURE actualizarClave(
+    IN p_idUsuario INT,
+    IN p_clave CHAR(60)
+)
+BEGIN
+    UPDATE usuarios
+    SET clave = p_clave
+    WHERE idUsuario = p_idUsuario;
+END //
     
 /* PROCEDIMIENTO ALMACENADO eliminarUsuario */   
 CREATE PROCEDURE eliminarUsuario(
