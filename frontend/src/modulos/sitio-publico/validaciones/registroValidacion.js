@@ -27,14 +27,36 @@ export const registroValidacion = yup.object().shape({
 
   //validación para el campo "clave" 
   clave: yup
-    .string()
-    .required('La contraseña es obligatoria')
-    .min(8, 'La contraseña debe tener al menos 8 caracteres')
-    .max(50, 'La contraseña no puede exceder 50 caracteres')
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-      'La contraseña debe contener al menos: una mayúscula, una minúscula, un número y un carácter especial'
-    ), // expresión regular para contraseña segura
+  .string()
+  .required('La contraseña es obligatoria')
+  .min(8, 'La contraseña debe tener al menos 8 caracteres')
+  .max(50, 'La contraseña no puede exceder 50 caracteres')
+  .test( // se usa para crear una validacion personalizada 
+    'clave segura', // nombre de la prueba
+    'La contraseña no cumple con los requisitos mínimos', // mensaje de error genérico
+    function (value) { // funcion para realizar las validaciones
+      const errors = []; // array para ir guardando los errores
+      if (!value) return false; // Ya se controla con .required
+      // validar que al menos tenga una minuscula
+      if (!/[a-z]/.test(value)) {
+        errors.push('Debe incluir al menos una letra minúscula.');
+      } // debe tener al menos una mayuscula
+      if (!/[A-Z]/.test(value)) {
+        errors.push('Debe incluir al menos una letra mayúscula.');
+      } // debe tener al menos un numero
+      if (!/\d/.test(value)) {
+        errors.push('Debe incluir al menos un número.');
+      } // el caracter especial 
+      if (!/[@$!%*?&.\-_\#=+"',;:]/.test(value)) {
+        errors.push('Debe incluir al menos un carácter especial. Ejemplos: @$!%*?&.-_#=+');
+      } // si hay errores, los unimos en un solo mensaje y retornamos el error
+      if (errors.length > 0) {
+        return this.createError({ message: errors.join(' ') });
+      }
+      // validacion exitosa xd
+      return true;
+    }
+  ),
   
   // Validacion para confirmar que la contraseña coincide
   confirmarClave: yup
