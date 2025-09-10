@@ -46,17 +46,16 @@ CREATE PROCEDURE insertarUsuario (
     IN p_clave CHAR(60),
     IN p_numeroDocumentoUsuario VARCHAR(12),
     IN p_telefonoUsuario VARCHAR(15),
-    IN p_idRol INT,
     IN p_idTipoDocumento INT
 )
 BEGIN 
     INSERT INTO usuarios(
            nombresUsuario, apellidosUsuario, correoUsuario, clave, 
-           numeroDocumentoUsuario, telefonoUsuario, idRol, idTipoDocumento
+           numeroDocumentoUsuario, telefonoUsuario, idTipoDocumento
     )
     VALUES (
            p_nombresUsuario, p_apellidosUsuario, p_correoUsuario, p_clave, 
-           p_numeroDocumentoUsuario, p_telefonoUsuario, p_idRol, p_idTipoDocumento
+           p_numeroDocumentoUsuario, p_telefonoUsuario, p_idTipoDocumento
     );
 END //
 

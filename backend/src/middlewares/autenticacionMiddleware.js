@@ -8,7 +8,7 @@ const autenticacionToken = (req, res, next) => {
   //Aqui se guarda el token pero primero se verifica que el token no sea undefined para ejecutar el metodo split de js
   //que lo que hace es separar texto segun un  caracter que tu le pases, hacemos esto por que el token del header biene asi 
   //"Bearer <token>" por eso quitamos la palabra Bearer
-  const token = autenticacionHeader && autenticacionHeader.split(' ')[1]; 
+  const token = autenticacionHeader && autenticacionHeader.split(' ')[1];
 
   //Verificamos que exista el token y no sea undefined o algun valor invalido
   //si se cumple la condicion mandamos un estado de 401 Unauthorized que niega el acceso y mandamos un mensaje informativo 
