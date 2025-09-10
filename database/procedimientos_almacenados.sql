@@ -49,14 +49,34 @@ CREATE PROCEDURE insertarUsuario (
     IN p_idTipoDocumento INT
 )
 BEGIN 
+    -- Insertamos el usuario
     INSERT INTO usuarios(
-           nombresUsuario, apellidosUsuario, correoUsuario, clave, 
-           numeroDocumentoUsuario, telefonoUsuario, idTipoDocumento
+        nombresUsuario, 
+        apellidosUsuario, 
+        correoUsuario, 
+        clave, 
+        numeroDocumentoUsuario, 
+        telefonoUsuario, 
+        idTipoDocumento
     )
     VALUES (
-           p_nombresUsuario, p_apellidosUsuario, p_correoUsuario, p_clave, 
-           p_numeroDocumentoUsuario, p_telefonoUsuario, p_idTipoDocumento
+        p_nombresUsuario, 
+        p_apellidosUsuario, 
+        p_correoUsuario, 
+        p_clave, 
+        p_numeroDocumentoUsuario, 
+        p_telefonoUsuario, 
+        p_idTipoDocumento
     );
+
+    -- Retornamos el ID generado junto con nombre, apellido y rol
+    SELECT 
+        u.idUsuario,
+        u.nombresUsuario,
+        u.apellidosUsuario,
+        u.idRol
+    FROM usuarios u
+    WHERE u.idUsuario = LAST_INSERT_ID();
 END //
 
 /* PROCEDIMIENTO ALMACENADO listarUsuarios */

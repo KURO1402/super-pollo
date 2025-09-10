@@ -35,7 +35,9 @@ const insertarUsuarioModel = async (datos, claveEncriptada) => {
         await conexion.commit();
 
         //retonamos el resultado paar el controlador
-        return result
+        const usuario = result[0][0];
+
+        return usuario;
     } catch (err) {
         // Si algo falla, revertimos cambios
         if (conexion) await conexion.rollback();

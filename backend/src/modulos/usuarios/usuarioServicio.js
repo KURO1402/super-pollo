@@ -69,30 +69,28 @@ const registrarUsuarioService = async (datos) => {
   // 5) Insertar en BD
   const nuevoUsuario = await insertarUsuarioModel(datos, claveEncriptada);
   
-  // Extraer ID del usuario insertado (compatible con diferentes formatos de respuesta)
-  const usuarioId = nuevoUsuario.insertId || nuevoUsuario.id;
-
+  // Extraer ID del usuario insertado
   // 6) Generación de tokens con valores de expiración centralizados
   const accessToken = jwt.sign(
-    { id: usuarioId, correo: correoUsuario },
+    nuevoUsuario,
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_ACCESS_EXPIRATION || "20m" }
   );
 
   const refreshToken = jwt.sign(
-    { id: usuarioId },
+    nuevoUsuario,
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: process.env.JWT_REFRESH_EXPIRATION || "20h" }
   );
 
   return {
-    usuario: { nombresUsuario, apellidosUsuario },
+    usuario: nuevoUsuario,
     accessToken,
     refreshToken
   };
 };
 
-// =====================
+/* =====================
 // REFRESCAR ACCESS TOKEN
 // =====================
 const refrescarTokenService = async (req, res) => {
@@ -119,9 +117,8 @@ const refrescarTokenService = async (req, res) => {
     // Manejo específico de errores de JWT
     return res.status(403).json({ error: "Refresh token inválido o expirado" });
   }
-};
+};*/
 
 module.exports = {
   registrarUsuarioService,
-  refrescarTokenService
 };
