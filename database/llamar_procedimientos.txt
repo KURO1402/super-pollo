@@ -25,10 +25,10 @@ async function eliminarRol(idRol) {
   return rows;
 }
 
-/* LLAMAR AL PROCEDIMIENTO insertarUsuario */
+/* LLAMAR AL PROCEDIMIENTO insertarUsuario (ACTUALIZADO) */
 async function insertarUsuario(data) {
   const [rows] = await pool.query(
-    "CALL insertarUsuario(?, ?, ?, ?, ?, ?, ?, ?)",
+    "CALL insertarUsuario(?, ?, ?, ?, ?, ?, ?)",
     [
       data.nombresUsuario,
       data.apellidosUsuario,
@@ -36,7 +36,6 @@ async function insertarUsuario(data) {
       data.clave, 
       data.numeroDocumentoUsuario,
       data.telefonoUsuario,
-      data.idRol,
       data.idTipoDocumento
     ]
   );
