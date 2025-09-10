@@ -20,7 +20,7 @@ clave CHAR(60) NOT NULL,
 numeroDocumentoUsuario VARCHAR(12) NOT NULL,
 telefonoUsuario VARCHAR(15) NULL,
 estadoUsuario ENUM('1','0') NOT NULL DEFAULT '1',
-idRol INT,
+idRol INT DEFAULT 3,
 idTipoDocumento INT,
 FOREIGN KEY (idRol) REFERENCES rolUsuarios(idRol),
 FOREIGN KEY (idTipoDocumento) REFERENCES tipoDocumento(idTipoDocumento) 

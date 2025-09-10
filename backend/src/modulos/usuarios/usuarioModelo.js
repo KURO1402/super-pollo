@@ -2,7 +2,7 @@
 const pool = require("../../config/conexionDB");
 
 //Esto es la funcion para registrar usuario que recibe como parametros un objeto con los datos y la clave encriptada
-const insertarUsuarioDB = async (datos, claveEncriptada) => {
+const insertarUsuarioModel = async (datos, claveEncriptada) => {
     //Usamos desestructuracion para obtener los valores del objeto datos
     const { nombresUsuario,
         apellidosUsuario,
@@ -19,7 +19,7 @@ const insertarUsuarioDB = async (datos, claveEncriptada) => {
         await conexion.beginTransaction();
 
         //llamamos y ejecutamos el procedimiento almacenado creado en la base de datos
-        const [result] = await conexion.execute("CALL insertarUsuario(?, ? ,?, ?, ?, ?, ?, ?)",
+        const [result] = await conexion.execute("CALL insertarUsuario(?, ? ,?, ?, ?, ?, ?)",
             [
                 nombresUsuario,
                 apellidosUsuario,
@@ -50,7 +50,7 @@ const insertarUsuarioDB = async (datos, claveEncriptada) => {
 }
 
 //Funcion para obtener un usuario por correo
-const buscarUsuarioPorCorreoDB = async (correoUsuario) => {
+const buscarUsuarioPorCorreoModel = async (correoUsuario) => {
     //Variable para guardar la conexion
     let conexion;
     try {
@@ -74,6 +74,6 @@ const buscarUsuarioPorCorreoDB = async (correoUsuario) => {
 };
 
 module.exports = {
-    insertarUsuarioDB,
-    buscarUsuarioPorCorreoDB
+    insertarUsuarioModel,
+    buscarUsuarioPorCorreoModel
 };

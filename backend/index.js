@@ -1,6 +1,7 @@
+require('dotenv').config(); // Cargar variables de entorno
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config(); // Cargar variables de entorno
+const cookieParser = require("cookie-parser");
 
 //ruta registrar usuario
 const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas.js");
@@ -9,6 +10,7 @@ const app = express();
 
 // Middlewares
 app.use(cors()); // Permitir peticiones del frontend
+app.use(cookieParser()); 
 app.use(express.json()); // Leer JSON en requests
 
 // Variables de entorno
