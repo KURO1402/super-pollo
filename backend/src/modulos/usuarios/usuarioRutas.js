@@ -1,12 +1,13 @@
 //importamos librerias y el controlador
 const express = require("express");
-const UsuarioController = require("./usuarioControlador");
+const { insertarUsuarioController, seleccionarUsuarioController } = require("./usuarioControlador");
 
 //creamos en router
 const router = express.Router();
 
 //ruta para registrar usuarios
-router.post("/registrar", UsuarioController);
+router.post("/registrar", insertarUsuarioController);
+router.post("/login", seleccionarUsuarioController );
 
 
 module.exports = router;

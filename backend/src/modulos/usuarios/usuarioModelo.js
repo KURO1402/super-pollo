@@ -1,7 +1,7 @@
 //Importamos al conexion a base de datos
 const pool = require("../../config/conexionDB");
 
-//Esto es la funcion para registrar usuario que recibe como parametros un objeto con los datos y la clave encriptada
+//MODELO PARA REGISTRAR USUARIO
 const insertarUsuarioModel = async (datos, claveEncriptada) => {
     //Usamos desestructuracion para obtener los valores del objeto datos
     const { nombresUsuario,
@@ -33,9 +33,10 @@ const insertarUsuarioModel = async (datos, claveEncriptada) => {
 
         //Confirmamos los cambios o modificaciones hechas
         await conexion.commit();
-
-        //retonamos el resultado paar el controlador
-        return result
+        //Guardamos el usuario ya que el result contien dos arrays y el primero es el usuario por eso [0][0] 
+        const usuario = result[0][0]
+        
+        return usuario;
     } catch (err) {
         // Si algo falla, revertimos cambios
         if (conexion) await conexion.rollback();
@@ -49,8 +50,8 @@ const insertarUsuarioModel = async (datos, claveEncriptada) => {
     }
 }
 
-//Funcion para obtener un usuario por correo
-const buscarUsuarioPorCorreoModel = async (correoUsuario) => {
+//MODELO PARA INICIAR SESION
+const seleccionarUsuarioModel = async (correoUsuario) => {
     //Variable para guardar la conexion
     let conexion;
     try {
@@ -58,10 +59,10 @@ const buscarUsuarioPorCorreoModel = async (correoUsuario) => {
         conexion = await pool.getConnection();
 
         //Llamamos al procedimiento de seleccionar usario por correo
-        const [rows] = await conexion.execute("CALL seleccionarUsuarioCorreo(?)", [correoUsuario]);
+        const [result] = await conexion.query("CALL seleccionarUsuario(?)", [correoUsuario]);
 
         //Retornamos la fila siempre en cuando exista el usuario con el correo especificado, si no hay ninguna fila retornamos null
-        return rows.length > 0 ? rows[0] : null;
+        return result[0];
     } catch (err) {
         //Mostramos el error
         console.error("Error al buscar usuario por correo:", err.message);
@@ -73,7 +74,8 @@ const buscarUsuarioPorCorreoModel = async (correoUsuario) => {
     }
 };
 
+//Exportamos modulo
 module.exports = {
     insertarUsuarioModel,
-    buscarUsuarioPorCorreoModel
+    seleccionarUsuarioModel
 };

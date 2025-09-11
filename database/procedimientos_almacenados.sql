@@ -49,14 +49,34 @@ CREATE PROCEDURE insertarUsuario (
     IN p_idTipoDocumento INT
 )
 BEGIN 
+    -- Insertamos el usuario
     INSERT INTO usuarios(
-           nombresUsuario, apellidosUsuario, correoUsuario, clave, 
-           numeroDocumentoUsuario, telefonoUsuario, idTipoDocumento
+        nombresUsuario, 
+        apellidosUsuario, 
+        correoUsuario, 
+        clave, 
+        numeroDocumentoUsuario, 
+        telefonoUsuario, 
+        idTipoDocumento
     )
     VALUES (
-           p_nombresUsuario, p_apellidosUsuario, p_correoUsuario, p_clave, 
-           p_numeroDocumentoUsuario, p_telefonoUsuario, p_idTipoDocumento
+        p_nombresUsuario, 
+        p_apellidosUsuario, 
+        p_correoUsuario, 
+        p_clave, 
+        p_numeroDocumentoUsuario, 
+        p_telefonoUsuario, 
+        p_idTipoDocumento
     );
+
+    -- Retornamos el ID generado junto con nombre, apellido y rol
+    SELECT 
+        u.idUsuario,
+        u.nombresUsuario,
+        u.apellidosUsuario,
+        u.idRol
+    FROM usuarios u
+    WHERE u.idUsuario = LAST_INSERT_ID();
 END //
 
 /* PROCEDIMIENTO ALMACENADO listarUsuarios */
@@ -118,9 +138,8 @@ BEGIN
 END //
 
 /* PROCEDIMIENTO ALMACENADO iniciarSesion */ 
-CREATE PROCEDURE iniciarSesion(
-    IN p_correoUsuario VARCHAR(50),
-    IN p_clave CHAR(60)
+CREATE PROCEDURE seleccionarUsuario(
+    IN p_correoUsuario VARCHAR(50)
 )
 BEGIN
     SELECT 
@@ -128,11 +147,10 @@ BEGIN
         u.nombresUsuario,
         u.apellidosUsuario,
         u.correoUsuario,
-        r.nombreRol
+        u.clave,
+        u.idRol
     FROM usuarios u
-    INNER JOIN rolUsuarios r ON u.idRol = r.idRol
-    WHERE u.correoUsuario = p_correoUsuario 
-      AND u.clave = p_clave;
+    WHERE u.correoUsuario = p_correoUsuario;
 END //
 
 DELIMITER ;
