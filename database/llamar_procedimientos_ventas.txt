@@ -1,0 +1,40 @@
+/* CONEXION A MYSQL */
+const pool = require("./db"); 
+
+/* LLAMAR AL PROCEDIMIENTO insertarVenta */
+async function insertarVenta(data) {
+  const [rows] = await pool.query(
+    "CALL insertarVenta(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    [
+      data.numeroDocumentoCliente,
+      data.serie,
+      data.numeroCorrelativo,
+      data.sunatTransaccion,
+      data.fechaEmision,
+      data.fechaVencimiento,
+      data.porcentajeIGV,
+      data.totalGravada,
+      data.totalIGV,
+      data.totalVenta,
+      data.aceptadaPorSunat,
+      data.fechaRegistro,
+      data.urlCombrobantePDF,
+      data.urlCombrobanteXML,
+      data.idMedioPago,
+      data.idTipoComprobante
+    ]
+  );
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO listarVentas (20 en 20) */
+async function listarVentas(pagina) {
+  const [rows] = await pool.query("CALL listarVentas(?)", [pagina]);
+  return rows[0]; 
+}
+
+/* LLAMAR AL PROCEDIMIENTO obtenerVenta (por ID) */
+async function obtenerVenta(idVenta) {
+  const [rows] = await pool.query("CALL obtenerVenta(?)", [idVenta]);
+  return rows[0]; 
+}
