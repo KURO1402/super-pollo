@@ -150,7 +150,7 @@ BEGIN
         u.clave,
         u.idRol
     FROM usuarios u
-    WHERE u.correoUsuario = p_correoUsuario 
+    WHERE u.correoUsuario = p_correoUsuario;
 END //
 
 DELIMITER ;

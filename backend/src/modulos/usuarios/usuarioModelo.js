@@ -1,7 +1,7 @@
 //Importamos al conexion a base de datos
 const pool = require("../../config/conexionDB");
 
-//Esto es la funcion para registrar usuario que recibe como parametros un objeto con los datos y la clave encriptada
+//MODELO PARA REGISTRAR USUARIO
 const insertarUsuarioModel = async (datos, claveEncriptada) => {
     //Usamos desestructuracion para obtener los valores del objeto datos
     const { nombresUsuario,
@@ -33,10 +33,9 @@ const insertarUsuarioModel = async (datos, claveEncriptada) => {
 
         //Confirmamos los cambios o modificaciones hechas
         await conexion.commit();
-
-        //retonamos el resultado paar el controlador
-        const usuario = result[0][0];
-
+        //Guardamos el usuario ya que el result contien dos arrays y el primero es el usuario por eso [0][0] 
+        const usuario = result[0][0]
+        
         return usuario;
     } catch (err) {
         // Si algo falla, revertimos cambios
@@ -51,7 +50,7 @@ const insertarUsuarioModel = async (datos, claveEncriptada) => {
     }
 }
 
-//Funcion para obtener un usuario por correo
+//MODELO PARA INICIAR SESION
 const seleccionarUsuarioModel = async (correoUsuario) => {
     //Variable para guardar la conexion
     let conexion;
@@ -75,6 +74,7 @@ const seleccionarUsuarioModel = async (correoUsuario) => {
     }
 };
 
+//Exportamos modulo
 module.exports = {
     insertarUsuarioModel,
     seleccionarUsuarioModel

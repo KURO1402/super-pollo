@@ -1,11 +1,12 @@
 const { registrarUsuarioService, seleccionarUsuarioService } = require("./usuarioServicio");
 
+//CONTROLADOR PAR INSERTAR USUARIO
 const insertarUsuarioController = async (req, res) => {
   try {
-    // 1. Registrar usuario mediante el servicio
+    //Registrar usuario mediante el servicio y despues el modelo
     const { usuario, accessToken, refreshToken } = await registrarUsuarioService(req.body);
 
-    // 2. Configurar cookie de refresh token con opciones de seguridad
+    //Configurar cookie de refresh token con opciones de seguridad
     const cookieOptions = {
       httpOnly: true,     // Previene acceso via JavaScript
       secure: process.env.NODE_ENV === 'production', // HTTPS solo en producción
@@ -37,32 +38,27 @@ const insertarUsuarioController = async (req, res) => {
   }
 };
 
+//CONTROLADOR PARA INICIAR SESION
 const seleccionarUsuarioController = async (req, res) => {
   try {
-    // 1. Traer datos de inicio de sesión
+    // Iniciar seion mediante el servico y controlador
     const resultado = await seleccionarUsuarioService(req.body);
 
-    // Si las credenciales son inválidas
-    if (resultado.mensaje) {
-      return res.status(401).json({
-        ok: false,
-        mensaje: resultado.mensaje
-      });
-    }
-
+    //desestructuramos el usuario y los dos tokens
     const { usuario, accessToken, refreshToken } = resultado;
 
-    // 2. Configurar cookie de refresh token con opciones de seguridad
+    //Configurar cookie para el refreshToken 
     const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: "Strict",
-      maxAge: 20 * 60 * 60 * 1000
+      httpOnly: true, //Hace que el cleinte no pueda leer la cookie con js
+      secure: process.env.NODE_ENV === 'production', //HTTPS cuando se lanze produccion
+      sameSite: "Strict", //Protege de CSRF(Cross-Site Request Forgery)
+      maxAge: 20 * 60 * 60 * 1000 //Tiempo de la cookie en este caso 20 horas
     };
 
+    //Enviamos el refresh token en la cookie
     res.cookie("refreshToken", refreshToken, cookieOptions);
 
-    // 3. Respuesta exitosa
+    // Enviamos las respuestas al frontend(mensaje, usuario y el accessToken)
     return res.status(200).json({
       ok: true,
       mensaje: "Inicio de sesión exitoso",
@@ -71,11 +67,13 @@ const seleccionarUsuarioController = async (req, res) => {
     });
 
   } catch (err) {
-    // 4. Manejo centralizado de errores
+    //Aqui manejamos los errores del servicio y segun eso enviamos respuesta al cliente
     console.error("Error en seleccionarUsuarioController:", err.message);
 
+    //Capturamos el status del error
     const statusCode = err.status || 500;
 
+    //Enviamos una respuesta al cliente
     return res.status(statusCode).json({
       ok: false,
       mensaje: err.message || "Error interno del servidor",
@@ -83,4 +81,5 @@ const seleccionarUsuarioController = async (req, res) => {
   }
 };
 
+//Exportamos modulo
 module.exports = { insertarUsuarioController, seleccionarUsuarioController };
