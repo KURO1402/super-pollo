@@ -52,7 +52,7 @@ const insertarUsuarioModel = async (datos, claveEncriptada) => {
 }
 
 //Funcion para obtener un usuario por correo
-const buscarUsuarioPorCorreoModel = async (correoUsuario) => {
+const seleccionarUsuarioModel = async (correoUsuario) => {
     //Variable para guardar la conexion
     let conexion;
     try {
@@ -60,10 +60,10 @@ const buscarUsuarioPorCorreoModel = async (correoUsuario) => {
         conexion = await pool.getConnection();
 
         //Llamamos al procedimiento de seleccionar usario por correo
-        const [rows] = await conexion.execute("CALL seleccionarUsuarioCorreo(?)", [correoUsuario]);
+        const [result] = await conexion.query("CALL seleccionarUsuario(?)", [correoUsuario]);
 
         //Retornamos la fila siempre en cuando exista el usuario con el correo especificado, si no hay ninguna fila retornamos null
-        return rows.length > 0 ? rows[0] : null;
+        return result[0];
     } catch (err) {
         //Mostramos el error
         console.error("Error al buscar usuario por correo:", err.message);
@@ -77,5 +77,5 @@ const buscarUsuarioPorCorreoModel = async (correoUsuario) => {
 
 module.exports = {
     insertarUsuarioModel,
-    buscarUsuarioPorCorreoModel
+    seleccionarUsuarioModel
 };

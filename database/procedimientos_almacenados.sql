@@ -138,9 +138,8 @@ BEGIN
 END //
 
 /* PROCEDIMIENTO ALMACENADO iniciarSesion */ 
-CREATE PROCEDURE iniciarSesion(
-    IN p_correoUsuario VARCHAR(50),
-    IN p_clave CHAR(60)
+CREATE PROCEDURE seleccionarUsuario(
+    IN p_correoUsuario VARCHAR(50)
 )
 BEGIN
     SELECT 
@@ -148,11 +147,10 @@ BEGIN
         u.nombresUsuario,
         u.apellidosUsuario,
         u.correoUsuario,
-        r.nombreRol
+        u.clave,
+        u.idRol
     FROM usuarios u
-    INNER JOIN rolUsuarios r ON u.idRol = r.idRol
     WHERE u.correoUsuario = p_correoUsuario 
-      AND u.clave = p_clave;
 END //
 
 DELIMITER ;

@@ -2,7 +2,7 @@ require('dotenv').config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { validarCorreo, validarDocumento, validarTelefono } = require("../../utilidades/validaciones");
-const { insertarUsuarioModel } = require("./usuarioModelo");
+const { insertarUsuarioModel, seleccionarUsuarioModel } = require("./usuarioModelo");
 
 // =====================
 // REGISTRAR USUARIO
@@ -54,14 +54,13 @@ const registrarUsuarioService = async (datos) => {
   }
 
   // 3) Verificar duplicado de correo (mantener comentario como recordatorio)
-  /*
-  const usuarioExistente = await buscarUsuarioPorCorreoDB(correoUsuario);
-  if (usuarioExistente) {
+  
+  const usuarioExistente = await seleccionarUsuarioModel(correoUsuario);
+  if (usuarioExistente.length > 0) {
     const error = new Error("El correo ya está registrado");
     error.status = 409;
     throw error;
   }
-  */
 
   // 4) Encriptar la contraseña - costo de hashing configurado según rendimiento/seguridad
   const claveEncriptada = await bcrypt.hash(clave, 10);
@@ -89,6 +88,56 @@ const registrarUsuarioService = async (datos) => {
     refreshToken
   };
 };
+
+const seleccionarUsuarioService = async ({ email, clave }) => {
+  const camposObligatorios = [email, clave];
+
+  if (camposObligatorios.some(campo => !campo)) {
+    const error = new Error("Faltan datos obligatorios");
+    error.status = 400;
+    throw error;
+  }
+
+  const resultado = await seleccionarUsuarioModel(email);
+  if(resultado.length == 0){
+    return { mensaje: "Credenciales de acceso invalidas"};
+  }
+
+  const usuario = resultado[0];
+
+  // Verificar contraseña con bcrypt (retorna true si las claves coinciden)
+  const contraseñaValida = await bcrypt.compare(clave, usuario.clave);
+
+  if(!contraseñaValida){
+     return { mensaje: "Credenciales de acceso invalidas"};
+  }
+
+  // Solo los campos que quieres en el payload del token
+  const payload = {
+    idUsuario: usuario.idUsuario,
+    nombresUsuario: usuario.nombresUsuario,
+    apellidosUsuario: usuario.apellidosUsuario,
+    idRol: usuario.idRol
+  };
+  
+  const accessToken = jwt.sign(
+    payload,
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_ACCESS_EXPIRATION || "20m" }
+  );
+
+  const refreshToken = jwt.sign(
+    payload,
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: process.env.JWT_REFRESH_EXPIRATION || "20h" }
+  );
+
+  return {
+    usuario: payload,
+    accessToken,
+    refreshToken
+  };
+}
 
 /* =====================
 // REFRESCAR ACCESS TOKEN
@@ -121,4 +170,5 @@ const refrescarTokenService = async (req, res) => {
 
 module.exports = {
   registrarUsuarioService,
+  seleccionarUsuarioService
 };
