@@ -1,5 +1,6 @@
 // Funcion para validar correo electrónico tiene el formato correcto
 const validarCorreo = (correo) => {
+  if(!correo) return false;
   // Expresión regular para validar correos
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -9,6 +10,7 @@ const validarCorreo = (correo) => {
 
 // Función para validar documentos según tipo numérico
 const validarDocumento = (tipo, valor) => {
+  if(!tipo && !valor) return false;
   const soloNumeros = /^[0-9]+$/;
   const alfanumerico = /^[a-zA-Z0-9]+$/;
   
@@ -34,9 +36,12 @@ const validarDocumento = (tipo, valor) => {
 
 // Función para validar números telefónicos
 const validarTelefono = (valor) => {
-  const soloNumeros = /^[0-9]+$/;
-  // Validar que tenga exactamente 9 dígitos y que solo sean números
-  return soloNumeros.test(valor);
+  if(!valor) return false;
+  // Quitar espacios en blanco
+  const limpio = valor.replace(/\s+/g, "");
+  // Validar que tenga numeros y opcionalmente un + al inicio
+  const formatoTelefono = /^\+?\d+$/;
+   return formatoTelefono.test(limpio);
 }
 
 //Exportamos funciones
