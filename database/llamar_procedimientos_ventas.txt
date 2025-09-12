@@ -38,3 +38,10 @@ async function obtenerVenta(idVenta) {
   const [rows] = await pool.query("CALL obtenerVenta(?)", [idVenta]);
   return rows[0]; 
 }
+
+/* LLAMAR AL PROCEDIMIENTO obtenerDetalleVenta (por ID) */
+async function obtenerDetalleVenta(idVenta) {
+  const [rows] = await pool.query("CALL obtenerDetalleVenta(?)", [idVenta]);
+  return rows[0]; 
+}
+

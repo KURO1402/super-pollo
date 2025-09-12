@@ -83,7 +83,7 @@ BEGIN
     LIMIT 20 OFFSET v_offset; # Limite de resultados por pagina
 END //
 
-/* PROCEDIMIENTO ALMACENADO obtenerVenta (por ID)*/
+/* PROCEDIMIENTO ALMACENADO obtenerVenta (por ID) */
 CREATE PROCEDURE obtenerVenta(
     IN p_idVenta INT
 )
@@ -96,6 +96,24 @@ BEGIN
     INNER JOIN medioPago mp ON v.idMedioPago = mp.idMedioPago
     INNER JOIN tipoComprobantes tc ON v.idTipoComprobante = tc.idTipoComprobante
     WHERE v.idVenta = p_idVenta;
+END //
+
+/* PROCEDIMIENTO ALMACENADO obtenerDetalleVenta (por ID) */
+CREATE PROCEDURE obtenerDetalleVenta(
+    IN p_idVenta INT
+)
+BEGIN
+    SELECT 
+        dv.idDetalleVenta,
+        dv.idVenta,
+        dv.idProducto,
+        p.nombreProducto,
+        dv.cantidad,
+        dv.precioUnitario,
+        dv.subtotal
+    FROM detalleVentas dv
+    INNER JOIN productos p ON dv.idProducto = p.idProducto
+    WHERE dv.idVenta = p_idVenta;
 END //
 
 DELIMITER ;
