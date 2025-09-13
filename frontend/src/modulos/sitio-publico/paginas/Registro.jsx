@@ -1,27 +1,22 @@
 import { useState } from "react"; // importamos useState para el manejo del estado de Carga
 import FormularioRegistro from "../componentes/FormularioRegistro"; // importamos el formulario
-import { Link } from "react-router-dom"; // importamos Link para navegar a Inicio de Sesion
+import { Link, useNavigate } from "react-router-dom"; // importamos Link para navegar a Inicio de Sesion
+import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacionGlobal";
 
 const Registro = () => {
-    // manejo del estado de Carga para bloquear el formulario mientras se envian los datos, empieza el false
-  const [estaCargando, setEstaCargando] = useState(false);
-
+  // obtenemos la funcion de registrar del estado global
+  const registrar = useAutenticacionGlobal((state) => state.registrar); 
+  // obtenemos el estado de carga y error del estado global
+  const carga = useAutenticacionGlobal((state) => state.carga);
+  const error = useAutenticacionGlobal((state) => state.error);
+  // hook de navegacion para redirigir despues del registro
+  const navigate = useNavigate()
   // se activa cuando se da click al boton de crear cuenta en el formulario
   const handleRegistroSubmit = async (formularioData) => {
-    //activa el estado de carga para bloquear otros envios 
-    setEstaCargando(true);
-    
-    try {
-      // Aquí iría la lógica para enviar los datos al servidor
-      console.log('Datos del formulario:', formularioData); // mostrar los datos obtenidos por consola
-
-    } catch (error) {
-        // mostrar el error
-      console.error('Error en el registro:', error);
-      alert('Error al crear la cuenta. Por favor, intenta nuevamente.');
-    } finally {
-        //cambiar el estado de carga a false 
-      setEstaCargando(false);
+    const usuarioRegistrado = await registrar(formularioData); // llamamos a la funcion de registro del estado global
+    // si el usuario se registro correctamente
+    if (usuarioRegistrado){
+      navigate("/usuario"); // redirige a la zona de usuarios
     }
   };
 
@@ -54,7 +49,7 @@ const Registro = () => {
             <FormularioRegistro
              // Enviamos como props el handleRegistroSubmit y el estado de Carga 
               alEnviar={handleRegistroSubmit} 
-              estaCargando={estaCargando}
+              estaCargando={carga}
             />
             
             <p className="mt-6 text-center text-sm text-gray-600">
@@ -64,6 +59,12 @@ const Registro = () => {
                     Inicia sesión aquí
                 </Link>
             </p>
+            {/* mostrar el error si existe mejorar más adelante el estilo*/}
+            {error && (
+              <p className="mt-4 text-center text-red-500">
+                {error}
+              </p>
+            )}
           </div>
         </div>
       </div>

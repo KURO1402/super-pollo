@@ -16,6 +16,8 @@ import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 
 // importamos el hook 
 import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
+// importamos el componente de ruta privada con rol
+import RutaPrivadaConRol from "./RutaPrivadaConRol"; 
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -36,19 +38,41 @@ const AppRutas = () => {
                 { path: '/inicio-sesion', element: <InicioSesion /> },
             ]
         },
+
+        // Rutas protegidas según rol
+        {
+            path: '/admin', // ruta padre para el panel de admin
+            element: <RutaPrivadaConRol rolesPermitidos={[1, 2]} />, // solo superadmin y admin
+            children: [
+                { // se renderiza en el Outelt del componente RutaprivadaconRol
+                element: <EstructuraBaseAdmin />, // la estructura base del panel
+                children: [
+                    { index: true, element: <PanelDeControl /> }] // ruta por defecto del panel de admin
+                }
+            ]
+        },
+
+        { // ruta padre para superadmin
+            path: '/superadmin',
+            element: <RutaPrivadaConRol rolesPermitidos={[1]} />, // solo el superadmin 
+            children: [
+                { index: true, element: <h1>Zona Superadmin</h1> } // ruta por defecto
+            ]
+        },
+
+        { // ruta padre para usuarios, aun quue no se si va a ver alguna, pero por si acaso 
+            path: '/usuario',
+            element: <RutaPrivadaConRol rolesPermitidos={[3]} />, // solo usuarios
+            children: [ // ruta por defecto 
+                { index: true, element: <h1>Zona Usuarios</h1> }
+            ]
+        },
+
         // Cualquier ruta que no existe
         { path: '*', element: <NotFound /> },
-
-        // rutas de administrador
-        {
-            path: '/admin', element: <EstructuraBaseAdmin />,
-            children: [
-                { index: true, element: <PanelDeControl />}
-            ]
-        }
     ])
     // retornamos las rutas generadas 
     return rutas;
 }
 
-export default AppRutas
+export default AppRutas;

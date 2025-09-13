@@ -24,7 +24,7 @@ const CampoSelect = ({
         {/* elemento select con estilos condicionales segun si hay icono o error */}
         <select
           id={id} // Asocia el select con el label por su ID
-          {...registro(nombre)} //se registra el campo en el formulario
+          {...registro(nombre)}  //se registra el campo en el formulario
           // clases dinánimas para el icono y los mensajes de la validacion
           className={`
             ${Icono ? 'pl-10' : 'pl-4'}
@@ -39,7 +39,7 @@ const CampoSelect = ({
           </option>
           {/* mapeo de las opciones que recibe el componente para mostrarlas como opciones del select */}
           {opciones.map((opcion) => (
-            <option key={opcion.valor} value={opcion.valor} className="absolute text-gray-500">
+            <option key={opcion.id} value={opcion.id} className="absolute text-gray-500">
               {opcion.valor}
             </option>
           ))}
