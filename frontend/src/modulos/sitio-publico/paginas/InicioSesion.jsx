@@ -1,29 +1,29 @@
 import { useState } from 'react';
 // Importa el componente del formulario de inicio de sesion
 import FormularioInicioSesion from '../componentes/FormularioInicioSesion';
-import { Link } from 'react-router-dom'; // Para navegar a registro
+import { Link, useNavigate } from 'react-router-dom'; // Para navegar a registro
+// Importamos el estado global de autenticacion
+import { useAutenticacionGlobal } from '../../../app/estado-global/autenticacionGlobal';
 
 const InicioSesion = ()=> {
-  // Estado para mostrar si el formulario está cargando, igual que el otro de registro
-  const [estaCargando, setEstaCargando] = useState(false);
+  const login = useAutenticacionGlobal((state) => state.login); // obtenemos la funcion de login del estado global
+  const carga = useAutenticacionGlobal((state) => state.carga); // obtenemos el estado de carga del estado global
+  const error = useAutenticacionGlobal((state) => state.error); // obtenemos el estado de error del estado global
+  const navigate = useNavigate(); // hook de navegacion para redirigir despues del login
 
   //funcion que se ejecuta al enviar el formulario
   const manejarEnvioInicioSesion = async (datosFormulario) => {
-    setEstaCargando(true); // activa el estade de carga
-    
-    try { 
-      // Aqui iria la lógica para enviar los datos al servidor
-      console.log('Datos del formulario de inicio de sesión:', datosFormulario);
-      // notoficacion simple al usuario
-      alert('¡Inicio de sesión exitoso!');
-      
-    } catch (error) {
-      // manejo de errores
-      console.error('Error en el inicio de sesión:', error);
-      alert('Error al iniciar sesión. Por favor, verifica tus credenciales.');
-    } finally {
-      //finaliza el estado de carga sin importar el resultado
-      setEstaCargando(false);
+    console.log('Datos del formulario de inicio de sesión:', datosFormulario);
+    const usuarioLogueado = await login(datosFormulario); // llamamos a la funcion de login del estado global
+    // si el usuario se logueo correctamente
+    if (usuarioLogueado){
+      if (usuarioLogueado.idRol === 1) {
+        navigate("/superadmin"); // redirige a la zona de admin
+      } else if (usuarioLogueado.idRol === 2) {
+        navigate("/admin"); // redirige a la zona de admin
+      } else {
+        navigate("/usuario"); // redirige a la zona de usuarios
+      }
     }
   };
 
@@ -56,7 +56,7 @@ const InicioSesion = ()=> {
             
             <FormularioInicioSesion 
               alEnviar={manejarEnvioInicioSesion}  // función a ejecutar al enviar
-              estaCargando={estaCargando}/// Estado de carga para mostrar loading
+              estaCargando={carga}/// Estado de carga para mostrar loading
             />
             {/* enlace para registrase si no tiene cuenta */} 
             <p className="mt-6 text-center text-sm text-gray-600">
@@ -65,6 +65,12 @@ const InicioSesion = ()=> {
                 Regístrate aquí
               </Link>
             </p>
+            {/* mostrar el error si existe mejorar más adelante el estilo*/}
+            {error && (
+              <p className="mt-4 text-center text-red-500">
+                {error}
+              </p>
+            )}
           </div>
         </div>
       </div>

@@ -16,3 +16,13 @@ export const registrarUsuario = async (datos) => {
         throw error; // lanzamos el error para manejarlo en el componente
     }
 }
+
+export const loginUsuario = async (datos) => {
+    try {
+        const respuesta = await API.post('/usuarios/login', datos); // tambien realizamos la peticion al backend
+        return respuesta.data; // devolvemos la respuesta del backend para usarla en el componente
+    } catch (error) {
+        console.error('Error al iniciar sesión (servicio):', error.response?.data || error.message);
+        throw error; // lanzamos el error para manejarlo en el componente
+    }
+}

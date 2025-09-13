@@ -3,8 +3,8 @@ import * as yup from 'yup';
 //define y exporta el esquema de validación para el formulario de inicio de sesión
 export const InicioSesionValidacion = yup.object().shape({
 
-  // validacion para el campo de correo electrónico
-  correoUsuario: yup
+  // solo se le cambio el nombre al campo de correo para que coincida con el name del input
+  email: yup
     .string()
     .required('El correo electrónico es obligatorio')
     .email('Ingresa un correo electrónico válido'),

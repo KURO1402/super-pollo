@@ -1,5 +1,5 @@
 import { create } from 'zustand'; // importamos zustand para crear el estado global
-import { registrarUsuario } from '../servicio/autenticacionServicio'; // importamos el servicio de autenticacion
+import { loginUsuario, registrarUsuario } from '../servicio/autenticacionServicio'; // importamos el servicio de autenticacion
 
 // creamos el estado global para la autenticacion
 export const useAutenticacionGlobal = create((set) => ({
@@ -19,5 +19,18 @@ export const useAutenticacionGlobal = create((set) => ({
         } finally {
             set({ carga: false }); // seteamos la carga a false
         }
-    }
+    },
+    
+    login: async ( datos ) => {
+        try {
+            set({ carga: true, erro: null }); // seteamos la carga a true y el error a null
+            const respuesta = await loginUsuario(datos); // llamamos al servicio de login
+            set({ usuario: respuesta.usuario, accessToken: respuesta.accessToken,}); // seteamos el usuario y el token de acceso
+            return respuesta.usuario; // devolvemos el usuario logueado
+        } catch (err) {
+            set({ error: err.response?.data?.mensaje || 'Error al iniciar sesión' }); // seteamos el error
+        } finally {
+            set({ carga: false }); // seteamos la carga a false
+        }
+    },
 }))
