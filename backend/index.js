@@ -6,6 +6,10 @@ const cookieParser = require("cookie-parser");
 //ruta registrar usuario
 const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas.js");
 
+//ruta para ventas
+const ventasRoutes = require("./src/modulos/ventas/ventaRutas.js");
+
+
 const app = express();
 
 // Middlewares
@@ -23,6 +27,7 @@ app.get('/', (req, res) => {
 
 //usar rutas
 app.use('/usuarios', usuariosRoutes);
+app.use('/ventas', ventasRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
