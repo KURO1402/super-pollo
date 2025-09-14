@@ -18,8 +18,8 @@ async function insertarVenta(data) {
       data.totalVenta,
       data.aceptadaPorSunat,
       data.fechaRegistro,
-      data.urlCombrobantePDF,
-      data.urlCombrobanteXML,
+      data.urlComprobantePDF,
+      data.urlComprobanteXML,
       data.idMedioPago,
       data.idTipoComprobante
     ]
