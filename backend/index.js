@@ -10,7 +10,7 @@ const app = express();
 
 const corsOptions = {
   origin: 'http://localhost:5173',  // el origen específico permitido
-  credentials: true,                 // permite el envío de cookies y credenciales
+  credentials: true,                 // permite el envío de cookies y credenciale
 };
 
 // Middlewares
