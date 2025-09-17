@@ -13,10 +13,10 @@ import { useEffect, useState } from 'react'; // manejo de estados
 
 // datos de ejemplo, ya que esta informacion debe venir de la db
 const tipoDocumentoEjemplo = [
-  { valor: 'DNI' },
-  { valor: 'Carnet de Extranjería' },
-  { valor: 'Pasaporte' },
-  { valor: 'RUC' }
+  { id: 1, valor: 'DNI' },
+  { id: 2, valor: 'Carnet de Extranjería' },
+  { id: 3, valor: 'Pasaporte' },
+  { id: 4, valor: 'RUC' }
 ];
 
 // Función para obtener tipos de documento, en esta parte hiría la conexion a la API
@@ -50,7 +50,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         console.error('Error al cargar tipos de documento:', error);
         // En caso de error usar datos por defecto
         setTiposDocumento([
-          { valor: 'DNI' }
+          { id: 1, valor: 'DNI' }
         ]);
       }
     };
@@ -61,6 +61,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
   // Funcion que se ejecuta cuando se envia el formulario
   const manejarEnvioFormulario = async (datos) => {
     try {
+      console.log("Datos preparados para el backend:", datos);
       await alEnviar(datos); // Llama a la función que recibe los datos (prop)
       reset(); // Limpia el formulario después del envío exitoso
     } catch (error) {
@@ -135,14 +136,14 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
       {/* grid para documento */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CampoSelect
-          id="tipoDocumentoUsuario"
-          nombre="tipoDocumentoUsuario"
+          id="idTipoDocumento"
+          nombre="idTipoDocumento"
           etiqueta="Tipo de Documento"
           placeholder="Selecciona el tipo"
           opciones={tiposDocumento}
           icono={FaIdCard}
           registro={register}
-          error={errors.tipoDocumentoUsuario}
+          error={errors.idTipoDocumento}
         />
         
         <CampoEntrada

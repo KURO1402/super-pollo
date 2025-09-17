@@ -6,7 +6,7 @@ const CampoCheckbox = ({ id, nombre, etiqueta, registro, error, className = '' }
         <input
           type="checkbox" // tipo de campo
           id={id} // id único
-          {...registro(nombre)} // Registra el campo usando react-hook-form
+          /* {...registro(nombre)} */ // Registra el campo usando react-hook-form
           className={`
             h-4 w-4 text-azul-primario focus:ring-azul-primario border-gray-300 rounded
             ${error ? 'border-red-500' : ''}

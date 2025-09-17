@@ -33,14 +33,14 @@ const FormularioInicioSesion = ({ alEnviar, estaCargando = false }) => {
     <form onSubmit={handleSubmit(manejarEnvioFormulario)} className="space-y-6">
       {/* Correo electrónico */}
       <CampoEntrada
-        id="correoUsuario"
-        nombre="correoUsuario"
+        id="email"
+        nombre="email" // se cambio el name a email para que coincida con la validacion
         tipo="email"
         etiqueta="Correo Electrónico"
         marcadorPosicion="Ingresa tu correo electrónico"
         icono={FaEnvelope}
         registro={register}
-        error={errors.correoUsuario}
+        error={errors.email}
       />
       
       {/* Contraseña */}
