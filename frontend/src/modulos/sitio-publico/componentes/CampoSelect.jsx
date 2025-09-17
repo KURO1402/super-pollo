@@ -24,7 +24,7 @@ const CampoSelect = ({
         {/* elemento select con estilos condicionales segun si hay icono o error */}
         <select
           id={id} // Asocia el select con el label por su ID
-          {...registro(nombre)}  //se registra el campo en el formulario
+          {...registro(nombre, { valueAsNumber: true })}  //se registra el campo en el formulario
           // clases dinánimas para el icono y los mensajes de la validacion
           className={`
             ${Icono ? 'pl-10' : 'pl-4'}
