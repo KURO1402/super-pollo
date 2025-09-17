@@ -8,8 +8,13 @@ const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas.js");
 
 const app = express();
 
+const corsOptions = {
+  origin: 'http://localhost:5173',  // el origen específico permitido
+  credentials: true,                 // permite el envío de cookies y credenciales
+};
+
 // Middlewares
-app.use(cors()); // Permitir peticiones del frontend
+app.use(cors(corsOptions)); // Permitir peticiones del frontend
 app.use(cookieParser()); 
 app.use(express.json()); // Leer JSON en requests
 
