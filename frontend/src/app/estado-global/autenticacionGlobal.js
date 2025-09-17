@@ -1,5 +1,5 @@
 import { create } from 'zustand'; // importamos zustand para crear el estado global
-import { persist } from 'zustand/middleware'; //Importamos persist 
+import { persist } from 'zustand/middleware'; //Importamos persist para persistir el estado global auqnue se refresque la pagina
 import { loginUsuario, registrarUsuario } from '../servicio/autenticacionServicio'; // importamos el servicio de autenticacion
 
 // creamos el estado global para la autenticacion
