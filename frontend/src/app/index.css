@@ -9,6 +9,8 @@
   --font-sans: "Roboto", sans-serif;
 }
 
+@custom-variant dark (&:is(.dark *));
+
 .fondo-madera-oscuro {
   background-image: url('/Fondo_madera_oscuro.png');
   background-size: cover;
@@ -42,3 +44,4 @@
     min-height: auto;
   }
 }
+
