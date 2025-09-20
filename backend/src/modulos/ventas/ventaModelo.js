@@ -2,27 +2,16 @@
 const pool = require("../../config/conexionDB");
 
 /**
- * Modelo para insertar una nueva venta en la base de datos
- * @param {Object} datosVenta - Objeto con la información de la venta
- * @returns {Object} resultado de la inserción
+ * Modelo para insertar una nueva venta usando el procedimiento almacenado
  */
-
 const insertarVentaModel = async (datosVenta) => {
-  let conexion; // variable que guardara la conexion temporal a la BD
+  let conexion;
   try {
-    conexion = await pool.getConnection(); // aqui obtenemos la conexion del pool
+    conexion = await pool.getConnection();
 
-    await conexion.beginTransaction(); //Iniciamos una transacción para asegurar consistencia (todo o nada)
-
-    //ejecutamos el insert en la tabla ventascon los datos proporcionados
-    const [result] = await conexion.execute(
-      `INSERT INTO ventas(
-            numeroDocumentoCliente, serie, numeroCorrelativo, sunatTransaccion,
-            fechaEmision, fechaVencimiento, porcentajeIGV,
-            totalGravada, totalIGV, totalVenta, aceptadaPorSunat,
-            fechaRegistro, urlCombrobantePDF, urlCombrobanteXML,
-            idMedioPago, idTipoComprobante
-            )VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)`,
+    // Llamamos al procedimiento almacenado
+    const [rows] = await conexion.query(
+      `CALL insertarVenta(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         datosVenta.numeroDocumentoCliente,
         datosVenta.serie,
@@ -35,69 +24,64 @@ const insertarVentaModel = async (datosVenta) => {
         datosVenta.totalIGV,
         datosVenta.totalVenta,
         datosVenta.aceptadaPorSunat,
+        datosVenta.fechaRegistro = new Date(), 
         datosVenta.urlCombrobantePDF,
         datosVenta.urlCombrobanteXML,
         datosVenta.idMedioPago,
         datosVenta.idTipoComprobante,
-      ] // Estos son los valores que se insertarán en la tabla 'ventas'
+      ]
     );
 
-    await conexion.commit(); //confirmamos la transaccion, los datos se guardan en la DB
-    return result; // Devolvemos el resultado de la inserción
+    // rows[0] tendrá la respuesta, aunque insertarVenta no devuelve nada por ahora
+    return rows;
   } catch (err) {
-    //si falla revertimos los cambios
-    if(conexion) await conexion.rollback();
-    // mostramos los errores
-    console.error("Error en inserta ventas", err.message);//Error en consola
-    throw new Error("Error al insertar la venta en la base de datos"); //Error que elcontrolador maneja
+    console.error("Error en insertarVentaModel", err.message);
+    throw new Error("Error al insertar la venta en la base de datos");
   } finally {
-    //liberamos la conexion para que pueda reutilizarse
-    if(conexion) conexion.release();
+    if (conexion) conexion.release();
   }
 };
 
-//modelo para obtener las ventas con paginacion (20 en 20)
+/**
+ * Modelo para obtener ventas con paginación (20 en 20)
+ */
+const obtenerVentasModel = async (pagina = 1) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [rows] = await conexion.query(`CALL listarVentas(?)`, [pagina]);
 
-const obtenerVentasModel = async(offset = 0, limit = 20) => {
-    let conexion; //guardamos al conexion
-    try {
-        conexion = await pool.getConnection(); //Obtenemos la conexion del pool
-        const [rows] = await conexion.execute(
-            `SELECT * FROM ventas ORDER BY fechaRegistro DESC LIMIT ? OFFSET ?`, // Consulta SQL para obtener ventas ordenadas por fecha (más recientes primero)
-            [limit, offset]
-        );
-        return rows; // Devolvemos el array de ventas obtenidas
-    } catch (err) {
-        //mostramos los errores
-        console.errror("Error en obtener la ventas", err.message); //consola
-        throw new Error("Error al obtener ventas de la base de datos") //paar el controlador
-    } finally {
-        //Liberamos la conexion
-        if(conexion) conexion.release();
-    }
+    // Como CALL devuelve arrays anidados, usamos rows[0]
+    return rows[0];
+  } catch (err) {
+    console.error("Error en obtenerVentasModel", err.message);
+    throw new Error("Error al obtener ventas de la base de datos");
+  } finally {
+    if (conexion) conexion.release();
+  }
 };
 
-//Modelo para obtener una venta especifica
+/**
+ * Modelo para obtener una venta específica por ID
+ */
 const obtenerVentasIDModel = async (idVenta) => {
-    let conexion;//Obtenemos conexion del pool
-    try {
-        conexion = await pool.getConnection();
-        const [rows] = await conexion.execute(
-            `SELECT * FROM ventas WHERE idVenta = ?`, // Consulta SQL para obtener la venta con el ID especificado
-            [idVenta]
-        );
-        return rows.length > 0 ? rows[0]: null; // Si existe la venta la devolvemos y si no retornamos null
-    } catch (err) {
-        console.error("Error al obtener venta especifica", err.message);
-        throw new Error("Error al obtener venta por ID");
-    } finally {
-        if(conexion) conexion.release();
-    }
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [rows] = await conexion.query(`CALL obtenerVenta(?)`, [idVenta]);
+
+    // Devolvemos la primera fila si existe
+    return rows[0][0] || null;
+  } catch (err) {
+    console.error("Error en obtenerVentasIDModel", err.message);
+    throw new Error("Error al obtener venta por ID");
+  } finally {
+    if (conexion) conexion.release();
+  }
 };
 
-//Aqui exportamos los modelos para usarlos en controladores u otras partes del sistema
 module.exports = {
-    insertarVentaModel,
-    obtenerVentasModel,
-    obtenerVentasIDModel,
+  insertarVentaModel,
+  obtenerVentasModel,
+  obtenerVentasIDModel,
 };

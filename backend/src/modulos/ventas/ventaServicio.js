@@ -25,20 +25,17 @@ const registrarVentasService = async (datosVenta) => {
 };
 
 //Obtener ventas (paginacion de 20 en 20)
-const obtenerVentasService= async (pagina = 1, limite = 20) => {
-    const offset = (pagina - 1) * limite;
+const obtenerVentasService = async (pagina = 1) => {
+    const ventas = await obtenerVentasModel(pagina);
 
-    //consultamos ventas desde el modelo
-    const ventas = await obtenerVentasModel(offset, limite);
-
-    //retonamos las ventas junto con la paginacion
     return {
         pagina,
-        limite,
-        totalResultados: ventas.length, // cantidad de ventas en esta pagina
-        ventas, //array con las ventas
+        limite: 20, // fijo, porque el SP trae de 20 en 20
+        totalResultados: ventas.length,
+        ventas,
     };
 };
+
 
 //Obtener una venta por ID
 const obtenerVentasIDService = async (idVenta) => {
