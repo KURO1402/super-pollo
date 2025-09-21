@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
-export const Dropdown = ({
-  isOpen,
+export const Desplegable = ({
+  estaAbierto,
   onClose,
   children,
   className = ""
@@ -25,7 +25,7 @@ export const Dropdown = ({
     };
   }, [onClose]);
 
-  if (!isOpen) return null;
+  if (!estaAbierto) return null;
 
   return (
     <div

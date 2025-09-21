@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
-import BotonSecundario from "./BotonSecundario";
+import BotonSecundario from "../componentes/BotonSecundario";
 import NombreEmpresa from "../../../assets/imagenes/Nombre_Empresa.png";
 import Logo from "../../../assets/imagenes/Logo.svg";
 import UbicacionMapa from "../../../assets/imagenes/UbicacionMapa.png";

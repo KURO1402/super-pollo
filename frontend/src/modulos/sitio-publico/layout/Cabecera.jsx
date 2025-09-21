@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { BsPerson } from "react-icons/bs";
 import { HiMenu, HiX } from "react-icons/hi";
-import BarraNavegacion from "./BarraNavegacion";
-import BotonIniciarSesion from "./BotonIniciarSesion";
-import BotonRegistro from "./BotonRegistro";
+import BarraNavegacion from "../componentes/BarraNavegacion";
+import BotonIniciarSesion from "../componentes/BotonIniciarSesion";
+import BotonRegistro from "../componentes/BotonRegistro";
 import NombreEmpresa from "../../../assets/imagenes/Nombre_Empresa.png";
 import Logo from "../../../assets/imagenes/Logo.svg";
 

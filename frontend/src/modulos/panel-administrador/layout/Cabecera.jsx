@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 
 import { useSidebar } from "../context/SidebarContext";
 
-import { ThemeToggleButton } from "../components/ThemeToggleButton";
-import NotificationDropdown from "../components/NotificationDropdown";
-import UserDropdown from "../components/UserDropdown";
+import { BotonCambioTema } from "../componentes/BotonCambioTema";
+import DesplegableNotificacion from "../componentes/DesplegableNotificacion";
+import DesplegableUsuario from "../componentes/DesplegableUsuario";
 
-const AppHeader = () => {
+const Cabecera = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -90,17 +90,17 @@ const AppHeader = () => {
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
             {/* <!-- Dark Mode Toggler --> */}
-            <ThemeToggleButton />
+            <BotonCambioTema />
             {/* <!-- Dark Mode Toggler --> */}
-            <NotificationDropdown />
+            <DesplegableNotificacion />
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown />
+          <DesplegableUsuario />
         </div>
       </div>
     </header>
   );
 };
 
-export default AppHeader;
+export default Cabecera;

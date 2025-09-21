@@ -57,7 +57,7 @@ const navItems = [
   },
 ];
 
-const AppSidebar = () => {
+const MenuLateral = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
@@ -283,4 +283,4 @@ const AppSidebar = () => {
   );
 };
 
-export default AppSidebar;
+export default MenuLateral;

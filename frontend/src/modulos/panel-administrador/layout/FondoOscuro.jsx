@@ -1,6 +1,6 @@
 import { useSidebar } from "../context/SidebarContext";
 
-const Backdrop = () => {
+const FondoOscuro = () => {
   const { isMobileOpen, toggleMobileSidebar } = useSidebar();
 
   if (!isMobileOpen) return null;
@@ -13,4 +13,4 @@ const Backdrop = () => {
   );
 };
 
-export default Backdrop;
+export default FondoOscuro;

@@ -1,6 +1,6 @@
 import { useTheme } from "../context/ThemeContext";
 
-export const ThemeToggleButton= () => {
+export const BotonCambioTema= () => {
   const { toggleTheme } = useTheme();
 
   return (

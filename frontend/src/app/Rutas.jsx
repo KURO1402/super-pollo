@@ -8,7 +8,7 @@ import Registro from "../modulos/sitio-publico/paginas/Registro";
 import InicioSesion from "../modulos/sitio-publico/paginas/InicioSesion";
 
 // Administrador
-import EstructuraBaseAdmin from "../modulos/panel-administrador/layout/AppLayout";
+import EstructuraBaseAdmin from "../modulos/panel-administrador/layout/EstructuraBaseAdmin";
 import PanelDeControl from "../modulos/panel-administrador/paginas/PanelDeControl";
 
 // Página no encontrada
@@ -17,12 +17,11 @@ import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 // importamos el hook 
 import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
 // importamos el componente de ruta privada con rol
-import RutaPrivadaConRol from "./RutaPrivadaConRol"; 
-import AppLayout from "../modulos/panel-administrador/layout/AppLayout";
+import RutaPrivadaConRol from "./RutaPrivadaConRol";
 
 import Caja from "../modulos/panel-administrador/paginas/Caja";
 import HistorialComprobantes from "../modulos/panel-administrador/paginas/HistorialComprobantes";
-import GenerarVenta from "../modulos/panel-administrador/paginas/GenerarVenta";
+import GenerarVenta from "../modulos/panel-administrador/ventas/secciones/GenerarVentaSeccion";
 import Stock from "../modulos/panel-administrador/paginas/Stock";
 import Reservas from "../modulos/panel-administrador/paginas/Reservas";
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
@@ -50,7 +49,7 @@ const AppRutas = () => {
 
         {
             path: '/admin-provisional', // ruta provisional para el admin
-            element: <AppLayout />, // estructura base del panel de admin
+            element: <EstructuraBaseAdmin />, // estructura base del panel de admin
             children: [
                 { index: true, element: <PanelDeControl /> }, // ruta por defecto del panel de admin
                 { path: 'generar-venta', element: <GenerarVenta/> },

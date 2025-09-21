@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 
-export const DropdownItem = ({
+export const DesplegableItem = ({
   tag = "button",
   to,
   onClick,
@@ -9,7 +9,7 @@ export const DropdownItem = ({
   className = "",
   children,
 }) => {
-  const combinedClasses = `${baseClassName} ${className}`.trim();
+  const clasesCombinadas = `${baseClassName} ${className}`.trim();
 
   const handleClick = (event) => {
     if (tag === "button") {
@@ -21,14 +21,14 @@ export const DropdownItem = ({
 
   if (tag === "a" && to) {
     return (
-      <Link to={to} className={combinedClasses} onClick={handleClick}>
+      <Link to={to} className={clasesCombinadas} onClick={handleClick}>
         {children}
       </Link>
     );
   }
 
   return (
-    <button onClick={handleClick} className={combinedClasses}>
+    <button onClick={handleClick} className={clasesCombinadas}>
       {children}
     </button>
   );

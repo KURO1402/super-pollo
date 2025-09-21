@@ -1,24 +1,24 @@
 import { useState } from "react";
 
-import { Dropdown } from "./ui/dropdown/Dropdown";
-import { DropdownItem } from "./ui/dropdown/DropdownItem";
+import { Desplegable } from "./ui/desplegable/Desplegable";
+import { DesplegableItem } from "./ui/desplegable/DesplegableItem";
 
 import { Link } from "react-router";
 
-export default function UserDropdown() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function DesplegableUsuario() {
+  const [estaAbierto, setEstaAbierto] = useState(false);
 
-  function toggleDropdown() {
-    setIsOpen(!isOpen);
+  function alternarDesplegable() {
+    setEstaAbierto(!estaAbierto);
   }
 
-  function closeDropdown() {
-    setIsOpen(false);
+  function cerrarDesplegable() {
+    setEstaAbierto(false);
   }
   return (
     <div className="relative">
       <button
-        onClick={toggleDropdown}
+        onClick={alternarDesplegable}
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
@@ -28,7 +28,7 @@ export default function UserDropdown() {
         <span className="block mr-1 font-medium text-theme-sm">Musharof</span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
+            estaAbierto ? "rotate-180" : ""
           }`}
           width="18"
           height="20"
@@ -46,9 +46,9 @@ export default function UserDropdown() {
         </svg>
       </button>
 
-      <Dropdown
-        isOpen={isOpen}
-        onClose={closeDropdown}
+      <Desplegable
+        estaAbierto={estaAbierto}
+        onClose={cerrarDesplegable}
         className="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
       >
         <div>
@@ -62,8 +62,8 @@ export default function UserDropdown() {
 
         <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
           <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
+            <DesplegableItem
+              onItemClick={cerrarDesplegable}
               tag="a"
               to="/admin-provisional/perfil"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
@@ -84,11 +84,11 @@ export default function UserDropdown() {
                 />
               </svg>
               Edit profile
-            </DropdownItem>
+            </DesplegableItem>
           </li>
           <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
+            <DesplegableItem
+              onItemClick={cerrarDesplegable}
               tag="a"
               to="/profile"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
@@ -109,11 +109,11 @@ export default function UserDropdown() {
                 />
               </svg>
               Account settings
-            </DropdownItem>
+            </DesplegableItem>
           </li>
           <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
+            <DesplegableItem
+              onItemClick={cerrarDesplegable}
               tag="a"
               to="#"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
@@ -134,7 +134,7 @@ export default function UserDropdown() {
                 />
               </svg>
               Support
-            </DropdownItem>
+            </DesplegableItem>
           </li>
         </ul>
         <Link
@@ -158,7 +158,7 @@ export default function UserDropdown() {
           </svg>
           Sign out
         </Link>
-      </Dropdown>
+      </Desplegable>
     </div>
   );
 }
