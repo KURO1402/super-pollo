@@ -1,0 +1,93 @@
+/* CONEXION A MYSQL */
+const pool = require("./db"); 
+
+/* LLAMAR AL PROCEDIMIENTO listarTipoDocumento */
+async function listarTipoDocumento() {
+  const [rows] = await pool.query("CALL listarTipoDocumento()");
+  return rows[0]; 
+}
+
+/* LLAMAR AL PROCEDIMIENTO insertarReservacion */
+async function insertarReservacion(data) {
+  const [rows] = await pool.query(
+    "CALL insertarReservacion(?, ?, ?, ?, ?)",
+    [
+      data.fechaReservacion,
+      data.horaReservacion,
+      data.cantidadPersonas,
+      data.idUsuario,
+      data.idMesa
+    ]
+  );
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO listarReservaciones (20 en 20) */
+async function listarReservaciones(pagina) {
+  const [rows] = await pool.query("CALL listarReservaciones(?)", [pagina]);
+  return rows[0]; 
+}
+
+/* LLAMAR AL PROCEDIMIENTO obtenerReservacion (por ID) */
+async function obtenerReservacion(idReservacion) {
+  const [rows] = await pool.query("CALL obtenerReservacion(?)", [idReservacion]);
+  return rows[0]; 
+}
+
+/* LLAMAR AL PROCEDIMIENTO actualizarReservacion */
+async function actualizarReservacion(data) {
+  const [rows] = await pool.query(
+    "CALL actualizarReservacion(?, ?, ?, ?, ?, ?)",
+    [
+      data.idReservacion,
+      data.fechaReservacion,
+      data.horaReservacion,
+      data.cantidadPersonas,
+      data.estadoReservacion,
+      data.idMesa
+    ]
+  );
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO insertarPago (de Reservacion)*/
+async function insertarPago(data) {
+  const [rows] = await pool.query(
+    "CALL insertarPago(?, ?, ?, ?, ?, ?)",
+    [
+      data.montoTotal,
+      data.montoPagado,
+      data.porcentajePago,
+      data.idTransaccion,
+      data.estadoPago,
+      data.idReservacion
+    ]
+  );
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO obtenerPago (por ID de Reservacion) */
+async function obtenerPago(idReservacion) {
+  const [rows] = await pool.query("CALL obtenerPago(?)", [idReservacion]);
+  return rows[0]; 
+}
+
+/* LLAMAR AL PROCEDIMIENTO insertarDetalleReservacion */
+async function insertarDetalleReservacion(data) {
+  const [rows] = await pool.query(
+    "CALL insertarDetalleReservacion(?, ?, ?, ?)",
+    [
+      data.cantidadProductoReservacion,
+      data.precioUnitario,
+      data.idReservacion,
+      data.idProducto
+    ]
+  );
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO obtenerDetalleReservacion (por ID de Reservacion) */
+async function obtenerDetalleReservacion(idReservacion) {
+  const [rows] = await pool.query("CALL obtenerDetalleReservacion(?)", [idReservacion]);
+  return rows[0]; 
+}
