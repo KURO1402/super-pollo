@@ -3,8 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
 
-//ruta registrar usuario
-const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas.js");
+//rutas del modulo de autenticacion
+const usuariosRoutes = require("./src/modulos/autenticacion/autenticacionRutas.js");
 
 const app = express();
 
@@ -15,7 +15,7 @@ const corsOptions = {
 
 // Middlewares
 app.use(cors(corsOptions)); // Permitir peticiones del frontend
-app.use(cookieParser()); 
+app.use(cookieParser()); //Habilita lectura de cookies
 app.use(express.json()); // Leer JSON en requests
 
 // Variables de entorno
