@@ -4,7 +4,10 @@ const cors = require('cors');
 const cookieParser = require("cookie-parser");
 
 //rutas del modulo de autenticacion
-const usuariosRoutes = require("./src/modulos/autenticacion/autenticacionRutas.js");
+const autenticacionRoutes = require("./src/modulos/autenticacion/autenticacionRutas.js");
+
+//rutas del modulo de fuente de datos
+const fuenteDatosRouter = require("./src/modulos/fuenteDatos/fuenteDatosRutas.js")
 
 const app = express();
 
@@ -27,7 +30,8 @@ app.get('/', (req, res) => {
 });
 
 //usar rutas
-app.use('/usuarios', usuariosRoutes);
+app.use('/autenticacion', autenticacionRoutes);
+app.use('/fuente-datos', fuenteDatosRouter)
 
 // Iniciar servidor
 app.listen(PORT, () => {

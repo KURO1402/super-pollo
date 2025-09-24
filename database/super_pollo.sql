@@ -42,6 +42,6 @@ INSERT INTO rolUsuarios (nombreRol)
 VALUES ('Superadministrador'), ('Administrador'), ('Usuario');
 /* INSERTAR TIPO DOCUMENTO */
 INSERT INTO tipoDocumento (nombreTipoDocumento) 
-VALUES ('DNI'), ('RUC');
+VALUES ('DNI'), ('PASAPORTE'), ('CARNÉ DE EXTRANJERÍA');
 
 

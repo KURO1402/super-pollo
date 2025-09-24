@@ -1,5 +1,5 @@
 //Importamos al conexion a base de datos
-const pool = require("../../config/conexionDB");
+const pool = require("../../config/conexionDB.js");
 
 //MODELO PARA REGISTRAR USUARIO
 const insertarUsuarioModel = async (datos, claveEncriptada) => {

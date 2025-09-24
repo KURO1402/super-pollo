@@ -4,7 +4,7 @@ const {
     insertarUsuarioController, 
     seleccionarUsuarioController, 
     renovarAccessTokenController 
-} = require("./autenticacionControlador");
+} = require("./autenticacionControlador.js");
 
 //creamos en router
 const router = express.Router();

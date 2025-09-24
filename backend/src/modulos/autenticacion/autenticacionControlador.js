@@ -1,4 +1,4 @@
-const { registrarUsuarioService, seleccionarUsuarioService, renovarAccessTokenService } = require("./autenticacionServicio");
+const { registrarUsuarioService, seleccionarUsuarioService, renovarAccessTokenService } = require("./autenticacionServicio.js");
 
 //CONTROLADOR PAR INSERTAR USUARIO
 const insertarUsuarioController = async (req, res) => {

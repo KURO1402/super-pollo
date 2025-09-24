@@ -1,8 +1,8 @@
 require('dotenv').config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { validarCorreo, validarDocumento, validarTelefono } = require("../../utilidades/validaciones");
-const { insertarUsuarioModel, seleccionarUsuarioModel } = require("./autenticacionModelo");
+const { validarCorreo, validarDocumento, validarTelefono } = require("../../utilidades/validaciones.js");
+const { insertarUsuarioModel, seleccionarUsuarioModel } = require("./autenticacionModelo.js");
 
 // FUNCION PARA REGISTRAR USUARIO
 const registrarUsuarioService = async (datos) => {
