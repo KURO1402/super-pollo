@@ -11,18 +11,8 @@ import CampoSelect from './CampoSelect'; // importamos nuestro componente reutil
 import { registroValidacion } from '../validaciones/registroValidacion';
 import { useEffect, useState } from 'react'; // manejo de estados
 
-// datos de ejemplo, ya que esta informacion debe venir de la db
-const tipoDocumentoEjemplo = [
-  { id: 1, valor: 'DNI' },
-  { id: 2, valor: 'Carnet de Extranjería' },
-  { id: 3, valor: 'Pasaporte' },
-  { id: 4, valor: 'RUC' }
-];
-
-// Función para obtener tipos de documento, en esta parte hiría la conexion a la API
-const obtenerTiposDocumento = async () => {
-  return tipoDocumentoEjemplo; // de vuelve los datos de prueba
-};
+//Importamos el servico que trae los tipos de docuemento
+import { obtenerTiposDocumento } from '../servicios/tiposDocService.js';
 
 // resive dos parametros que le enviamos en Registro.jxs
 const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
@@ -35,7 +25,10 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
     reset, // para limpiar el formulario
   } = useForm({
     resolver: yupResolver(registroValidacion), // usamos la validación con yup
-    mode: 'onChange' // Validación en tiempo real
+    mode: 'onChange', // Validación en tiempo real
+    defaultValues: {
+      idTipoDocumento: 1, // DNI por defecto
+    },
   });
 
   // Funcion para cargar los tipos de documentos
@@ -50,7 +43,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         console.error('Error al cargar tipos de documento:', error);
         // En caso de error usar datos por defecto
         setTiposDocumento([
-          { id: 1, valor: 'DNI' }
+          { idTipoDocumento: 1, nombreTipoDocumento: 'DNI' }
         ]);
       }
     };
