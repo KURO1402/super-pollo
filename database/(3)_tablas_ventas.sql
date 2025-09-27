@@ -99,4 +99,4 @@ INSERT INTO tipoComprobantes (nombreTipoComprobante)
 VALUES ('Boleta'), ('Factura');
 /* INSERTAR MEDIOS PAGOS */
 INSERT INTO medioPago (nombreMedioPago) 
-VALUES ('Efectivo'), ('Tarjeta'), ('Billetera Digital');
+VALUES ('Efectivo'), ('Tarjeta'), ('Billetera digital');

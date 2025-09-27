@@ -5,6 +5,7 @@ DROP PROCEDURE IF EXISTS insertarRol;
 DROP PROCEDURE IF EXISTS listarRoles;
 DROP PROCEDURE IF EXISTS actualizarRol;
 DROP PROCEDURE IF EXISTS eliminarRol;
+DROP PROCEDURE IF EXISTS listarTipoDocumento;
 DROP PROCEDURE IF EXISTS insertarUsuario;
 DROP PROCEDURE IF EXISTS listarUsuarios;
 DROP PROCEDURE IF EXISTS actualizarUsuario;
@@ -48,6 +49,13 @@ CREATE PROCEDURE eliminarRol(
 BEGIN
     DELETE FROM rolUsuarios 
     WHERE idRol = p_idRol;
+END //
+
+/* PROCEDIMIENTO ALMACENADO listarTipoDocumento */
+CREATE PROCEDURE listarTipoDocumento()
+BEGIN
+    SELECT idTipoDocumento, nombreTipoDocumento
+    FROM tipoDocumento;    
 END //
 
 /* PROCEDIMIENTO ALMACENADO insertarUsuario */
@@ -148,7 +156,7 @@ BEGIN
     WHERE idUsuario = p_idUsuario;
 END //
 
-/* PROCEDIMIENTO ALMACENADO iniciarSesion */ 
+/* PROCEDIMIENTO ALMACENADO seleccionarUsuario */ 
 CREATE PROCEDURE seleccionarUsuario(
     IN p_correoUsuario VARCHAR(50)
 )

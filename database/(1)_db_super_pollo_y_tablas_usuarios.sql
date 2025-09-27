@@ -39,7 +39,7 @@ idUsuario INT,
 FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
 );
 
-/* INSERTAR ROLES USUARIOS*/
+/* INSERTAR ROLES USUARIOS */
 INSERT INTO rolUsuarios (nombreRol) 
 VALUES ('Superadministrador'), ('Administrador'), ('Usuario');
 /* INSERTAR TIPOS DOCUMENTOS */
