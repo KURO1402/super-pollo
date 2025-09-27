@@ -21,6 +21,14 @@ export const useVentaEstadoGlobal = create((set, get) => ({ // set para actualiz
         } // utilizamos Math.max para que no baje de 0
     })), 
 
+    // Nueva función para actualizar la cantidad directamente
+    setCantidad: (id, cantidad) => set((state) => ({
+        cantidades: {
+            ...state.cantidades,
+            [id]: cantidad,
+        }
+    })),
+
     // funcion para agregar un producto al detalle de la venta
     agregarProducto: (producto) => {
         const { detalle, cantidades } = get(); // obtenemos el detalle y las cantidades del estado

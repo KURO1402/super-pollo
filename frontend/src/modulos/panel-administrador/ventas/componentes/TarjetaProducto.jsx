@@ -3,25 +3,17 @@ import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
 
 export const TarjetaProducto = ({ producto }) => {
   // extraemos las funciones y el estado global de useVentaEstadoGlobal
-  const { cantidades, aumentarCantidad, disminuirCantidad, agregarProducto } = useVentaEstadoGlobal();
+  const { cantidades, aumentarCantidad, disminuirCantidad, agregarProducto, setCantidad } = useVentaEstadoGlobal(state => state);
 
   // obtenemos la cantidad temporal del producto desde el estado global
   const cantidad = cantidades[producto.id] || 0;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-      <img
-        src={producto.imagen}
-        alt={producto.nombre}
-        className="w-full h-32 object-cover rounded mb-3"
-      />
       <div className="mb-3">
         <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
           {producto.nombre}
         </h3>
-        <p className="text-gray-500 dark:text-gray-400 text-xs">
-          {producto.categoria}
-        </p>
         <p className="text-lg font-bold text-blue-600 mt-1">
           S/ {producto.precio}
         </p>
@@ -36,7 +28,14 @@ export const TarjetaProducto = ({ producto }) => {
         >
           <FiMinus size={14} />
         </button>
-        <span className="font-bold text-lg dark:text-gray-300">{cantidad}</span>
+        <input
+          value={cantidad}
+          onChange={(e) => {
+            const nuevaCantidad = Math.max(e.target.value, 0); // Asegurarse de que la cantidad no sea negativa
+            setCantidad(producto.id, nuevaCantidad);
+          }}
+          className="font-bold text-lg w-5 dark:text-gray-300"
+        />
         <button
         // llamamos a la funcion aumentarCantidad 
           onClick={() => aumentarCantidad(producto.id)}

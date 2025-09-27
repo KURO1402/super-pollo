@@ -13,7 +13,7 @@ export const Tabla = ({ encabezados ,registros }) => {
             </tr>
           </thead>
            <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
-            {registros} {/* renderizamos toaas las filas */}
+            {registros} 
           </tbody>
         </table>
       </div>

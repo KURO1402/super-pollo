@@ -1,42 +1,33 @@
-import { useState } from "react";
 import { comprobantes } from "../data-temporal/comprobantes";
-
 import { Tabla } from "../../componentes/tabla/Tabla";
 import { FilaComprobante } from "../componentes/FilaComprobante";  // Importamos el componente personalizado
 import { BarraBusqueda } from "../../componentes/busqueda-filtros/BarraBusqueda"; 
 import { FiltroBusqueda } from "../../componentes/busqueda-filtros/FiltroBusqueda";
 import { Paginacion } from "../../componentes/tabla/Paginacion";
+// importamos los hooks que vamos a utilizar
+import { useBusqueda } from "../../hooks/useBusqueda"; 
+import { useFiltro } from "../../hooks/useFiltro";
+import { usePaginacion } from "../../hooks/usePaginacion";
 
 const RegistroVentasSeccion = () => {
-  const [paginaActual, setPaginaActual] = useState(1); // estado para la página actual
-  const itemsPorPagina = 5; // Por ahora solo 5
+  // desestructuramos los hooks para extraer los valores o funciones de cada uno
+  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); 
+  const { filtro, setFiltro, aplicarFiltros } = useFiltro();
+  const { paginaActual, setPaginaActual, paginar } = usePaginacion(5);
+  // utilizamos la función de useBusqueda, donde le pasamos los parametros de comprobantes para item y los campos
+  let filtrados = filtrarPorBusqueda(comprobantes, [
+    "serie",
+    "correlativo",
+    "cliente",
+    "rucDni", 
+  ]);
+  filtrados = aplicarFiltros(filtrados); // utilizamos la funcion para aplicar los filtros
 
-  // estado para el filtro de estado del comprobante y el termino de busqueda
-  const [filtroEstado, setFiltroEstado] = useState("todos");
-  // estado para el trrmino de busqueda
-  const [terminoBusqueda, setTerminoBusqueda] = useState("");
-  // filtramos los comprobantes según el término de búsqueda y el filtro de estado
-  const comprobantesFiltrados = comprobantes.filter((c) => {
-    // verificamos si el comprobante coincide con el término de busqueda y el filtro de estado
-    const coincideBusqueda =
-      c.serie.toLowerCase().includes(terminoBusqueda.toLowerCase()) || // buscamos en serie
-      c.correlativo.toLowerCase().includes(terminoBusqueda.toLowerCase()) || // buscamos en correlativo
-      c.cliente.toLowerCase().includes(terminoBusqueda.toLowerCase()) || // en cliente
-      c.rucDni.includes(terminoBusqueda); // en ruc/dni
-    // verificamos si el comprobante coincide con el filtro de estado
-    const coincideEstado = filtroEstado === "todos" || c.estado === filtroEstado;
-    // retornamos true si coincide con ambos filtros
-    return coincideBusqueda && coincideEstado;
-  });
-
-  // aplica paginacion
-  const totalPaginas = Math.ceil(comprobantesFiltrados.length / itemsPorPagina);
-  const inicio = (paginaActual - 1) * itemsPorPagina;
-  const comprobantesPaginados = comprobantesFiltrados.slice(inicio, inicio + itemsPorPagina);
-
-  // Mapeamos los comprobantes a filas personalizadas
-  const filasComprobantes = comprobantesPaginados.map((comprobante) => (
-    <FilaComprobante key={comprobante.id} comprobante={comprobante} /> 
+  const { datosPaginados, totalPaginas } = paginar(filtrados); // llamamos a la funcion de paginar y le enviamos los datos filtrados
+  // nos devuelde los datoPaginados y el total de paginas y las guardamos
+  // mapeamos los comprobantes para que se muestren en la tabla, con los datos Paginados
+  const filasComprobantes = datosPaginados.map((c) => (
+    <FilaComprobante key={c.id} comprobante={c} />
   ));
 
   return (
@@ -57,8 +48,8 @@ const RegistroVentasSeccion = () => {
   
           {/* Filtro por estado */}
           <FiltroBusqueda
-            valor={filtroEstado}
-            onChange={setFiltroEstado} 
+            valor={filtro}
+            onChange={setFiltro} 
             opciones={[
               { value: "todos", label: "Todos los estados" },
               { value: "aceptado", label: "Aceptados" },
