@@ -11,7 +11,7 @@ DROP PROCEDURE IF EXISTS listarUsuarios;
 DROP PROCEDURE IF EXISTS actualizarUsuario;
 DROP PROCEDURE IF EXISTS actualizarClave;
 DROP PROCEDURE IF EXISTS eliminarUsuario;
-DROP PROCEDURE IF EXISTS iniciarSesion;
+DROP PROCEDURE IF EXISTS seleccionarUsuario;
 
 DELIMITER //
 
