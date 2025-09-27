@@ -1,4 +1,6 @@
-CREATE DATABASE IF NOT EXISTS super_pollo;
+DROP DATABASE IF EXISTS super_pollo;
+CREATE DATABASE super_pollo;
+
 USE super_pollo;
 
 CREATE TABLE rolUsuarios (
@@ -18,7 +20,7 @@ apellidosUsuario VARCHAR(50) NOT NULL,
 correoUsuario VARCHAR(50) NOT NULL UNIQUE,
 clave CHAR(60) NOT NULL,
 numeroDocumentoUsuario VARCHAR(12) NOT NULL,
-telefonoUsuario VARCHAR(15) NULL,
+telefonoUsuario VARCHAR(15) NOT NULL,
 estadoUsuario ENUM('1','0') NOT NULL DEFAULT '1',
 idRol INT DEFAULT 3,
 idTipoDocumento INT,
@@ -37,11 +39,11 @@ idUsuario INT,
 FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
 );
 
-/* INSERTAR ROLES */
+/* INSERTAR ROLES USUARIOS*/
 INSERT INTO rolUsuarios (nombreRol) 
 VALUES ('Superadministrador'), ('Administrador'), ('Usuario');
-/* INSERTAR TIPO DOCUMENTO */
+/* INSERTAR TIPOS DOCUMENTOS */
 INSERT INTO tipoDocumento (nombreTipoDocumento) 
-VALUES ('DNI'), ('PASAPORTE'), ('CARNÉ DE EXTRANJERÍA');
+VALUES ('DNI'), ('Pasaporte'), ('Carné de extranjería');
 
 

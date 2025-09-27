@@ -1,14 +1,14 @@
 USE super_pollo;
 
-/*MODIFICACION PARA QUE TELEFONO SEA NOT NULL*/
-ALTER TABLE usuarios
-MODIFY COLUMN telefonoUsuario VARCHAR(15) NOT NULL;
+DROP TABLE IF EXISTS detalleVentas;
+DROP TABLE IF EXISTS ventas;
+DROP TABLE IF EXISTS medioPago;
+DROP TABLE IF EXISTS tipoComprobantes;
+DROP TABLE IF EXISTS cantidadInsumoProducto;
+DROP TABLE IF EXISTS productos;
+DROP TABLE IF EXISTS movimientosStock;
+DROP TABLE IF EXISTS insumos;
 
-/*MODIFICACION PARA QUE idRol SEA DEFAULT*/
-ALTER TABLE usuarios
-ALTER COLUMN idRol SET DEFAULT 3;
-
-/*CREACION DE TABLAS DE VENTAS*/
 CREATE TABLE insumos(
 idInsumo INT PRIMARY KEY AUTO_INCREMENT,
 nombreInsumo VARCHAR(50) NOT NULL,
@@ -72,8 +72,8 @@ totalIGV DECIMAL(10,2) NOT NULL,
 totalVenta DECIMAL(10,2) NOT NULL,
 aceptadaPorSunat TINYINT NOT NULL,
 fechaRegistro DATETIME NOT NULL,
-urlCombrobantePDF VARCHAR(100),
-urlCombrobanteXML VARCHAR(100),
+urlComprobantePDF VARCHAR(100),
+urlComprobanteXML VARCHAR(100),
 idMedioPago INT,
 idTipoComprobante INT,
 FOREIGN KEY (idMedioPago) REFERENCES medioPago(idMedioPago),
@@ -94,9 +94,9 @@ FOREIGN KEY (idVenta) REFERENCES ventas(idVenta),
 FOREIGN KEY (idProducto) REFERENCES productos(idProducto)
 );
 
-/* INSERTAR SEED DATA */
+/* INSERTAR TIPOS COMPROBANTES */
 INSERT INTO tipoComprobantes (nombreTipoComprobante) 
 VALUES ('Boleta'), ('Factura');
-
+/* INSERTAR MEDIOS PAGOS */
 INSERT INTO medioPago (nombreMedioPago) 
 VALUES ('Efectivo'), ('Tarjeta'), ('Billetera Digital');

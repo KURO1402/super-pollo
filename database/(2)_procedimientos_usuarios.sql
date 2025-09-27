@@ -1,5 +1,17 @@
 USE super_pollo;
 
+/* ELIMINAR PROCEDIMIENTOS SI YA EXISTEN */
+DROP PROCEDURE IF EXISTS insertarRol;
+DROP PROCEDURE IF EXISTS listarRoles;
+DROP PROCEDURE IF EXISTS actualizarRol;
+DROP PROCEDURE IF EXISTS eliminarRol;
+DROP PROCEDURE IF EXISTS insertarUsuario;
+DROP PROCEDURE IF EXISTS listarUsuarios;
+DROP PROCEDURE IF EXISTS actualizarUsuario;
+DROP PROCEDURE IF EXISTS actualizarClave;
+DROP PROCEDURE IF EXISTS eliminarUsuario;
+DROP PROCEDURE IF EXISTS iniciarSesion;
+
 DELIMITER //
 
 /* PROCEDIMIENTO ALMACENADO insertarRol */
@@ -49,7 +61,6 @@ CREATE PROCEDURE insertarUsuario (
     IN p_idTipoDocumento INT
 )
 BEGIN 
-    -- Insertamos el usuario
     INSERT INTO usuarios(
         nombresUsuario, 
         apellidosUsuario, 
@@ -69,7 +80,7 @@ BEGIN
         p_idTipoDocumento
     );
 
-    -- Retornamos el ID generado junto con nombre, apellido y rol
+    /* TRAER EL ULTIMO USUARIO INSERTADO */
     SELECT 
         u.idUsuario,
         u.nombresUsuario,

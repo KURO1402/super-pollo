@@ -1,5 +1,16 @@
 USE super_pollo;
 
+/* ELIMINAR PROCEDIMIENTOS SI YA EXISTEN */
+DROP PROCEDURE IF EXISTS listarTipoDocumento;
+DROP PROCEDURE IF EXISTS insertarReservacion;
+DROP PROCEDURE IF EXISTS listarReservaciones;
+DROP PROCEDURE IF EXISTS obtenerReservacion;
+DROP PROCEDURE IF EXISTS actualizarReservacion;
+DROP PROCEDURE IF EXISTS insertarPago;
+DROP PROCEDURE IF EXISTS obtenerPago;
+DROP PROCEDURE IF EXISTS insertarDetalleReservacion;
+DROP PROCEDURE IF EXISTS obtenerDetalleReservacion;
+
 DELIMITER //
 
 /* PROCEDIMIENTO ALMACENADO listarTipoDocumento */
