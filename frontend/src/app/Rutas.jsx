@@ -20,8 +20,8 @@ import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio"
 import RutaPrivadaConRol from "./RutaPrivadaConRol";
 
 import Caja from "../modulos/panel-administrador/paginas/Caja";
-import HistorialComprobantes from "../modulos/panel-administrador/paginas/HistorialComprobantes";
 import GenerarVenta from "../modulos/panel-administrador/ventas/secciones/GenerarVentaSeccion";
+import RegistroVentasSeccion from "../modulos/panel-administrador/ventas/secciones/RegistroVentasSeccion";
 import Stock from "../modulos/panel-administrador/paginas/Stock";
 import Reservas from "../modulos/panel-administrador/paginas/Reservas";
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
@@ -53,7 +53,7 @@ const AppRutas = () => {
             children: [
                 { index: true, element: <PanelDeControl /> }, // ruta por defecto del panel de admin
                 { path: 'generar-venta', element: <GenerarVenta/> },
-                { path: 'historial-comprobante', element: <HistorialComprobantes/> },
+                { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
                 { path: 'stock', element: <Stock/> },
                 { path: 'caja', element: <Caja/> },
                 { path: 'reservas', element: <Reservas/> },

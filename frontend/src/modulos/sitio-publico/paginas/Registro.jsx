@@ -1,4 +1,3 @@
-import { useState } from "react"; // importamos useState para el manejo del estado de Carga
 import FormularioRegistro from "../componentes/FormularioRegistro"; // importamos el formulario
 import { Link, useNavigate } from "react-router-dom"; // importamos Link para navegar a Inicio de Sesion
 import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacionGlobal";
