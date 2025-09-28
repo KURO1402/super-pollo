@@ -1,11 +1,14 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRutas from "./Rutas";
+import { ThemeProvider } from "../modulos/panel-administrador/context/ThemeContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppRutas />
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AppRutas />
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

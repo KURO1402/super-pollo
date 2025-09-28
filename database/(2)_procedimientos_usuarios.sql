@@ -1,5 +1,18 @@
 USE super_pollo;
 
+/* ELIMINAR PROCEDIMIENTOS SI YA EXISTEN */
+DROP PROCEDURE IF EXISTS insertarRol;
+DROP PROCEDURE IF EXISTS listarRoles;
+DROP PROCEDURE IF EXISTS actualizarRol;
+DROP PROCEDURE IF EXISTS eliminarRol;
+DROP PROCEDURE IF EXISTS listarTipoDocumento;
+DROP PROCEDURE IF EXISTS insertarUsuario;
+DROP PROCEDURE IF EXISTS listarUsuarios;
+DROP PROCEDURE IF EXISTS actualizarUsuario;
+DROP PROCEDURE IF EXISTS actualizarClave;
+DROP PROCEDURE IF EXISTS eliminarUsuario;
+DROP PROCEDURE IF EXISTS seleccionarUsuario;
+
 DELIMITER //
 
 /* PROCEDIMIENTO ALMACENADO insertarRol */
@@ -38,6 +51,13 @@ BEGIN
     WHERE idRol = p_idRol;
 END //
 
+/* PROCEDIMIENTO ALMACENADO listarTipoDocumento */
+CREATE PROCEDURE listarTipoDocumento()
+BEGIN
+    SELECT idTipoDocumento, nombreTipoDocumento
+    FROM tipoDocumento;    
+END //
+
 /* PROCEDIMIENTO ALMACENADO insertarUsuario */
 CREATE PROCEDURE insertarUsuario (
     IN p_nombresUsuario VARCHAR(50),
@@ -49,7 +69,6 @@ CREATE PROCEDURE insertarUsuario (
     IN p_idTipoDocumento INT
 )
 BEGIN 
-    -- Insertamos el usuario
     INSERT INTO usuarios(
         nombresUsuario, 
         apellidosUsuario, 
@@ -69,7 +88,7 @@ BEGIN
         p_idTipoDocumento
     );
 
-    -- Retornamos el ID generado junto con nombre, apellido y rol
+    /* TRAER EL ULTIMO USUARIO INSERTADO */
     SELECT 
         u.idUsuario,
         u.nombresUsuario,
@@ -137,7 +156,7 @@ BEGIN
     WHERE idUsuario = p_idUsuario;
 END //
 
-/* PROCEDIMIENTO ALMACENADO iniciarSesion */ 
+/* PROCEDIMIENTO ALMACENADO seleccionarUsuario */ 
 CREATE PROCEDURE seleccionarUsuario(
     IN p_correoUsuario VARCHAR(50)
 )

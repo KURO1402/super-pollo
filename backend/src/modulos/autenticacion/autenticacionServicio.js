@@ -1,8 +1,8 @@
 require('dotenv').config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { validarCorreo, validarDocumento, validarTelefono } = require("../../utilidades/validaciones");
-const { insertarUsuarioModel, seleccionarUsuarioModel } = require("./usuarioModelo");
+const { validarCorreo, validarDocumento, validarTelefono } = require("../../utilidades/validaciones.js");
+const { insertarUsuarioModel, seleccionarUsuarioModel } = require("./autenticacionModelo.js");
 
 // FUNCION PARA REGISTRAR USUARIO
 const registrarUsuarioService = async (datos) => {
@@ -152,36 +152,31 @@ const seleccionarUsuarioService = async ({ email, clave }) => {
   };
 }
 
-/* Ignara esto por ahora
 // REFRESCAR ACCESS TOKEN
-const refrescarTokenService = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
+const renovarAccessTokenService = async (refreshToken) => {
+  // Aquí usamos new Promise porque jwt.verify trabaja con callbacks, para poder decodificar el token con los datos del usuario
+  const usuario = await new Promise((resolve, reject) => {
+    // Verificamos si el refreshToken es válido y no ha expirado
+    jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, decoded) => {
+      if (err) reject(err);// Si hay error (token inválido o expirado) rechazamos la promesa
+      else resolve(decoded);// Si todo está bien, resolvemos la promesa con los datos decodificados del usuario
+    });
+  });
 
-  if (!refreshToken) {
-    return res.status(401).json({ error: "No hay refresh token" });
-  }
+  // Generamos un nuevo accessToken válido por 15 minutos
+  const nuevoAccessToken = jwt.sign(
+    { id: usuario.id, email: usuario.email },
+    process.env.ACCESS_SECRET,
+    { expiresIn: '15m' }
+  );
 
-  try {
-    // Verificar y decodificar el refresh token
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-
-    // Generar nuevo access token
-    const nuevoAccessToken = jwt.sign(
-      { id: decoded.id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_ACCESS_EXPIRATION || "20m" }
-    );
-
-    return res.json({ accessToken: nuevoAccessToken });
-
-  } catch (err) {
-    // Manejo específico de errores de JWT
-    return res.status(403).json({ error: "Refresh token inválido o expirado" });
-  }
-};*/
+  //Devolvemos el nuevo accestoken para el controlador
+  return nuevoAccessToken;
+};
 
 //Exportamos modulo
 module.exports = {
   registrarUsuarioService,
-  seleccionarUsuarioService
+  seleccionarUsuarioService,
+  renovarAccessTokenService
 };

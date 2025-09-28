@@ -1,4 +1,3 @@
-import { useState } from 'react';
 // Importa el componente del formulario de inicio de sesion
 import FormularioInicioSesion from '../componentes/FormularioInicioSesion';
 import { Link, useNavigate } from 'react-router-dom'; // Para navegar a registro

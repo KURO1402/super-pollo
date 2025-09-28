@@ -39,8 +39,8 @@ const CampoSelect = ({
           </option>
           {/* mapeo de las opciones que recibe el componente para mostrarlas como opciones del select */}
           {opciones.map((opcion) => (
-            <option key={opcion.id} value={opcion.id} className="absolute text-gray-500">
-              {opcion.valor}
+            <option key={opcion.idTipoDocumento} value={opcion.idTipoDocumento} className="absolute text-gray-500">
+              {opcion.nombreTipoDocumento}
             </option>
           ))}
         </select>

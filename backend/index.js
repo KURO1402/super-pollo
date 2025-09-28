@@ -3,8 +3,11 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
 
-//ruta registrar usuario
-const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas.js");
+//rutas del modulo de autenticacion
+const autenticacionRoutes = require("./src/modulos/autenticacion/autenticacionRutas.js");
+
+//rutas del modulo de fuente de datos
+const fuenteDatosRouter = require("./src/modulos/fuenteDatos/fuenteDatosRutas.js")
 
 //ruta para ventas
 const ventasRoutes = require("./src/modulos/ventas/ventaRutas.js");
@@ -19,7 +22,7 @@ const corsOptions = {
 
 // Middlewares
 app.use(cors(corsOptions)); // Permitir peticiones del frontend
-app.use(cookieParser()); 
+app.use(cookieParser()); //Habilita lectura de cookies
 app.use(express.json()); // Leer JSON en requests
 
 // Variables de entorno
@@ -31,8 +34,13 @@ app.get('/', (req, res) => {
 });
 
 //usar rutas
+<<<<<<< HEAD
 app.use('/usuarios', usuariosRoutes);
 app.use('/ventas', ventasRoutes);
+=======
+app.use('/autenticacion', autenticacionRoutes);
+app.use('/fuente-datos', fuenteDatosRouter)
+>>>>>>> 0acb3c2d573d60cfb796d14d1724b9fb005810be
 
 // Iniciar servidor
 app.listen(PORT, () => {

@@ -1,4 +1,4 @@
-const { registrarUsuarioService, seleccionarUsuarioService } = require("./usuarioServicio");
+const { registrarUsuarioService, seleccionarUsuarioService, renovarAccessTokenService } = require("./autenticacionServicio.js");
 
 //CONTROLADOR PAR INSERTAR USUARIO
 const insertarUsuarioController = async (req, res) => {
@@ -81,5 +81,32 @@ const seleccionarUsuarioController = async (req, res) => {
   }
 };
 
+//CONTROLADOR PARA REFRESCAR ACCESS TOKEN
+const renovarAccessTokenController = async (req, res) => {
+  try {
+    // Obtener el refresh token desde las cookies HttpOnly enviadas por el navegador
+    const refreshToken = req.cookies.refreshToken;
+    // Si no hay refresh token, devolvemos un error 401 (no autorizado)
+    if (!refreshToken) {
+      return res.status(401).json({ ok: false, mensaje: "No hay refresh token" });
+    }
+
+    // Llamamos al servicio para validar el refresh token y generar un nuevo access token
+    const nuevoAccessToken = await renovarAccessTokenService(refreshToken);
+
+    //Devolvemos el nuevo access token
+    return res.status(200).json({ ok: true, accessToken: nuevoAccessToken });
+
+  } catch (err) {
+    // Si hay algún error (token inválido o expirado), lo capturamos y respondemos segun corresponda
+    console.error("Error en renovarAccessTokenController:", err.message);
+    return res.status(403).json({ ok: false, mensaje: "Refresh token inválido o expirado" });
+  }
+};
+
 //Exportamos modulo
-module.exports = { insertarUsuarioController, seleccionarUsuarioController };
+module.exports = { 
+  insertarUsuarioController,
+  seleccionarUsuarioController,
+  renovarAccessTokenController
+};
