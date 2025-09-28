@@ -17,7 +17,16 @@ import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 // importamos el hook 
 import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
 // importamos el componente de ruta privada con rol
-import RutaPrivadaConRol from "./RutaPrivadaConRol"; 
+import RutaPrivadaConRol from "./RutaPrivadaConRol";
+
+import Caja from "../modulos/panel-administrador/paginas/Caja";
+import GenerarVenta from "../modulos/panel-administrador/ventas/secciones/GenerarVentaSeccion";
+import RegistroVentasSeccion from "../modulos/panel-administrador/ventas/secciones/RegistroVentasSeccion";
+import Stock from "../modulos/panel-administrador/paginas/Stock";
+import Reservas from "../modulos/panel-administrador/paginas/Reservas";
+import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
+import Perfil from "../modulos/panel-administrador/paginas/Perfil";
+import NuevoComprobanteSeccion from "../modulos/panel-administrador/ventas/secciones/NuevoComprobanteSeccion";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -39,8 +48,25 @@ const AppRutas = () => {
             ]
         },
 
-        // Rutas protegidas según rol
         {
+            path: '/admin-provisional', // ruta provisional para el admin
+            element: <EstructuraBaseAdmin />, // estructura base del panel de admin
+            children: [
+                { index: true, element: <PanelDeControl /> }, // ruta por defecto del panel de admin
+                { path: 'nuevo-comprobante', element: <NuevoComprobanteSeccion/> },
+                { path: 'generar-venta', element: <GenerarVenta/> },
+                { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
+                { path: 'stock', element: <Stock/> },
+                { path: 'caja', element: <Caja/> },
+                { path: 'reservas', element: <Reservas/> },
+                { path: 'usuarios', element: <Usuarios/> },
+                { path: 'perfil', element: <Perfil/> },
+
+            ]
+        },
+
+        // Rutas protegidas según rol
+        /* {
             path: '/admin', // ruta padre para el panel de admin
             element: <RutaPrivadaConRol rolesPermitidos={[1, 2]} />, // solo superadmin y admin
             children: [
@@ -66,7 +92,7 @@ const AppRutas = () => {
             children: [ // ruta por defecto 
                 { index: true, element: <h1>Zona Usuarios</h1> }
             ]
-        },
+        }, */
 
         // Cualquier ruta que no existe
         { path: '*', element: <NotFound /> },

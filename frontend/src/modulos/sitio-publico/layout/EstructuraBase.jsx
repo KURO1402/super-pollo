@@ -1,7 +1,8 @@
 import { Outlet } from "react-router-dom"; // Outlet practicamente sirve como punto de partida de la rutas hijas 
 // importamos la cabecera y pie de pagina 
-import Cabecera from "../componentes/Cabecera";
-import PiePagina from "../componentes/PiePagina";
+
+import Cabecera from "./Cabecera";
+import PiePagina from "./PiePagina";
 
 const EstructuraBase = () => {
   return (
