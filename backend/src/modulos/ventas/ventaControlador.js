@@ -9,38 +9,25 @@ const {
 const {validarVenta} = require("../../utilidades/validaciones")
 //Registrar ventas
 const registrarVentasController = async (req, res) => {
-  try {
-    // 1. Extraemos los datos enviados en el cuerpo de la peticion (del body)
-    const datosVenta = req.body;
-
-    //2. Adjuntamos el id del usuario autenticado
-    datosVenta.idUsuario = req.usuario?.idUsuario;
-
-    //validamos los datos
-    const errorValidacion = validarVenta(datosVenta);
-    if (errorValidacion) {
-      return res.status(400).json({
-        ok: false,
-        mensaje: errorValidacion
-    });
-}
-
-    //3. Llamamos al servicio
-    const resultado = await registrarVentasService(datosVenta);
-
-    //4. Respondemos con exito
-    return res.status(201).json({
-        ok: true,
-        mensaje: resultado.mensaje,
-        ventaId: resultado.ventaId
-    });
-  } catch (err) {
-    console.error("Error en Registrar venta(Controlador)", err.message);
-    return res.status(err.status || 500).json({
-        ok: false,
-        mensaje: err.message || "Error interno del servidor"
-    });
-  }
+    try {
+        const datosVenta = req.body;
+        
+        // Descomenta estas líneas:
+        const resultado = await registrarVentasService(datosVenta);
+        
+        return res.status(201).json({
+            ok: true,
+            mensaje: resultado.mensaje,
+            comprobante: resultado.comprobante
+        });
+        
+    } catch (err) {
+        console.error("Error en Registrar venta(Controlador)", err.message);
+        return res.status(err.status || 500).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
 };
 
 //Obtenr ventas con paginacion
@@ -60,7 +47,7 @@ const obtenerVentasController = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Error en obtener ventas (Controlador)", err.message);
+    console.error("Error en obtener ventas controller:", err.message);
     return res.status(err.status || 500).json({
       ok: false,
       mensaje: err.message || "Error interno en el servidor"

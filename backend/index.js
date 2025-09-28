@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
 });
 
 //usar rutas
-app.use('/usuarios', usuariosRoutes);
+app.use('/usuarios', autenticacionRoutes);
 app.use('/ventas', ventasRoutes);
 app.use('/autenticacion', autenticacionRoutes);
 app.use('/fuente-datos', fuenteDatosRouter)

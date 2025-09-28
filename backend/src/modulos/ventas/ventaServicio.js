@@ -5,23 +5,32 @@ const {
     obtenerVentasIDModel
 } = require('./ventaModelo');
 
+//Importamos el servico de nubefact
+const {
+    generarComprobanteNubefact
+} = require("../../servicios/nubefact.js")
+
 //Registrar venta
 
 const registrarVentasService = async (datosVenta) => {
-    //validamos los campos obligatorios
-    if (!datosVenta.numeroDocumentoCliente || !datosVenta.totalVenta) {
-        const error = new Error("Faltan datos obligatorios de la venta");
-        error.status = 400; //codigo de error http si los requeridos no estan presentes
-        throw error; //lanzamos el error para que lo capture el controlador
-    }
 
-    //Insertamos la venta en la BD usando el modelo
-    const nuevaVenta = await insertarVentaModel(datosVenta);
-    //retornamos el resultado con mensaje
-    return {
-        mensaje: "Venta Registrada con éxito",
-        ventaId: nuevaVenta.insertId || nuevaVenta.id,
-    };
+
+    // LLamamos al servicio de nubefact
+    const comprobante = await generarComprobanteNubefact(datosVenta);
+    
+    // Verificamos si hay errores
+    if (comprobante && comprobante.errors) {
+        console.log("Error en Nubefact:", comprobante.errors);
+        throw Object.assign(new Error(`Error Nubefact: ${comprobante.errors} - Código: ${comprobante.codigo}`), { status: 400 });
+    } else if (comprobante && comprobante.enlace_del_pdf) {
+        console.log("Comprobante generado exitosamente:", comprobante.enlace_del_pdf);
+        return { 
+            mensaje: "Venta Registrada con éxito", 
+            comprobante: comprobante 
+        };
+    } else {
+        throw new Error("Respuesta inesperada de Nubefact");
+    }
 };
 
 //Obtener ventas (paginacion de 20 en 20)
