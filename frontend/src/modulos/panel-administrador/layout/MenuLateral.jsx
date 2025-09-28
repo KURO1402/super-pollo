@@ -27,6 +27,7 @@ const navItems = [
     name: "Ventas",
     subItems: [
       { name: "Generar Venta", path: "/admin-provisional/generar-venta" },
+      { name: "Nuevo Comprobante", path: "/admin-provisional/nuevo-comprobante" },
       { name: "Historial de Comprobantes", path: "/admin-provisional/registro-ventas" },
     ],
   },

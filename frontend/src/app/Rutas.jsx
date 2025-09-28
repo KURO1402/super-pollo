@@ -26,6 +26,7 @@ import Stock from "../modulos/panel-administrador/paginas/Stock";
 import Reservas from "../modulos/panel-administrador/paginas/Reservas";
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
+import NuevoComprobanteSeccion from "../modulos/panel-administrador/ventas/secciones/NuevoComprobanteSeccion";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -52,6 +53,7 @@ const AppRutas = () => {
             element: <EstructuraBaseAdmin />, // estructura base del panel de admin
             children: [
                 { index: true, element: <PanelDeControl /> }, // ruta por defecto del panel de admin
+                { path: 'nuevo-comprobante', element: <NuevoComprobanteSeccion/> },
                 { path: 'generar-venta', element: <GenerarVenta/> },
                 { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
                 { path: 'stock', element: <Stock/> },

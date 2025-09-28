@@ -1,4 +1,7 @@
-export const ResumenVenta = ({ subtotal, impuesto, total }) => (
+import { useNavigate } from 'react-router-dom';
+export const ResumenVenta = ({ subtotal, impuesto, total }) => {
+  const navigate = useNavigate();
+  return (
   <>
     <div className="border-t pt-4 mb-4">
       <div className="flex justify-between mb-2 text-sm">
@@ -14,9 +17,12 @@ export const ResumenVenta = ({ subtotal, impuesto, total }) => (
         <span className="text-gray-800 dark:text-gray-300">S/ {total.toFixed(2)}</span>
       </div>
     </div>
-    <button className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-semibold">
+    <button 
+      onClick={() => navigate('/admin-provisional/nuevo-comprobante')}
+      className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-semibold cursor-pointer">
       Generar Venta - S/ {total.toFixed(2)}
     </button>
   </>
-);
+  )
+};
 
