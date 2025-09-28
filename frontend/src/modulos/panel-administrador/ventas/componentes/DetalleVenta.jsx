@@ -2,51 +2,56 @@ import { FiMinus } from "react-icons/fi";
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
 
 export const DetalleVenta = () => {
-    // extraemos el detalle y la funcion para remover productos del estado global
-  const { detalle, removerProducto } = useVentaEstadoGlobal();
-
+  const { detalle, removerProducto } = useVentaEstadoGlobal(); // vamos a usar el las funciones de detalle y remover productos
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
         Detalle de Venta
-      </h2>
-      <div className="space-y-3 mb-4 max-h-96 overflow-y-auto">
-        {/* si el detalle esta vacio mostramos un mensaje */}
-        {detalle.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
-            No hay productos agregados
-          </p>
-        ) : ( // caso contrario mostramos los productos del detalle
-          detalle.map((item) => (
-            // cada item del detalle
-            <div
-              key={item.id}
-              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded"
-            >
-              <div className="flex-1">
-                <p className="font-medium text-gray-900 dark:text-white text-sm">
-                  {item.nombre}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {item.cantidad} x S/ {item.precio.toFixed(2)}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-sm dark:text-white">
-                  S/ {( item.cantidad * item.precio).toFixed(2)}
-                </span>
-                <button
-                // boton para remover el producto del detalle
-                  onClick={() => removerProducto(item.id)}
-                  className="text-red-500 hover:text-red-700 p-1"
+      </h2> 
+      {detalle.length === 0 ? ( // si no hay productos mostramos esto
+        <p className="text-gray-500 text-center py-8">
+          No hay productos agregados
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
+            <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+              <tr>
+                <th className="px-4 py-2 text-left">Cantidad</th>
+                <th className="px-4 py-2 text-left">Producto</th>
+                <th className="px-4 py-2 text-right">Precio Unit.</th>
+                <th className="px-4 py-2 text-right">Total</th>
+                <th className="px-4 py-2 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody> 
+              {detalle.map((item) => ( // mapeamos todos los productos para mostrar las filas 
+                <tr
+                  key={item.id}
+                  className="border-t border-gray-200 dark:border-gray-600"
                 >
-                  <FiMinus size={14} />
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+                  <td className="px-4 py-2 dark:text-gray-200">{item.cantidad}</td> 
+                  <td className="px-4 py-2 dark:text-gray-200">{item.nombre}</td>
+                  <td className="px-4 py-2 text-right dark:text-gray-200">
+                    S/ {item.precio.toFixed(2)}
+                  </td>
+                  <td className="px-4 py-2 text-right font-semibold dark:text-gray-200">
+                    S/ {(item.cantidad * item.precio).toFixed(2)}
+                  </td>
+                  <td className="px-4 py-2 text-center">
+                    <button
+                      onClick={() => removerProducto(item.id)}
+                      className="text-red-500 hover:text-red-700 p-1"
+                    >
+                      <FiMinus size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

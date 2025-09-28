@@ -1,16 +1,18 @@
-import { useState } from "react";
-import { categorias } from "../data-temporal/categorias";
 import { productos } from "../data-temporal/productos";
-import { CategoriaFiltro } from "../componentes/CategoriaFiltro";
 import { TarjetaProducto } from "../componentes/TarjetaProducto";
 import { DetalleVenta } from "../componentes/DetalleVenta";
 import { ResumenVenta } from "../componentes/ResumenVenta";
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
+import { BarraBusqueda } from "../../componentes/busqueda-filtros/BarraBusqueda";
+import { useBusqueda } from "../../hooks/useBusqueda";
 
 const SeccionVentas = () => {
-  const [categoriaActiva, setCategoriaActiva] = useState("Todos");
+  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
   const { subtotal, impuesto, total } = useVentaEstadoGlobal();
 
+  let filtrados = filtrarPorBusqueda(productos, [
+    "nombre"
+  ]);
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -18,26 +20,23 @@ const SeccionVentas = () => {
         <p className="text-gray-600 dark:text-gray-400">Gestión de detalle de ventas</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <CategoriaFiltro
-            categorias={categorias}
-            activa={categoriaActiva}
-            onChange={setCategoriaActiva}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {productos // filtramos los productos por la categoria activa y mapeamos para crear una tarjeta por cada producto
-              .filter( // si la categoria activa es "todos' mostramos todos los productos, caso contrario filtramos por la categoria
-                (p) => categoriaActiva === "Todos" || p.categoria === categoriaActiva
-              ) // luego mapeamos los productos filtrados
-              .map((producto) => (
-                <TarjetaProducto key={producto.id} producto={producto} />
-              ))}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-1">
+          <div className="mb-3">
+            <BarraBusqueda
+              valor={terminoBusqueda} 
+              onChange={setTerminoBusqueda}
+              placeholder="Buscar por producto..."
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-4 h-110 overflow-y-scroll">
+            {filtrados.map((producto) => (
+              <TarjetaProducto key={producto.id} producto={producto} />
+            ))}
           </div>
         </div>
 
-        <div>
+        <div className="col-span-3">
           <DetalleVenta />
           <ResumenVenta 
             subtotal={subtotal()}
