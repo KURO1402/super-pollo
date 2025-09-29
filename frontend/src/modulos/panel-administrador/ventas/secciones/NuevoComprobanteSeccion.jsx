@@ -1,38 +1,59 @@
 import { useForm } from "react-hook-form";
 import { DetalleVenta } from "../componentes/DetalleVenta";
+import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
 
 const NuevoComprobanteSeccion = () => {
 
-  // para la fecha actual
-  const fechaActual = new Date();
-  const fechaFormateada = fechaActual.toISOString().split("T")[0]; // formatear fecha
+  const { detalle } = useVentaEstadoGlobal(); // detalle para poder mandar los productos como item
+
+  const hoy = new Date()
+  const fechaFormateada = hoy.toISOString().split("T")[0]; // formatear fecha
 
   // inicializamos react-hook-form
-  const {
+  const{
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      tipoOperacion: "Venta interna",
-      tipoComprobante: "BOLETA DE VENTA ELECTRÓNICA",
-      cliente: "",
+      tipoComprobante: 2,
+      serie: "BBB1",
+      tipoDocumento: 1,
+      numeroDocumento: "",
+      cliente_denominacion: "Varios clientes",
       observaciones: "",
-      serie: "B001",
-      fechaEmision: fechaFormateada,
-      almacen: "Almacén - Principal",
-      moneda: "Soles",
-      fechaVencimiento: fechaFormateada,
-      placa: "",
+      fechaDeEmision: fechaFormateada,
+      moneda: 1,
       tipoCambio: "",
-      condicionPago: "Contado",
-      ordenCompra: "",
     },
   });
 
   // función submit
   const onSubmit = (data) => {
-    console.log("Datos del comprobante:", data);
+    // Formatear fecha para enviar al backend ya que tiene otra estructura
+    const fechaParts = data.fechaDeEmision.split("-");
+    const fechaEmision = `${fechaParts[2]}-${fechaParts[1]}-${fechaParts[0]}`;
+
+    // Mapear items desde el estado global del detalle
+    const items = detalle.map((item) => {
+      const idProducto = item.id;
+      return {
+        idProducto: idProducto,
+        nombreProducto: item.nombre,
+        precioProducto: item.precio,
+        cantidad: item.cantidad,
+      };
+    });
+    const comprobante = {
+      tipoDeComprobante: Number(data.tipoComprobante),
+      serie: data.serie,
+      clienteTipoDocumento: Number(data.tipoDocumento), 
+      clienteNumeroDocumento: (data.numeroDocumento),
+      fechaEmision,
+      moneda: Number(data.moneda),
+      items,
+    };
+    console.log("Datos para enviar al backend:", comprobante);
   };
 
   return (
@@ -50,21 +71,7 @@ const NuevoComprobanteSeccion = () => {
 
       {/* Primera fila: Tipo Operación y Tipo de Comprobante */}
       <div className="grid grid-cols-2 gap-6 mb-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Tipo Operación
-          </label>
-          <select
-            {...register("tipoOperacion", { required: true })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option>Venta interna</option>
-          </select>
-          {errors.tipoOperacion && (
-            <span className="text-xs text-red-500">Campo obligatorio</span>
-          )}
-        </div>
-
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Tipo de Comprobante
@@ -73,24 +80,64 @@ const NuevoComprobanteSeccion = () => {
             {...register("tipoComprobante", { required: true })}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option>BOLETA DE VENTA ELECTRÓNICA</option>
-            <option>FACTURA ELECTRÓNICA</option>
+            <option value={1}>FACTURA</option>
+            <option value={2}>BOLETA</option>
           </select>
         </div>
+        <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serie</label>
+            <select
+              {...register("serie")}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="BBB1">B001</option>
+              <option value="FFF1">F001</option>
+            </select>
+          </div>
       </div>
 
       {/* Cliente */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Cliente
+          Cliente Denominación
         </label>
         <div className="flex gap-2">
           <input
-            {...register("cliente", { required: true })}
-            placeholder="Numero de Documento del Cliente"
+            {...register("cliente_denominacion", { required: true })}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
           </input>
+        </div>
+      </div>
+
+      {/* cliente */}
+      <div className="grid grid-cols-2 gap-6 mb-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Tipo de Documento
+          </label>
+          <select
+              {...register("tipoDocumento", { required: true })}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value={1}>DNI</option>
+              <option value={4}>CARNET DE EXTRANJERÍA</option>
+              <option value={6}>RUC</option>
+              <option value={7}>PASAPORTE</option>
+            </select>
+          {errors.operacion && (
+            <span className="text-xs text-red-500">Campo obligatorio</span>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Número de documento del Cliente
+          </label>
+          <input
+            type="type"
+            {...register("numeroDocumento", { required: true })}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
         </div>
       </div>
 
@@ -111,35 +158,15 @@ const NuevoComprobanteSeccion = () => {
       <div className="grid grid-cols-3 gap-6">
         {/* Columna 1 */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serie</label>
-            <select
-              {...register("serie")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option>B001</option>
-              <option>F001</option>
-            </select>
-          </div>
+          
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha de emisión</label>
             <input
               type="date"
-              {...register("fechaEmision", { required: true })}
+              {...register("fechaDeEmision", { required: true })}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Almacén</label>
-            <select
-              {...register("almacen")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option>Almacén - Principal</option>
-              <option>Almacén - Secundario</option>
-            </select>
           </div>
         </div>
 
@@ -151,8 +178,8 @@ const NuevoComprobanteSeccion = () => {
               {...register("moneda")}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option>Soles</option>
-              <option>Dólares</option>
+              <option value={1}>Soles</option>
+              <option value={2}>Dólares</option>
             </select>
           </div>
 
@@ -160,17 +187,6 @@ const NuevoComprobanteSeccion = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha Venc.</label>
             <input
               type="date"
-              {...register("fechaVencimiento")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de placa</label>
-            <input
-              type="text"
-              {...register("placa")}
-              placeholder="Número de placa"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -196,16 +212,6 @@ const NuevoComprobanteSeccion = () => {
               <option>Crédito</option>
             </select>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Orden de compra</label>
-            <input
-              type="text"
-              {...register("ordenCompra")}
-              placeholder="Orden de compra"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
         </div>
       </div>
 
@@ -225,6 +231,3 @@ const NuevoComprobanteSeccion = () => {
 };
 
 export default NuevoComprobanteSeccion;
-
-
-
