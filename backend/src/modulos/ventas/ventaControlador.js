@@ -12,13 +12,11 @@ const registrarVentasController = async (req, res) => {
     try {
         const datosVenta = req.body;
         
-        // Descomenta estas líneas:
         const resultado = await registrarVentasService(datosVenta);
         
         return res.status(201).json({
             ok: true,
-            mensaje: resultado.mensaje,
-            comprobante: resultado.comprobante
+            resultado
         });
         
     } catch (err) {

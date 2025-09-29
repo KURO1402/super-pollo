@@ -5,8 +5,29 @@ DROP PROCEDURE IF EXISTS insertarVenta;
 DROP PROCEDURE IF EXISTS listarVentas;
 DROP PROCEDURE IF EXISTS obtenerVenta;
 DROP PROCEDURE IF EXISTS obtenerDetalleVenta;
+DROP PROCEDURE IF EXISTS obtenerSeriePorTipoComprobante;
 
 DELIMITER //
+
+/* PROCEDIMIENTO ALMACENADO para obtener la serie segun el id del tipo de comprobante */
+CREATE PROCEDURE obtenerSeriePorTipoComprobante(
+    IN p_idTipoComprobante INT
+)
+BEGIN
+    SELECT serie
+    FROM tipoComprobantes
+    WHERE idTipoComprobante = p_idTipoComprobante;
+END //
+
+/*Procemiento para obtener el ultimo numero correlativo de cada tipo de comprobante*/
+CREATE PROCEDURE obtenerUltimoCorrelativo(
+    IN p_idTipoComprobante INT
+)
+BEGIN
+    SELECT ultimoNumero
+    FROM correlativos
+    WHERE idTipoComprobante = p_idTipoComprobante;
+END //
 
 /* PROCEDIMIENTO ALMACENADO insertarVenta */
 CREATE PROCEDURE insertarVenta(

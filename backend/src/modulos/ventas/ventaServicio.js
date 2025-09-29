@@ -1,39 +1,91 @@
 // Importamos los modelos que manejan la lógica de base de datos para ventas
 const {
+    obtenerSerieComprobanteModel,
+    obtenerUltimoCorrelativoModel,
     insertarVentaModel,
-    obtenerVentasModel, 
+    obtenerVentasModel,
     obtenerVentasIDModel
 } = require('./ventaModelo');
 
 //Importamos el servico de nubefact
-const {
-    generarComprobanteNubefact
-} = require("../../servicios/nubefact.js")
+const { generarComprobanteNubefact } = require("../../servicios/nubefact.js");
+const { consultarDNI } = require("../../servicios/consultarDNI.js");
 
-//Registrar venta
+const { formatearVenta } = require("../../helpers/formatearDataVenta.js");
+const generarFechaActual = require("../../helpers/generarFechaActual.js");
 
+// Registrar venta
 const registrarVentasService = async (datosVenta) => {
+    const datosDB = {};
 
+    // 1. Obtener la serie
+    const serieDB = await obtenerSerieComprobanteModel(datosVenta.tipoComprobante);
+    datosDB.serie = serieDB[0].serie;
 
-    // LLamamos al servicio de nubefact
-    const comprobante = await generarComprobanteNubefact(datosVenta);
-    
-    // Verificamos si hay errores
-    if (comprobante && comprobante.errors) {
-        console.log("Error en Nubefact:", comprobante.errors);
-        throw Object.assign(new Error(`Error Nubefact: ${comprobante.errors} - Código: ${comprobante.codigo}`), { status: 400 });
-    } else if (comprobante && comprobante.enlace_del_pdf) {
-        console.log("Comprobante generado exitosamente:", comprobante.enlace_del_pdf);
-        return { 
-            mensaje: "Venta Registrada con éxito", 
-            comprobante: comprobante 
+    // 2. Obtener el último correlativo
+    const correlativoDB = await obtenerUltimoCorrelativoModel(datosVenta.tipoComprobante);
+    const siguienteCorrelativo = correlativoDB[0].ultimoNumero + 1;
+
+    // 3. Verificar datos del cliente
+    const cliente = datosVenta.datosCliente || {};
+    const montoTotal = datosVenta.total || 0;
+
+    // Aquí asumimos que tipoComprobante 2 = factura (ejemplo, ajusta según tu BD)
+    const esFactura = datosVenta.tipoComprobante === 2;
+
+    if (
+        (!cliente.tipoDoc || !cliente.numeroDoc) && // si no hay datos cliente
+        montoTotal < 700 &&                        // y es menor a 700
+        !esFactura                                 // y no es factura
+    ) {
+        datosVenta.datosCliente = {
+            tipoDoc: "-", // SUNAT: Varios
+            numeroDoc: "00000000",
+            nombreCliente: "Consumidor final"
         };
     } else {
-        throw new Error("Respuesta inesperada de Nubefact");
+        // Si viene con DNI válido, consultamos el nombre desde la API
+        if (cliente.tipoDoc === 1 && cliente.numeroDoc) {
+            try {
+                const datosAPI = await consultarDNI(cliente.numeroDoc);
+
+                if (datosAPI && datosAPI.nombres) {
+                    // Construir apellidos y nombres
+                    datosVenta.datosCliente.nombreCliente = `${datosAPI.apellidoPaterno} ${datosAPI.apellidoMaterno} ${datosAPI.nombres}`;
+                }
+            } catch (error) {
+                console.error("Error al consultar el DNI:", error.message);
+                // Si falla, dejamos el nombre como lo envió el frontend
+            }
+        }
     }
+
+    // 4. Guardar en datosDB
+    datosDB.numeroCorrelativo = siguienteCorrelativo;
+
+    // 5. Agregar fecha de emisión al objeto venta
+    datosVenta.fechaEmision = generarFechaActual();
+    // 6. Calcular montos relacionados al IGV
+    const porcentajeIGV = 18.00;
+    const totalGravada = +(montoTotal / (1 + porcentajeIGV / 100)).toFixed(2);
+    const totalIGV = +(montoTotal - totalGravada).toFixed(2);
+
+    datosVenta.porcentajeIGV = porcentajeIGV;
+    datosVenta.totalGravada = totalGravada;
+    datosVenta.totalIgv = totalIGV;
+    datosVenta.total = montoTotal;
+
+
+    // 7. Formatear la venta con serie + correlativo
+    const dataFormateada = formatearVenta(datosVenta, datosDB);
+
+    return dataFormateada;
 };
 
-//Obtener ventas (paginacion de 20 en 20)
+
+
+
+/*Obtener ventas (paginacion de 20 en 20)
 const obtenerVentasService = async (pagina = 1) => {
     const ventas = await obtenerVentasModel(pagina);
 
@@ -73,4 +125,8 @@ module.exports = {
     registrarVentasService,
     obtenerVentasService,
     obtenerVentasIDService,
+};*/
+
+module.exports = {
+    registrarVentasService
 };

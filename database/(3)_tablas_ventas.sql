@@ -49,8 +49,19 @@ FOREIGN KEY (idInsumo) REFERENCES insumos(idInsumo)
 );
 
 CREATE TABLE tipoComprobantes(
-idTipoComprobante INT PRIMARY KEY AUTO_INCREMENT,
-nombreTipoComprobante VARCHAR(50) NOT NULL
+    idTipoComprobante INT PRIMARY KEY AUTO_INCREMENT,
+    nombreTipoComprobante VARCHAR(50) NOT NULL,
+    serie VARCHAR(5) NOT NULL -- Ejemplo: F001, B001, NC01, ND01
+);
+
+-- Tabla correlativos (una fila por tipo comprobante)
+CREATE TABLE correlativos(
+    idCorrelativo INT PRIMARY KEY AUTO_INCREMENT,
+    idTipoComprobante INT NOT NULL,
+    ultimoNumero INT NOT NULL DEFAULT 0,
+    actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (idTipoComprobante) REFERENCES tipoComprobantes(idTipoComprobante),
+    UNIQUE KEY (idTipoComprobante) -- solo un correlativo por tipo
 );
 
 CREATE TABLE medioPago(
@@ -95,8 +106,11 @@ FOREIGN KEY (idProducto) REFERENCES productos(idProducto)
 );
 
 /* INSERTAR TIPOS COMPROBANTES */
-INSERT INTO tipoComprobantes (nombreTipoComprobante) 
-VALUES ('Boleta'), ('Factura');
+INSERT INTO tipoComprobantes (nombreTipoComprobante, serie) VALUES
+('Boleta', 'BBB1'),
+('Factura', 'FFF1'),
+('Nota de Crédito', 'NC01'),
+('Nota de Débito', 'ND01');
 /* INSERTAR MEDIOS PAGOS */
 INSERT INTO medioPago (nombreMedioPago) 
 VALUES ('Efectivo'), ('Tarjeta'), ('Billetera digital');
