@@ -14,6 +14,86 @@ const { consultarDNI } = require("../../servicios/consultarDNI.js");
 const { formatearVenta } = require("../../helpers/formatearDataVenta.js");
 const generarFechaActual = require("../../helpers/generarFechaActual.js");
 
+const productos =  [
+    {
+      idProducto: 1,
+      nombreProducto: "Pollo a la brasa entero",
+      descripcionProducto: "Pollo entero sazonado al estilo tradicional, cocinado a la brasa.",
+      imagen: "https://mi-polleria.com/imagenes/pollo_entero.jpg",
+      unidad: "unidad",
+      precio: 35.00,
+      estado: "activo"
+    },
+    {
+      idProducto: 2,
+      nombreProducto: "1/2 Pollo a la brasa",
+      descripcionProducto: "Media porción de pollo a la brasa con el mismo sabor clásico.",
+      imagen: "https://mi-polleria.com/imagenes/medio_pollo.jpg",
+      unidad: "unidad",
+      precio: 20.00,
+      estado: "activo"
+    },
+    {
+      idProducto: 3,
+      nombreProducto: "Presas adicionales",
+      descripcionProducto: "Presas adicionales de pollo (pierna, ala, pechuga) cocinadas a la brasa.",
+      imagen: "https://mi-polleria.com/imagenes/presas.jpg",
+      unidad: "pieza",
+      precio: 6.00,
+      estado: "activo"
+    },
+    {
+      idProducto: 4,
+      nombreProducto: "Papas fritas familiares",
+      descripcionProducto: "Papas fritas crocantes tamaño familiar, ideal para compartir.",
+      imagen: "https://mi-polleria.com/imagenes/papas_familiares.jpg",
+      unidad: "porción",
+      precio: 8.00,
+      estado: "activo"
+    },
+    {
+      idProducto: 5,
+      nombreProducto: "Ensalada fresca",
+      descripcionProducto: "Ensalada de lechuga, tomate y zanahoria con vinagreta.",
+      imagen: "https://mi-polleria.com/imagenes/ensalada.jpg",
+      unidad: "porción",
+      precio: 5.00,
+      estado: "activo"
+    },
+    {
+      idProducto: 6,
+      nombreProducto: "Gaseosa 1.5L",
+      descripcionProducto: "Botella de gaseosa de 1.5 litros (varios sabores disponibles).",
+      imagen: "https://mi-polleria.com/imagenes/gaseosa.jpg",
+      unidad: "botella",
+      precio: 7.00,
+      estado: "activo"
+    },
+    {
+      idProducto: 7,
+      nombreProducto: "Combo familiar",
+      descripcionProducto: "1 Pollo entero + papas grandes + ensalada + gaseosa 1.5L.",
+      imagen: "https://mi-polleria.com/imagenes/combo_familiar.jpg",
+      unidad: "combo",
+      precio: 48.00,
+      estado: "activo"
+    }
+  ];
+
+  const obtenerProductosConDatos = (solicitados, catalogo) => {
+    return solicitados.map(({ productoId, cantidad }) => {
+      const producto = catalogo.find(p => p.idProducto === productoId);
+      if (!producto) return null;
+  
+      return {
+        descripcion: producto.nombreProducto,
+        valor_unitario: producto.precio,
+        cantidad: cantidad
+      };
+    }).filter(Boolean);
+  };
+  
+
 // Registrar venta
 const registrarVentasService = async (datosVenta) => {
     const datosDB = {};
@@ -75,8 +155,11 @@ const registrarVentasService = async (datosVenta) => {
     datosVenta.totalIgv = totalIGV;
     datosVenta.total = montoTotal;
 
+    const resultado = obtenerProductosConDatos(datosVenta.productos, productos);
 
-    // 7. Formatear la venta con serie + correlativo
+    datosVenta.productos = resultado;
+
+    // 8. Formatear la venta con serie + correlativo
     const dataFormateada = formatearVenta(datosVenta, datosDB);
 
     return dataFormateada;

@@ -27,7 +27,8 @@ const formatearVenta = (datosFront, datosDB) => {
         porcentaje_de_igv: datosFront.porcentajeIGV,
         total_gravada: datosFront.totalGravada,
         total_igv: datosFront.totalIgv,
-        total: datosFront.total
+        total: datosFront.total,
+        items: datosFront.productos
     };
 };
 
