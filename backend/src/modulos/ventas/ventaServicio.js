@@ -191,9 +191,8 @@ const registrarVentaService = async (datosVenta) => {
         const montoTemporal = calcularTotalVenta(productosCalculados);
 
         // 3. Procesar cliente con el monto temporal
-        datosVenta.datosCliente = await normalizarCliente(
+        datosVenta.datosCliente = normalizarCliente(
             datosVenta.datosCliente,
-            montoTemporal, // 👈 Ahora pasamos el monto real calculado
             datosVenta.tipoComprobante
         );
 

@@ -2,14 +2,12 @@ const { CODIGOS_SUNAT } = require('../config/constantes');
 
 // Obtener productos con cálculos de IGV
 function obtenerProductosConDatos(productosSolicitados, catalogo) {
-  return productosSolicitados
-    .map(({ productoId, cantidad }) => {
-      const producto = catalogo.find(p => p.idProducto === productoId);
-      if (!producto) return null;
+  validarProductos(productosSolicitados, catalogo);
 
-      return calcularMontosProducto(producto, cantidad);
-    })
-    .filter(Boolean);
+  return productosSolicitados.map(({ productoId, cantidad }) => {
+    const producto = catalogo.find(p => p.idProducto === productoId);
+    return calcularMontosProducto(producto, cantidad);
+  });
 }
 
 // Calcular montos individuales del producto
@@ -34,14 +32,32 @@ function calcularMontosProducto(producto, cantidad) {
   };
 }
 
-// Validar que todos los productos existan
+// Validar productos
 function validarProductos(productosSolicitados, catalogo) {
-  const productosInvalidos = productosSolicitados.filter(
-    ({ productoId }) => !catalogo.find(p => p.idProducto === productoId)
+  if (!Array.isArray(productosSolicitados) || productosSolicitados.length === 0) {
+    const error = new Error("Debe enviar al menos un producto en la solicitud");
+    error.status = 400;
+    throw error;
+  }
+
+  // ✅ Validación estricta: todos los productos deben tener id y cantidad válida
+  const todosValidos = productosSolicitados.every(
+    ({ productoId, cantidad }) => productoId && cantidad > 0
   );
 
-  if (productosInvalidos.length > 0) {
-    const error = new Error(`Productos no encontrados: ${productosInvalidos.map(p => p.productoId).join(', ')}`);
+  if (!todosValidos) {
+    const error = new Error("Todos los productos deben tener un productoId y una cantidad mayor a 0");
+    error.status = 400;
+    throw error;
+  }
+
+  // ✅ Validación catálogo: todos los productos deben existir
+  const todosExisten = productosSolicitados.every(({ productoId }) =>
+    catalogo.some(p => p.idProducto === productoId)
+  );
+
+  if (!todosExisten) {
+    const error = new Error("Todos los productos deben existir en el catálogo");
     error.status = 400;
     throw error;
   }
