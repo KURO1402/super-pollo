@@ -1,0 +1,85 @@
+/* CONEXION A MYSQL */
+const pool = require("./db"); 
+
+/* LLAMAR AL PROCEDIMIENTO insertarRol */
+async function insertarRol(nombreRol) {
+  const [rows] = await pool.query("CALL insertarRol(?)", [nombreRol]);
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO listarRoles */
+async function listarRoles() {
+  const [rows] = await pool.query("CALL listarRoles()");
+  return rows[0]; 
+}
+
+/* LLAMAR AL PROCEDIMIENTO actualizarRol */
+async function actualizarRol(idRol, nombreRol) {
+  const [rows] = await pool.query("CALL actualizarRol(?, ?)", [idRol, nombreRol]);
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO eliminarRol */
+async function eliminarRol(idRol) {
+  const [rows] = await pool.query("CALL eliminarRol(?)", [idRol]);
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO insertarUsuario (ACTUALIZADO) */
+async function insertarUsuario(data) {
+  const [rows] = await pool.query(
+    "CALL insertarUsuario(?, ?, ?, ?, ?, ?, ?)",
+    [
+      data.nombresUsuario,
+      data.apellidosUsuario,
+      data.correoUsuario,
+      data.clave, 
+      data.numeroDocumentoUsuario,
+      data.telefonoUsuario,
+      data.idTipoDocumento
+    ]
+  );
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO listarUsuarios */
+async function listarUsuarios() {
+  const [rows] = await pool.query("CALL listarUsuarios()");
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO actualizarUsuario */
+async function actualizarUsuario(data) {
+  const [rows] = await pool.query(
+    "CALL actualizarUsuario(?, ?, ?, ?, ?, ?, ?, ?)",
+    [
+      data.idUsuario,
+      data.nombresUsuario,
+      data.apellidosUsuario,
+      data.correoUsuario,
+      data.numeroDocumentoUsuario,
+      data.telefonoUsuario,
+      data.idRol,
+      data.idTipoDocumento
+    ]
+  );
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO actualizarClave */
+async function actualizarClave(idUsuario, clave) {
+  const [rows] = await pool.query("CALL actualizarClave(?, ?)", [idUsuario, clave]);
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO eliminarUsuario */
+async function eliminarUsuario(idUsuario) {
+  const [rows] = await pool.query("CALL eliminarUsuario(?)", [idUsuario]);
+  return rows;
+}
+
+/* LLAMAR AL PROCEDIMIENTO iniciarSesion */
+async function iniciarSesion(correoUsuario, clave) {
+  const [rows] = await pool.query("CALL iniciarSesion(?, ?)", [correoUsuario, clave]);
+  return rows[0];
+}
