@@ -1,19 +1,19 @@
 const express = require("express");
 const {
-  registrarVentasController,
-  obtenerVentasController,
-  obtenerVentasIDController
+  registrarVentaController,
+  obtenerVentaController,
+  obtenerVentaIDController
 } = require("./ventaControlador");
 
 const router = express.Router();
 
 // Registrar una nueva venta
-router.post("/generar-venta", registrarVentasController);
+router.post("/generar-venta", registrarVentaController);
 
 // Obtener todas las ventas (con paginación)
-router.get("/", obtenerVentasController);
+router.get("/", obtenerVentaController);
 
 // Obtener una venta específica por ID
-router.get("/:id", obtenerVentasIDController);
+router.get("/:id", obtenerVentaIDController);
 
 module.exports = router;

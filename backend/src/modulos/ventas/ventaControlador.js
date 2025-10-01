@@ -1,18 +1,16 @@
 // Importamos los servicios
 const {
-  registrarVentasService,
-  obtenerVentasService,
-  obtenerVentasIDService,
+  registrarVentaService,
 } = require("./ventaServicio");
 
 // Importamos las validaciones
 const {validarVenta} = require("../../utilidades/validaciones")
 //Registrar ventas
-const registrarVentasController = async (req, res) => {
+const registrarVentaController = async (req, res) => {
     try {
         const datosVenta = req.body;
         
-        const resultado = await registrarVentasService(datosVenta);
+        const resultado = await registrarVentaService(datosVenta);
         
         return res.status(201).json({
             ok: true,
@@ -29,7 +27,7 @@ const registrarVentasController = async (req, res) => {
 };
 
 //Obtenr ventas con paginacion
-const obtenerVentasController = async (req, res) => {
+const obtenerVentaController = async (req, res) => {
   try {
     // 1. Obtenemos parámetros de paginación (query params ?pagina=1&limite=20)
     const pagina = parseInt(req.query.pagina) || 1;
@@ -54,7 +52,7 @@ const obtenerVentasController = async (req, res) => {
 };
 
 //obtener ventas por ID
-const obtenerVentasIDController = async(req, res) => {
+const obtenerVentaIDController = async(req, res) => {
     try {
         //1. capturamos el desde los parametro de al ruta
         const idVenta = req.params.id;
@@ -87,7 +85,7 @@ const obtenerVentasIDController = async(req, res) => {
 
 //Exportamos
 module.exports = {
-    registrarVentasController,
-    obtenerVentasController,
-    obtenerVentasIDController
+    registrarVentaController,
+    obtenerVentaController,
+    obtenerVentaIDController
 };
