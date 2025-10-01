@@ -1,10 +1,20 @@
 import { useForm } from "react-hook-form";
 import { DetalleVenta } from "../componentes/DetalleVenta";
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
+import { useState } from "react";
 
 const NuevoComprobanteSeccion = () => {
 
   const { detalle } = useVentaEstadoGlobal(); // detalle para poder mandar los productos como item
+  const { abierto, setAbierto } = useState(false)
+
+  function alternarDesplegable() {
+    setAbierto(!abierto);
+  }
+
+  function cerrarDesplegable() {
+    setAbierto(false);
+  }
 
   const hoy = new Date()
   const fechaFormateada = hoy.toISOString().split("T")[0]; // formatear fecha
@@ -13,20 +23,23 @@ const NuevoComprobanteSeccion = () => {
   const{
     register,
     handleSubmit,
+    watch,  
     formState: { errors },
   } = useForm({
     defaultValues: {
       tipoComprobante: 2,
-      serie: "BBB1",
       tipoDocumento: 1,
+      serie: 'B001',
       numeroDocumento: "",
-      cliente_denominacion: "Varios clientes",
+      cliente_denominacion: "Cliente Varios",
       observaciones: "",
       fechaDeEmision: fechaFormateada,
       moneda: 1,
       tipoCambio: "",
     },
   });
+
+  const tipo = watch("tipoComprobante")
 
   // función submit
   const onSubmit = (data) => {
@@ -46,9 +59,11 @@ const NuevoComprobanteSeccion = () => {
     });
     const comprobante = {
       tipoDeComprobante: Number(data.tipoComprobante),
+      datosCliente : {
+        clienteTipoDocumento: Number(data.tipoDocumento), 
+        clienteNumeroDocumento: (data.numeroDocumento),
+      },
       serie: data.serie,
-      clienteTipoDocumento: Number(data.tipoDocumento), 
-      clienteNumeroDocumento: (data.numeroDocumento),
       fechaEmision,
       moneda: Number(data.moneda),
       items,
@@ -86,32 +101,38 @@ const NuevoComprobanteSeccion = () => {
         </div>
         <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serie</label>
-            <select
-              {...register("serie")}
+            <input
+              {...register("serie", { required: true })}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={ tipo == 2 ? 'B001':'F001'}
+              disabled
             >
-              <option value="BBB1">B001</option>
-              <option value="FFF1">F001</option>
-            </select>
-          </div>
+            </input>
+        </div>
       </div>
 
       {/* Cliente */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Cliente Denominación
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Cliente Denominación 
         </label>
+        <button 
+          onClick={alternarDesplegable}
+          className="text-cyan-500 cursor-pointer pl-1.5"
+          type="button"
+          >
+          [ Cliente + ]
+        </button>
         <div className="flex gap-2">
           <input
             {...register("cliente_denominacion", { required: true })}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-          </input>
+          />
         </div>
       </div>
 
       {/* cliente */}
-      <div className="grid grid-cols-2 gap-6 mb-4">
+      {/* <div className="grid grid-cols-2 gap-6 mb-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Tipo de Documento
@@ -140,7 +161,7 @@ const NuevoComprobanteSeccion = () => {
           />
         </div>
       </div>
-
+ */}
       {/* Observaciones */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
