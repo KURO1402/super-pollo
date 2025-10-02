@@ -111,6 +111,14 @@ INSERT INTO tipoComprobantes (nombreTipoComprobante, serie) VALUES
 ('Boleta', 'BBB1'),
 ('Nota de Crédito', 'NC01'),
 ('Nota de Débito', 'ND01');
+
+/*Insertar correlativos*/
+INSERT INTO correlativos (idTipoComprobante, ultimoNumero) VALUES
+(1, 7),  -- Factura
+(2, 9),  -- Boleta
+(3, 0),  -- Nota de Crédito
+(4, 0);  -- Nota de Débito
+
 /* INSERTAR MEDIOS PAGOS */
 INSERT INTO medioPago (nombreMedioPago) 
 VALUES ('Efectivo'), ('Tarjeta'), ('Billetera digital');

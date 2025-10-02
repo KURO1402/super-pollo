@@ -10,13 +10,6 @@ function normalizarCliente(datosCliente, tipoComprobante) {
     return { ...CLIENTE_DEFAULT };
   }
 
-  // Para facturas y demás comprobantes, cliente es obligatorio
-  if (!datosCliente) {
-    const error = new Error("Los datos del cliente son obligatorios");
-    error.status = 400;
-    throw error;
-  }
-
   let { nombreCliente, tipoDoc, numeroDoc, direccion, correo } = datosCliente;
 
   // 🟢 Caso 2: si tipoDoc es 0, lo convertimos a "-"
@@ -26,7 +19,7 @@ function normalizarCliente(datosCliente, tipoComprobante) {
 
   // 🟢 Caso 3: Validar campos obligatorios
   if (!nombreCliente || !tipoDoc || !numeroDoc) {
-    const error = new Error("Se necesitan datos del cliente como tipo de documento, número de documento y nombre del cliente");
+    const error = new Error("Se necesitan datos del cliente como tipo de documento, número de documento, nombre del cliente y direccion si es una factura");
     error.status = 400;
     throw error;
   }

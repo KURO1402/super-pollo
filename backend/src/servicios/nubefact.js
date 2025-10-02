@@ -5,7 +5,7 @@ const generarComprobanteNubefact = async (data) => {
     const token = "51b40a8683394ab1a147abfe04a538868d535726b6374f2e90aba544a7500190";
     
     try {
-        console.log("Enviando a Nubefact:", JSON.stringify(data, null, 2)); // Para debug
+        //console.log("Enviando a Nubefact:", JSON.stringify(data, null, 2)); // Para debug
 
         const response = await axios.post(urlnubeFact, data, {
             headers: {

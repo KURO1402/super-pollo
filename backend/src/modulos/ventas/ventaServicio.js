@@ -102,6 +102,12 @@ function validarDatosVenta(datosVenta) {
     throw error;
   }
 
+  if(!datosVenta.datosCliente && datosVenta.tipoComprobante != 2) {
+    const error = new Error('Los datos del ciente son necesarios para facturas');
+    error.status = 400;
+    throw error; 
+  }
+
   if (!datosVenta.productos || !Array.isArray(datosVenta.productos) || datosVenta.productos.length === 0) {
     const error = new Error('La venta debe contener productos');
     error.status = 400;
