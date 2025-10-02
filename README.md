@@ -31,7 +31,7 @@ Antes de instalar el proyecto en tu PC, asegúrate de tener:
 ## ⚙️ Instalación y configuración en local
 
 ### 1️⃣ Clonar el repositorio
-git clone https://github.com/tu-usuario/super-pollo.git
+git clone https://github.com/KURO1402/super-pollo.git
 cd super-pollo
 ## 2️⃣ Configuración del Backend
 - cd backend
