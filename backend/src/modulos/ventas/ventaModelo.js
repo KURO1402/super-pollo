@@ -3,7 +3,7 @@ const pool = require("../../config/conexionDB");
 
 
 //Obtener la serie segun el tipo de comprobante
-const obtenerSerieComprobanteModel = async  (idComprobante) => {
+const obtenerSerieComprobanteModel = async (idComprobante) => {
   let conexion;
   try {
     conexion = await pool.getConnection();
@@ -38,6 +38,27 @@ const obtenerUltimoCorrelativoModel = async (idComprobante) => {
   }
 };
 
+//Actualizar correlativo de venta 
+const actualizarCorrelativoModel = async (idComprobante) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+
+    // Llamar al procedimiento que incrementa correlativo
+    await conexion.query(
+      `CALL actualizarCorrelativoSolo(?)`,
+      [idComprobante]
+    );
+
+    return true; // éxito
+  } catch (err) {
+    console.error("Error en actualizarCorrelativoModel", err.message);
+    throw new Error("Error al actualizar el correlativo en la base de datos");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
 //Modelo para insertar una nueva venta usando el procedimiento almacenado
 const insertarVentaModel = async (datosVenta) => {
   let conexion;
@@ -59,7 +80,7 @@ const insertarVentaModel = async (datosVenta) => {
         datosVenta.totalIGV,
         datosVenta.totalVenta,
         datosVenta.aceptadaPorSunat,
-        datosVenta.fechaRegistro = new Date(), 
+        datosVenta.fechaRegistro = new Date(),
         datosVenta.urlCombrobantePDF,
         datosVenta.urlCombrobanteXML,
         datosVenta.idMedioPago,
@@ -115,9 +136,11 @@ const obtenerVentasIDModel = async (idVenta) => {
   }
 };
 
+
 module.exports = {
   obtenerSerieComprobanteModel,
   obtenerUltimoCorrelativoModel,
+  actualizarCorrelativoModel,
   insertarVentaModel,
   obtenerVentasModel,
   obtenerVentasIDModel,

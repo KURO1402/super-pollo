@@ -46,7 +46,7 @@ function validarProductos(productosSolicitados, catalogo) {
   );
 
   if (!todosValidos) {
-    const error = new Error("Todos los productos deben tener un productoId y una cantidad mayor a 0");
+    const error = new Error("Todos los productos deben tener un id y una cantidad mayor a 0");
     error.status = 400;
     throw error;
   }
@@ -57,7 +57,7 @@ function validarProductos(productosSolicitados, catalogo) {
   );
 
   if (!todosExisten) {
-    const error = new Error("Todos los productos deben existir en el catálogo");
+    const error = new Error("Se debe mandar un id de un producto existente");
     error.status = 400;
     throw error;
   }

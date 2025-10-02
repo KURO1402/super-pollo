@@ -21,11 +21,13 @@ function formatearVenta(datosFront, datosDB) {
     cliente_tipo_de_documento: obtenerCodigoSunat(datosFront.datosCliente.tipoDoc),
     cliente_numero_de_documento: datosFront.datosCliente.numeroDoc,
     cliente_denominacion: datosFront.datosCliente.nombreCliente,
+    cliente_direccion: datosFront.datosCliente.direccion,
+    cliente_email: datosFront.datosCliente.email,
     fecha_de_emision: datosFront.fechaEmision,
     moneda: CODIGOS_SUNAT.MONEDA.SOLES,
     porcentaje_de_igv: datosFront.porcentajeIGV,
     total_gravada: datosFront.totalGravada,
-    total_igv: datosFront.totalIgv,
+    total_igv: datosFront.totalIGV,
     total: datosFront.total,
     items: datosFront.productos
   };

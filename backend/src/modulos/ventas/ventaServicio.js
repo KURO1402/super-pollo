@@ -1,7 +1,8 @@
 // Importamos los modelos
 const {
     obtenerSerieComprobanteModel,
-    obtenerUltimoCorrelativoModel
+    obtenerUltimoCorrelativoModel,
+    actualizarCorrelativoModel
 } = require('./ventaModelo');
 
 // Importamos helpers
@@ -11,7 +12,10 @@ const { normalizarCliente } = require("../../helpers/clienteHelpers");
 const { calcularMontosTotales, validarMontoMinimo } = require("../../helpers/calculosFinancieros");
 const { obtenerProductosConDatos, validarProductos } = require("../../helpers/calculosProductos");
 
-// Catálogo de productos (array temporal)
+// Servicio de nubefact
+const { generarComprobanteNubefact } = require("../../servicios/nubefact");
+
+// Catálogo temporal de productos
 const productos = [
   {
     idProducto: 1,
@@ -78,17 +82,20 @@ const productos = [
   }
 ];
 
-// Calcular el total sumando todos los productos
+// Calcular el total de una venta
 function calcularTotalVenta(productosCalculados) {
-  const total = productosCalculados.reduce((sum, producto) => {
-    return sum + producto.total;
-  }, 0);
-  
+  const total = productosCalculados.reduce((sum, producto) => sum + producto.total, 0);
   return Number(total.toFixed(2));
 }
 
 // Validar datos básicos de la venta
 function validarDatosVenta(datosVenta) {
+  if (!datosVenta) {
+    const error = new Error('Se requieren datos de venta');
+    error.status = 400;
+    throw error;
+  }
+
   if (!datosVenta.tipoComprobante) {
     const error = new Error('Tipo de comprobante es requerido');
     error.status = 400;
@@ -102,115 +109,91 @@ function validarDatosVenta(datosVenta) {
   }
 }
 
-// Obtener datos del comprobante (serie y correlativo)
+// Obtener datos del comprobante (solo lectura)
 async function obtenerDatosComprobante(tipoComprobante) {
-  try {
-    const [serieDB, correlativoDB] = await Promise.all([
-      obtenerSerieComprobanteModel(tipoComprobante),
-      obtenerUltimoCorrelativoModel(tipoComprobante)
-    ]);
+  const [serieDB, correlativoDB] = await Promise.all([
+    obtenerSerieComprobanteModel(tipoComprobante),
+    obtenerUltimoCorrelativoModel(tipoComprobante)
+  ]);
 
-    if (!serieDB || serieDB.length === 0) {
-      const error = new Error('No se pudo obtener la serie del comprobante');
-      error.status = 500;
-      throw error;
-    }
-
-    if (!correlativoDB || correlativoDB.length === 0) {
-      const error = new Error('No se pudo obtener el correlativo del comprobante');
-      error.status = 500;
-      throw error;
-    }
-
-    return {
-      serie: serieDB[0].serie,
-      siguienteCorrelativo: correlativoDB[0].ultimoNumero + 1
-    };
-  } catch (error) {
-    // Si ya tiene status, lo mantenemos, sino le asignamos 500
-    if (!error.status) {
-      error.status = 500;
-    }
+  if (!serieDB || serieDB.length === 0) {
+    const error = new Error('No se pudo obtener la serie del comprobante');
+    error.status = 500;
     throw error;
   }
+
+  if (!correlativoDB || correlativoDB.length === 0) {
+    const error = new Error('No se pudo obtener el correlativo del comprobante');
+    error.status = 500;
+    throw error;
+  }
+
+  return {
+    serie: serieDB[0].serie,
+    siguienteCorrelativo: correlativoDB[0].ultimoNumero + 1
+  };
 }
 
-// Procesar la venta completa
-async function procesarVenta(datosVenta, datosComprobante) {
-  try {
-    // Validar productos
-    try {
-      validarProductos(datosVenta.productos, productos);
-    } catch (error) {
-      error.status = 400;
-      throw error;
-    }
+// Procesar y formatear la venta para Nubefact
+function procesarVenta(datosVenta, datosComprobante) {
+  // Validar productos
+  validarProductos(datosVenta.productos, productos);
 
-    // Procesar productos (esto calcula los montos individuales)
-    datosVenta.productos = obtenerProductosConDatos(datosVenta.productos, productos);
+  // Procesar productos (calcular totales de cada item)
+  datosVenta.productos = obtenerProductosConDatos(datosVenta.productos, productos);
 
-    // Calcular el total sumando todos los productos
-    const totalVenta = calcularTotalVenta(datosVenta.productos);
-    
-    // Validar que el total sea mayor a 0
-    validarMontoMinimo(totalVenta);
+  // Calcular total
+  const totalVenta = calcularTotalVenta(datosVenta.productos);
+  validarMontoMinimo(totalVenta);
 
-    // Calcular montos (IGV, base imponible, etc.)
-    const montos = calcularMontosTotales(totalVenta);
-    Object.assign(datosVenta, montos);
+  // Calcular montos de IGV, gravada, etc.
+  const montos = calcularMontosTotales(totalVenta);
+  Object.assign(datosVenta, montos);
 
-    // Agregar fecha
-    datosVenta.fechaEmision = generarFechaActual();
+  // Normalizar cliente
+  datosVenta.datosCliente = normalizarCliente(
+    datosVenta.datosCliente,
+    datosVenta.tipoComprobante
+  );
 
-    // Formatear para Nubefact
-    return formatearVenta(datosVenta, {
-      serie: datosComprobante.serie,
-      numeroCorrelativo: datosComprobante.siguienteCorrelativo
-    });
-  } catch (error) {
-    // Si ya tiene status, lo mantenemos, sino le asignamos 500
-    if (!error.status) {
-      error.status = 500;
-    }
-    throw error;
-  }
+  // Agregar fecha de emisión
+  datosVenta.fechaEmision = generarFechaActual();
+
+  // Formatear datos finales
+  return formatearVenta(datosVenta, {
+    serie: datosComprobante.serie,
+    numeroCorrelativo: datosComprobante.siguienteCorrelativo
+  });
 }
 
 // Función principal del servicio
 const registrarVentaService = async (datosVenta) => {
-    try {
-        // 1. Validaciones iniciales
-        validarDatosVenta(datosVenta);
+  try {
+    // 1. Validaciones iniciales
+    validarDatosVenta(datosVenta);
 
-        // 2. Obtener datos del comprobante
-        const datosComprobante = await obtenerDatosComprobante(datosVenta.tipoComprobante);
+    // 2. Obtener datos del comprobante (solo lectura)
+    const datosComprobante = await obtenerDatosComprobante(datosVenta.tipoComprobante);
 
-        // 👇 OBTENER PRODUCTOS TEMPORALMENTE PARA CALCULAR MONTO
-        validarProductos(datosVenta.productos, productos);
-        const productosCalculados = obtenerProductosConDatos(datosVenta.productos, productos);
-        const montoTemporal = calcularTotalVenta(productosCalculados);
+    // 3. Preparar datos de la venta
+    const dataFormateada = procesarVenta(datosVenta, datosComprobante);
 
-        // 3. Procesar cliente con el monto temporal
-        datosVenta.datosCliente = normalizarCliente(
-            datosVenta.datosCliente,
-            datosVenta.tipoComprobante
-        );
+    // 4. Enviar a Nubefact
+    const respuestaNubefact = await generarComprobanteNubefact(dataFormateada);
 
-        // 4. Procesar venta completa
-        const ventaProcesada = await procesarVenta(datosVenta, datosComprobante);
-
-        return ventaProcesada;
-    } catch (error) {
-        console.error('Error en servicio de ventas:', error.message);
-        
-        if (!error.status) {
-            error.status = 500;
-        }
-        
-        throw error;
+    // 5. Si Nubefact devuelve comprobante válido, actualizamos correlativo
+    if (respuestaNubefact && respuestaNubefact.serie && respuestaNubefact.numero && respuestaNubefact.enlace_del_pdf) {
+      await actualizarCorrelativoModel(datosVenta.tipoComprobante);
     }
+
+    return respuestaNubefact;
+  } catch (error) {
+    console.error('Error en servicio de ventas:', error.message);
+    if (!error.status) error.status = 500;
+    throw error;
+  }
 };
 
 module.exports = {
-    registrarVentaService
+  registrarVentaService
 };

@@ -14,7 +14,6 @@ const generarComprobanteNubefact = async (data) => {
             },
         });
 
-        console.log("Respuesta de Nubefact:", response.data); // Para debug
         return response.data;
 
     } catch (error) {
