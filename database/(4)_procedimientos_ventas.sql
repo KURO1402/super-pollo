@@ -29,6 +29,22 @@ BEGIN
     WHERE idTipoComprobante = p_idTipoComprobante;
 END //
 
+/*Procemiento para actualizar el correlativo en la base de datos*/
+CREATE PROCEDURE actualizarCorrelativoSolo(
+    IN p_idTipoComprobante INT
+)
+BEGIN
+    START TRANSACTION;
+
+    -- Incrementar correlativo en 1
+    UPDATE correlativos
+    SET ultimoNumero = ultimoNumero + 1
+    WHERE idTipoComprobante = p_idTipoComprobante;
+
+    COMMIT;
+END //
+
+
 /* PROCEDIMIENTO ALMACENADO insertarVenta */
 CREATE PROCEDURE insertarVenta(
     IN p_numeroDocumentoCliente VARCHAR(12),

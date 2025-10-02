@@ -107,8 +107,8 @@ FOREIGN KEY (idProducto) REFERENCES productos(idProducto)
 
 /* INSERTAR TIPOS COMPROBANTES */
 INSERT INTO tipoComprobantes (nombreTipoComprobante, serie) VALUES
-('Boleta', 'BBB1'),
 ('Factura', 'FFF1'),
+('Boleta', 'BBB1'),
 ('Nota de Crédito', 'NC01'),
 ('Nota de Débito', 'ND01');
 /* INSERTAR MEDIOS PAGOS */
