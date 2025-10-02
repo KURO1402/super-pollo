@@ -48,7 +48,7 @@ const AppRutas = () => {
             ]
         },
 
-        {
+        /* {
             path: '/admin-provisional', // ruta provisional para el admin
             element: <EstructuraBaseAdmin />, // estructura base del panel de admin
             children: [
@@ -63,17 +63,26 @@ const AppRutas = () => {
                 { path: 'perfil', element: <Perfil/> },
 
             ]
-        },
+        }, */
 
         // Rutas protegidas según rol
-        /* {
+        {
             path: '/admin', // ruta padre para el panel de admin
             element: <RutaPrivadaConRol rolesPermitidos={[1, 2]} />, // solo superadmin y admin
             children: [
                 { // se renderiza en el Outelt del componente RutaprivadaconRol
                 element: <EstructuraBaseAdmin />, // la estructura base del panel
                 children: [
-                    { index: true, element: <PanelDeControl /> }] // ruta por defecto del panel de admin
+                    { index: true, element: <PanelDeControl /> },
+                    { path: 'nuevo-comprobante', element: <NuevoComprobanteSeccion/> },
+                    { path: 'generar-venta', element: <GenerarVenta/> },
+                    { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
+                    { path: 'stock', element: <Stock/> },
+                    { path: 'caja', element: <Caja/> },
+                    { path: 'reservas', element: <Reservas/> },
+                    { path: 'usuarios', element: <Usuarios/> },
+                    { path: 'perfil', element: <Perfil/> },
+                ] // ruta por defecto del panel de admin
                 }
             ]
         },
@@ -82,7 +91,16 @@ const AppRutas = () => {
             path: '/superadmin',
             element: <RutaPrivadaConRol rolesPermitidos={[1]} />, // solo el superadmin 
             children: [
-                { index: true, element: <h1>Zona Superadmin</h1> } // ruta por defecto
+                { index: true, element: <PanelDeControl /> }, // ruta por defecto del panel de admin
+                { path: 'nuevo-comprobante', element: <NuevoComprobanteSeccion/> },
+                { path: 'generar-venta', element: <GenerarVenta/> },
+                { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
+                { path: 'stock', element: <Stock/> },
+                { path: 'caja', element: <Caja/> },
+                { path: 'reservas', element: <Reservas/> },
+                { path: 'usuarios', element: <Usuarios/> },
+                { path: 'perfil', element: <Perfil/> },
+
             ]
         },
 
@@ -92,7 +110,7 @@ const AppRutas = () => {
             children: [ // ruta por defecto 
                 { index: true, element: <h1>Zona Usuarios</h1> }
             ]
-        }, */
+        },
 
         // Cualquier ruta que no existe
         { path: '*', element: <NotFound /> },

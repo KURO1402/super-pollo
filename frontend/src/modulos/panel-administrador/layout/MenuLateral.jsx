@@ -20,41 +20,41 @@ const navItems = [
   {
     icon: <FiGrid size={20} />,
     name: "Dashboard",
-    path: "/admin-provisional",
+    path: "/admin",
   },
   {
     icon: <FiShoppingCart size={20} />,
     name: "Ventas",
     subItems: [
-      { name: "Generar Venta", path: "/admin-provisional/generar-venta" },
-      { name: "Nuevo Comprobante", path: "/admin-provisional/nuevo-comprobante" },
-      { name: "Historial de Comprobantes", path: "/admin-provisional/registro-ventas" },
+      { name: "Generar Venta", path: "/admin/generar-venta" },
+      { name: "Nuevo Comprobante", path: "/admin/nuevo-comprobante" },
+      { name: "Historial de Comprobantes", path: "/admin/registro-ventas" },
     ],
   },
   {
     icon: <FiArchive size={20} />,
     name: "Stock",
-    path: "/admin-provisional/stock",
+    path: "/admin/stock",
   },
   {
     icon: <FiDollarSign size={20} />,
     name: "Caja",
-    path: "/admin-provisional/caja",
+    path: "/admin/caja",
   },
   {
     icon: <FiCalendar size={20} />,
     name: "Reservas",
-    path: "/admin-provisional/reservas",
+    path: "/admin/reservas",
   },
   {
     icon: <FiUsers size={20} />,
     name: "Usuarios",
-    path: "/admin-provisional/usuarios",
+    path: "/admin/usuarios",
   },
   {
     icon: <FiUser size={20} />,
     name: "Perfil",
-    path: "/admin-provisional/perfil",
+    path: "/admin/perfil",
   },
 ];
 
