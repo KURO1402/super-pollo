@@ -18,7 +18,7 @@ export const ResumenVenta = ({ subtotal, impuesto, total }) => {
       </div>
     </div>
     <button 
-      onClick={() => navigate('/admin-provisional/nuevo-comprobante')}
+      onClick={() => navigate('/admin/nuevo-comprobante')}
       className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-semibold cursor-pointer">
       Generar Venta - S/ {total.toFixed(2)}
     </button>

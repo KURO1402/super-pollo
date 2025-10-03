@@ -34,13 +34,9 @@ app.get('/', (req, res) => {
 });
 
 //usar rutas
-<<<<<<< HEAD
-app.use('/usuarios', usuariosRoutes);
 app.use('/ventas', ventasRoutes);
-=======
 app.use('/autenticacion', autenticacionRoutes);
 app.use('/fuente-datos', fuenteDatosRouter)
->>>>>>> 0acb3c2d573d60cfb796d14d1724b9fb005810be
 
 // Iniciar servidor
 app.listen(PORT, () => {
