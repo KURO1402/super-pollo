@@ -1,4 +1,4 @@
-const { CODIGOS_SUNAT } = require('../config/constantes');
+const { CODIGOS_SUNAT } = require('../../config/constantes');
 
 // Obtener productos con cálculos de IGV
 function obtenerProductosConDatos(productosSolicitados, catalogo) {

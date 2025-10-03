@@ -114,7 +114,7 @@ INSERT INTO tipoComprobantes (nombreTipoComprobante, serie) VALUES
 
 /*Insertar correlativos*/
 INSERT INTO correlativos (idTipoComprobante, ultimoNumero) VALUES
-(1, 7),  -- Factura
+(1, 9),  -- Factura
 (2, 9),  -- Boleta
 (3, 0),  -- Nota de Crédito
 (4, 0);  -- Nota de Débito

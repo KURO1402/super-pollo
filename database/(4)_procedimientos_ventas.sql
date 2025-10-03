@@ -9,6 +9,13 @@ DROP PROCEDURE IF EXISTS obtenerSeriePorTipoComprobante;
 
 DELIMITER //
 
+/*Obtener todos los tipos de comprobante*/
+CREATE PROCEDURE obtenerTiposComprobante()
+BEGIN
+    SELECT idTipoComprobante, nombreTipoComprobante, serie
+    FROM tipoComprobantes;
+END //
+
 /* PROCEDIMIENTO ALMACENADO para obtener la serie segun el id del tipo de comprobante */
 CREATE PROCEDURE obtenerSeriePorTipoComprobante(
     IN p_idTipoComprobante INT

@@ -3,7 +3,7 @@ const {
   registrarVentaController,
   obtenerVentaController,
   obtenerVentaIDController
-} = require("./ventaControlador");
+} = require("../controlador/ventasControlador");
 
 const router = express.Router();
 

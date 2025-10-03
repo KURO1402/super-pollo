@@ -1,4 +1,4 @@
-const { CODIGOS_SUNAT } = require('../config/constantes');
+const { CODIGOS_SUNAT } = require('../../config/constantes');
 
 // Calcular montos totales con IGV
 function calcularMontosTotales(montoTotal, porcentajeIGV = CODIGOS_SUNAT.IGV.PORCENTAJE) {

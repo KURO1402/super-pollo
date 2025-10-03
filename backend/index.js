@@ -4,13 +4,13 @@ const cors = require('cors');
 const cookieParser = require("cookie-parser");
 
 //rutas del modulo de autenticacion
-const autenticacionRoutes = require("./src/modulos/autenticacion/autenticacionRutas.js");
+const autenticacionRoutes = require("./src/modulos/autenticacion/autenticacionRutas");
 
 //rutas del modulo de fuente de datos
-const fuenteDatosRouter = require("./src/modulos/fuenteDatos/fuenteDatosRutas.js")
+const fuenteDatosRouter = require("./src/modulos/fuente-datos/fuenteDatosRutas")
 
 //ruta para ventas
-const ventasRoutes = require("./src/modulos/ventas/ventaRutas.js");
+const ventasRoutes = require("./src/modulos/ventas/rutas/ventasRutas");
 
 
 const app = express();

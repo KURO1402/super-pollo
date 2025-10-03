@@ -1,19 +1,21 @@
-// Importamos los modelos
-const {
-    obtenerSerieComprobanteModel,
-    obtenerUltimoCorrelativoModel,
-    actualizarCorrelativoModel
-} = require('./ventaModelo');
+const { CODIGOS_SUNAT } = require('../../config/constantes');
 
 // Importamos helpers
-const { formatearVenta } = require("../../helpers/formatearDataVenta");
-const generarFechaActual = require("../../helpers/generarFechaActual");
-const { normalizarCliente } = require("../../helpers/clienteHelpers");
-const { calcularMontosTotales, validarMontoMinimo } = require("../../helpers/calculosFinancieros");
-const { obtenerProductosConDatos, validarProductos } = require("../../helpers/calculosProductos");
+const generarFechaActual = require("../generarFechaActual");
+const { normalizarCliente } = require("./clienteHelpers");
+const { calcularMontosTotales, validarMontoMinimo } = require("./calculosFinancieros");
+const { obtenerProductosConDatos, validarProductos } = require("./calculosProductos");
 
-// Servicio de nubefact
-const { generarComprobanteNubefact } = require("../../servicios/nubefact");
+function obtenerCodigoSunat(idTipoDocumento) {
+  const mapeo = {
+    1: CODIGOS_SUNAT.TIPOS_DOCUMENTO.DNI,      // DNI
+    2: CODIGOS_SUNAT.TIPOS_DOCUMENTO.PASAPORTE, // PASAPORTE
+    3: CODIGOS_SUNAT.TIPOS_DOCUMENTO.CARNET_EXTRANJERIA, // CARNÉ EXTRANJERÍA
+    4: CODIGOS_SUNAT.TIPOS_DOCUMENTO.RUC       // RUC
+  };
+
+  return mapeo[idTipoDocumento] || CODIGOS_SUNAT.TIPOS_DOCUMENTO.DNI;
+}
 
 // Catálogo temporal de productos
 const productos = [
@@ -82,62 +84,32 @@ const productos = [
   }
 ];
 
+function formatearVenta(datosFront, datosDB) {
+  return {
+    operacion: "generar_comprobante",
+    tipo_de_comprobante: datosFront.tipoComprobante,
+    serie: datosDB.serie,
+    numero: datosDB.numeroCorrelativo,
+    sunat_transaction: CODIGOS_SUNAT.TRANSACCIONES.VENTA_INTERNA,
+    cliente_tipo_de_documento: obtenerCodigoSunat(datosFront.datosCliente.tipoDoc),
+    cliente_numero_de_documento: datosFront.datosCliente.numeroDoc,
+    cliente_denominacion: datosFront.datosCliente.nombreCliente,
+    cliente_direccion: datosFront.datosCliente.direccion,
+    cliente_email: datosFront.datosCliente.email,
+    fecha_de_emision: datosFront.fechaEmision,
+    moneda: CODIGOS_SUNAT.MONEDA.SOLES,
+    porcentaje_de_igv: datosFront.porcentajeIGV,
+    total_gravada: datosFront.totalGravada,
+    total_igv: datosFront.totalIGV,
+    total: datosFront.total,
+    items: datosFront.productos
+  };
+}
+
 // Calcular el total de una venta
 function calcularTotalVenta(productosCalculados) {
   const total = productosCalculados.reduce((sum, producto) => sum + producto.total, 0);
   return Number(total.toFixed(2));
-}
-
-// Validar datos básicos de la venta
-function validarDatosVenta(datosVenta) {
-  if (!datosVenta) {
-    const error = new Error('Se requieren datos de venta');
-    error.status = 400;
-    throw error;
-  }
-
-  if (!datosVenta.tipoComprobante) {
-    const error = new Error('Tipo de comprobante es requerido');
-    error.status = 400;
-    throw error;
-  }
-
-  if(!datosVenta.datosCliente && datosVenta.tipoComprobante != 2) {
-    const error = new Error('Los datos del ciente son necesarios para facturas');
-    error.status = 400;
-    throw error; 
-  }
-
-  if (!datosVenta.productos || !Array.isArray(datosVenta.productos) || datosVenta.productos.length === 0) {
-    const error = new Error('La venta debe contener productos');
-    error.status = 400;
-    throw error;
-  }
-}
-
-// Obtener datos del comprobante (solo lectura)
-async function obtenerDatosComprobante(tipoComprobante) {
-  const [serieDB, correlativoDB] = await Promise.all([
-    obtenerSerieComprobanteModel(tipoComprobante),
-    obtenerUltimoCorrelativoModel(tipoComprobante)
-  ]);
-
-  if (!serieDB || serieDB.length === 0) {
-    const error = new Error('No se pudo obtener la serie del comprobante');
-    error.status = 500;
-    throw error;
-  }
-
-  if (!correlativoDB || correlativoDB.length === 0) {
-    const error = new Error('No se pudo obtener el correlativo del comprobante');
-    error.status = 500;
-    throw error;
-  }
-
-  return {
-    serie: serieDB[0].serie,
-    siguienteCorrelativo: correlativoDB[0].ultimoNumero + 1
-  };
 }
 
 // Procesar y formatear la venta para Nubefact
@@ -172,34 +144,6 @@ function procesarVenta(datosVenta, datosComprobante) {
   });
 }
 
-// Función principal del servicio
-const registrarVentaService = async (datosVenta) => {
-  try {
-    // 1. Validaciones iniciales
-    validarDatosVenta(datosVenta);
-
-    // 2. Obtener datos del comprobante (solo lectura)
-    const datosComprobante = await obtenerDatosComprobante(datosVenta.tipoComprobante);
-
-    // 3. Preparar datos de la venta
-    const dataFormateada = procesarVenta(datosVenta, datosComprobante);
-
-    // 4. Enviar a Nubefact
-    const respuestaNubefact = await generarComprobanteNubefact(dataFormateada);
-
-    // 5. Si Nubefact devuelve comprobante válido, actualizamos correlativo
-    if (respuestaNubefact && respuestaNubefact.serie && respuestaNubefact.numero && respuestaNubefact.enlace_del_pdf) {
-      await actualizarCorrelativoModel(datosVenta.tipoComprobante);
-    }
-
-    return respuestaNubefact;
-  } catch (error) {
-    console.error('Error en servicio de ventas:', error.message);
-    if (!error.status) error.status = 500;
-    throw error;
-  }
-};
-
 module.exports = {
-  registrarVentaService
+  procesarVenta
 };
