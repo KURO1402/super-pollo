@@ -8,7 +8,7 @@ const {
   obtenerPagoModel,
   insertarDetalleReservacionModel,
   obtenerDetalleReservacionModel
-} = require('./reservacionesModelo.js');
+} = require("./reservacionesModelo.js");
 
 // servicio para insertar reservacion
 const insertarReservacionService = async (datos) => {

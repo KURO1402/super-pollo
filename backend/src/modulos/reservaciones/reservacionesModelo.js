@@ -6,7 +6,7 @@ const insertarReservacionModel = async (datos) => {
     // desectructuramos el objeto (datos)
     const { fechaReservacion, horaReservacion, cantidadPersonas, idUsuario, idMesa } = datos;
     let conexion; // declaramos la variable conexion
-    try { // estructura de control de errores
+    try {  
       conexion = await pool.getConnection(); // pedimos una conexion del pool
       await conexion.beginTransaction(); // iniciamos una transaccion 
       // ejecutamos el llamado al procedimiento almacenado
@@ -16,7 +16,7 @@ const insertarReservacionModel = async (datos) => {
       // confirmamos que la transaccion fue exitosa
       await conexion.commit();
       return { mensaje: "Reservación registrada exitosamente" };
-    } catch (err) { // capturamos cualquier error 
+    } catch (err) { // capturar cualquier error del try
       // si ya se habia abierto la conexion, deshacemos la transaccion
       if (conexion) await conexion.rollback(); 
       // mostramos el error en la consola
@@ -32,12 +32,12 @@ const insertarReservacionModel = async (datos) => {
 // modelo para listar reservaciones por pagina
 const listarReservacionesModel = async (pagina) => {
     let conexion; // declaramos la variable conexion
-    try { // estructura de control de errores
+    try { 
       conexion = await pool.getConnection(); // pedimos una conexion del pool
       // ejecutamos el llamado al procedimiento almacenado y obtenemos los resultados
       const [result] = await conexion.query("CALL listarReservaciones(?)", [pagina]);
       return result[0]; // retornamos el primer nivel de resultados
-    } catch (err) { // capturamos cualquier error
+    } catch (err) { // capturar cualquier error del try
       // mostramos el error en la consola
       console.error("Error en listarReservacionesModel:", err.message);
       // enviamos el error personalizado al controlador
@@ -51,12 +51,12 @@ const listarReservacionesModel = async (pagina) => {
 // modelo para obtener una reservacion por id
 const obtenerReservacionModel = async (idReservacion) => {
     let conexion; // declaramos la variable conexion
-    try { // estructura de control de errores
+    try {
       conexion = await pool.getConnection(); // pedimos una conexion del pool
       // ejecutamos el llamado al procedimiento almacenado y obtenemos los resultados
       const [result] = await conexion.query("CALL obtenerReservacion(?)", [idReservacion]);
       return result[0]; // retornamos el primer nivel de resultados
-    } catch (err) { // capturamos cualquier error
+    } catch (err) { // capturar cualquier error del try
       // mostramos el error en la consola
       console.error("Error en obtenerReservacionModel:", err.message);
       // enviamos el error personalizado al controlador
@@ -72,7 +72,7 @@ const actualizarReservacionModel = async (datos) => {
     // desectructuramos el objeto (datos)
     const { idReservacion, fechaReservacion, horaReservacion, cantidadPersonas, estadoReservacion, idMesa } = datos;
     let conexion; // declaramos la variable conexion
-    try { // estructura de control de errores
+    try { 
       conexion = await pool.getConnection(); // pedimos una conexion del pool
       await conexion.beginTransaction(); // iniciamos una transaccion 
       // ejecutamos el llamado al procedimiento almacenado
@@ -82,7 +82,7 @@ const actualizarReservacionModel = async (datos) => {
       // confirmamos que la transaccion fue exitosa
       await conexion.commit();
       return { mensaje: "Reservación actualizada exitosamente" };
-    } catch (err) { // capturamos cualquier error 
+    } catch (err) { // capturar cualquier error del try
       // si ya se habia abierto la conexion, deshacemos la transaccion
       if (conexion) await conexion.rollback(); 
       // mostramos el error en la consola
@@ -100,7 +100,7 @@ const insertarPagoModel = async (datos) => {
     // desectructuramos el objeto (datos)
     const { montoTotal, montoPagado, porcentajePago, idTransaccion, estadoPago, idReservacion } = datos;
     let conexion; // declaramos la variable conexion
-    try { // estructura de control de errores
+    try { 
       conexion = await pool.getConnection(); // pedimos una conexion del pool
       await conexion.beginTransaction(); // iniciamos una transaccion 
       // ejecutamos el llamado al procedimiento almacenado
@@ -110,7 +110,7 @@ const insertarPagoModel = async (datos) => {
       // confirmamos que la transaccion fue exitosa
       await conexion.commit();
       return { mensaje: "Pago registrado exitosamente" };
-    } catch (err) { // capturamos cualquier error 
+    } catch (err) { // capturar cualquier error del try
       // si ya se habia abierto la conexion, deshacemos la transaccion
       if (conexion) await conexion.rollback(); 
       // mostramos el error en la consola
@@ -126,12 +126,12 @@ const insertarPagoModel = async (datos) => {
 // modelo para obtener pago por id de reservacion
 const obtenerPagoModel = async (idReservacion) => {
     let conexion; // declaramos la variable conexion
-    try { // estructura de control de errores
+    try { 
       conexion = await pool.getConnection(); // pedimos una conexion del pool
       // ejecutamos el llamado al procedimiento almacenado y obtenemos los resultados
       const [result] = await conexion.query("CALL obtenerPago(?)", [idReservacion]);
       return result[0]; // retornamos el primer nivel de resultados
-    } catch (err) { // capturamos cualquier error
+    } catch (err) { // capturar cualquier error del try
       // mostramos el error en la consola
       console.error("Error en obtenerPagoModel:", err.message);
       // enviamos el error personalizado al controlador
@@ -147,7 +147,7 @@ const insertarDetalleReservacionModel = async (datos) => {
     // desectructuramos el objeto (datos)
     const { cantidadProductoReservacion, precioUnitario, idReservacion, idProducto } = datos;
     let conexion; // declaramos la variable conexion
-    try { // estructura de control de errores
+    try { 
       conexion = await pool.getConnection(); // pedimos una conexion del pool
       await conexion.beginTransaction(); // iniciamos una transaccion 
       // ejecutamos el llamado al procedimiento almacenado
@@ -157,7 +157,7 @@ const insertarDetalleReservacionModel = async (datos) => {
       // confirmamos que la transaccion fue exitosa
       await conexion.commit();
       return { mensaje: "Detalle de reservación registrado exitosamente" };
-    } catch (err) { // capturamos cualquier error 
+    } catch (err) { // capturar cualquier error del try
       // si ya se habia abierto la conexion, deshacemos la transaccion
       if (conexion) await conexion.rollback(); 
       // mostramos el error en la consola
@@ -173,12 +173,12 @@ const insertarDetalleReservacionModel = async (datos) => {
 // modelo para obtener detalle de reservacion por id
 const obtenerDetalleReservacionModel = async (idReservacion) => {
     let conexion; // declaramos la variable conexion
-    try { // estructura de control de errores
+    try { 
       conexion = await pool.getConnection(); // pedimos una conexion del pool
       // ejecutamos el llamado al procedimiento almacenado y obtenemos los resultados
       const [result] = await conexion.query("CALL obtenerDetalleReservacion(?)", [idReservacion]);
       return result[0]; // retornamos el primer nivel de resultados
-    } catch (err) { // capturamos cualquier error
+    } catch (err) { // capturar cualquier error del try
       // mostramos el error en la consola
       console.error("Error en obtenerDetalleReservacionModel:", err.message);
       // enviamos el error personalizado al controlador
