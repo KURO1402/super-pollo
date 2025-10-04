@@ -12,6 +12,8 @@ const fuenteDatosRouter = require("./src/modulos/fuenteDatos/fuenteDatosRutas.js
 //ruta para ventas
 const ventasRoutes = require("./src/modulos/ventas/ventaRutas.js");
 
+//ruta para reservaciones
+const reservacionesRoutes = require("./src/modulos/reservaciones/reservacionesRutas.js");
 
 const app = express();
 
@@ -37,7 +39,8 @@ app.get('/', (req, res) => {
 app.use('/usuarios', autenticacionRoutes);
 app.use('/ventas', ventasRoutes);
 app.use('/autenticacion', autenticacionRoutes);
-app.use('/fuente-datos', fuenteDatosRouter)
+app.use('/fuente-datos', fuenteDatosRouter);
+app.use('/reservaciones', reservacionesRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
