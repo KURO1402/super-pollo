@@ -3,13 +3,10 @@ import { FormularioComprobante } from "../componentes/FormularioComprobante";
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
 
 const NuevoComprobanteSeccion = () => {
-  const { detalle } = useVentaEstadoGlobal(); // detalle para poder mandar los productos como item
+  const { detalle, total } = useVentaEstadoGlobal(); // detalle para poder mandar los productos como item
 
   // función submit
   const handleComprobanteSubmit = (data) => {
-    // Formatear fecha para enviar al backend ya que tiene otra estructura
-    const fechaParts = data.fechaDeEmision.split("-");
-    const fechaEmision = `${fechaParts[2]}-${fechaParts[1]}-${fechaParts[0]}`;
 
     // Mapear items desde el estado global del detalle por cada producto
     const items = detalle.map((item) => {
@@ -23,22 +20,20 @@ const NuevoComprobanteSeccion = () => {
     const comprobante = {
       tipoDeComprobante: Number(data.tipoComprobante),
       clienteDenominacion: data.clienteDenominacion,
-      serie: data.serie,
-      fechaEmision,
-      moneda: Number(data.moneda),
+      total: total(),
       items,
     };
     console.log("datos cliente: ", data.datosCliente);// para verificar, 
     // Si hay datos completos desde el modal
     if (data.datosCliente) {
       comprobante.datosCliente = {
-        clienteTipoDocumento: Number(data.datosCliente.tipoDocumento),
-        clienteNumeroDocumento: data.datosCliente.numeroDocumento,
-        clienteNombre: data.datosCliente.nombre,
-        clienteNombreComercial: data.datosCliente.nombreComercial || "",
-        clienteDireccion: data.datosCliente.direccion || "",
-        clienteTelefono: data.datosCliente.telefono || "",
-        clienteEmail: data.datosCliente.email || "",
+        tipoDoc: Number(data.datosCliente.tipoDocumento),
+        numeroDoc: data.datosCliente.numeroDocumento,
+        nombre: data.datosCliente.nombre,
+        nombreComercial: data.datosCliente.nombreComercial || "",
+        direccion: data.datosCliente.direccion || "",
+        telefono: data.datosCliente.telefono || "",
+        email: data.datosCliente.email || "",
       };
     }
     console.log("Datos para enviar al backend:", comprobante);// mostramos por consola
