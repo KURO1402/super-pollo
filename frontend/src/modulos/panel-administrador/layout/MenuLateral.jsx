@@ -27,7 +27,6 @@ const navItems = [
     name: "Ventas",
     subItems: [
       { name: "Generar Venta", path: "/admin/generar-venta" },
-      { name: "Nuevo Comprobante", path: "/admin/nuevo-comprobante" },
       { name: "Historial de Comprobantes", path: "/admin/registro-ventas" },
     ],
   },
@@ -44,7 +43,9 @@ const navItems = [
   {
     icon: <FiCalendar size={20} />,
     name: "Reservas",
-    path: "/admin/reservas",
+    subItems: [
+      { name: "Calendario", path: "/admin/calendario-reservas" },
+    ],
   },
   {
     icon: <FiUsers size={20} />,

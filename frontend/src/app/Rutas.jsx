@@ -23,10 +23,10 @@ import Caja from "../modulos/panel-administrador/paginas/Caja";
 import GenerarVenta from "../modulos/panel-administrador/ventas/secciones/GenerarVentaSeccion";
 import RegistroVentasSeccion from "../modulos/panel-administrador/ventas/secciones/RegistroVentasSeccion";
 import Stock from "../modulos/panel-administrador/paginas/Stock";
-import Reservas from "../modulos/panel-administrador/paginas/Reservas";
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
 import NuevoComprobanteSeccion from "../modulos/panel-administrador/ventas/secciones/NuevoComprobanteSeccion";
+import CalendarioReservasSeccion from "../modulos/panel-administrador/reservas/secciones/CalendarioReservasSeccion";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -77,9 +77,9 @@ const AppRutas = () => {
                     { path: 'nuevo-comprobante', element: <NuevoComprobanteSeccion/> },
                     { path: 'generar-venta', element: <GenerarVenta/> },
                     { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
+                    { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
                     { path: 'stock', element: <Stock/> },
                     { path: 'caja', element: <Caja/> },
-                    { path: 'reservas', element: <Reservas/> },
                     { path: 'usuarios', element: <Usuarios/> },
                     { path: 'perfil', element: <Perfil/> },
                 ] // ruta por defecto del panel de admin
@@ -95,9 +95,9 @@ const AppRutas = () => {
                 { path: 'nuevo-comprobante', element: <NuevoComprobanteSeccion/> },
                 { path: 'generar-venta', element: <GenerarVenta/> },
                 { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
+                { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
                 { path: 'stock', element: <Stock/> },
                 { path: 'caja', element: <Caja/> },
-                { path: 'reservas', element: <Reservas/> },
                 { path: 'usuarios', element: <Usuarios/> },
                 { path: 'perfil', element: <Perfil/> },
 

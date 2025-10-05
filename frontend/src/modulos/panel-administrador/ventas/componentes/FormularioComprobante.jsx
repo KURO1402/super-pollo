@@ -79,7 +79,8 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
         className="w-full bg-white dark:bg-gray-900 p-4"
       >
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6 flex items-center space-x-2">
+          {/* Ícono y título */}
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Nuevo Comprobante
           </h1>

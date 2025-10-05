@@ -29,7 +29,7 @@ const SeccionVentas = () => {
               placeholder="Buscar por producto..."
             />
           </div>
-          <div className="grid grid-cols-1 gap-4 h-110 overflow-y-scroll">
+          <div className="grid grid-cols-1 gap-1 max-h-[70vh] overflow-y-auto">
             {filtrados.map((producto) => (
               <TarjetaProducto key={producto.id} producto={producto} />
             ))}
