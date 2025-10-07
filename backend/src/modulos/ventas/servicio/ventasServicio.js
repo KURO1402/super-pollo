@@ -2,7 +2,7 @@
 const { validarDatosVenta } = require("../../../utilidades/validacionesVenta")
 
 //Importamos el helper de ventas
-const { formatearDataVenta } = require("../../../helpers/ventas-helpers/formatearDataVenta");
+const { formatearVenta } = require("../../../helpers/ventas-helpers/formatearDataVenta");
 
 // Importamos servicios necesarios
 const { obtenerDatosComprobanteService } = require("../servicio/comprobantesServicio");
@@ -19,7 +19,11 @@ const registrarVentaService = async (datosVenta) => {
     // 2. Obtener datos del comprobante (solo lectura)
     const datosComprobante = await obtenerDatosComprobanteService(datosVenta.tipoComprobante);
 
-    const dataFormateada = formatearDataVenta(datosVenta, datosComprobante);
+    // Sumar +1 al ultimo correlativo
+    const nuevoCorrelativo = datosComprobante.ultimoCorrelativo + 1;
+    datosComprobante.ultimoCorrelativo = nuevoCorrelativo;
+
+    const dataFormateada = formatearVenta(datosVenta, datosComprobante);
     return dataFormateada;
     
 /*

@@ -8,14 +8,14 @@ function normalizarCliente(datosCliente, tipoComprobante) {
     return { ...CLIENTE_DEFAULT };
   }
 
-  const { tipoDoc, numeroDoc, nombreCliente, direccion, correo } = datosClient;
+  const { tipoDoc, numeroDoc, nombreCliente, direccionCliente, correoCliente } = datosCliente;
 
   return {
     nombreCliente: nombreCliente.trim(),
     tipoDoc,
     numeroDoc,
-    direccion: direccion ? direccion.trim() : "-",
-    email: correo ? correo.trim() : "-"
+    direccion: direccionCliente ? direccionCliente.trim() : "-",
+    email: correoCliente ? correoCliente.trim() : "-"
   };
 }
 

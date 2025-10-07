@@ -34,7 +34,7 @@ const obtenerDatosComprobanteService = async (tipoComprobante) => {
 
   return {
     serie: serieDB[0].serie,
-    siguienteCorrelativo: correlativoDB[0].ultimoNumero + 1
+    ultimoCorrelativo: correlativoDB[0].ultimoNumero // Aquí lo cambié
   };
 };
 

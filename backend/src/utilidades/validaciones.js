@@ -1,11 +1,17 @@
 // Funcion para validar correo electrónico tiene el formato correcto
+// Función para validar correo electrónico
 const validarCorreo = (correo) => {
-  if (!correo) return false;
-  // Expresión regular para validar correos
+  if (!correo) {
+    throw Object.assign(new Error("El correo es obligatorio"), { status: 400 });
+  }
+
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  // Devuelve true si el correo es válido, false si no
-  return regex.test(correo);
+  if (!regex.test(correo)) {
+    throw Object.assign(new Error("El correo electrónico no tiene un formato válido"), { status: 400 });
+  }
+
+  return true;
 };
 
 // Función para validar documentos según tipo numérico

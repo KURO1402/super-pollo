@@ -19,65 +19,28 @@ function obtenerCodigoSunat(idTipoDocumento) {
 
 
 function formatearVenta(datosFront, datosDB) {
+  const cliente = normalizarCliente(datosFront.datosCliente, datosFront.tipoComprobante)
   return {
     operacion: "generar_comprobante",
     tipo_de_comprobante: datosFront.tipoComprobante,
     serie: datosDB.serie,
-    numero: datosDB.numeroCorrelativo,
+    numero: datosDB.ultimoCorrelativo,
     sunat_transaction: CODIGOS_SUNAT.TRANSACCIONES.VENTA_INTERNA,
-    cliente_tipo_de_documento: obtenerCodigoSunat(datosFront.datosCliente.tipoDoc),
-    cliente_numero_de_documento: datosFront.datosCliente.numeroDoc,
-    cliente_denominacion: datosFront.datosCliente.nombreCliente,
-    cliente_direccion: datosFront.datosCliente.direccion,
-    cliente_email: datosFront.datosCliente.email,
-    fecha_de_emision: datosFront.fechaEmision,
+    cliente_tipo_de_documento: obtenerCodigoSunat(cliente.tipoDoc),
+    cliente_numero_de_documento: cliente.numeroDoc,
+    cliente_denominacion: cliente.nombreCliente,
+    cliente_direccion: cliente.direccion,
+    cliente_email: cliente.email,
+    /*fecha_de_emision: datosFront.fechaEmision,
     moneda: CODIGOS_SUNAT.MONEDA.SOLES,
     porcentaje_de_igv: datosFront.porcentajeIGV,
     total_gravada: datosFront.totalGravada,
     total_igv: datosFront.totalIGV,
     total: datosFront.total,
-    items: datosFront.productos
+    items: datosFront.productos*/
   };
 }
 
-// Calcular el total de una venta
-function calcularTotalVenta(productosCalculados) {
-  const total = productosCalculados.reduce((sum, producto) => sum + producto.total, 0);
-  return Number(total.toFixed(2));
-}
-
-// Procesar y formatear la venta para Nubefact
-function procesarVenta(datosVenta, datosComprobante) {
-  // Validar productos
-  validarProductos(datosVenta.productos, productos);
-
-  // Procesar productos (calcular totales de cada item)
-  datosVenta.productos = obtenerProductosConDatos(datosVenta.productos, productos);
-
-  // Calcular total
-  const totalVenta = calcularTotalVenta(datosVenta.productos);
-  validarMontoMinimo(totalVenta);
-
-  // Calcular montos de IGV, gravada, etc.
-  const montos = calcularMontosTotales(totalVenta);
-  Object.assign(datosVenta, montos);
-
-  // Normalizar cliente
-  datosVenta.datosCliente = normalizarCliente(
-    datosVenta.datosCliente,
-    datosVenta.tipoComprobante
-  );
-
-  // Agregar fecha de emisión
-  datosVenta.fechaEmision = generarFechaActual();
-
-  // Formatear datos finales
-  return formatearVenta(datosVenta, {
-    serie: datosComprobante.serie,
-    numeroCorrelativo: datosComprobante.siguienteCorrelativo
-  });
-}
-
 module.exports = {
-  procesarVenta
+  formatearVenta
 };
