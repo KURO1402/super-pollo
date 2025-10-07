@@ -43,9 +43,7 @@ const registrarUsuarioService = async (datos) => {
     throw Object.assign(new Error("Correo electrónico inválido"), { status: 400 });
   }
 
-  if (!validarDocumento(idTipoDocumento, numeroDocumentoUsuario)) {
-    throw Object.assign(new Error("Número de documento inválido"), { status: 400 });
-  }
+  validarDocumento(idTipoDocumento, numeroDocumentoUsuario);
 
   if (clave.length < 8) {
     throw Object.assign(new Error("La contraseña debe tener al menos 8 caracteres"), { status: 400 });

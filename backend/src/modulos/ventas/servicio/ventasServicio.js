@@ -1,27 +1,28 @@
-// Importamos los modelos
-const { actualizarCorrelativoService } = require('../servicio/comprobantesServicio');
-
-//Importamos servicios de comprobantes
-const { obtenerDatosComprobanteService, obtenerTiposComprobanteService } = require("../servicio/comprobantesServicio")
-
 //Importamos validaciones
 const { validarDatosVenta } = require("../../../utilidades/validacionesVenta")
 
 //Importamos el helper de ventas
-const { procesarVenta } = require("../../../helpers/ventas-helpers/formatearDataVenta")
+const { formatearDataVenta } = require("../../../helpers/ventas-helpers/formatearDataVenta");
 
+// Importamos servicios necesarios
+const { obtenerDatosComprobanteService } = require("../servicio/comprobantesServicio");
+const { actualizarCorrelativoService } = require("../servicio/comprobantesServicio");
 // Servicio de nubefact
 const { generarComprobanteNubefact } = require("../../../servicios/nubefact");
+
 
 // Función principal del servicio
 const registrarVentaService = async (datosVenta) => {
   try {
     // 1. Validaciones iniciales
     await validarDatosVenta(datosVenta);
-
     // 2. Obtener datos del comprobante (solo lectura)
     const datosComprobante = await obtenerDatosComprobanteService(datosVenta.tipoComprobante);
 
+    const dataFormateada = formatearDataVenta(datosVenta, datosComprobante);
+    return dataFormateada;
+    
+/*
     // 3. Preparar datos de la venta
     const dataFormateada = procesarVenta(datosVenta, datosComprobante);
 
@@ -33,7 +34,7 @@ const registrarVentaService = async (datosVenta) => {
       await actualizarCorrelativoService(datosVenta.tipoComprobante);
     }
 
-    return respuestaNubefact;
+    return respuestaNubefact;*/
   } catch (error) {
     console.error('Error en servicio de ventas:', error.message);
     if (!error.status) error.status = 500;

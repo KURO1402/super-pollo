@@ -11,7 +11,7 @@ const fuenteDatosRouter = require("./src/modulos/fuente-datos/fuenteDatosRutas")
 
 //ruta para ventas
 const ventasRoutes = require("./src/modulos/ventas/rutas/ventasRutas");
-
+const comprobanteRoutes = require("./src/modulos/ventas/rutas/comprobanteRutas");
 
 const app = express();
 
@@ -36,6 +36,7 @@ app.get('/', (req, res) => {
 //usar rutas
 app.use('/usuarios', autenticacionRoutes);
 app.use('/ventas', ventasRoutes);
+app.use('/ventas', comprobanteRoutes);
 app.use('/autenticacion', autenticacionRoutes);
 app.use('/fuente-datos', fuenteDatosRouter)
 

@@ -28,7 +28,9 @@ const CODIGOS_SUNAT = {
 const CLIENTE_DEFAULT = {
   tipoDoc: "-",
   numeroDoc: "00000000",
-  nombreCliente: "Consumidor final"
+  nombreCliente: "Consumidor final",
+  direccion: "-",
+  email: "-"
 };
 
 const MONTO_MINIMO_DOCUMENTO = 700;

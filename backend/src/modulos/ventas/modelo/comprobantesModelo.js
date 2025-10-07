@@ -7,7 +7,7 @@ const obtenerTiposComprobantesModel = async () => {
     conexion = await pool.getConnection();
     const [rows] = await conexion.query("CALL obtenerTiposComprobante()");
 
-    return rows[0]; // 👈 devuelve directamente los registros
+    return rows[0]; 
   } catch (err) {
     console.error("Error al obtener los tipos de comprobante:", err.message);
     throw new Error("Error al obtener los tipos de comprobante de la base de datos");

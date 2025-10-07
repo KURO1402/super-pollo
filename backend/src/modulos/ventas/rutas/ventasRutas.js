@@ -14,6 +14,6 @@ router.post("/generar-venta", registrarVentaController);
 router.get("/", obtenerVentaController);
 
 // Obtener una venta específica por ID
-router.get("/:id", obtenerVentaIDController);
+router.get("/venta-id/:id", obtenerVentaIDController);
 
 module.exports = router;

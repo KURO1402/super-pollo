@@ -54,36 +54,48 @@ END //
 
 /* PROCEDIMIENTO ALMACENADO insertarVenta */
 CREATE PROCEDURE insertarVenta(
-    IN p_numeroDocumentoCliente VARCHAR(12),
-    IN p_serie VARCHAR(5),
-    IN p_numeroCorrelativo INT,
-    IN p_sunatTransaccion TINYINT,
-    IN p_fechaEmision DATE,
-    IN p_fechaVencimiento DATE,
-    IN p_porcentajeIGV DECIMAL(10,2),
-    IN p_totalGravada DECIMAL(10,2),
-    IN p_totalIGV DECIMAL(10,2),
-    IN p_totalVenta DECIMAL(10,2),
-    IN p_aceptadaPorSunat TINYINT,
-    IN p_fechaRegistro DATETIME,
-    IN p_urlComprobantePDF VARCHAR(100),
-    IN p_urlComprobanteXML VARCHAR(100),
-    IN p_idMedioPago INT,
-    IN p_idTipoComprobante INT
+IN p_numeroDocumentoCliente VARCHAR(12),
+IN p_serie VARCHAR(5),
+IN p_numeroCorrelativo INT,
+IN p_sunatTransaccion TINYINT,
+IN p_fechaEmision DATE,
+IN p_fechaVencimiento DATE,
+IN p_porcentajeIGV DECIMAL(10,2),
+IN p_totalGravada DECIMAL(10,2),
+IN p_totalIGV DECIMAL(10,2),
+IN p_totalVenta DECIMAL(10,2),
+IN p_aceptadaPorSunat TINYINT,
+IN p_fechaRegistro DATETIME,
+IN p_urlComprobantePDF VARCHAR(100),
+IN p_urlComprobanteXML VARCHAR(100),
+IN p_idMedioPago INT,
+IN p_idTipoComprobante INT
 )
 BEGIN
-    INSERT INTO ventas(
-        numeroDocumentoCliente, serie, numeroCorrelativo, sunatTransaccion,
-        fechaEmision, fechaVencimiento, porcentajeIGV, totalGravada,
-        totalIGV, totalVenta, aceptadaPorSunat, fechaRegistro,
-        urlComprobantePDF, urlComprobanteXML, idMedioPago, idTipoComprobante
-    )
-    VALUES (
-        p_numeroDocumentoCliente, p_serie, p_numeroCorrelativo, p_sunatTransaccion,
-        p_fechaEmision, p_fechaVencimiento, p_porcentajeIGV, p_totalGravada,
-        p_totalIGV, p_totalVenta, p_aceptadaPorSunat, p_fechaRegistro,
-        p_urlComprobantePDF, p_urlComprobanteXML, p_idMedioPago, p_idTipoComprobante
-    );
+DECLARE exit HANDLER FOR SQLEXCEPTION
+BEGIN
+-- Si ocurre un error, hacemos rollback
+ROLLBACK;
+END;
+
+START TRANSACTION;
+
+INSERT INTO ventas(
+    numeroDocumentoCliente, serie, numeroCorrelativo, sunatTransaccion,
+    fechaEmision, fechaVencimiento, porcentajeIGV, totalGravada,
+    totalIGV, totalVenta, aceptadaPorSunat, fechaRegistro,
+    urlComprobantePDF, urlComprobanteXML, idMedioPago, idTipoComprobante
+)
+VALUES (
+    p_numeroDocumentoCliente, p_serie, p_numeroCorrelativo, p_sunatTransaccion,
+    p_fechaEmision, p_fechaVencimiento, p_porcentajeIGV, p_totalGravada,
+    p_totalIGV, p_totalVenta, p_aceptadaPorSunat, p_fechaRegistro,
+    p_urlComprobantePDF, p_urlComprobanteXML, p_idMedioPago, p_idTipoComprobante
+);
+
+COMMIT;
+
+
 END //
 
 /* PROCEDIMIENTO ALMACENADO listarVentas (20 en 20) */

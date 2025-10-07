@@ -1,6 +1,6 @@
 // Funcion para validar correo electrónico tiene el formato correcto
 const validarCorreo = (correo) => {
-  if(!correo) return false;
+  if (!correo) return false;
   // Expresión regular para validar correos
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -10,81 +10,43 @@ const validarCorreo = (correo) => {
 
 // Función para validar documentos según tipo numérico
 const validarDocumento = (tipo, valor) => {
-  if(!tipo && !valor) return false;
-  const soloNumeros = /^[0-9]+$/;
-  const alfanumerico = /^[a-zA-Z0-9]+$/;
-  
-  // Convertimos el tipo a número para evitar errores por texto
-  switch (parseInt(tipo)) {
+  switch (Number(tipo)) {
     case 1: // DNI
-      // Validar que tenga exactamente 8 dígitos y que solo sean números
-      return soloNumeros.test(valor) && valor.length === 8;
-
-    case 2: // Carnet de extranjería
-      // Validar que tenga exactamente 9 dígitos y que solo sean números
-      return soloNumeros.test(valor) && valor.length === 9;
-
+      if (!/^\d{8}$/.test(valor)) {
+        throw Object.assign(new Error("El DNI debe tener exactamente 8 dígitos"), { status: 400 });
+      }
+      break;
+    case 2: // Carné de Extranjería
+      if (!/^[A-Za-z0-9]{9,12}$/.test(valor)) {
+        throw Object.assign(new Error("El Carné de Extranjería debe tener entre 9 y 12 caracteres alfanuméricos"), { status: 400 });
+      }
+      break;
     case 3: // Pasaporte
-      // Validar que el valor sea alfanumérico y tenga entre 8 y 12 caracteres
-      return alfanumerico.test(valor) && valor.length >= 8 && valor.length <= 12;
-
+      if (!/^[A-Za-z0-9]{6,12}$/.test(valor)) {
+        throw Object.assign(new Error("El Pasaporte debe tener entre 6 y 12 caracteres alfanuméricos"), { status: 400 });
+      }
+      break;
+    case 4: // RUC
+      if (!/^\d{11}$/.test(valor)) {
+        throw Object.assign(new Error("El RUC debe tener exactamente 11 dígitos"), { status: 400 });
+      }
+      break;
     default:
-      // Si el tipo no coincide con ninguno de los casos anteriores, retorna false
-      return false;
+      throw Object.assign(new Error("Tipo de documento no válido"), { status: 400 });
   }
 }
 
 // Función para validar números telefónicos
 const validarTelefono = (valor) => {
-  if(!valor) return false;
+  if (!valor) return false;
   // Quitar espacios en blanco
   const limpio = valor.replace(/\s+/g, "");
   // Validar que tenga numeros y opcionalmente un + al inicio
   const formatoTelefono = /^\+?\d+$/;
-   return formatoTelefono.test(limpio);
+  return formatoTelefono.test(limpio);
 }
 
-//Validaciones apra al venta
-// Validar si es número positivo
-const validarNumeroPositivo = (valor) => {
-  return typeof valor === "number" && valor >= 0;
-};
 
-// Validar fechas (YYYY-MM-DD)
-const validarFecha = (valor) => {
-  return !isNaN(Date.parse(valor));
-};
-
-// Validar texto con límite
-const validarTexto = (valor, max) => {
-  return typeof valor === "string" && valor.trim() !== "" && valor.length <= max;
-};
-
-// Validar enteros positivos
-const validarEntero = (valor) => {
-  return Number.isInteger(valor) && valor > 0;
-};
-
-// Validar campos de venta según la BD
-const validarVenta = (venta) => {
-  if (!validarTexto(venta.numeroDocumentoCliente, 12)) return "Documento cliente inválido";
-  if (!validarTexto(venta.serie, 5)) return "Serie inválida";
-  //if (!validarEntero(venta.numeroCorrelativo)) return "Número correlativo inválido";
-  //if (venta.sunatTransaccion !== 0 && venta.sunatTransaccion !== 1) return "Transacción Sunat inválida";
-  if (!validarFecha(venta.fechaEmision)) return "Fecha de emisión inválida";
-  if (venta.fechaVencimiento && !validarFecha(venta.fechaVencimiento)) return "Fecha de vencimiento inválida";
-  if (!validarNumeroPositivo(venta.porcentajeIGV)) return "Porcentaje IGV inválido";
-  if (!validarNumeroPositivo(venta.totalGravada)) return "Total gravada inválido";
-  if (!validarNumeroPositivo(venta.totalIGV)) return "Total IGV inválido";
-  if (!validarNumeroPositivo(venta.totalVenta) || venta.totalVenta === 0) return "Total venta inválido";
-  if (venta.aceptadaPorSunat !== 0 && venta.aceptadaPorSunat !== 1) return "Aceptada por Sunat inválida";
-  //if (!validarFecha(venta.fechaRegistro)) return "Fecha de registro inválida";
-  if (venta.urlCombrobantePDF && !validarTexto(venta.urlCombrobantePDF, 100)) return "URL PDF inválida";
-  if (venta.urlCombrobanteXML && !validarTexto(venta.urlCombrobanteXML, 100)) return "URL XML inválida";
-  if (venta.idMedioPago && !validarEntero(venta.idMedioPago)) return "Medio de pago inválido";
-  if (venta.idTipoComprobante && !validarEntero(venta.idTipoComprobante)) return "Tipo comprobante inválido";
-  return null; //  todo bien
-};
 
 //Exportamos funciones
-module.exports = { validarCorreo, validarDocumento, validarTelefono, validarNumeroPositivo, validarFecha, validarEntero, validarTexto, validarVenta };
+module.exports = { validarCorreo, validarDocumento, validarTelefono };
