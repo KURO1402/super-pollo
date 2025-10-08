@@ -1,10 +1,10 @@
 // Importamos los servicios
 const {
   registrarVentaService,
-} = require("./ventaServicio");
+} = require("../servicio/ventasServicio");
 
 // Importamos las validaciones
-const {validarVenta} = require("../../utilidades/validaciones")
+const {validarVenta} = require("../../../utilidades/validaciones")
 //Registrar ventas
 const registrarVentaController = async (req, res) => {
     try {

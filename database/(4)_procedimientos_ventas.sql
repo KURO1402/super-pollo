@@ -9,6 +9,13 @@ DROP PROCEDURE IF EXISTS obtenerSeriePorTipoComprobante;
 
 DELIMITER //
 
+/*Obtener todos los tipos de comprobante*/
+CREATE PROCEDURE obtenerTiposComprobante()
+BEGIN
+    SELECT idTipoComprobante, nombreTipoComprobante, serie
+    FROM tipoComprobantes;
+END //
+
 /* PROCEDIMIENTO ALMACENADO para obtener la serie segun el id del tipo de comprobante */
 CREATE PROCEDURE obtenerSeriePorTipoComprobante(
     IN p_idTipoComprobante INT
@@ -29,16 +36,17 @@ BEGIN
     WHERE idTipoComprobante = p_idTipoComprobante;
 END //
 
-/*Procemiento para actualizar el correlativo en la base de datos*/
+/* Procedimiento para actualizar el correlativo en la base de datos */
 CREATE PROCEDURE actualizarCorrelativoSolo(
-    IN p_idTipoComprobante INT
+    IN p_idTipoComprobante INT,
+    IN p_nuevoCorrelativo INT
 )
 BEGIN
     START TRANSACTION;
 
-    -- Incrementar correlativo en 1
+    -- Actualizar el correlativo con el nuevo valor recibido
     UPDATE correlativos
-    SET ultimoNumero = ultimoNumero + 1
+    SET ultimoNumero = p_nuevoCorrelativo
     WHERE idTipoComprobante = p_idTipoComprobante;
 
     COMMIT;
@@ -47,36 +55,48 @@ END //
 
 /* PROCEDIMIENTO ALMACENADO insertarVenta */
 CREATE PROCEDURE insertarVenta(
-    IN p_numeroDocumentoCliente VARCHAR(12),
-    IN p_serie VARCHAR(5),
-    IN p_numeroCorrelativo INT,
-    IN p_sunatTransaccion TINYINT,
-    IN p_fechaEmision DATE,
-    IN p_fechaVencimiento DATE,
-    IN p_porcentajeIGV DECIMAL(10,2),
-    IN p_totalGravada DECIMAL(10,2),
-    IN p_totalIGV DECIMAL(10,2),
-    IN p_totalVenta DECIMAL(10,2),
-    IN p_aceptadaPorSunat TINYINT,
-    IN p_fechaRegistro DATETIME,
-    IN p_urlComprobantePDF VARCHAR(100),
-    IN p_urlComprobanteXML VARCHAR(100),
-    IN p_idMedioPago INT,
-    IN p_idTipoComprobante INT
+IN p_numeroDocumentoCliente VARCHAR(12),
+IN p_serie VARCHAR(5),
+IN p_numeroCorrelativo INT,
+IN p_sunatTransaccion TINYINT,
+IN p_fechaEmision DATE,
+IN p_fechaVencimiento DATE,
+IN p_porcentajeIGV DECIMAL(10,2),
+IN p_totalGravada DECIMAL(10,2),
+IN p_totalIGV DECIMAL(10,2),
+IN p_totalVenta DECIMAL(10,2),
+IN p_aceptadaPorSunat TINYINT,
+IN p_fechaRegistro DATETIME,
+IN p_urlComprobantePDF VARCHAR(100),
+IN p_urlComprobanteXML VARCHAR(100),
+IN p_idMedioPago INT,
+IN p_idTipoComprobante INT
 )
 BEGIN
-    INSERT INTO ventas(
-        numeroDocumentoCliente, serie, numeroCorrelativo, sunatTransaccion,
-        fechaEmision, fechaVencimiento, porcentajeIGV, totalGravada,
-        totalIGV, totalVenta, aceptadaPorSunat, fechaRegistro,
-        urlComprobantePDF, urlComprobanteXML, idMedioPago, idTipoComprobante
-    )
-    VALUES (
-        p_numeroDocumentoCliente, p_serie, p_numeroCorrelativo, p_sunatTransaccion,
-        p_fechaEmision, p_fechaVencimiento, p_porcentajeIGV, p_totalGravada,
-        p_totalIGV, p_totalVenta, p_aceptadaPorSunat, p_fechaRegistro,
-        p_urlComprobantePDF, p_urlComprobanteXML, p_idMedioPago, p_idTipoComprobante
-    );
+DECLARE exit HANDLER FOR SQLEXCEPTION
+BEGIN
+-- Si ocurre un error, hacemos rollback
+ROLLBACK;
+END;
+
+START TRANSACTION;
+
+INSERT INTO ventas(
+    numeroDocumentoCliente, serie, numeroCorrelativo, sunatTransaccion,
+    fechaEmision, fechaVencimiento, porcentajeIGV, totalGravada,
+    totalIGV, totalVenta, aceptadaPorSunat, fechaRegistro,
+    urlComprobantePDF, urlComprobanteXML, idMedioPago, idTipoComprobante
+)
+VALUES (
+    p_numeroDocumentoCliente, p_serie, p_numeroCorrelativo, p_sunatTransaccion,
+    p_fechaEmision, p_fechaVencimiento, p_porcentajeIGV, p_totalGravada,
+    p_totalIGV, p_totalVenta, p_aceptadaPorSunat, p_fechaRegistro,
+    p_urlComprobantePDF, p_urlComprobanteXML, p_idMedioPago, p_idTipoComprobante
+);
+
+COMMIT;
+
+
 END //
 
 /* PROCEDIMIENTO ALMACENADO listarVentas (20 en 20) */
