@@ -5,29 +5,26 @@ const {
     obtenerInsumoIDModel,
     actualizarInsumoModel,
     eliminarInsumoModel
-} = require("./stockModelo");
+} = require("./inventarioModelo");
+
+// Crear un nuevo insumo
+const { validarDatosInsumo } = require("../../utilidades/inventarioValidaciones");
 
 // Crear un nuevo insumo
 const crearInsumoService = async (datos) => {
-    // Validamos campos obligatorios
-    if (!datos.nombreInsumo || !datos.unidadMedida || !datos.categoriaProducto) {
-        const error = new Error("Faltan datos obligatorios del insumo");
-        error.status = 400;
-        throw error;
-    }
+    // Validar y sanitizar datos con la función del validador
+    const datosValidados = await validarDatosInsumo(datos);
 
-    // Si no viene stock se inicia en 0
-    if (datos.stockInsumo === undefined) datos.stockInsumo = 0;
+    // Insertar en la base de datos
+    const nuevoInsumo = await insertarInsumoModel(datosValidados);
 
-    // Insertamos el insumo en la BD
-    const nuevoInsumo = await insertarInsumoModel(datos);
-
-    // Retornamos mensaje con el ID generado
     return {
         mensaje: "Insumo registrado con éxito",
         insumoId: nuevoInsumo.insertId || nuevoInsumo.idInsumo,
     };
 };
+
+
 
 // Listar todos los insumos
 const listarInsumosService = async () => {

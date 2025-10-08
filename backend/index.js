@@ -13,7 +13,7 @@ const fuenteDatosRouter = require("./src/modulos/fuenteDatos/fuenteDatosRutas.js
 const ventasRoutes = require("./src/modulos/ventas/ventaRutas.js");
 
 //ruta del modulo stock
-const stockRoutes = require("./src/modulos/stock/stockRutas.js")
+const inventarioRoutes = require("./src/modulos/inventario/inventarioRutas.js")
 
 
 const app = express();
@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
 app.use('/ventas', ventasRoutes);
 app.use('/autenticacion', autenticacionRoutes);
 app.use('/fuente-datos', fuenteDatosRouter)
-app.use('/stock', stockRoutes)
+app.use('/inventario', inventarioRoutes)
 
 // Iniciar servidor
 app.listen(PORT, () => {
