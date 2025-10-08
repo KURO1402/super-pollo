@@ -36,16 +36,17 @@ BEGIN
     WHERE idTipoComprobante = p_idTipoComprobante;
 END //
 
-/*Procemiento para actualizar el correlativo en la base de datos*/
+/* Procedimiento para actualizar el correlativo en la base de datos */
 CREATE PROCEDURE actualizarCorrelativoSolo(
-    IN p_idTipoComprobante INT
+    IN p_idTipoComprobante INT,
+    IN p_nuevoCorrelativo INT
 )
 BEGIN
     START TRANSACTION;
 
-    -- Incrementar correlativo en 1
+    -- Actualizar el correlativo con el nuevo valor recibido
     UPDATE correlativos
-    SET ultimoNumero = ultimoNumero + 1
+    SET ultimoNumero = p_nuevoCorrelativo
     WHERE idTipoComprobante = p_idTipoComprobante;
 
     COMMIT;

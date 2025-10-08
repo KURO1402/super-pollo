@@ -1,7 +1,9 @@
-const { CODIGOS_SUNAT } = require('../../config/constantes');
-
 // Calcular montos totales con IGV
-function calcularMontosTotales(montoTotal, porcentajeIGV = CODIGOS_SUNAT.IGV.PORCENTAJE) {
+function calcularMontosTotales(productos, porcentajeIGV) {
+  // Sumar todos los totales de los productos
+  const montoTotal = productos.reduce((suma, producto) => suma + Number(producto.total || 0), 0);
+
+  // Calcular los valores de IGV y base imponible
   const totalGravada = +(montoTotal / (1 + porcentajeIGV / 100)).toFixed(2);
   const totalIGV = +(montoTotal - totalGravada).toFixed(2);
 
@@ -9,20 +11,10 @@ function calcularMontosTotales(montoTotal, porcentajeIGV = CODIGOS_SUNAT.IGV.POR
     totalGravada,
     totalIGV,
     porcentajeIGV,
-    total: montoTotal
+    total: Number(montoTotal.toFixed(2))
   };
 }
 
-// Validar montos mínimos
-function validarMontoMinimo(monto) {
-  if (monto <= 0) {
-    const error = new Error('El monto total debe ser mayor a 0');
-    error.status = 400;
-    throw error;
-  }
-}
-
 module.exports = {
-  calcularMontosTotales,
-  validarMontoMinimo
+  calcularMontosTotales
 };

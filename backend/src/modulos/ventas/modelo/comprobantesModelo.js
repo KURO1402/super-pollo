@@ -53,15 +53,15 @@ const obtenerUltimoCorrelativoModel = async (idComprobante) => {
 };
 
 //Actualizar correlativo de venta 
-const actualizarCorrelativoModel = async (idComprobante) => {
+const actualizarCorrelativoModel = async (idComprobante, nuevoCorrelativo) => {
   let conexion;
   try {
     conexion = await pool.getConnection();
 
-    // Llamar al procedimiento que incrementa correlativo
+    // Llamar al procedimiento que actualiza el correlativo
     await conexion.query(
-      `CALL actualizarCorrelativoSolo(?)`,
-      [idComprobante]
+      `CALL actualizarCorrelativoSolo(?, ?)`,
+      [idComprobante, nuevoCorrelativo]
     );
 
     return true; // éxito

@@ -2,10 +2,9 @@ const { CODIGOS_SUNAT } = require('../../config/constantes');
 
 // Obtener productos con cálculos de IGV
 function obtenerProductosConDatos(productosSolicitados, catalogo) {
-  validarProductos(productosSolicitados, catalogo);
 
-  return productosSolicitados.map(({ productoId, cantidad }) => {
-    const producto = catalogo.find(p => p.idProducto === productoId);
+  return productosSolicitados.map(({ idProducto, cantidad }) => {
+    const producto = catalogo.find(p => p.idProducto === idProducto);
     return calcularMontosProducto(producto, cantidad);
   });
 }
@@ -32,39 +31,6 @@ function calcularMontosProducto(producto, cantidad) {
   };
 }
 
-// Validar productos
-function validarProductos(productosSolicitados, catalogo) {
-  if (!Array.isArray(productosSolicitados) || productosSolicitados.length === 0) {
-    const error = new Error("Debe enviar al menos un producto en la solicitud");
-    error.status = 400;
-    throw error;
-  }
-
-  // ✅ Validación estricta: todos los productos deben tener id y cantidad válida
-  const todosValidos = productosSolicitados.every(
-    ({ productoId, cantidad }) => productoId && cantidad > 0
-  );
-
-  if (!todosValidos) {
-    const error = new Error("Todos los productos deben tener un id y una cantidad mayor a 0");
-    error.status = 400;
-    throw error;
-  }
-
-  // ✅ Validación catálogo: todos los productos deben existir
-  const todosExisten = productosSolicitados.every(({ productoId }) =>
-    catalogo.some(p => p.idProducto === productoId)
-  );
-
-  if (!todosExisten) {
-    const error = new Error("Se debe mandar un id de un producto existente");
-    error.status = 400;
-    throw error;
-  }
-}
-
 module.exports = {
-  obtenerProductosConDatos,
-  validarProductos,
-  calcularMontosProducto
+  obtenerProductosConDatos
 };

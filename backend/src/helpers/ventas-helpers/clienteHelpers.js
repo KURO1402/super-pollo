@@ -10,13 +10,20 @@ function normalizarCliente(datosCliente, tipoComprobante) {
 
   const { tipoDoc, numeroDoc, nombreCliente, direccionCliente, correoCliente } = datosCliente;
 
-  return {
+  // Crear el objeto base
+  const clienteNormalizado = {
     nombreCliente: nombreCliente.trim(),
     tipoDoc,
     numeroDoc,
-    direccion: direccionCliente ? direccionCliente.trim() : "-",
-    email: correoCliente ? correoCliente.trim() : "-"
+    direccion: direccionCliente ? direccionCliente.trim() : "-"
   };
+
+  // Solo agregar el email si existe y no está vacío
+  if (correoCliente && correoCliente.trim() !== "") {
+    clienteNormalizado.email = correoCliente.trim();
+  }
+
+  return clienteNormalizado;
 }
 
 module.exports = {

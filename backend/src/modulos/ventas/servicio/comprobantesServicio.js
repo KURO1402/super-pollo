@@ -39,7 +39,7 @@ const obtenerDatosComprobanteService = async (tipoComprobante) => {
 };
 
 //Actualizar numero correlativo 
-const actualizarCorrelativoService = async (idComprobante) => {
+const actualizarCorrelativoService = async (idComprobante, nuevoCorrelativo) => {
   try {
     const tiposComprobante = await obtenerTiposComprobantesModel();
 
@@ -48,7 +48,7 @@ const actualizarCorrelativoService = async (idComprobante) => {
         error.status = 400;
         throw error;
     }
-    const actualizado = await actualizarCorrelativoModel(idComprobante);
+    const actualizado = await actualizarCorrelativoModel(idComprobante, nuevoCorrelativo);
 
     if (!actualizado) {
       const error = new Error("No se pudo actualizar el correlativo");

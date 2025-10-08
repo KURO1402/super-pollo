@@ -6,7 +6,7 @@ const productos = [
     descripcionProducto: "Pollo entero sazonado al estilo tradicional, cocinado a la brasa.",
     imagen: "https://mi-polleria.com/imagenes/pollo_entero.jpg",
     unidad: "unidad",
-    precio: 35.00,
+    precio: 55.00,
     estado: "activo"
   },
   {
@@ -15,7 +15,7 @@ const productos = [
     descripcionProducto: "Media porción de pollo a la brasa con el mismo sabor clásico.",
     imagen: "https://mi-polleria.com/imagenes/medio_pollo.jpg",
     unidad: "unidad",
-    precio: 20.00,
+    precio: 35.99,
     estado: "activo"
   },
   {
@@ -24,7 +24,7 @@ const productos = [
     descripcionProducto: "Presas adicionales de pollo (pierna, ala, pechuga) cocinadas a la brasa.",
     imagen: "https://mi-polleria.com/imagenes/presas.jpg",
     unidad: "pieza",
-    precio: 6.00,
+    precio: 6.50,
     estado: "activo"
   },
   {
@@ -60,7 +60,7 @@ const productos = [
     descripcionProducto: "1 Pollo entero + papas grandes + ensalada + gaseosa 1.5L.",
     imagen: "https://mi-polleria.com/imagenes/combo_familiar.jpg",
     unidad: "combo",
-    precio: 48.00,
+    precio: 68.99,
     estado: "activo"
   }
 ];

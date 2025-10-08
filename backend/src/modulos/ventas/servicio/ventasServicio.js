@@ -14,9 +14,9 @@ const { generarComprobanteNubefact } = require("../../../servicios/nubefact");
 // Función principal del servicio
 const registrarVentaService = async (datosVenta) => {
   try {
-    // 1. Validaciones iniciales
+    // Validaciones iniciales
     await validarDatosVenta(datosVenta);
-    // 2. Obtener datos del comprobante (solo lectura)
+    // Obtener datos del comprobante (solo lectura)
     const datosComprobante = await obtenerDatosComprobanteService(datosVenta.tipoComprobante);
 
     // Sumar +1 al ultimo correlativo
@@ -24,21 +24,16 @@ const registrarVentaService = async (datosVenta) => {
     datosComprobante.ultimoCorrelativo = nuevoCorrelativo;
 
     const dataFormateada = formatearVenta(datosVenta, datosComprobante);
-    return dataFormateada;
-    
-/*
-    // 3. Preparar datos de la venta
-    const dataFormateada = procesarVenta(datosVenta, datosComprobante);
 
-    // 4. Enviar a Nubefact
+    // Enviar a Nubefact
     const respuestaNubefact = await generarComprobanteNubefact(dataFormateada);
 
-    // 5. Si Nubefact devuelve comprobante válido, actualizamos correlativo
-    if (respuestaNubefact && respuestaNubefact.serie && respuestaNubefact.numero && respuestaNubefact.enlace_del_pdf) {
-      await actualizarCorrelativoService(datosVenta.tipoComprobante);
+    // Si Nubefact devuelve comprobante válido, actualizamos correlativo
+    if (!respuestaNubefact.error || !respuestaNubefact.codigo) {
+      await actualizarCorrelativoService(datosVenta.tipoComprobante, nuevoCorrelativo);
     }
 
-    return respuestaNubefact;*/
+    return respuestaNubefact;
   } catch (error) {
     console.error('Error en servicio de ventas:', error.message);
     if (!error.status) error.status = 500;
