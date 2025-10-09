@@ -11,9 +11,9 @@ import InputContraseñaEditable from "../componentes/InputContraseñaEditable";
 
 
 const Perfil = () => {
-  const [usuario, setUsuario] = useState(null);
-  const { estaAbierto, abrir, cerrar } = useModal();
-  // obtener datos del usuario
+  const [usuario, setUsuario] = useState(null); //estado para guardar la info del usuario
+  const { estaAbierto, abrir, cerrar } = useModal(); // de nuestro hook modal
+  // obtener datos del usuario, solo de ejemplo
   useEffect(() => {
     const fetchUsuario = async () => {
       const respuesta = {

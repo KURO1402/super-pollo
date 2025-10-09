@@ -20,7 +20,7 @@ const LayoutContent = () => {
       >
         <Cabecera />
         {/* Contenido principal con fondo */}
-        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+        <div className="p-1 mx-auto max-w-(--breakpoint-2xl) md:p-2">
           <Outlet />
         </div>
       </div>

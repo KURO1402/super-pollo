@@ -10,17 +10,15 @@ export const TarjetaProducto = ({ producto }) => {
       onClick={() => {
         agregarProducto(producto);
       }}
-      className="cursor-pointer"
+      className="cursor-pointer transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-100"
     >
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex items-center justify-between">
-        <div className="flex flex-col justify-center">
-          <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
-            {producto.nombre}
-          </h3>
-          <p className="text-lg font-bold text-blue-600 mt-1">
-            S/ {producto.precio.toFixed(2)}
-          </p>
-        </div>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex justify-between items-center">
+        <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+          {producto.nombre}
+        </h3>
+        <p className="font-bold text-blue-600 text-sm ">
+          S/ {producto.precio.toFixed(2)}
+        </p>
       </div>
     </button>
   );
