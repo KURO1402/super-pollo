@@ -29,7 +29,7 @@ const registrarVentaService = async (datosVenta) => {
     const respuestaNubefact = await generarComprobanteNubefact(dataFormateada);
 
     // Si Nubefact devuelve comprobante válido, actualizamos correlativo
-    if (!respuestaNubefact.error || !respuestaNubefact.codigo) {
+    if (!respuestaNubefact.error && !respuestaNubefact.codigo) {
       await actualizarCorrelativoService(datosVenta.tipoComprobante, nuevoCorrelativo);
     }
 

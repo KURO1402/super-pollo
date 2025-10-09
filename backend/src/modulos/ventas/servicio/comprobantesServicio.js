@@ -40,7 +40,6 @@ const obtenerDatosComprobanteService = async (tipoComprobante) => {
 
 //Actualizar numero correlativo 
 const actualizarCorrelativoService = async (idComprobante, nuevoCorrelativo) => {
-  try {
     const tiposComprobante = await obtenerTiposComprobantesModel();
 
     if(!idComprobante || idComprobante > tiposComprobante.length ){
@@ -56,16 +55,7 @@ const actualizarCorrelativoService = async (idComprobante, nuevoCorrelativo) => 
       throw error;
     }
 
-    return { 
-      success: true, 
-      message: "Correlativo actualizado correctamente" 
-    };
-
-  } catch (error) {
-    console.error("Error en actualizarCorrelativoService:", error.message);
-    if (!error.status) error.status = 500;
-    throw error;
-  }
+    return true
 };
 
 module.exports = {

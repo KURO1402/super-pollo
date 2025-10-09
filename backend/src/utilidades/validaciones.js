@@ -10,8 +10,6 @@ const validarCorreo = (correo) => {
   if (!regex.test(correo)) {
     throw Object.assign(new Error("El correo electrónico no tiene un formato válido"), { status: 400 });
   }
-
-  return true;
 };
 
 // Función para validar documentos según tipo numérico
@@ -44,12 +42,16 @@ const validarDocumento = (tipo, valor) => {
 
 // Función para validar números telefónicos
 const validarTelefono = (valor) => {
-  if (!valor) return false;
+  if (!valor) {
+    throw Object.assign(new Error("El número de teléfono es obligatorio"), { status: 400 });
+  }
   // Quitar espacios en blanco
   const limpio = valor.replace(/\s+/g, "");
-  // Validar que tenga numeros y opcionalmente un + al inicio
+  // Validar que tenga números y opcionalmente un + al inicio
   const formatoTelefono = /^\+?\d+$/;
-  return formatoTelefono.test(limpio);
+  if (!formatoTelefono.test(limpio)) {
+    throw Object.assign(new Error("El número de teléfono no tiene un formato válido"), { status: 400 });
+  }
 }
 
 

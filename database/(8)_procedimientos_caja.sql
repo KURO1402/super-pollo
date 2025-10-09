@@ -3,6 +3,7 @@ use super_pollo;
 /* ELIMINAR PROCEDIMIENTOS ALMACENADOS DEL MODULO DE CAJA SI YA EXISTEN */
 DROP PROCEDURE IF EXISTS crearCajaConEvento;
 DROP PROCEDURE IF EXISTS cerrarCajaConEvento;
+DROP PROCEDURE IF EXISTS consultarCajaAbierta;
 
 /* CREAR PROCEDIMIENTOS ALMACENADOS DEL MODULO DE CAJA */
 DELIMITER //
@@ -71,6 +72,22 @@ BEGIN
 
     -- Confirmar cambios
     COMMIT;
+END //
+
+-- Procedimiento de consultar caja abierta
+CREATE PROCEDURE consultarCajaAbierta()
+BEGIN
+    -- Buscar caja con estado "abierta"
+    SELECT 
+        idCaja,
+        saldoInicial,
+        montoActual,
+        fechaCaja,
+        estadoCaja
+    FROM caja
+    WHERE estadoCaja = 'abierta'
+    ORDER BY fechaCaja DESC
+    LIMIT 1;
 END //
 
 DELIMITER ;

@@ -88,7 +88,7 @@ const obtenerDetalleReservacionService = async (idReservacion) => {
 }    
 
 // exportamos los modulos
-modulo.exports = {
+module.exports = {
   insertarReservacionService,
   listarReservacionesService,
   obtenerReservacionService,

@@ -39,9 +39,7 @@ const registrarUsuarioService = async (datos) => {
   }
 
   // Validaciones para cada caso especifico, todos estos casos se hace lo mismo al crear el error(crear, asignar valor y lanzar error) solo que aca esta en una linea
-  if (!validarCorreo(correoUsuario)) {
-    throw Object.assign(new Error("Correo electrónico inválido"), { status: 400 });
-  }
+  validarCorreo(correoUsuario);
 
   validarDocumento(idTipoDocumento, numeroDocumentoUsuario);
 
@@ -49,10 +47,8 @@ const registrarUsuarioService = async (datos) => {
     throw Object.assign(new Error("La contraseña debe tener al menos 8 caracteres"), { status: 400 });
   }
 
-  if (!validarTelefono(telefonoUsuario)) {
-    throw Object.assign(new Error("Número de teléfono inválido"), { status: 400 });
-  }
-
+  validarTelefono(telefonoUsuario);
+  
   //Verificar duplicado de correo (mantener comentario como recordatorio)
   const usuarioExistente = await seleccionarUsuarioModel(correoUsuario);
   if (usuarioExistente.length > 0) {

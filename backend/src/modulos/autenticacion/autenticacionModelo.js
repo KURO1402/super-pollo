@@ -33,7 +33,7 @@ const insertarUsuarioModel = async (datos, claveEncriptada) => {
 
         //Confirmamos los cambios o modificaciones hechas
         await conexion.commit();
-        //Guardamos el usuario ya que el result contien dos arrays y el primero es el usuario por eso [0][0] 
+        //Guardamos el usuario ya que el result contiene dos arrays y el primero es el usuario por eso [0][0] 
         const usuario = result[0][0]
         
         return usuario;

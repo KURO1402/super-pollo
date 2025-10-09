@@ -156,9 +156,9 @@ BEGIN
     WHERE idUsuario = p_idUsuario;
 END //
 
-/* PROCEDIMIENTO ALMACENADO seleccionarUsuario */ 
-CREATE PROCEDURE seleccionarUsuario(
-    IN p_correoUsuario VARCHAR(50)
+/* PROCEDIMIENTO ALMACENADO seleccionarUsuario por id */ 
+CREATE PROCEDURE seleccionarUsuarioId(
+    IN p_idUsuario INT
 )
 BEGIN
     SELECT 
@@ -169,7 +169,7 @@ BEGIN
         u.clave,
         u.idRol
     FROM usuarios u
-    WHERE u.correoUsuario = p_correoUsuario;
+    WHERE u.idUsuario = p_idUsuario;
 END //
 
 DELIMITER ;

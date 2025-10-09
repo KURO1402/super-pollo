@@ -16,6 +16,9 @@ const comprobanteRoutes = require("./src/modulos/ventas/rutas/comprobanteRutas")
 //ruta para reservaciones
 const reservacionesRoutes = require("./src/modulos/reservaciones/reservacionesRutas.js");
 
+// Rutas para caja
+const cajaRoutes = require("./src/modulos/caja/cajaRutas.js");
+
 const app = express();
 
 const corsOptions = {
@@ -43,6 +46,7 @@ app.use('/ventas', comprobanteRoutes);
 app.use('/autenticacion', autenticacionRoutes);
 app.use('/fuente-datos', fuenteDatosRouter);
 app.use('/reservaciones', reservacionesRoutes);
+app.use('/caja', cajaRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
