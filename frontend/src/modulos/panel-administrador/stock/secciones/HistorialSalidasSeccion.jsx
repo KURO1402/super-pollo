@@ -1,7 +1,75 @@
+// importamos nuestros componentes
+import { Tabla } from "../../componentes/tabla/Tabla";
+import { FilaSalida } from "../componentes/FilaSalida";
+import { BarraBusqueda } from "../../componentes/busqueda-filtros/BarraBusqueda"; 
+import { FiltroBusqueda } from "../../componentes/busqueda-filtros/FiltroBusqueda";
+import { Paginacion } from "../../componentes/tabla/Paginacion";
+// tambien los custom hooks
+import { useBusqueda } from "../../hooks/useBusqueda"; 
+import { useFiltro } from "../../hooks/useFiltro";
+import { usePaginacion } from "../../hooks/usePaginacion";
+// la data temporal solo para el diseño
+import { salidas } from "../data-temporal/salidas";
+
 const HistorialSalidasSeccion = () => {
-    return ( 
-        <h1>Historial Salidas Seccion</h1>
-     );
-}
- 
+  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); // lo mismo, desestructuración del estado y la función del hook
+  const { filtro, setFiltro, aplicarFiltros } = useFiltro(); // tambien para el hook de filtro
+  const { paginaActual, setPaginaActual, paginar } = usePaginacion(8); // de igual manera para la paginación
+
+  // Aplicar búsqueda
+  let filtrados = filtrarPorBusqueda(salidas, [
+    "nombreInsumo",
+    "detallesMovimiento",
+    "usuario",
+    "unidadMedida"
+  ]);
+  // Aplicar filtros por unidad de medida
+  filtrados = aplicarFiltros(filtrados, "unidadMedida");
+  const { datosPaginados, totalPaginas } = paginar(filtrados);
+  // Mapear las salidas para las filas de la tabla
+  const filasSalidas = datosPaginados.map((salida) => (
+    <FilaSalida key={salida.idMovimiento} salida={salida} />
+  ));
+  return (
+    <div className="p-2">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Historial de Salidas</h1>
+        <p className="text-gray-600 dark:text-gray-400">Registro de consumos y ventas de insumos</p>
+      </div>
+      {/* Barra de búsqueda y filtros */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4 items-center">
+          <BarraBusqueda
+            valor={terminoBusqueda} 
+            onChange={setTerminoBusqueda}
+            placeholder="Buscar por insumo, detalles, usuario o unidad..."
+          />
+          <FiltroBusqueda
+            valor={filtro}
+            onChange={setFiltro} 
+            opciones={[
+              { value: "todos", label: "Todas las unidades" },
+              { value: "kg", label: "Kilogramos (kg)" },
+              { value: "lt", label: "Litros (lt)" },
+              { value: "unid", label: "Unidades (unid)" },
+              { value: "saco", label: "Sacos" },
+              { value: "balde", label: "Baldes" },
+            ]}
+          />
+        </div>
+      </div>
+      {/* Tabla de salidas */}
+      <Tabla
+        encabezados={["Insumo", "Cantidad", "Fecha", "Detalles", "Usuario", "Acciones"]}
+        registros={filasSalidas}
+      /> 
+      <Paginacion
+        paginaActual={paginaActual}
+        totalPaginas={totalPaginas}
+        alCambiarPagina={setPaginaActual}
+      />
+    </div>
+  );
+};
+
 export default HistorialSalidasSeccion;
