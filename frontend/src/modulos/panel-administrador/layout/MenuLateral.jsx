@@ -34,6 +34,11 @@ const navItems = [
     icon: <FiArchive size={20} />,
     name: "Stock",
     path: "/admin/stock",
+    subItems: [
+      { name: "Stock Insumos", path: "/admin/stock-insumos" },
+      { name: "Historial Entradas", path: "/admin/historial-entradas" },
+      { name: "Historial Salidas", path: "/admin/historial-salidas" },
+    ]
   },
   {
     icon: <FiDollarSign size={20} />,

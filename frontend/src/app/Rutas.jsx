@@ -22,11 +22,13 @@ import RutaPrivadaConRol from "./RutaPrivadaConRol";
 import Caja from "../modulos/panel-administrador/paginas/Caja";
 import GenerarVenta from "../modulos/panel-administrador/ventas/secciones/GenerarVentaSeccion";
 import RegistroVentasSeccion from "../modulos/panel-administrador/ventas/secciones/RegistroVentasSeccion";
-import Stock from "../modulos/panel-administrador/paginas/Stock";
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
 import NuevoComprobanteSeccion from "../modulos/panel-administrador/ventas/secciones/NuevoComprobanteSeccion";
 import CalendarioReservasSeccion from "../modulos/panel-administrador/reservas/secciones/CalendarioReservasSeccion";
+import StockInsumosSeccion from "../modulos/panel-administrador/stock/secciones/StockInsumosSeccion";
+import HistorialEntradasSeccion from "../modulos/panel-administrador/stock/secciones/HistorialEntradasSeccion";
+import HistorialSalidasSeccion from "../modulos/panel-administrador/stock/secciones/HistorialSalidasSeccion";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -78,7 +80,9 @@ const AppRutas = () => {
                     { path: 'generar-venta', element: <GenerarVenta/> },
                     { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
                     { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
-                    { path: 'stock', element: <Stock/> },
+                    { path: 'stock-insumos', element: <StockInsumosSeccion/> },
+                    { path: 'historial-entradas', element: <HistorialEntradasSeccion/> },
+                    { path: 'historial-salidas', element: <HistorialSalidasSeccion/> },
                     { path: 'caja', element: <Caja/> },
                     { path: 'usuarios', element: <Usuarios/> },
                     { path: 'perfil', element: <Perfil/> },
@@ -96,7 +100,6 @@ const AppRutas = () => {
                 { path: 'generar-venta', element: <GenerarVenta/> },
                 { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
                 { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
-                { path: 'stock', element: <Stock/> },
                 { path: 'caja', element: <Caja/> },
                 { path: 'usuarios', element: <Usuarios/> },
                 { path: 'perfil', element: <Perfil/> },
