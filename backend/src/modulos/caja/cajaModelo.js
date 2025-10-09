@@ -24,8 +24,8 @@ const cerrarCajaModel = async (datos) => {
 
     try {
         conexion = await pool.getConnection();
-        const [rows] = await conexion.query("CALL cerrarCajaConEvento(?, ?)", [montoFinal, usuarioId]);
-        console.log(rows);
+        const [result] = await conexion.query("CALL cerrarCajaConEvento(?, ?)", [montoFinal, usuarioId]);
+        return result;
     } catch (err) {
         console.error("Error en cerrarCajaModel: ", err.message);
         throw new Error("Error al cerrar la caja en la base de datos");
