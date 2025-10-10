@@ -2,8 +2,7 @@
 const pool = require("../../config/conexionDB.js");
 
 //Modelo para crear una nueva caja
-const crearCajaModel = async (datos) => {
-    const { montoInicial, usuarioId } = datos;
+const crearCajaModel = async (montoInicial, usuarioId) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
@@ -18,13 +17,12 @@ const crearCajaModel = async (datos) => {
 };
 
 //Modelo para cerrar una caja
-const cerrarCajaModel = async (datos) => {
-    const { montoFinal, usuarioId } = datos;
+const cerrarCajaModel = async (usuarioId) => {
     let conexion;
 
     try {
         conexion = await pool.getConnection();
-        const [result] = await conexion.query("CALL cerrarCajaConEvento(?, ?)", [montoFinal, usuarioId]);
+        const [result] = await conexion.query("CALL cerrarCajaConEvento(?)", [usuarioId]);
         return result;
     } catch (err) {
         console.error("Error en cerrarCajaModel: ", err.message);

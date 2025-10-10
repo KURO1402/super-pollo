@@ -41,18 +41,19 @@ END //
 
 -- Procedimiento de cierre de caja con evento de cierre
 CREATE PROCEDURE cerrarCajaConEvento(
-    IN p_saldoFinal DECIMAL(10,2),
     IN p_idUsuario INT
 )
 BEGIN
     DECLARE v_idCaja INT;
+    DECLARE v_saldoFinal DECIMAL(10,2);
 
-    -- Validar que exista una caja abierta
-    SELECT idCaja INTO v_idCaja
+    -- Buscar la caja abierta
+    SELECT idCaja, montoActual INTO v_idCaja, v_saldoFinal
     FROM caja
     WHERE estadoCaja = 'abierta'
     LIMIT 1;
 
+    -- Validar si existe caja abierta
     IF v_idCaja IS NULL THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'No existe una caja abierta. No se puede cerrar ninguna.';
@@ -61,16 +62,16 @@ BEGIN
     -- Iniciar transacción
     START TRANSACTION;
 
-    -- Actualizar el estado de la caja y su saldo final
+    -- Cerrar la caja
     UPDATE caja
     SET estadoCaja = 'cerrada'
     WHERE idCaja = v_idCaja;
 
-    -- Registrar el evento de cierre
+    -- Registrar el evento de cierre con el saldo actual
     INSERT INTO eventosCaja (tipoEvento, saldoEvento, idCaja, idUsuario)
-    VALUES ('Cierre', p_saldoFinal, v_idCaja, p_idUsuario);
+    VALUES ('Cierre', v_saldoFinal, v_idCaja, p_idUsuario);
 
-    -- Confirmar cambios
+    -- Confirmar transacción
     COMMIT;
 END //
 

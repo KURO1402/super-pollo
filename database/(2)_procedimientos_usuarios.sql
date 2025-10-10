@@ -11,7 +11,8 @@ DROP PROCEDURE IF EXISTS listarUsuarios;
 DROP PROCEDURE IF EXISTS actualizarUsuario;
 DROP PROCEDURE IF EXISTS actualizarClave;
 DROP PROCEDURE IF EXISTS eliminarUsuario;
-DROP PROCEDURE IF EXISTS seleccionarUsuario;
+DROP PROCEDURE IF EXISTS seleccionarUsuarioCorreo;
+DROP PROCEDURE IF EXISTS seleccionarUsuarioId;
 
 DELIMITER //
 
@@ -154,6 +155,22 @@ CREATE PROCEDURE eliminarUsuario(
 BEGIN
     DELETE FROM usuarios
     WHERE idUsuario = p_idUsuario;
+END //
+
+-- Procedimiento para seleccionar usuario por correo
+CREATE PROCEDURE seleccionarUsuarioCorreo(
+    IN p_correoUsuario VARCHAR(100)
+)
+BEGIN
+    SELECT 
+        u.idUsuario,
+        u.nombresUsuario,
+        u.apellidosUsuario,
+        u.correoUsuario,
+        u.clave,
+        u.idRol
+    FROM usuarios u
+    WHERE u.correoUsuario = p_correoUsuario;
 END //
 
 /* PROCEDIMIENTO ALMACENADO seleccionarUsuario por id */ 

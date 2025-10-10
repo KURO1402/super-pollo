@@ -59,7 +59,7 @@ const seleccionarUsuarioModel = async (correoUsuario) => {
         conexion = await pool.getConnection();
 
         //Llamamos al procedimiento de seleccionar usario por correo
-        const [result] = await conexion.query("CALL seleccionarUsuario(?)", [correoUsuario]);
+        const [result] = await conexion.query("CALL seleccionarUsuarioCorreo(?)", [correoUsuario]);
 
         //Retornamos la fila siempre en cuando exista el usuario con el correo especificado, si no hay ninguna fila retornamos null
         return result[0];

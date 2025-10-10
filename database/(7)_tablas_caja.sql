@@ -24,3 +24,15 @@ CREATE TABLE eventosCaja (
     FOREIGN KEY (idCaja) REFERENCES caja(idCaja),
     FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
 )
+
+CREATE TABLE movimientosCaja (
+    idMovimientoCaja INT AUTO_INCREMENT PRIMARY KEY,
+    tipoMovimiento ENUM('Ingreso','Egreso') NOT NULL,
+    fechaMovimiento DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    montoMovimiento DECIMAL(10,2) NOT NULL,
+    descripcionMovCaja VARCHAR(255),
+    idCaja INT NOT NULL,
+    idUsuario INT NOT NULL,
+    FOREIGN KEY (idCaja) REFERENCES caja(idCaja),
+    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
+)

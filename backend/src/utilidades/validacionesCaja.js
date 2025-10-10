@@ -1,14 +1,12 @@
 const { consultarCajaAbiertaModel } = require("../modulos/caja/cajaModelo")
 const { consultarUsuarioPorIdModel } = require("../modulos/usuarios/usuarioModelo")
 
-const validarDatosAbrirCaja = async (datos) => {
+const validarDatosAbrirCaja = async (montoInicial, usuarioId) => {
 
-    //Validar que datos sea un objeto
-    if(!datos || typeof datos !== 'object') {
-        throw Object.assign(new Error("Se requieren datos para crear una caja como monto y el id de un usuario"), { status: 400 });
+    //Validar que montoInicial y usuarioId estén presentes y sean del tipo correcto
+    if (!montoInicial || !usuarioId) {
+         throw Object.assign(new Error("Se necesita un monto inicial y un ID de usuario válidos"), { status: 400 });
     }
-    //Destructuramos los datos
-    const { montoInicial, usuarioId } = datos;
 
     // validar que montoInicial y usuarioId estén presentes y sean del tipo correcto
     if (!montoInicial || !usuarioId) {
@@ -38,14 +36,7 @@ const validarDatosAbrirCaja = async (datos) => {
 }
 
 // Validaciones para cerrar caja
-const validarDatosCerrarCaja = async (datos) => {
-    //Validar que datos sea un objeto
-    if(!datos || typeof datos !== 'object') {
-        throw Object.assign(new Error("Se requieren datos para cerrar la caja como monto y el id de un usuario"), { status: 400 });
-    }
-    //Destructuramos los datos
-    const { usuarioId } = datos;
-
+const validarDatosCerrarCaja = async (usuarioId) => {
     //Validar que usuarioId sea un numero y mayor a 0
     if (typeof usuarioId !== 'number' || usuarioId <= 0) {
         throw Object.assign(new Error("El id de usuario tiene que ser valido y numerico"), { status: 400 });
