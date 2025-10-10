@@ -46,4 +46,43 @@ const consultarCajaAbiertaModel = async () => {
     }
 }
 
-module.exports = { crearCajaModel, cerrarCajaModel, consultarCajaAbiertaModel }
+// Modelo para registrar un ingreso en caja
+const registrarIngresoCajaModel = async (datos, usuarioId) => {
+
+    let conexion;
+    try {
+        const { monto, descripcion } = datos;
+        conexion = await pool.getConnection();
+        const [result] = await conexion.query("CALL registrarIngresoCaja(?, ?, ?)", [monto, descripcion, usuarioId]);
+        return result;
+    } catch (err) {
+        console.error("Error en registrarIngresoCajaModel: ", err.message);
+        throw new Error("Error al registrar el ingreso en caja en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Procedimiento para registrar un egreso en caja
+const registrarEgresoCajaModel = async (datos, usuarioId) => {
+    let conexion;
+    try {
+        const { monto, descripcion } = datos;
+        conexion = await pool.getConnection();
+        const [result] = await conexion.query("CALL registrarEgresoCaja(?, ?, ?)", [monto, descripcion, usuarioId]);
+        return result;
+    } catch (err) {
+        console.error("Error en registrarEgresoCajaModel: ", err.message);
+        throw new Error("Error al registrar el egreso en caja en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+module.exports = { 
+    crearCajaModel, 
+    cerrarCajaModel, 
+    consultarCajaAbiertaModel, 
+    registrarIngresoCajaModel,
+    registrarEgresoCajaModel
+}

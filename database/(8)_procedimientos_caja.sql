@@ -4,6 +4,8 @@ use super_pollo;
 DROP PROCEDURE IF EXISTS crearCajaConEvento;
 DROP PROCEDURE IF EXISTS cerrarCajaConEvento;
 DROP PROCEDURE IF EXISTS consultarCajaAbierta;
+DROP PROCEDURE IF EXISTS registrarIngresoCaja;
+DROP PROCEDURE IF EXISTS registrarEgresoCaja;
 
 /* CREAR PROCEDIMIENTOS ALMACENADOS DEL MODULO DE CAJA */
 DELIMITER //
@@ -15,6 +17,14 @@ CREATE PROCEDURE crearCajaConEvento(
 )
 BEGIN
     DECLARE v_idCaja INT;
+
+     -- Manejo de errores: rollback automático si algo falla
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al crear la caja o registrar el evento de apertura';
+    END;
 
     -- Validar que no exista una caja abierta antes de iniciar transacción
     IF EXISTS (SELECT 1 FROM caja WHERE estadoCaja = 'abierta') THEN
@@ -46,6 +56,14 @@ CREATE PROCEDURE cerrarCajaConEvento(
 BEGIN
     DECLARE v_idCaja INT;
     DECLARE v_saldoFinal DECIMAL(10,2);
+
+    -- Manejo de errores: rollback automático si algo falla
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al cerrar la caja o registrar el evento de cierre';
+    END;
 
     -- Buscar la caja abierta
     SELECT idCaja, montoActual INTO v_idCaja, v_saldoFinal
@@ -89,6 +107,132 @@ BEGIN
     WHERE estadoCaja = 'abierta'
     ORDER BY fechaCaja DESC
     LIMIT 1;
+END //
+
+-- Procedimiento para registrar un ingreso en caja
+CREATE PROCEDURE registrarIngresoCaja(
+    IN p_monto DECIMAL(10,2),
+    IN p_descripcion VARCHAR(255),
+    IN p_idUsuario INT
+)
+BEGIN
+    DECLARE v_idCaja INT;
+    DECLARE v_montoActual DECIMAL(10,2);
+
+    -- Manejo de errores
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al registrar el ingreso en caja';
+    END;
+
+    START TRANSACTION;
+
+    -- Verificar que exista una caja abierta
+    SELECT idCaja, montoActual
+    INTO v_idCaja, v_montoActual
+    FROM caja
+    WHERE estadoCaja = 'abierta'
+    ORDER BY fechaCaja DESC
+    LIMIT 1
+    FOR UPDATE; -- bloquea la fila hasta finalizar
+
+    IF v_idCaja IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No hay ninguna caja abierta para registrar el ingreso';
+    END IF;
+
+    -- Insertar el movimiento
+    INSERT INTO movimientosCaja (
+        tipoMovimiento,
+        montoMovimiento,
+        descripcionMovCaja,
+        idCaja,
+        idUsuario
+    )
+    VALUES (
+        'Ingreso',
+        p_monto,
+        p_descripcion,
+        v_idCaja,
+        p_idUsuario
+    );
+
+    -- Actualizar la caja
+    UPDATE caja
+    SET 
+        montoActual = v_montoActual + p_monto,
+        saldoFinal = v_montoActual + p_monto
+    WHERE idCaja = v_idCaja;
+
+    COMMIT;
+END //
+
+-- Procedimiento para registrar un egreso en caja
+CREATE PROCEDURE registrarEgresoCaja(
+    IN p_monto DECIMAL(10,2),
+    IN p_descripcion VARCHAR(255),
+    IN p_idUsuario INT
+)
+BEGIN
+    DECLARE v_idCaja INT;
+    DECLARE v_montoActual DECIMAL(10,2);
+
+    -- Manejo de errores
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al registrar el egreso en caja';
+    END;
+
+    START TRANSACTION;
+
+    -- Verificar que exista una caja abierta
+    SELECT idCaja, montoActual
+    INTO v_idCaja, v_montoActual
+    FROM caja
+    WHERE estadoCaja = 'abierta'
+    ORDER BY fechaCaja DESC
+    LIMIT 1
+    FOR UPDATE; -- bloquea la fila para evitar condiciones de carrera
+
+    IF v_idCaja IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No hay ninguna caja abierta para registrar el egreso';
+    END IF;
+
+    -- Validar saldo suficiente
+    IF v_montoActual < p_monto THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Saldo insuficiente en caja para realizar el egreso';
+    END IF;
+
+    -- Insertar el movimiento
+    INSERT INTO movimientosCaja (
+        tipoMovimiento,
+        montoMovimiento,
+        descripcionMovCaja,
+        idCaja,
+        idUsuario
+    )
+    VALUES (
+        'Egreso',
+        p_monto,
+        p_descripcion,
+        v_idCaja,
+        p_idUsuario
+    );
+
+    -- Actualizar caja
+    UPDATE caja
+    SET 
+        montoActual = v_montoActual - p_monto,
+        saldoFinal = v_montoActual - p_monto
+    WHERE idCaja = v_idCaja;
+
+    COMMIT;
 END //
 
 DELIMITER ;

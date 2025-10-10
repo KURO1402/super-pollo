@@ -55,4 +55,74 @@ const validarDatosCerrarCaja = async (usuarioId) => {
     }
 }
 
-module.exports = { validarDatosAbrirCaja, validarDatosCerrarCaja }
+//Validaciones para registrar ingreso en caja
+const validarDatosIngresoCaja = async (datos, usuarioId) => {
+    if(!datos || typeof datos !== 'object') {
+        throw Object.assign(new Error("Se necesitan datos como monto y descripción para registrar un ingreso a caja"), { status: 400 });
+    }
+
+    const { monto, descripcion } = datos;
+
+    //Validar que monto y descripcion estén presentes
+    if (!monto || !descripcion) {
+        throw Object.assign(new Error("Se necesita un monto y una descripción válidos"), { status: 400 });
+    }
+
+    //Validar que monto sea un número y mayor a 0
+    if (typeof monto !== 'number' || monto <= 0) {
+        throw Object.assign(new Error("El monto debe ser un número mayor a 0"), { status: 400 });
+    }
+
+    //Validar que el usuarioId exista en la base de datos
+    const usuario = await consultarUsuarioPorIdModel(usuarioId);
+    if (usuario.length === 0) {
+        throw Object.assign(new Error("Usuario inexistente"), { status: 400 });
+    }
+    //Validar que exista una caja abierta
+    cajas = await consultarCajaAbiertaModel();
+    if (cajas.length === 0) {
+        throw Object.assign(new Error("No se puede registrar un ingreso si no hay una caja abierta."), { status: 400 });
+    }
+}
+
+//Validaciones para registrar egreso en caja
+const validarDatosEgresoCaja = async (datos, usuarioId) => {
+    if(!datos || typeof datos !== 'object') {
+        throw Object.assign(new Error("Se necesitan datos como monto y descripción para registrar un egreso a caja"), { status: 400 });
+    }
+    const { monto, descripcion } = datos;
+
+    //Validar que monto y descripcion estén presentes
+    if (!monto || !descripcion) {
+        throw Object.assign(new Error("Se necesita un monto y una descripción válidos"), { status: 400 });
+    }
+
+    //Validar que monto sea un número y mayor a 0
+    if (typeof monto !== 'number' || monto <= 0) {
+        throw Object.assign(new Error("El monto debe ser un número mayor a 0"), { status: 400 });
+    }
+
+    //Validar que el usuarioId exista en la base de datos
+    const usuario = await consultarUsuarioPorIdModel(usuarioId);
+    if (usuario.length === 0) {
+        throw Object.assign(new Error("Usuario inexistente"), { status: 400 });
+    }
+
+    //Validar que exista una caja abierta
+    cajas = await consultarCajaAbiertaModel();
+    if (cajas.length === 0) {
+        throw Object.assign(new Error("No se puede registrar un egreso si no hay una caja abierta."), { status: 400 });
+    }
+    //Validar que la caja tenga saldo suficiente para el egreso
+    const caja = cajas[0];
+    if (caja.montoActual < monto) {
+        throw Object.assign(new Error("No hay suficiente saldo en la caja para realizar el egreso."), { status: 400 });
+    }
+}
+
+module.exports = { 
+    validarDatosAbrirCaja, 
+    validarDatosCerrarCaja, 
+    validarDatosIngresoCaja,
+    validarDatosEgresoCaja 
+};
