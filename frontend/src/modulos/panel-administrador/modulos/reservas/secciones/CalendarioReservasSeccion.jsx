@@ -1,10 +1,14 @@
-import { useState, useRef, useEffect } from "react";
+// librerias externas
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import Modal from "../../componentes/modal/Modal";
-import { useModal } from "../../hooks/useModal";
+// hook de react
+import { useState, useRef, useEffect } from "react";
+// componentes reutilizables
+import Modal from "../../../componentes/modal/Modal";
+// custom hook 
+import { useModal } from "../../../hooks/useModal";
 
 const CalendarioReservasSeccion = () => {
   const [reservaSeleccionadaId, setReservaSeleccionadaId] = useState(null);

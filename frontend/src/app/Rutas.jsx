@@ -30,10 +30,11 @@ import HistorialSalidasSeccion from "../modulos/panel-administrador/modulos/stoc
 // secciones de caja
 import CajaActualSeccion from "../modulos/panel-administrador/modulos/caja/secciones/CajaActualSeccion";
 import HistorialCajasSeccion from "../modulos/panel-administrador/modulos/caja/secciones/HistorialCajasSeccion";
-
+// secciones de reserva
+import CalendarioReservasSeccion from "../modulos/panel-administrador/modulos/reservas/secciones/CalendarioReservasSeccion";
+// secciones de usuario y perfil
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
-import CalendarioReservasSeccion from "../modulos/panel-administrador/reservas/secciones/CalendarioReservasSeccion";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
