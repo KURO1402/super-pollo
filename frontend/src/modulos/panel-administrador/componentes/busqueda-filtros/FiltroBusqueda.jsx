@@ -2,7 +2,7 @@ import { FiFilter } from "react-icons/fi";
 
 export const FiltroBusqueda = ({ valor, onChange, opciones }) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 mr-0">
       <FiFilter className="text-gray-400" />
       <select
         value={valor} // Valor seleccionado actualmente
