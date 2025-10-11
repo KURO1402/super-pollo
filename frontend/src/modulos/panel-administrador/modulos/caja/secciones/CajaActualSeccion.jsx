@@ -1,14 +1,19 @@
-import { useState, useEffect } from "react";
+// importamos librerias externas
 import { useForm } from "react-hook-form";
 import { FiPlus, FiMinus, FiFilter,FiDollarSign,FiTrendingUp,FiTrendingDown,FiClock,FiCheckCircle,FiXCircle,FiLock} from "react-icons/fi";
-import { useModal } from "../../hooks/useModal";
-import Modal from "../../componentes/modal/Modal";
-import { Tabla } from "../../componentes/tabla/Tabla";
-import { Paginacion } from "../../componentes/tabla/Paginacion";
-import { usePaginacion } from "../../hooks/usePaginacion";
+// hooks de react
+import { useState } from "react";
+// componentes reutilizables que creamos
+import { Tabla } from "../../../componentes/tabla/Tabla";
+import Modal from "../../../componentes/modal/Modal";
+import { Paginacion } from "../../../componentes/tabla/Paginacion";
+// custom hooks que creamos
+import { useModal } from "../../../hooks/useModal";
+import { usePaginacion } from "../../../hooks/usePaginacion";
+// los componentes propios de este módulo 
 import FilaMovimientos from "../componentes/FilaMovimientos";
 
-const CajaActual = () => {
+const CajaActualSeccion = () => {
   const [caja, setCaja] = useState({
     estado: "abierta",
     saldoInicial: 1500.00,
@@ -442,4 +447,4 @@ const CajaActual = () => {
   );
 };
 
-export default CajaActual;
+export default CajaActualSeccion;

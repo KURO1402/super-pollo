@@ -27,12 +27,13 @@ import NuevoComprobanteSeccion from "../modulos/panel-administrador/modulos/vent
 import StockInsumosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/StockInsumosSeccion";
 import HistorialEntradasSeccion from "../modulos/panel-administrador/modulos/stock/secciones/HistorialEntradasSeccion";
 import HistorialSalidasSeccion from "../modulos/panel-administrador/modulos/stock/secciones/HistorialSalidasSeccion";
+// secciones de caja
+import CajaActualSeccion from "../modulos/panel-administrador/modulos/caja/secciones/CajaActualSeccion";
+import HistorialCajasSeccion from "../modulos/panel-administrador/modulos/caja/secciones/HistorialCajasSeccion";
 
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
 import CalendarioReservasSeccion from "../modulos/panel-administrador/reservas/secciones/CalendarioReservasSeccion";
-import CajaActual from "../modulos/panel-administrador/caja/secciones/CajaActual";
-import HistorialCajas from "../modulos/panel-administrador/caja/secciones/HistorialCajas";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -87,8 +88,9 @@ const AppRutas = () => {
                     { path: 'stock-insumos', element: <StockInsumosSeccion/> },
                     { path: 'historial-entradas', element: <HistorialEntradasSeccion/> },
                     { path: 'historial-salidas', element: <HistorialSalidasSeccion/> },
-                    { path: 'caja-actual', element: <CajaActual/> },
-                    { path: 'historial-cajas', element: <HistorialCajas/> },
+                    { path: 'caja-actual', element: <CajaActualSeccion/> },
+                    { path: 'historial-cajas', element: <HistorialCajasSeccion/> },
+
                     { path: 'usuarios', element: <Usuarios/> },
                     { path: 'perfil', element: <Perfil/> },
                 ] // ruta por defecto del panel de admin

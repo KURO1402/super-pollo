@@ -1,12 +1,16 @@
-import { useState } from "react";
+// librerias externas
 import { FiSearch, FiDownload, FiPrinter, FiFilter, FiCheckCircle, FiAlertTriangle, FiXCircle, FiEye} from "react-icons/fi";
-import { Tabla } from "../../componentes/tabla/Tabla";
-import { Paginacion } from "../../componentes/tabla/Paginacion";
-import { usePaginacion } from "../../hooks/usePaginacion";
-import Modal from "../../componentes/modal/Modal";
-import { useModal } from "../../hooks/useModal";
+// hooks de react
+import { useState } from "react";
+// componentes reutilizables
+import { Tabla } from "../../../componentes/tabla/Tabla";
+import { Paginacion } from "../../../componentes/tabla/Paginacion";
+import Modal from "../../../componentes/modal/Modal";
+// Nuestros hooks 
+import { usePaginacion } from "../../../hooks/usePaginacion";
+import { useModal } from "../../../hooks/useModal";
 
-const HistorialCajas = () => {
+const HistorialCajasSeccion = () => {
   const [filtros, setFiltros] = useState({
     fechaInicio: "",
     fechaFin: "",
@@ -568,4 +572,4 @@ const HistorialCajas = () => {
   );
 };
 
-export default HistorialCajas;
+export default HistorialCajasSeccion;
