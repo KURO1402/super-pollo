@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
-import { useModal } from "../../hooks/useModal";
-import Modal from "../../componentes/modal/Modal";
+import { useModal } from "../../../hooks/useModal";
+import Modal from "../../../componentes/modal/Modal";
 import { FormularioCliente } from "./FormularioCliente";
 import { useState } from "react";
 

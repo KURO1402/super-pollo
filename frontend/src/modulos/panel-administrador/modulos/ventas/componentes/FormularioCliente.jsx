@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { obtenerTiposDocumento } from "../../../sitio-publico/servicios/tiposDocService";
+import { obtenerTiposDocumento } from "../../../../sitio-publico/servicios/tiposDocService";
 import { FiSearch } from "react-icons/fi";
 import { buscarPorDNI, buscarPorRUC } from "../servicios/consultarClienteService";
 // formulario para el cliente, que resibe como parametro la función de submit y oncancelar

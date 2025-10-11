@@ -18,12 +18,12 @@ import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
 // importamos el componente de ruta privada con rol
 import RutaPrivadaConRol from "./RutaPrivadaConRol";
-
-import GenerarVenta from "../modulos/panel-administrador/ventas/secciones/GenerarVentaSeccion";
-import RegistroVentasSeccion from "../modulos/panel-administrador/ventas/secciones/RegistroVentasSeccion";
+// secciones de venta
+import GenerarVenta from "../modulos/panel-administrador/modulos/ventas/secciones/GenerarVentaSeccion";
+import RegistroVentasSeccion from "../modulos/panel-administrador/modulos/ventas/secciones/RegistroVentasSeccion";
+import NuevoComprobanteSeccion from "../modulos/panel-administrador/modulos/ventas/secciones/NuevoComprobanteSeccion";
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
-import NuevoComprobanteSeccion from "../modulos/panel-administrador/ventas/secciones/NuevoComprobanteSeccion";
 import CalendarioReservasSeccion from "../modulos/panel-administrador/reservas/secciones/CalendarioReservasSeccion";
 import StockInsumosSeccion from "../modulos/panel-administrador/stock/secciones/StockInsumosSeccion";
 import HistorialEntradasSeccion from "../modulos/panel-administrador/stock/secciones/HistorialEntradasSeccion";

@@ -5,8 +5,8 @@ import { TarjetaProducto } from "../componentes/TarjetaProducto";
 import { DetalleVenta } from "../componentes/DetalleVenta";
 import { ResumenVenta } from "../componentes/ResumenVenta";
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
-import { BarraBusqueda } from "../../componentes/busqueda-filtros/BarraBusqueda";
-import { useBusqueda } from "../../hooks/useBusqueda";
+import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda";
+import { useBusqueda } from "../../../hooks/useBusqueda";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
