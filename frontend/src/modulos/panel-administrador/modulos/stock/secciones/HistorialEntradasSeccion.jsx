@@ -1,11 +1,15 @@
-import { Tabla } from "../../componentes/tabla/Tabla";
+// importar componentes reutilizables
+import { Tabla } from "../../../componentes/tabla/Tabla";
+import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; 
+import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
+import { Paginacion } from "../../../componentes/tabla/Paginacion";
+// importar custom hooks
+import { useBusqueda } from "../../../hooks/useBusqueda"; 
+import { useFiltro } from "../../../hooks/useFiltro";
+import { usePaginacion } from "../../../hooks/usePaginacion";
+// importar componentes de su propio módulo (que no van a ser utilizados en otras partes)
 import { FilaEntrada } from "../componentes/FilaEntrada";
-import { BarraBusqueda } from "../../componentes/busqueda-filtros/BarraBusqueda"; 
-import { FiltroBusqueda } from "../../componentes/busqueda-filtros/FiltroBusqueda";
-import { Paginacion } from "../../componentes/tabla/Paginacion";
-import { useBusqueda } from "../../hooks/useBusqueda"; 
-import { useFiltro } from "../../hooks/useFiltro";
-import { usePaginacion } from "../../hooks/usePaginacion";
+// data temporal que se eliminará, cuando se empieze a traer datos del backend
 import { entradas } from "../data-temporal/entradas";
 
 const HistorialEntradasSeccion = () => {

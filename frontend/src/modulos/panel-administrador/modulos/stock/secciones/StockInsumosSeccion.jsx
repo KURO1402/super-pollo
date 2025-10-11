@@ -1,11 +1,14 @@
-import { Tabla } from "../../componentes/tabla/Tabla";
-import { FilaInsumo } from "../componentes/FilaInsumo"; // nuestras filsa personalizadaas
-import { BarraBusqueda } from "../../componentes/busqueda-filtros/BarraBusqueda"; // La barra de busqueda del componente reutilizable
-import { FiltroBusqueda } from "../../componentes/busqueda-filtros/FiltroBusqueda"; // otro componente reutilizable
-import { Paginacion } from "../../componentes/tabla/Paginacion"; // la paginación para la tabla
-import { useBusqueda } from "../../hooks/useBusqueda"; // hook para la la busqueda 
-import { useFiltro } from "../../hooks/useFiltro"; // hook para filtrar por tipo
-import { usePaginacion } from "../../hooks/usePaginacion"; // hook para la paginas de nuestra tabla
+// importar componentes reutilizables
+import { Tabla } from "../../../componentes/tabla/Tabla";
+import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; // La barra de busqueda del componente reutilizable
+import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda"; // otro componente reutilizable
+import { Paginacion } from "../../../componentes/tabla/Paginacion"; // la paginación para la tabla
+// custom hooks
+import { useBusqueda } from "../../../hooks/useBusqueda"; // hook para la la busqueda 
+import { useFiltro } from "../../../hooks/useFiltro"; // hook para filtrar por tipo
+import { usePaginacion } from "../../../hooks/usePaginacion"; // hook para la paginas de nuestra tabla
+// componente y data temporal
+import { FilaInsumo } from "../componentes/FilaInsumo"; // nuestras filsa personalizadas
 import { insumos } from "../data-temporal/insumos"; // data temporal para hacer el diseño
 
 const StockInsumosSeccion = () => {

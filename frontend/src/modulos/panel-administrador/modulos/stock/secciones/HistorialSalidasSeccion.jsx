@@ -1,13 +1,14 @@
-// importamos nuestros componentes
-import { Tabla } from "../../componentes/tabla/Tabla";
-import { FilaSalida } from "../componentes/FilaSalida";
-import { BarraBusqueda } from "../../componentes/busqueda-filtros/BarraBusqueda"; 
-import { FiltroBusqueda } from "../../componentes/busqueda-filtros/FiltroBusqueda";
-import { Paginacion } from "../../componentes/tabla/Paginacion";
+// importamos nuestros componentes reutilizables
+import { Tabla } from "../../../componentes/tabla/Tabla";
+import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; 
+import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
+import { Paginacion } from "../../../componentes/tabla/Paginacion";
 // tambien los custom hooks
-import { useBusqueda } from "../../hooks/useBusqueda"; 
-import { useFiltro } from "../../hooks/useFiltro";
-import { usePaginacion } from "../../hooks/usePaginacion";
+import { useBusqueda } from "../../../hooks/useBusqueda"; 
+import { useFiltro } from "../../../hooks/useFiltro";
+import { usePaginacion } from "../../../hooks/usePaginacion";
+// importamos los componentes que solo vana a servir para construir esta sección
+import { FilaSalida } from "../componentes/FilaSalida";
 // la data temporal solo para el diseño
 import { salidas } from "../data-temporal/salidas";
 

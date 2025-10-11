@@ -1,5 +1,9 @@
 // importamos useRoutes de react-router-dom para definir todas las rutas en un solo lugar como un arreglo de objetos
 import { useRoutes } from "react-router-dom";
+// importamos el componente de ruta privada con rol
+import RutaPrivadaConRol from "./RutaPrivadaConRol";
+// importamos el hook 
+import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
 
 // Sitio publico
 import EstructuraBase from "../modulos/sitio-publico/layout/EstructuraBase";
@@ -14,20 +18,19 @@ import PanelDeControl from "../modulos/panel-administrador/paginas/PanelDeContro
 // Página no encontrada
 import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 
-// importamos el hook 
-import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
-// importamos el componente de ruta privada con rol
-import RutaPrivadaConRol from "./RutaPrivadaConRol";
 // secciones de venta
 import GenerarVenta from "../modulos/panel-administrador/modulos/ventas/secciones/GenerarVentaSeccion";
 import RegistroVentasSeccion from "../modulos/panel-administrador/modulos/ventas/secciones/RegistroVentasSeccion";
 import NuevoComprobanteSeccion from "../modulos/panel-administrador/modulos/ventas/secciones/NuevoComprobanteSeccion";
+
+// secciones de stock
+import StockInsumosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/StockInsumosSeccion";
+import HistorialEntradasSeccion from "../modulos/panel-administrador/modulos/stock/secciones/HistorialEntradasSeccion";
+import HistorialSalidasSeccion from "../modulos/panel-administrador/modulos/stock/secciones/HistorialSalidasSeccion";
+
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
 import CalendarioReservasSeccion from "../modulos/panel-administrador/reservas/secciones/CalendarioReservasSeccion";
-import StockInsumosSeccion from "../modulos/panel-administrador/stock/secciones/StockInsumosSeccion";
-import HistorialEntradasSeccion from "../modulos/panel-administrador/stock/secciones/HistorialEntradasSeccion";
-import HistorialSalidasSeccion from "../modulos/panel-administrador/stock/secciones/HistorialSalidasSeccion";
 import CajaActual from "../modulos/panel-administrador/caja/secciones/CajaActual";
 import HistorialCajas from "../modulos/panel-administrador/caja/secciones/HistorialCajas";
 
