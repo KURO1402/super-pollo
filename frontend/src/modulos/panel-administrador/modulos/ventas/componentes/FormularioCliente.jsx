@@ -1,22 +1,25 @@
-import { useEffect, useState } from "react";
+// importamos librerías externas
 import { useForm } from "react-hook-form";
-import { obtenerTiposDocumento } from "../../../../sitio-publico/servicios/tiposDocService";
 import { FiSearch } from "react-icons/fi";
+// hooks de react
+import { useEffect, useState } from "react";
+// servicios
+import { obtenerTiposDocumento } from "../../../../sitio-publico/servicios/tiposDocService";
 import { buscarPorDNI, buscarPorRUC } from "../servicios/consultarClienteService";
+// custom hooks
+import useConfiguracionDocumento from "../hooks/useConfiguracionDocumento";
+
 // formulario para el cliente, que resibe como parametro la función de submit y oncancelar
 export const FormularioCliente = ({ onSubmit, onCancelar }) => {
-  // funciones de react hook form
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm();
   // estados para el tipo de Documento, la carga y el error al momento de traer los tipo de la base de datos
   const [tiposDocumento, setTiposDocumento] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(null);
+  // funciones de react hook form
+  const {
+    register, handleSubmit, watch, setValue,
+    formState: { errors },
+  } = useForm();
 
   // función para rellenar el select de tipo de documento, con la base de datos
   useEffect(() => {
@@ -35,43 +38,21 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
   
   const tipo = watch("tipoDocumento"); // Observa el valor del select
   const numeroDoc = watch("numeroDocumento") // ver el valor del numero de documento
-  const [placeholder, setPlaceholder] = useState("Ingrese el número de documento"); // el estado para el placeholder del numero de documento del cliente
-  const [searchEnabled, setSearchEnabled] = useState(false); // para el manajo del boton
 
-  // Efecto para cambiar validación y placeholder según el tipoDocumento
-  useEffect(() => {
-    if (tipo === "1") {
-      // DNI
-      setPlaceholder("Ejemplo: 87654321"); // el placeholder para el input
-      setSearchEnabled(true); // para usar el boton de busqueda
-      setValue("numeroDocumento", ""); // reset input
-    } else if (tipo === "2") {
-      // Pasaporte
-      setPlaceholder("Ejemplo: E1234567");
-      setSearchEnabled(false);
-      setValue("numeroDocumento", "");
-    } else if (tipo === "3") {
-      // Carne de extranjería
-      setPlaceholder("Ejemplo: P1234567");
-      setSearchEnabled(false);
-      setValue("numeroDocumento", "");
-    } else if (tipo === "4") {
-      // RUC
-      setPlaceholder("Ejemplo: 20123456789");
-      setSearchEnabled(true);
-      setValue("numeroDocumento", "");
-    }
-  }, [tipo, setValue]); // se ejecuta cuando se cambia el tipo o el setValue
+  // Usamos el custom hook para mostrar el placeholder dependiendo del tipo de documento, además de 
+  const { placeholder, busquedaHabilitada } = useConfiguracionDocumento(tipo, setValue); // Obtenemos el placeholder y busquedaHabilitada del hook
 
   // función para ejecutar la busqueda con el microservicio
   const handleBuscar = async () => {
     try {
       let data; // nuestra variable 
-      let datosFormateados = ""; // Inicializamos la variable fuera de los condicionales
+      let nombreCompleto = ""; // Inicializamos la variable fuera de los condicionales
+      let datosFormateados = ""
 
       if (tipo === "1") { // si el tipo es igual a 1, se llamará a la función de buscarPorDNI
         data = await buscarPorDNI(numeroDoc);
-        datosFormateados = data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres; // concatenamos para obtener el nombre completo
+        nombreCompleto = data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres; // concatenamos para obtener el nombre completo
+        datosFormateados = nombreCompleto.replace(/\b\w/g, char => char.toUpperCase()).replace(/\B\w/g, char => char.toLowerCase());
       } else if (tipo === "4") { // lo mismo para el RUC
         data = await buscarPorRUC(numeroDoc);
         datosFormateados = data.razonSocial;
@@ -154,9 +135,9 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
           <button
             onClick={handleBuscar}
             type="button"
-            disabled={!searchEnabled}
+            disabled={!busquedaHabilitada}
             className={`px-3 flex items-center justify-center rounded-r-lg transition-colors duration-200 ${
-              searchEnabled
+              busquedaHabilitada
                 ? "bg-blue-500 hover:bg-blue-600 text-white"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
