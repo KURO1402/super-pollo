@@ -13,6 +13,7 @@ import {
   FiChevronDown,
   FiMoreHorizontal,
 } from "react-icons/fi";
+import { FaCashRegister } from "react-icons/fa";
 import { useSidebar } from "../context/SidebarContext";
 
 // Nueva estructura de menú
@@ -33,7 +34,6 @@ const navItems = [
   {
     icon: <FiArchive size={20} />,
     name: "Stock",
-    path: "/admin/stock",
     subItems: [
       { name: "Stock Insumos", path: "/admin/stock-insumos" },
       { name: "Historial Entradas", path: "/admin/historial-entradas" },
@@ -41,9 +41,11 @@ const navItems = [
     ]
   },
   {
-    icon: <FiDollarSign size={20} />,
+    icon: <FaCashRegister  size={20} />,
     name: "Caja",
-    path: "/admin/caja",
+    subItems: [
+      { name: "Caja Actual", path: "/admin/caja-actual" }
+    ]
   },
   {
     icon: <FiCalendar size={20} />,
