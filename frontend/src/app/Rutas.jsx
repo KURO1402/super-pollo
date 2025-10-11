@@ -29,6 +29,7 @@ import StockInsumosSeccion from "../modulos/panel-administrador/stock/secciones/
 import HistorialEntradasSeccion from "../modulos/panel-administrador/stock/secciones/HistorialEntradasSeccion";
 import HistorialSalidasSeccion from "../modulos/panel-administrador/stock/secciones/HistorialSalidasSeccion";
 import CajaActual from "../modulos/panel-administrador/caja/secciones/CajaActual";
+import HistorialCajas from "../modulos/panel-administrador/caja/secciones/HistorialCajas";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -84,6 +85,7 @@ const AppRutas = () => {
                     { path: 'historial-entradas', element: <HistorialEntradasSeccion/> },
                     { path: 'historial-salidas', element: <HistorialSalidasSeccion/> },
                     { path: 'caja-actual', element: <CajaActual/> },
+                    { path: 'historial-cajas', element: <HistorialCajas/> },
                     { path: 'usuarios', element: <Usuarios/> },
                     { path: 'perfil', element: <Perfil/> },
                 ] // ruta por defecto del panel de admin

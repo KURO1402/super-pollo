@@ -6,7 +6,6 @@ import {
   FiGrid,
   FiShoppingCart,
   FiArchive,
-  FiDollarSign,
   FiCalendar,
   FiUsers,
   FiUser,
@@ -44,7 +43,8 @@ const navItems = [
     icon: <FaCashRegister  size={20} />,
     name: "Caja",
     subItems: [
-      { name: "Caja Actual", path: "/admin/caja-actual" }
+      { name: "Caja Actual", path: "/admin/caja-actual" },
+      { name: "Historial", path: "/admin/historial-cajas" }
     ]
   },
   {
