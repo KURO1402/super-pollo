@@ -5,7 +5,7 @@ const {
     obtenerInsumoService,
     actualizarInsumoService,
     eliminarInsumoService
-} = require("./inventarioServicio");
+} = require("../servicio/inventarioServicio");
 
 // Crear un nuevo insumo
 const crearInsumoController = async (req, res) => {

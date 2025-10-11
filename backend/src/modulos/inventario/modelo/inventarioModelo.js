@@ -1,5 +1,5 @@
 // Importamos la conexión a la base de datos
-const db = require("../../config/conexionDB.js");
+const db = require("../../../config/conexionDB");
 
 // Insertar nuevo insumo
 const insertarInsumoModel = async (datos) => {

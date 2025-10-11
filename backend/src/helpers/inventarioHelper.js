@@ -8,7 +8,7 @@ const obtenerValoresEnum = async (tabla, campo) => {
         throw new Error(`No se encontró el campo '${campo}' en la tabla '${tabla}'`);
     }
 
-    const enumDef = rows[0].Type; // ej: enum('insumo','bebida')
+    const enumDef = rows[0].Type; 
     
     return enumDef
         .replace(/^enum\(/, '')

@@ -7,7 +7,7 @@ const {
     obtenerInsumoController,
     actualizarInsumoController,
     eliminarInsumoController
-} = require("./inventarioControlador");
+} = require("../controlador/inventarioControlador");
 
 // Ruta para crear un nuevo insumo
 router.post("/crear", crearInsumoController);
