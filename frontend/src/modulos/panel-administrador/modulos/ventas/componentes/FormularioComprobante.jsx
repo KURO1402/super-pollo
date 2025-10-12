@@ -25,7 +25,6 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
         const tipos = await obtenerTiposComprobantes();
         // lo guardamos en su estado
         setTiposComprobantes(tipos);
-        console.log(tipos)
       } catch (error) {
         console.error('Error al cargar tipos de documento:', error);
       }
@@ -73,7 +72,6 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
 };
 
   const tipo = watch("tipoComprobante");
-  console.log(tipo);
 
   const manejarAbrirModal = (e) => {
     e.preventDefault();
