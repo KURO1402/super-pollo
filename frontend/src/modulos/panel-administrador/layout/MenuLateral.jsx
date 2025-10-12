@@ -6,13 +6,13 @@ import {
   FiGrid,
   FiShoppingCart,
   FiArchive,
-  FiDollarSign,
   FiCalendar,
   FiUsers,
   FiUser,
   FiChevronDown,
   FiMoreHorizontal,
 } from "react-icons/fi";
+import { FaCashRegister } from "react-icons/fa";
 import { useSidebar } from "../context/SidebarContext";
 
 // Nueva estructura de menú
@@ -20,41 +20,49 @@ const navItems = [
   {
     icon: <FiGrid size={20} />,
     name: "Dashboard",
-    path: "/admin-provisional",
+    path: "/admin",
   },
   {
     icon: <FiShoppingCart size={20} />,
     name: "Ventas",
     subItems: [
-      { name: "Generar Venta", path: "/admin-provisional/generar-venta" },
-      { name: "Nuevo Comprobante", path: "/admin-provisional/nuevo-comprobante" },
-      { name: "Historial de Comprobantes", path: "/admin-provisional/registro-ventas" },
+      { name: "Generar Venta", path: "/admin/generar-venta" },
+      { name: "Historial de Comprobantes", path: "/admin/registro-ventas" },
     ],
   },
   {
     icon: <FiArchive size={20} />,
     name: "Stock",
-    path: "/admin-provisional/stock",
+    subItems: [
+      { name: "Stock Insumos", path: "/admin/stock-insumos" },
+      { name: "Historial Entradas", path: "/admin/historial-entradas" },
+      { name: "Historial Salidas", path: "/admin/historial-salidas" },
+    ]
   },
   {
-    icon: <FiDollarSign size={20} />,
+    icon: <FaCashRegister  size={20} />,
     name: "Caja",
-    path: "/admin-provisional/caja",
+    subItems: [
+      { name: "Caja Actual", path: "/admin/caja-actual" },
+      { name: "Historial", path: "/admin/historial-cajas" }
+    ]
   },
   {
     icon: <FiCalendar size={20} />,
     name: "Reservas",
-    path: "/admin-provisional/reservas",
+    subItems: [
+      { name: "Calendario", path: "/admin/calendario-reservas" },
+    ],
   },
   {
     icon: <FiUsers size={20} />,
     name: "Usuarios",
-    path: "/admin-provisional/usuarios",
+    path: "/admin/usuarios",
   },
   {
     icon: <FiUser size={20} />,
     name: "Perfil",
-    path: "/admin-provisional/perfil",
+    path: "/admin/perfil",
   },
 ];
 

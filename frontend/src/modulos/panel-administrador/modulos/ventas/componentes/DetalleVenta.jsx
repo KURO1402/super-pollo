@@ -41,7 +41,7 @@ export const DetalleVenta = () => {
                   <td className="px-4 py-2 text-center">
                     <button
                       onClick={() => removerProducto(item.id)}
-                      className="text-red-500 hover:text-red-700 p-1"
+                      className="text-red-500 hover:text-red-700 p-1 cursor-pointer hover:bg-red-200 rounded-sm"
                     >
                       <FiMinus size={16} />
                     </button>

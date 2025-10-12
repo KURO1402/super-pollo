@@ -1,13 +1,13 @@
 import { comprobantes } from "../data-temporal/comprobantes";
-import { Tabla } from "../../componentes/tabla/Tabla";
+import { Tabla } from "../../../componentes/tabla/Tabla";
 import { FilaComprobante } from "../componentes/FilaComprobante";  // Importamos el componente personalizado
-import { BarraBusqueda } from "../../componentes/busqueda-filtros/BarraBusqueda"; 
-import { FiltroBusqueda } from "../../componentes/busqueda-filtros/FiltroBusqueda";
-import { Paginacion } from "../../componentes/tabla/Paginacion";
+import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; 
+import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
+import { Paginacion } from "../../../componentes/tabla/Paginacion";
 // importamos los hooks que vamos a utilizar
-import { useBusqueda } from "../../hooks/useBusqueda"; 
-import { useFiltro } from "../../hooks/useFiltro";
-import { usePaginacion } from "../../hooks/usePaginacion";
+import { useBusqueda } from "../../../hooks/useBusqueda"; 
+import { useFiltro } from "../../../hooks/useFiltro";
+import { usePaginacion } from "../../../hooks/usePaginacion";
 
 const RegistroVentasSeccion = () => {
   // desestructuramos los hooks para extraer los valores o funciones de cada uno
@@ -31,8 +31,8 @@ const RegistroVentasSeccion = () => {
   ));
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
+    <div className="p-2">
+      <div className="mb-4">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Registro de Ventas</h1>
         <p className="text-gray-600 dark:text-gray-400">Historial de comprobantes electrónicos</p>
       </div>
