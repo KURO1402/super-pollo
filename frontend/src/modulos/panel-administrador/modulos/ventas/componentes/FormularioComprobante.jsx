@@ -1,7 +1,9 @@
 // librerias externas
 import { useForm } from "react-hook-form";
+// servicios para consumir APIs
+import { obtenerTiposComprobantes } from "../servicios/comprobantesService";
 // hook react
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // componentes reutilizables
 import Modal from "../../../componentes/modal/Modal";
 //customs hooks
@@ -13,7 +15,25 @@ import { obtenerFechaActual } from "../../../utilidades/fechaActualUtils";
 
 export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
   const { estaAbierto, abrir, cerrar } = useModal();
-  const [clienteCompleto, setClienteCompleto] = useState(null)
+  const [clienteCompleto, setClienteCompleto] = useState(null);
+  const [ tiposComprobantes, setTiposComprobantes ] = useState([]);
+
+  useEffect(() => {
+    const cargarTiposDocumento = async () => {
+      try {
+        // guardamos los tipos de comprobantes optenidos de esa funcion
+        const tipos = await obtenerTiposComprobantes();
+        // lo guardamos en su estado
+        setTiposComprobantes(tipos);
+        console.log(tipos)
+      } catch (error) {
+        console.error('Error al cargar tipos de documento:', error);
+      }
+    };
+    // ejecutamos
+    cargarTiposDocumento();
+  }, []);
+
   // usamos nuestra fecha actual de utils
   const fechaActual = obtenerFechaActual() 
 
@@ -22,8 +42,8 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      tipoComprobante: 2,
-      serie: "B001",
+      tipoComprobante: 1,
+      serie: "F001",
       clienteDenominacion: "Cliente Varios",
       observaciones: "",
       fechaDeEmision: fechaActual,
@@ -53,6 +73,7 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
 };
 
   const tipo = watch("tipoComprobante");
+  console.log(tipo);
 
   const manejarAbrirModal = (e) => {
     e.preventDefault();
@@ -101,8 +122,11 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
                     {...register("tipoComprobante", { required: true })}
                     className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   >
-                    <option value={1}>FACTURA</option>
-                    <option value={2}>BOLETA</option>
+                    {tiposComprobantes.map((comprobante) =>(
+                      <option key={comprobante.idTipoComprobante} value={comprobante.idTipoComprobante}>
+                        {comprobante.nombreTipoComprobante}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -110,9 +134,8 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
                     Serie
                   </label>
                   <input
-                    {...register("serie", { required: true })}
                     className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-not-allowed"
-                    value={tipo == 2 ? "B001" : "F001"}
+                    value={tipo == 1 ? "F001" : "B001"}
                     disabled
                   />
                 </div>
