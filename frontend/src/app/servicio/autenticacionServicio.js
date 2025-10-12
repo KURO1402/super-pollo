@@ -2,14 +2,14 @@ import axios from 'axios'; // importamos axios para hacer periticiones al backen
 
 // configuramos la instancia de axios con la URL base del backend y con credenciales para enviar cookies
 const API = axios.create({
-    baseURL: 'http://localhost:3001', // URL base del backend
+    baseURL: import.meta.env.VITE_BACKEND_URL, // URL base del backend
     withCredentials: true, // para enviar cookies en solicitudes
 })
 
 // funcion para registrar usuario, recibe los datos del usuario
 export const registrarUsuario = async (datos) => {
     try {
-        const respuesta = await API.post('/autenticacion/registrar', datos); // hacemos la peticion al backend
+        const respuesta = await API.post('/usuarios/registrar', datos); // hacemos la peticion al backend
         return respuesta.data; // devolvemos la respuesta del backend
     } catch (error) {
         console.error('Error al registrar (servicio):', error.response?.data || error.message);
@@ -19,7 +19,7 @@ export const registrarUsuario = async (datos) => {
 
 export const loginUsuario = async (datos) => {
     try {
-        const respuesta = await API.post('/autenticacion/login', datos); // tambien realizamos la peticion al backend
+        const respuesta = await API.post('/usuarios/login', datos); // tambien realizamos la peticion al backend
         return respuesta.data; // devolvemos la respuesta del backend para usarla en el componente
     } catch (error) {
         console.error('Error al iniciar sesión (servicio):', error.response?.data || error.message);
