@@ -6,6 +6,7 @@ DROP PROCEDURE IF EXISTS cerrarCajaConEvento;
 DROP PROCEDURE IF EXISTS consultarCajaAbierta;
 DROP PROCEDURE IF EXISTS registrarIngresoCaja;
 DROP PROCEDURE IF EXISTS registrarEgresoCaja;
+DROP PROCEDURE IF EXISTS registrarArqueoCaja;
 
 /* CREAR PROCEDIMIENTOS ALMACENADOS DEL MODULO DE CAJA */
 DELIMITER //
@@ -231,6 +232,57 @@ BEGIN
         montoActual = v_montoActual - p_monto,
         saldoFinal = v_montoActual - p_monto
     WHERE idCaja = v_idCaja;
+
+    COMMIT;
+END //
+
+-- Procedimiento para registrar un arqueo caja
+CREATE PROCEDURE registrarArqueoCaja(
+    IN p_idUsuario INT,
+    IN p_montoContado DECIMAL(10,2),
+    IN p_diferencia DECIMAL(10,2),
+    IN p_estadoArqueo ENUM('cuadra','falta','sobra')
+)
+BEGIN
+    DECLARE v_idCaja INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- Si ocurre un error, se hace rollback
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al registrar el arqueo de caja';
+    END;
+
+    START TRANSACTION;
+
+    -- 1️⃣ Buscar la caja abierta
+    SELECT idCaja INTO v_idCaja
+    FROM caja
+    WHERE estadoCaja = 'abierta'
+    LIMIT 1;
+
+    -- 2️⃣ Validar si existe una caja abierta
+    IF v_idCaja IS NULL THEN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No hay una caja abierta actualmente';
+    END IF;
+
+    -- 3️⃣ Insertar el arqueo
+    INSERT INTO arqueosCaja (
+        montoContado,
+        diferencia,
+        estadoCaja,
+        idCaja,
+        idUsuario
+    )
+    VALUES (
+        p_montoContado,
+        p_diferencia,
+        p_estadoArqueo,
+        v_idCaja,
+        p_idUsuario
+    );
 
     COMMIT;
 END //

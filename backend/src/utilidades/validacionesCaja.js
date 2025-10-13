@@ -120,9 +120,30 @@ const validarDatosEgresoCaja = async (datos, usuarioId) => {
     }
 }
 
+const validarDatosArqueoCaja = async (datos, usuarioId) => {
+    if(!datos || typeof datos !== 'object') {
+        throw Object.assign(new Error("Se necesitan datos como el dinero fisico de caja"), { status: 400 });
+    }
+    const { montoFisico } = datos;
+    if (!montoFisico || typeof montoFisico !== 'number' || montoFisico < 0) {
+        throw Object.assign(new Error("Se necesita el monto fisico de caja y que sea un número válido"), { status: 400 });
+    }
+    //Validar que el usuarioId exista en la base de datos
+    const usuario = await consultarUsuarioPorIdModel(usuarioId);
+    if (usuario.length === 0) {
+        throw Object.assign(new Error("Usuario inexistente"), { status: 400 });
+    }
+
+    //Validar que exista una caja abierta
+    cajas = await consultarCajaAbiertaModel();
+    if (cajas.length === 0) {
+        throw Object.assign(new Error("No hay ninguna caja abierta para registrar el arqueo"), { status: 400 });
+    }
+};
 module.exports = { 
     validarDatosAbrirCaja, 
     validarDatosCerrarCaja, 
     validarDatosIngresoCaja,
-    validarDatosEgresoCaja 
+    validarDatosEgresoCaja,
+    validarDatosArqueoCaja 
 };

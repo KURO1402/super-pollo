@@ -1,4 +1,4 @@
-const { crearCajaService, cerrarCajaService, registrarIngresoCajaService, registrarEgresoCajaService } = require('./cajaServicio');
+const { crearCajaService, cerrarCajaService, registrarIngresoCajaService, registrarEgresoCajaService, registrarArqueoCajaService } = require('./cajaServicio');
 
 const crearCajaController = async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1]; // Extraer el token del encabezado Authorization
@@ -80,4 +80,24 @@ const registrarEgresoCajaController = async (req, res) => {
   }
 };
 
-module.exports = { crearCajaController, cerrarCajaController, registrarIngresoCajaController, registrarEgresoCajaController };
+// Controlador para registrar arqueo de caja
+const registrarArqueoCajaController = async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1]; // Extraer el token del encabezado Authorization
+    try {
+      const resultado = await registrarArqueoCajaService(req.body, token);
+      res.status(200).json(resultado);
+    } catch (err) {
+      // Manejo centralizado de errores
+      console.error("Error en registrarArqueoCajaController:", err.message);
+
+      // Determinar código de estado (usar 500 por defecto si no está especificado)
+      const statusCode = err.status || 500;
+
+      return res.status(statusCode).json({
+        ok: false,
+        mensaje: err.message || "Error interno del servidor",
+      });
+    }
+};
+
+module.exports = { crearCajaController, cerrarCajaController, registrarIngresoCajaController, registrarEgresoCajaController, registrarArqueoCajaController };

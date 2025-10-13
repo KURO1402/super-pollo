@@ -79,10 +79,26 @@ const registrarEgresoCajaModel = async (datos, usuarioId) => {
     }
 };
 
+// Modelo para registrar un arqueo de caja
+const registrarArqueoCajaModel = async (montoFisico, diferencia, estadoArqueo, usuarioId) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.query("CALL registrarArqueoCaja(?, ?, ?, ?)", [usuarioId, montoFisico, diferencia, estadoArqueo]);
+        return result;
+    } catch (err) {
+        console.error("Error en registrarArqueoCajaModel: ", err.message);
+        throw new Error("Error al registrar el arqueo de caja en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 module.exports = { 
     crearCajaModel, 
     cerrarCajaModel, 
     consultarCajaAbiertaModel, 
     registrarIngresoCajaModel,
-    registrarEgresoCajaModel
+    registrarEgresoCajaModel,
+    registrarArqueoCajaModel
 }
