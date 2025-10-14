@@ -13,7 +13,7 @@ const client = new MercadoPagoConfig({
 });
 
 const crearPreferencia = async (idReservacion) => {
-    // Obtener datos de la reservación
+    // Obtener datos de la reservacion
     const reserva = await obtenerReservacionService(idReservacion);
     if (!reserva) throw new Error("Reservación no encontrada");
 
