@@ -1,16 +1,17 @@
-// importacion de express
 const express = require("express");
 // importamos los controladores
 const {
-  insertarReservacionController,
-  listarReservacionesController,
-  obtenerReservacionController,
-  actualizarReservacionController,
-  insertarPagoController,
-  obtenerPagoController,
-  insertarDetalleReservacionController,
-  obtenerDetalleReservacionController
+    insertarReservacionController,
+    listarReservacionesController,
+    obtenerReservacionController,
+    actualizarReservacionController,
+    insertarPagoController,
+    obtenerPagoController,
+    insertarDetalleReservacionController,
+    obtenerDetalleReservacionController
 } = require("./reservacionesControlador.js")
+// importamos mercadoPago.js
+const { crearPreferencia } = require('../../servicios/mercadoPago.js');
 
 // creamos el enrutador
 const router = express.Router();
@@ -31,6 +32,18 @@ router.get("/:idReservacion/pago", obtenerPagoController);
 router.post("/detalle", insertarDetalleReservacionController);
 // ruta para obtener detalle de una reservacion por id
 router.get("/:idReservacion/detalle", obtenerDetalleReservacionController);
+
+// ruta para crear preferencia de Mercado Pago para una reservación
+router.post("/:idReservacion/crear-preferencia", async (req, res) => {
+    try {
+        const { idReservacion } = req.params;
+        const result = await crearPreferencia(idReservacion);
+        res.json({ ok: true, ...result });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ ok: false, mensaje: err.message });
+    }
+});
 
 // exportamos el enrutador
 module.exports = router;
