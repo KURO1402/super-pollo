@@ -12,13 +12,17 @@ import { useModal } from "../../../hooks/useModal";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 // los componentes propios de este módulo 
 import FilaMovimientos from "../componentes/FilaMovimientos";
+import { abrirCajaServicio, cerrarCajaServicio } from "../servicios/gestionCajaServicio";
+import { useAutenticacionGlobal } from "../../../../../app/estado-global/autenticacionGlobal";
 
 const CajaActualSeccion = () => {
+  const { accessToken } = useAutenticacionGlobal();
   const [caja, setCaja] = useState({
-    estado: "abierta",
-    saldoInicial: 1500.00,
-    ingresos: 850.75,
-    egresos: 320.25,
+    estado: "cerrada",
+    saldoInicial: "-",
+    saldoActual: 0,
+    ingresos: "-",
+    egresos: "-",
     movimientos: [
       {
         id: 1,
@@ -76,12 +80,17 @@ const CajaActualSeccion = () => {
     abrir: abrirEgreso, 
     cerrar: cerrarEgreso 
   } = useModal();
+  // para poder utilizar el modal de registrar un nuevo ingreso
+  const { 
+    estaAbierto: modalAbrirNuevaCaja, 
+    abrir: abrirNuevaCaja, 
+    cerrar: cerrarNuevaCaja
+  } = useModal();
+  
   // utilizar react-hook-form con las funciones que hicimos para simplificar y llevar un mejor control de ambos formularios
   const { register: registerIngreso, handleSubmit: handleSubmitIngreso, reset: resetIngreso } = useForm();
   const { register: registerEgreso, handleSubmit: handleSubmitEgreso, reset: resetEgreso } = useForm();
-
-  // Calcular saldo actual
-  const saldoActual = caja.saldoInicial + caja.ingresos - caja.egresos;
+  const { register: registerNuevaCaja, handleSubmit: handleSubmitNuevaCaja, reset: resetNuevaCaja } = useForm();
 
   // Función para formatear moneda
   const formatCurrency = (amount) => {
@@ -148,6 +157,32 @@ const CajaActualSeccion = () => {
     setPaginaActual(1); // Volver a la primera página al agregar nuevo movimiento
   };
 
+  // funcion para abrir una caja llamando al backend
+  const onSubmitNuevaCaja = (data) => {
+    const datos = {
+      montoInicial : Number(data.monto)
+    }
+    abrirCajaServicio(datos, accessToken);
+
+    registerNuevaCaja();
+    resetNuevaCaja();
+    abrirNuevaCaja(); // para cambiar el estado de la caja
+    handleAbrirCaja(); // cambiar el estado de la la caja
+    cerrarNuevaCaja(); // cerramos el modal 
+  };
+  
+   const onSubmitCerrarCaja = () =>{
+    cerrarCajaServicio(accessToken)
+    handleCerrarCaja();
+  }
+
+  const handleAbrirCaja = () => {
+    setCaja(prev => ({
+      ...prev,
+      estado: "abierta" 
+    }))
+  };
+
   const handleCerrarCaja = () => {
     setCaja(prev => ({
       ...prev,
@@ -156,7 +191,7 @@ const CajaActualSeccion = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
+    <div className="w-full mx-auto p-2 space-y-6">
       {/* Cabecera de Resumen */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
         <div className="flex items-center justify-between mb-6">
@@ -183,13 +218,21 @@ const CajaActualSeccion = () => {
               <span className="font-medium capitalize">{caja.estado}</span>
             </div>
             
-            {caja.estado === "abierta" && (
+            {caja.estado === "abierta" ? (
               <button
-                onClick={handleCerrarCaja}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 shadow-sm"
+                onClick={onSubmitCerrarCaja}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 shadow-sm cursor-pointer"
               >
                 <FiLock className="w-4 h-4" />
                 Cerrar Caja
+              </button>
+            ) : (
+              <button
+                onClick={abrirNuevaCaja}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm cursor-pointer"
+              >
+                <FiLock className="w-4 h-4" />
+                Abrir Caja
               </button>
             )}
           </div>
@@ -205,7 +248,7 @@ const CajaActualSeccion = () => {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Saldo Inicial</p>
                 <p className="text-xl font-bold text-gray-900 dark:text-white">
-                  {formatCurrency(caja.saldoInicial)}
+                  {(caja.saldoInicial)}
                 </p>
               </div>
             </div>
@@ -220,7 +263,7 @@ const CajaActualSeccion = () => {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Ingresos</p>
                 <p className="text-xl font-bold text-green-700 dark:text-green-400">
-                  +{formatCurrency(caja.ingresos)}
+                  {(caja.ingresos)}
                 </p>
               </div>
             </div>
@@ -235,7 +278,7 @@ const CajaActualSeccion = () => {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Egresos</p>
                 <p className="text-xl font-bold text-red-700 dark:text-red-400">
-                  -{formatCurrency(caja.egresos)}
+                  {(caja.egresos)}
                 </p>
               </div>
             </div>
@@ -243,18 +286,18 @@ const CajaActualSeccion = () => {
 
           {/* Saldo Actual */}
           <div className={`rounded-lg p-4 ${
-            saldoActual >= 0 
+            caja.saldoActual >= 0 
               ? "bg-emerald-50 dark:bg-emerald-900/20" 
               : "bg-red-50 dark:bg-red-900/20"
           }`}>
             <div className="flex items-center gap-3">
               <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                saldoActual >= 0 
+                caja.saldoActual >= 0 
                   ? "bg-emerald-100 dark:bg-emerald-900/30" 
                   : "bg-red-100 dark:bg-red-900/30"
               }`}>
                 <FiDollarSign className={`w-6 h-6 ${
-                  saldoActual >= 0 
+                  caja.saldoActual >= 0 
                     ? "text-emerald-600 dark:text-emerald-400" 
                     : "text-red-600 dark:text-red-400"
                 }`} />
@@ -262,11 +305,11 @@ const CajaActualSeccion = () => {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Saldo Actual</p>
                 <p className={`text-xl font-bold ${
-                  saldoActual >= 0 
+                  caja.saldoActual >= 0 
                     ? "text-emerald-700 dark:text-emerald-400" 
                     : "text-red-700 dark:text-red-400"
                 }`}>
-                  {formatCurrency(saldoActual)}
+                  {formatCurrency(caja.saldoActual)}
                 </p>
               </div>
             </div>
@@ -443,6 +486,50 @@ const CajaActualSeccion = () => {
           </div>
         </form>
       </Modal>
+      <Modal
+        estaAbierto={modalAbrirNuevaCaja}
+        onCerrar={cerrarNuevaCaja}
+        titulo="Abrir Nueva Caja"
+        tamaño="md"
+        mostrarHeader
+        mostrarFooter={false}
+      >
+        <form onSubmit={handleSubmitNuevaCaja(onSubmitNuevaCaja)} className="p-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Saldo Inicial
+              </label>
+              <input
+                type="number"
+                {...registerNuevaCaja("monto", { 
+                  required: "El monto es requerido",
+                  min: { value: 0.01, message: "El monto debe ser mayor a 0" }
+                })}
+                className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <button
+              type="button"
+              onClick={cerrarEgreso}
+              className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-200"
+            >
+              Abrir Caja
+            </button>
+          </div>
+        </form>
+      </Modal>
+      
     </div>
   );
 };
