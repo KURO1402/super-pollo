@@ -1,5 +1,5 @@
 // helpers para obtener el enum de la bd
-const db = require('../config/conexionDB'); 
+const db = require('../../config/conexionDB'); 
 
 const obtenerValoresEnum = async (tabla, campo) => {
     const [rows] = await db.query(`SHOW COLUMNS FROM \`${tabla}\` WHERE Field = ?`, [campo]);

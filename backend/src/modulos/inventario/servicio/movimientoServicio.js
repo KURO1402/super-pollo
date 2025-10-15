@@ -5,35 +5,26 @@ const {
     obtenerMovimientosPorInsumoModel,
 } = require("../modelo/movimientosModelo");
 
-//registrar movimiento
+//validaciones
+const {validarDatosMovimiento} =require("../validaciones/movimientoValidaciones")
+
 const registrarMovimientoService = async (datos) => {
-  // Validaciones basicas temporales //////////
-  if (!datos.idInsumo || !datos.tipoMovimiento || !datos.cantidadMovimiento) {
-    const error = new Error("Faltan datos obligatorios del movimiento");
-    error.status = 400;
-    throw error;
+
+  //capturamos los errroes
+  const errores = await validarDatosMovimiento(datos);
+
+  if (errores.length > 0) {
+    throw {
+      status: 400,
+      mensaje: errores.join(", ")
+    };
   }
 
-  // Validar tipoMovimiento permitido
-  if (!["entrada", "salida"].includes(datos.tipoMovimiento)) {
-    const error = new Error("El tipo de movimiento debe ser 'entrada' o 'salida'");
-    error.status = 400;
-    throw error;
-  }
-
-  // Validar que la cantidad sea positiva
-  if (datos.cantidadMovimiento <= 0) {
-    const error = new Error("La cantidad debe ser mayor a 0");
-    error.status = 400;
-    throw error;
-  }
-
-  // Registrar el movimiento 
+  //si la validacion pasa registramos el movimiento
   const resultado = await registrarMovimientoModel(datos);
 
-  return resultado;
-};
-
+  return resultado
+}
 
 // Listar todos los movimientos
 const listarMovimientosService = async () => {

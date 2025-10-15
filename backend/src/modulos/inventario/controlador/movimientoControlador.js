@@ -12,7 +12,7 @@ const registrarMovimientoController = async (req, res) => {
         const resultado = await registrarMovimientoService(req.body);
         return res.status(201).json({ ok: true, ...resultado});
     } catch (error) {
-        return res.status(error.status || 500).json({ ok: false, mensaje: error.message});
+        return res.status(error.status || 500).json({ ok: false, mensaje: error.mensaje || error.message || "Error desconocido" });
     }
 };
 
@@ -22,7 +22,7 @@ const listarMovimientosController = async (req, res) => {
     const movimientos = await listarMovimientosService();
     return res.json({ ok: true, total: movimientos.length, data: movimientos });
   } catch (error) {
-    return res.status(error.status || 500).json({ ok: false, mensaje: error.message });
+    return res.status(error.status || 500).json({ ok: false, mensaje: error.mensaje || error.message || "Error desconocido" });
   }
 };
 
@@ -33,7 +33,7 @@ const obtenerMovimientosPorInsumoController = async (req, res) => {
     const movimientos = await obtenerMovimientosPorInsumoService(idInsumo);
     return res.json({ ok: true, data: movimientos });
   } catch (error) {
-    return res.status(error.status || 500).json({ ok: false, mensaje: error.message });
+    return res.status(error.status || 500).json({ ok: false, mensaje: error.mensaje || error.message || "Error desconocido" });
   }
 };
 

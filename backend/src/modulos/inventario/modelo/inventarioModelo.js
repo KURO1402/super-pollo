@@ -36,11 +36,28 @@ const eliminarInsumoModel = async (id) => {
     await db.query("DELETE FROM insumos WHERE idInsumo = ?", [id]);
 };
 
+//Calculamos el stock actual
+const obtenerStockActualModel = async (idInsumo) => {
+    const [result] = await db.query(
+        `SELECT 
+            SUM(CASE 
+                    WHEN tipoMovimiento = 'entrada' THEN cantidadMovimiento 
+                    ELSE -cantidadMovimiento 
+                END) AS stock
+         FROM movimientosstock
+         WHERE idInsumo = ?`,
+        [idInsumo]
+    );
+    return result[0].stock || 0;
+};
+
+
 // Exportamos todos los modelos
 module.exports = {
     insertarInsumoModel,
     obtenerInsumosModel,
     obtenerInsumoIDModel,
     actualizarInsumoModel,
-    eliminarInsumoModel
+    eliminarInsumoModel,
+    obtenerStockActualModel
 };

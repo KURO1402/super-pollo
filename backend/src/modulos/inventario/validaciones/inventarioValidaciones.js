@@ -1,5 +1,4 @@
-// validaciones/insumosValidator.js
-const { obtenerValoresEnum } = require('../helpers/inventarioHelper');
+const { obtenerValoresEnum } = require('../../../helpers/inventario-helpers/inventarioHelper');
 
 const esSoloNumeros = (texto) => /^[0-9]+$/.test(texto);
 
