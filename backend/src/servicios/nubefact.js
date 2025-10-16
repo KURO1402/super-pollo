@@ -28,7 +28,6 @@ const generarComprobanteNubefact = async (data) => {
         }
     }
 }
-
 module.exports = {
     generarComprobanteNubefact
 }
