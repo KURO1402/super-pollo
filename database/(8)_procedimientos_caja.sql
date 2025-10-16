@@ -9,6 +9,7 @@ DROP PROCEDURE IF EXISTS registrarEgresoCaja;
 DROP PROCEDURE IF EXISTS registrarArqueoCaja;
 DROP PROCEDURE IF EXISTS obtenerMovimientosPorCaja;
 DROP PROCEDURE IF EXISTS obtenerUltimosMovimientosCaja;
+DROP PROCEDURE IF EXISTS obtenerCajasCerradas;
 
 /* CREAR PROCEDIMIENTOS ALMACENADOS DEL MODULO DE CAJA */
 DELIMITER //
@@ -323,6 +324,27 @@ BEGIN
     FROM movimientosCaja mc
     INNER JOIN usuarios u ON mc.idUsuario = u.idUsuario
     ORDER BY mc.fechaMovimiento DESC
+    LIMIT p_limit OFFSET p_offset;
+END //
+
+-- Procedimiento para obtener detalles de las cajas cerradas
+CREATE PROCEDURE obtenerCajasCerradas(
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    SELECT 
+        DATE_FORMAT(c.fechaCaja, '%d/%m/%Y') AS fecha,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario,
+        c.montoActual,
+        ac.montoContado,
+        ac.diferencia,
+        ac.estadoCaja
+    FROM arqueoscaja ac
+    INNER JOIN caja c ON ac.idCaja = c.idCaja
+    INNER JOIN usuarios u ON ac.idUsuario = u.idUsuario
+    WHERE c.estadoCaja = 'cerrada';
+    ORDER BY c.fechaCaja DESC
     LIMIT p_limit OFFSET p_offset;
 END //
 

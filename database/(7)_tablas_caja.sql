@@ -47,7 +47,7 @@ CREATE TABLE arqueosCaja(
     fechaArqueo DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     montoContado DECIMAL(10,2) NOT NULL,
     diferencia DECIMAL(10,2),
-    estadoCaja ENUM('cuadrada','falta', 'sobra') NOT NULL,
+    estadoCaja ENUM('cuadra','falta', 'sobra') NOT NULL,
     idCaja INT NOT NULL,
     idUsuario INT NOT NULL,
     FOREIGN KEY (idCaja) REFERENCES caja(idCaja),
