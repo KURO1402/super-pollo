@@ -169,9 +169,8 @@ const CajaActualSeccion = () => {
       handleAbrirCaja(); // cambiar el estado de la la caja
       cerrarNuevaCaja(); // cerramos el modal 
     } catch (error) {
-      
+      console.error("Error al abrir la caja:", error); 
     }
-  
   };
   
   const onSubmitCerrarCaja = async() =>{
