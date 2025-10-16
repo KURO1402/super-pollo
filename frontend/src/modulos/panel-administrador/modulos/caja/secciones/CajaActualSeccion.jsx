@@ -158,22 +158,29 @@ const CajaActualSeccion = () => {
   };
 
   // funcion para abrir una caja llamando al backend
-  const onSubmitNuevaCaja = (data) => {
-    const datos = {
-      montoInicial : Number(data.monto)
+  const onSubmitNuevaCaja = async(data) => {
+    try {
+      const datos = {
+        montoInicial : Number(data.monto)
+      };
+      await abrirCajaServicio(datos, accessToken); // esperamos que la llamada a la API de acomplete
+      registerNuevaCaja();
+      resetNuevaCaja();
+      handleAbrirCaja(); // cambiar el estado de la la caja
+      cerrarNuevaCaja(); // cerramos el modal 
+    } catch (error) {
+      
     }
-    abrirCajaServicio(datos, accessToken);
-
-    registerNuevaCaja();
-    resetNuevaCaja();
-    abrirNuevaCaja(); // para cambiar el estado de la caja
-    handleAbrirCaja(); // cambiar el estado de la la caja
-    cerrarNuevaCaja(); // cerramos el modal 
+  
   };
   
-   const onSubmitCerrarCaja = () =>{
-    cerrarCajaServicio(accessToken)
-    handleCerrarCaja();
+  const onSubmitCerrarCaja = async() =>{
+    try {
+      await cerrarCajaServicio(accessToken); // esperamos que se complete
+      handleCerrarCaja(); // solo se ejecuta si no hay error
+    } catch (error) {
+      console.error("Error al cerrar la caja: ", error.message); // monstrar el error 
+    }
   }
 
   const handleAbrirCaja = () => {
@@ -217,9 +224,10 @@ const CajaActualSeccion = () => {
               )}
               <span className="font-medium capitalize">{caja.estado}</span>
             </div>
-            
+
             {caja.estado === "abierta" ? (
               <button
+                type="onsubmit"
                 onClick={onSubmitCerrarCaja}
                 className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 shadow-sm cursor-pointer"
               >

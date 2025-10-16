@@ -17,12 +17,12 @@ export const abrirCajaServicio = async (data, token) => {
   return respuesta.data.mensaje;
 };
 
-export const cerrarCajaServicio = async (accessToken) => {
-
-  const respuesta = await axios.post('http://localhost:3001/caja/cerrar-caja', {
+export const cerrarCajaServicio = async (token) => {
+  console.log("token obtenido cerrar caja (servicio): ", token);
+  const respuesta = await axios.post('http://localhost:3001/caja/cerrar-caja', {}, {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`
+      'Authorization': `Bearer ${token}`
     }
   });
 
