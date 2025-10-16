@@ -94,11 +94,43 @@ const registrarArqueoCajaModel = async (montoFisico, diferencia, estadoArqueo, u
     }
 };
 
+//Modelo para obtener los movimientos de una caja específica
+const obtenerMovimientosPorCajaModel = async (cajaId) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.query("CALL obtenerMovimientosPorCaja(?)", [cajaId]);
+        return rows[0];
+    } catch (err) {
+        console.error("Error en obtenerMovimientosPorCajaModel: ", err.message);
+        throw new Error("Error al obtener los movimientos de la caja en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para obtener los movimientos de caja
+const obtenerUltimosMovimientosCajaModel = async (limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.query("CALL obtenerUltimosMovimientosCaja(?, ?)", [limit, offset]);
+        return rows[0];
+    } catch (err) {
+        console.error("Error en obtenerUltimosMovimientosCajaModel: ", err.message);
+        throw new Error("Error al obtener los últimos movimientos de caja en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 module.exports = { 
     crearCajaModel, 
     cerrarCajaModel, 
     consultarCajaAbiertaModel, 
     registrarIngresoCajaModel,
     registrarEgresoCajaModel,
-    registrarArqueoCajaModel
+    registrarArqueoCajaModel,
+    obtenerMovimientosPorCajaModel,
+    obtenerUltimosMovimientosCajaModel
 }

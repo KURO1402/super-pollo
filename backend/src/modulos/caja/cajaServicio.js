@@ -1,6 +1,6 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { crearCajaModel, cerrarCajaModel, consultarCajaAbiertaModel, registrarIngresoCajaModel, registrarEgresoCajaModel, registrarArqueoCajaModel } = require("./cajaModelo")
+const { crearCajaModel, cerrarCajaModel, consultarCajaAbiertaModel, registrarIngresoCajaModel, registrarEgresoCajaModel, registrarArqueoCajaModel, obtenerMovimientosPorCajaModel, obtenerUltimosMovimientosCajaModel } = require("./cajaModelo")
 const { validarDatosAbrirCaja, validarDatosCerrarCaja, validarDatosIngresoCaja, validarDatosEgresoCaja, validarDatosArqueoCaja } = require("../../utilidades/validacionesCaja.js");
 
 //Servicio para crear una nueva caja
@@ -96,10 +96,31 @@ const registrarArqueoCajaService = async (datos, token) => {
     };
 }
 
+// Servicio para obtener los movimientos de una caja específica
+const obtenerMovimientosPorCajaService = async (cajaId) => {
+    const movimientos = await obtenerMovimientosPorCajaModel(cajaId);
+    if (movimientos.length === 0) {
+        throw Object.assign(new Error("No se encontraron movimientos para la caja especificada"), { status: 404 });
+    }
+    return movimientos;
+}
+
+// Servicio para obtener los últimos movimientos de caja (10 en 10)
+const obtenerUltimosMovimientosCajaService = async (limit, offset) => {
+    const movimientos = await obtenerUltimosMovimientosCajaModel(limit, offset);
+    if (movimientos.length === 0) {
+        throw Object.assign(new Error("No se encontraron movimientos de caja"), { status: 404 });
+    }
+    return movimientos;
+}
+
+
 module.exports = {
     crearCajaService,
     cerrarCajaService,
     registrarIngresoCajaService,
     registrarEgresoCajaService,
-    registrarArqueoCajaService
+    registrarArqueoCajaService,
+    obtenerMovimientosPorCajaService,
+    obtenerUltimosMovimientosCajaService
 };

@@ -1,4 +1,4 @@
-const { crearCajaService, cerrarCajaService, registrarIngresoCajaService, registrarEgresoCajaService, registrarArqueoCajaService } = require('./cajaServicio');
+const { crearCajaService, cerrarCajaService, registrarIngresoCajaService, registrarEgresoCajaService, registrarArqueoCajaService, obtenerMovimientosPorCajaService, obtenerUltimosMovimientosCajaService } = require('./cajaServicio');
 
 const crearCajaController = async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1]; // Extraer el token del encabezado Authorization
@@ -100,4 +100,47 @@ const registrarArqueoCajaController = async (req, res) => {
     }
 };
 
-module.exports = { crearCajaController, cerrarCajaController, registrarIngresoCajaController, registrarEgresoCajaController, registrarArqueoCajaController };
+// Controlador para obtener los movimientos de una caja específica
+const obtenerMovimientosPorCajaController = async (req, res) => {
+    const { idCaja } = req.params;
+
+    try {
+        const movimientos = await obtenerMovimientosPorCajaService(idCaja);
+        res.status(200).json(movimientos);
+    } catch (err) {
+        // Manejo centralizado de errores
+        console.error("Error en obtenerMovimientosPorCajaController:", err.message);
+
+        // Determinar código de estado (usar 500 por defecto si no está especificado)
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
+};
+
+// Controlador para obtener los últimos movimientos de caja (10 en 10)
+const obtenerUltimosMovimientosCajaController = async (req, res) => {
+    const limit = parseInt(req.query.limit) || 10; // Número de registros por página, por defecto 10
+    const offset = parseInt(req.query.offset) || 0; // Desplazamiento para la paginación, por defecto 0
+
+    try {
+        const movimientos = await obtenerUltimosMovimientosCajaService(limit, offset);
+        res.status(200).json(movimientos);
+    } catch (err) {
+        // Manejo centralizado de errores
+        console.error("Error en obtenerUltimosMovimientosCajaController:", err.message);
+
+        // Determinar código de estado (usar 500 por defecto si no está especificado)
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
+};
+
+module.exports = { crearCajaController, cerrarCajaController, registrarIngresoCajaController, registrarEgresoCajaController, registrarArqueoCajaController, obtenerMovimientosPorCajaController, obtenerUltimosMovimientosCajaController };

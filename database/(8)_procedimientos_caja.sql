@@ -7,6 +7,8 @@ DROP PROCEDURE IF EXISTS consultarCajaAbierta;
 DROP PROCEDURE IF EXISTS registrarIngresoCaja;
 DROP PROCEDURE IF EXISTS registrarEgresoCaja;
 DROP PROCEDURE IF EXISTS registrarArqueoCaja;
+DROP PROCEDURE IF EXISTS obtenerMovimientosPorCaja;
+DROP PROCEDURE IF EXISTS obtenerUltimosMovimientosCaja;
 
 /* CREAR PROCEDIMIENTOS ALMACENADOS DEL MODULO DE CAJA */
 DELIMITER //
@@ -285,6 +287,43 @@ BEGIN
     );
 
     COMMIT;
+END //
+
+-- Procedimiento para obtener los movimientos de una caja específica
+CREATE PROCEDURE obtenerMovimientosPorCaja(
+    IN p_idCaja INT
+)
+BEGIN
+    SELECT 
+        mc.tipoMovimiento,
+        mc.descripcionMovCaja,
+        mc.montoMovimiento,
+        DATE_FORMAT(mc.fechaMovimiento, '%d/%m/%Y') AS fecha,
+        DATE_FORMAT(mc.fechaMovimiento, '%H:%i') AS hora,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM movimientosCaja mc
+    INNER JOIN usuarios u ON mc.idUsuario = u.idUsuario
+    WHERE mc.idCaja = p_idCaja
+    ORDER BY mc.fechaMovimiento DESC;
+END //
+
+-- Procedimiento para obtener los movimientos de la caja abierta de 10 en 10
+CREATE PROCEDURE obtenerUltimosMovimientosCaja(
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    SELECT 
+        mc.tipoMovimiento,
+        mc.descripcionMovCaja,
+        mc.montoMovimiento,
+        DATE_FORMAT(mc.fechaMovimiento, '%d/%m/%Y') AS fecha,
+        DATE_FORMAT(mc.fechaMovimiento, '%H:%i') AS hora,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM movimientosCaja mc
+    INNER JOIN usuarios u ON mc.idUsuario = u.idUsuario
+    ORDER BY mc.fechaMovimiento DESC
+    LIMIT p_limit OFFSET p_offset;
 END //
 
 DELIMITER ;
