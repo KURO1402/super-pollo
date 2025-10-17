@@ -5,18 +5,24 @@ import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; // La barra de busqueda del componente reutilizable
 import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda"; // otro componente reutilizable
 import { Paginacion } from "../../../componentes/tabla/Paginacion"; // la paginación para la tabla
+import Modal from "../../../componentes/modal/Modal";
 // custom hooks
 import { useBusqueda } from "../../../hooks/useBusqueda"; // hook para la la busqueda 
 import { useFiltro } from "../../../hooks/useFiltro"; // hook para filtrar por tipo
 import { usePaginacion } from "../../../hooks/usePaginacion"; // hook para la paginas de nuestra tabla
-// componente y data temporal
+import { useModal } from "../../../hooks/useModal";
+// componentes de la seccion
 import { FilaInsumo } from "../componentes/FilaInsumo"; // nuestras filsa personalizadas
+import { ModalNuevoInsumo } from "../componentes/ModalNuevoInsumo";
+// data temporal
 import { insumos } from "../data-temporal/insumos"; // data temporal para hacer el diseño
 
 const StockInsumosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); // utilizamos nuestro hook de busqueda, lo desestructuramos
   const { filtro, setFiltro, aplicarFiltros } = useFiltro(); // lo mismo para el filtro
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(8); // tambien para la paginación
+  // Modal para nuevo insumo
+  const modalNuevoInsumo = useModal(false);
   // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(insumos, [
     "nombreinsumo",
@@ -30,6 +36,10 @@ const StockInsumosSeccion = () => {
   const filasInsumos = datosPaginados.map((insumo) => (
     <FilaInsumo key={insumo.idInsumo} insumo={insumo} />
   ));
+  // Función para abrir modal de nuevo insumo
+  const handleNuevoInsumo = () => {
+    modalNuevoInsumo.abrir();
+  };
 
   return (
     <div className="p-2">
@@ -57,6 +67,12 @@ const StockInsumosSeccion = () => {
               { value: "bebida", label: "Solo bebidas" },
             ]}
           />
+          <button 
+              onClick={handleNuevoInsumo}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer"
+            >
+              + Nuevo Insumo
+          </button>
         </div>
       </div>
       {/* Tabla de insumos */}
@@ -69,6 +85,20 @@ const StockInsumosSeccion = () => {
         totalPaginas={totalPaginas}
         alCambiarPagina={setPaginaActual}
       />
+      {/* Modal para nuevo insumo */}
+      <Modal
+        estaAbierto={modalNuevoInsumo.estaAbierto}
+        onCerrar={modalNuevoInsumo.cerrar}
+        titulo="Agregar Nuevo Insumo"
+        tamaño="md"
+        mostrarHeader={true}
+        mostrarFooter={false}
+      >
+        <ModalNuevoInsumo 
+          onClose={modalNuevoInsumo.cerrar}
+          onGuardar={modalNuevoInsumo.cerrar}
+        />
+      </Modal>
     </div>
   );
 };
