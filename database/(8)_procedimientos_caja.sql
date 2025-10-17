@@ -308,7 +308,7 @@ BEGIN
     ORDER BY mc.fechaMovimiento DESC;
 END //
 
--- Procedimiento para obtener los movimientos de la caja abierta de 10 en 10
+-- Procedimiento para obtener los movimientos de la caja abierta por partes
 CREATE PROCEDURE obtenerUltimosMovimientosCaja(
     IN p_limit INT,
     IN p_offset INT
@@ -327,23 +327,29 @@ BEGIN
     LIMIT p_limit OFFSET p_offset;
 END //
 
--- Procedimiento para obtener detalles de las cajas cerradas
+-- Procedimiento para obtener detalles de las cajas cerradas por partes
 CREATE PROCEDURE obtenerCajasCerradas(
     IN p_limit INT,
     IN p_offset INT
 )
 BEGIN
     SELECT 
+        c.idCaja,
         DATE_FORMAT(c.fechaCaja, '%d/%m/%Y') AS fecha,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario,
         c.montoActual,
         ac.montoContado,
         ac.diferencia,
         ac.estadoCaja
-    FROM arqueoscaja ac
-    INNER JOIN caja c ON ac.idCaja = c.idCaja
+    FROM caja c
+    INNER JOIN (
+        SELECT idCaja, MAX(idArqueoCaja) AS ultimoArqueo
+        FROM arqueosCaja
+        GROUP BY idCaja
+    ) ult ON c.idCaja = ult.idCaja
+    INNER JOIN arqueosCaja ac ON ac.idArqueoCaja = ult.ultimoArqueo
     INNER JOIN usuarios u ON ac.idUsuario = u.idUsuario
-    WHERE c.estadoCaja = 'cerrada';
+    WHERE c.estadoCaja = 'cerrada'
     ORDER BY c.fechaCaja DESC
     LIMIT p_limit OFFSET p_offset;
 END //

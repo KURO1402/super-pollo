@@ -124,6 +124,21 @@ const obtenerUltimosMovimientosCajaModel = async (limit, offset) => {
     }
 };
 
+// Modelo para obtener  las cajas cerradas por partes
+const obtenerCajasCerradasModel = async (limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.query("CALL obtenerCajasCerradas(?, ?)", [limit, offset]);
+        return rows[0];
+    } catch (err) {
+        console.error("Error en obtenerCajasCerradasModel: ", err.message);
+        throw new Error("Error al obtener las cajas cerradas en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 module.exports = { 
     crearCajaModel, 
     cerrarCajaModel, 
@@ -132,5 +147,6 @@ module.exports = {
     registrarEgresoCajaModel,
     registrarArqueoCajaModel,
     obtenerMovimientosPorCajaModel,
-    obtenerUltimosMovimientosCajaModel
+    obtenerUltimosMovimientosCajaModel,
+    obtenerCajasCerradasModel
 }

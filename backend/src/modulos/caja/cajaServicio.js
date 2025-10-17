@@ -1,7 +1,7 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { crearCajaModel, cerrarCajaModel, consultarCajaAbiertaModel, registrarIngresoCajaModel, registrarEgresoCajaModel, registrarArqueoCajaModel, obtenerMovimientosPorCajaModel, obtenerUltimosMovimientosCajaModel } = require("./cajaModelo")
-const { validarDatosAbrirCaja, validarDatosCerrarCaja, validarDatosIngresoCaja, validarDatosEgresoCaja, validarDatosArqueoCaja } = require("../../utilidades/validacionesCaja.js");
+const { crearCajaModel, cerrarCajaModel, consultarCajaAbiertaModel, registrarIngresoCajaModel, registrarEgresoCajaModel, registrarArqueoCajaModel, obtenerMovimientosPorCajaModel, obtenerUltimosMovimientosCajaModel, obtenerCajasCerradasModel } = require("./cajaModelo")
+const { validarDatosAbrirCaja, validarDatosCerrarCaja, validarDatosIngresoCaja, validarDatosEgresoCaja, validarDatosArqueoCaja } = require("./cajaValidaciones");
 
 //Servicio para crear una nueva caja
 const crearCajaService = async (montoInicial, token) => {
@@ -114,6 +114,14 @@ const obtenerUltimosMovimientosCajaService = async (limit, offset) => {
     return movimientos;
 }
 
+// Servicio para obtener las cajas cerradas
+const obtenerCajasCerradasService = async (limit, offset) => {
+    const cajas = await obtenerCajasCerradasModel(limit, offset);
+    if (cajas.length === 0) {
+        throw Object.assign(new Error("No se encontraron registros"), { status: 404 });
+    }
+    return cajas;
+}
 
 module.exports = {
     crearCajaService,
@@ -122,5 +130,6 @@ module.exports = {
     registrarEgresoCajaService,
     registrarArqueoCajaService,
     obtenerMovimientosPorCajaService,
-    obtenerUltimosMovimientosCajaService
+    obtenerUltimosMovimientosCajaService,
+    obtenerCajasCerradasService
 };

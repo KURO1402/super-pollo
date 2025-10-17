@@ -1,4 +1,4 @@
-const { crearCajaService, cerrarCajaService, registrarIngresoCajaService, registrarEgresoCajaService, registrarArqueoCajaService, obtenerMovimientosPorCajaService, obtenerUltimosMovimientosCajaService } = require('./cajaServicio');
+const { crearCajaService, cerrarCajaService, registrarIngresoCajaService, registrarEgresoCajaService, registrarArqueoCajaService, obtenerMovimientosPorCajaService, obtenerUltimosMovimientosCajaService, obtenerCajasCerradasService } = require('./cajaServicio');
 
 const crearCajaController = async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1]; // Extraer el token del encabezado Authorization
@@ -143,4 +143,36 @@ const obtenerUltimosMovimientosCajaController = async (req, res) => {
     }
 };
 
-module.exports = { crearCajaController, cerrarCajaController, registrarIngresoCajaController, registrarEgresoCajaController, registrarArqueoCajaController, obtenerMovimientosPorCajaController, obtenerUltimosMovimientosCajaController };
+// Controlador para obtener las cajas cerradas (10 en 10)
+const obtenerCajasCerradasController = async (req, res) => {
+    const limit = parseInt(req.query.limit) || 10; // Número de registros por página, por defecto 10
+    const offset = parseInt(req.query.offset) || 0; // Desplazamiento para la paginación, por defecto 0
+
+    try {
+        const cajas = await obtenerCajasCerradasService(limit, offset);
+        res.status(200).json(cajas);
+    } catch (err) {
+        // Manejo centralizado de errores
+        console.error("Error en obtenerCajasCerradasController:", err.message);
+
+        // Determinar código de estado (usar 500 por defecto si no está especificado)
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
+};
+
+module.exports = { 
+  crearCajaController, 
+  cerrarCajaController, 
+  registrarIngresoCajaController, 
+  registrarEgresoCajaController, 
+  registrarArqueoCajaController, 
+  obtenerMovimientosPorCajaController, 
+  obtenerUltimosMovimientosCajaController, 
+  obtenerCajasCerradasController,
+ obtenerCajasCerradasController
+};

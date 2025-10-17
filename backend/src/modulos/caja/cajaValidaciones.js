@@ -1,5 +1,5 @@
-const { consultarCajaAbiertaModel } = require("../modulos/caja/cajaModelo")
-const { consultarUsuarioPorIdModel } = require("../modulos/usuarios/usuarioModelo")
+const { consultarCajaAbiertaModel } = require("./cajaModelo")
+const { consultarUsuarioPorIdModel } = require("../usuarios/usuarioModelo")
 
 const validarDatosAbrirCaja = async (montoInicial, usuarioId) => {
 
