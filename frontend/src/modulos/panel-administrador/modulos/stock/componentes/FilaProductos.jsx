@@ -1,3 +1,6 @@
+import { FiTrash2, FiEdit  } from "react-icons/fi";
+import { LuChefHat } from "react-icons/lu";
+
 export const FilaProducto = ({ producto, onVerReceta }) => {
   const getEstadoClases = (estado) => {
     if (estado === "Disponible") {
@@ -38,30 +41,32 @@ export const FilaProducto = ({ producto, onVerReceta }) => {
       
       {/* RECETA */}
       <td className="px-4 py-3">
-        <span className="text-blue-600 dark:text-blue-400 text-sm">
-          {producto.ingredientesReceta} ingrediente{producto.ingredientesReceta !== 1 ? 's' : ''}
-        </span>
+        <button
+          onClick={() => onVerReceta(producto)}
+          className="p-1.5 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors cursor-pointer flex items-center"
+          title="Ver receta"
+        >
+          <LuChefHat size={17} className="mr-2" /> {/* Asegura que haya un espacio entre el ícono y el texto */}
+          <span className="text-sm">
+            {producto.ingredientesReceta} ingrediente{producto.ingredientesReceta !== 1 ? 's' : ''}
+          </span>
+        </button>
       </td>
       
       {/* ACCIONES */}
       <td className="px-4 py-3">
         <div className="flex space-x-2">
-          <button
-            onClick={() => onVerReceta(producto)}
-            className="p-1.5 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-            title="Ver receta"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </button>
           <button 
-            className="p-1.5 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
+            className="p-1.5 text-amber-400 hover:text-amber-500 transition-colors cursor-pointer"
             title="Editar producto"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
+            <FiEdit size={16}/>
+          </button>
+          <button 
+            className="p-1.5 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+            title="Eliminar insumo"
+          >
+            <FiTrash2 size={16} />
           </button>
         </div>
       </td>

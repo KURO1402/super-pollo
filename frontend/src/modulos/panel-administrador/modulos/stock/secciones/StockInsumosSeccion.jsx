@@ -1,3 +1,5 @@
+// librerías
+import { BsBoxSeam } from "react-icons/bs";
 // importar componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; // La barra de busqueda del componente reutilizable
@@ -32,7 +34,10 @@ const StockInsumosSeccion = () => {
   return (
     <div className="p-2">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Stock de los Insumos</h1>
+        <div className="mb-4 flex items-center">
+          <BsBoxSeam className="mr-3 text-2xl text-gray-900 dark:text-white" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Stock de los Insumos</h1>
+        </div>
         <p className="text-gray-600 dark:text-gray-400">Gestión de materia prima y bebidas</p>
       </div>
       {/* Barra de búsqueda y filtros */}

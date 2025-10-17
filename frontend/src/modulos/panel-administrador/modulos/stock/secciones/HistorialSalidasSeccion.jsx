@@ -1,3 +1,5 @@
+// librerías
+import { MdHistory } from "react-icons/md";
 // importamos nuestros componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; 
@@ -34,7 +36,10 @@ const HistorialSalidasSeccion = () => {
   return (
     <div className="p-2">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Historial de Salidas</h1>
+        <div className="mb-4 flex items-center">
+          <MdHistory className="text-3xl text-red-600 dark:text-red-500 mr-2"/>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Historial de Salidas</h1>
+        </div>
         <p className="text-gray-600 dark:text-gray-400">Registro de consumos y ventas de insumos</p>
       </div>
       {/* Barra de búsqueda y filtros */}

@@ -1,3 +1,5 @@
+// librerías
+import { BsBoxSeam } from "react-icons/bs";
 // hook de react
 import { useState } from 'react';
 // componentes reutilizables
@@ -10,8 +12,10 @@ import Modal from '../../../componentes/modal/Modal';
 import { useBusqueda } from "../../../hooks/useBusqueda";
 import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
+import { useModal } from "../../../hooks/useModal";
 // componentes de la seccion
 import { ModalReceta } from '../componentes/ModalReceta';
+import { ModalNuevoProducto } from "../componentes/ModalNuevoProducto";
 import { FilaProducto } from '../componentes/FilaProductos';
 // datos temporales
 import { productos } from '../data-temporal/productos';
@@ -21,7 +25,10 @@ const GestionProductosSeccion = () => {
   const { filtro, setFiltro, aplicarFiltros } = useFiltro();
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(8);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
-  const [mostrarModalReceta, setMostrarModalReceta] = useState(false);
+
+  // modales
+  const modalReceta = useModal(false);
+  const modalNuevoProducto = useModal(false);
 
   // Aplicar búsqueda
   let productosFiltrados = filtrarPorBusqueda(productos, [
@@ -45,23 +52,21 @@ const GestionProductosSeccion = () => {
   // funcion que escucha el evente de ver receta
   function handleVerReceta(producto) {
     setProductoSeleccionado(producto);
-    setMostrarModalReceta(true);
+    modalReceta.abrir();
   }
-// funcion para cerrar el modal de receta
-  function handleCerrarModal() {
-    setMostrarModalReceta(false);
-    setProductoSeleccionado(null);
+  // funcion para abrir modal nuevo producto
+  function handleNuevoProducto() {
+    modalNuevoProducto.abrir();
   }
 
   return (
     <div className="p-2">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Gestión de Productos
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Administra los productos del menú y sus recetas
-        </p>
+        <div className="mb-4 flex items-center">
+          <BsBoxSeam className="mr-3 text-2xl text-gray-900 dark:text-white" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Productos</h1>
+        </div>
+        <p className="text-gray-600 dark:text-gray-400">Administra los productos del menú y sus recetas</p>
       </div>
 
       {/* Barra de búsqueda y filtros */}
@@ -83,7 +88,9 @@ const GestionProductosSeccion = () => {
               { value: "Postres", label: "Postres" },
             ]}
           />
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap">
+          <button 
+            onClick={handleNuevoProducto}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap">
             + Nuevo Producto
           </button>
         </div>
@@ -100,20 +107,34 @@ const GestionProductosSeccion = () => {
         totalPaginas={totalPaginas}
         alCambiarPagina={setPaginaActual}
       />
-
-      {/* Modal de Receta */}
+      {/* Modal para ver la receta de un producto*/}
       <Modal
-        estaAbierto={mostrarModalReceta}
-        onCerrar={handleCerrarModal}
+        estaAbierto={modalReceta.estaAbierto}
+        onCerrar={modalReceta.cerrar}
         titulo={`Receta: ${productoSeleccionado?.nombre || ''}`}
         tamaño="xl"
+        mostrarHeader={true}
       >
         {productoSeleccionado && (
           <ModalReceta 
             producto={productoSeleccionado}
-            onClose={handleCerrarModal}
+            onClose={modalReceta.cerrar}
           />
         )}
+      </Modal>
+      {/* Modal para agregar un nuevo producto */}
+      <Modal
+        estaAbierto={modalNuevoProducto.estaAbierto}
+        onCerrar={modalNuevoProducto.cerrar}
+        titulo="Agregar Nuevo Producto"
+        tamaño="lg"
+        mostrarHeader={true}
+        mostrarFooter={false}
+      >
+        <ModalNuevoProducto 
+          onClose={modalNuevoProducto.cerrar}
+          onGuardar={modalNuevoProducto.cerrar}
+        />
       </Modal>
     </div>
   );
