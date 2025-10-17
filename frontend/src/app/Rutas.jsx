@@ -34,6 +34,7 @@ import CalendarioReservasSeccion from "../modulos/panel-administrador/modulos/re
 // secciones de usuario y perfil
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
+import GestionProductosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/GestionProductosSeccion";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -70,6 +71,7 @@ const AppRutas = () => {
                     { path: 'stock-insumos', element: <StockInsumosSeccion/> },
                     { path: 'historial-entradas', element: <HistorialEntradasSeccion/> },
                     { path: 'historial-salidas', element: <HistorialSalidasSeccion/> },
+                    { path: 'gestion-productos', element: <GestionProductosSeccion/> },
                     { path: 'caja-actual', element: <CajaActualSeccion/> },
                     { path: 'historial-cajas', element: <HistorialCajasSeccion/> },
 
