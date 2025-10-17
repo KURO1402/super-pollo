@@ -14,6 +14,7 @@ import { useModal } from "../../../hooks/useModal";
 // componentes de la seccion
 import { FilaInsumo } from "../componentes/FilaInsumo"; // nuestras filsa personalizadas
 import { ModalNuevoInsumo } from "../componentes/ModalNuevoInsumo";
+import { ModalMovimientoStock } from "../componentes/ModalMovimientoStock";
 // data temporal
 import { insumos } from "../data-temporal/insumos"; // data temporal para hacer el diseño
 
@@ -23,6 +24,7 @@ const StockInsumosSeccion = () => {
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(8); // tambien para la paginación
   // Modal para nuevo insumo
   const modalNuevoInsumo = useModal(false);
+  const modalMovimientoStock = useModal(false);
   // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(insumos, [
     "nombreinsumo",
@@ -40,7 +42,10 @@ const StockInsumosSeccion = () => {
   const handleNuevoInsumo = () => {
     modalNuevoInsumo.abrir();
   };
-
+  // Función para abrir modal de movimiento de stock
+  const handleMovimientoStock = () => {
+    modalMovimientoStock.abrir();
+  };
   return (
     <div className="p-2">
       <div className="mb-4">
@@ -67,12 +72,24 @@ const StockInsumosSeccion = () => {
               { value: "bebida", label: "Solo bebidas" },
             ]}
           />
-          <button 
+          <div className="flex gap-2">
+            {/* Botón para movimiento de stock */}
+            <button 
+              onClick={handleMovimientoStock}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer"
+            >
+              <BsBoxSeam className="text-lg" />
+              Movimiento Stock
+            </button>
+            
+            {/* Botón para nuevo insumo */}
+            <button 
               onClick={handleNuevoInsumo}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer"
             >
               + Nuevo Insumo
-          </button>
+            </button>
+          </div>
         </div>
       </div>
       {/* Tabla de insumos */}
@@ -97,6 +114,20 @@ const StockInsumosSeccion = () => {
         <ModalNuevoInsumo 
           onClose={modalNuevoInsumo.cerrar}
           onGuardar={modalNuevoInsumo.cerrar}
+        />
+      </Modal>
+      {/* Modal para movimiento de stock */}
+      <Modal
+        estaAbierto={modalMovimientoStock.estaAbierto}
+        onCerrar={modalMovimientoStock.cerrar}
+        titulo="Registrar Movimiento de Stock"
+        tamaño="md"
+        mostrarHeader={true}
+        mostrarFooter={false}
+      >
+        <ModalMovimientoStock 
+          onClose={modalMovimientoStock.cerrar}
+          onGuardar={modalMovimientoStock.cerrar}
         />
       </Modal>
     </div>
