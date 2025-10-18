@@ -1,6 +1,6 @@
-import { FiArrowDown, FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiArrowDown, FiEdit, FiTrash2 } from "react-icons/fi";
 
-export const FilaEntrada = ({ entrada }) => {
+export const FilaEntrada = ({ entrada, onEntradaStock }) => {
   // Formatear fecha para mostrar
   const formatearFecha = (fechaString) => {
     const fecha = new Date(fechaString);
@@ -67,6 +67,7 @@ export const FilaEntrada = ({ entrada }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <button 
+            onClick={() => onEntradaStock(entrada)}
             className="p-1 text-amber-400 hover:text-amber-500 transition-colors cursor-pointer" 
             title="Editar entrada"
           >

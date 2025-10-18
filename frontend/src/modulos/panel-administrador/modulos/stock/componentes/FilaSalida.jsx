@@ -1,6 +1,6 @@
 import { FiArrowUp, FiEye, FiEdit, FiTrash2 } from "react-icons/fi"; // iconos para el diseño
 // fila personalizada para el hostorial de salidas
-export const FilaSalida = ({ salida }) => {
+export const FilaSalida = ({ salida, onSalidaStock }) => {
   // Formatear fecha para mostrar
   const formatearFecha = (fechaString) => {
     const fecha = new Date(fechaString);
@@ -67,6 +67,7 @@ export const FilaSalida = ({ salida }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <button 
+            onClick={() => onSalidaStock(salida)}
             className="p-1 text-amber-400 hover:text-amber-500 transition-colors cursor-pointer"
             title="Editar salida"
           >
