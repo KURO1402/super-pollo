@@ -53,6 +53,7 @@ const navItems = [
     name: "Reservas",
     subItems: [
       { name: "Calendario", path: "/admin/calendario-reservas" },
+      { name: "Historial de Reservaciones", path: "/admin/historial-reservas" },
     ],
   },
   {

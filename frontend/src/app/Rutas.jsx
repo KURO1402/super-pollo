@@ -31,6 +31,7 @@ import CajaActualSeccion from "../modulos/panel-administrador/modulos/caja/secci
 import HistorialCajasSeccion from "../modulos/panel-administrador/modulos/caja/secciones/HistorialCajasSeccion";
 // secciones de reserva
 import CalendarioReservasSeccion from "../modulos/panel-administrador/modulos/reservas/secciones/CalendarioReservasSeccion";
+import HistorialReservasSeccion from "../modulos/panel-administrador/modulos/reservas/secciones/HistorialReservasSeccion";
 // secciones de usuario y perfil
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
@@ -68,13 +69,13 @@ const AppRutas = () => {
                     { path: 'generar-venta', element: <GenerarVenta/> },
                     { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
                     { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
+                    { path: 'historial-reservas', element: <HistorialReservasSeccion/> },
                     { path: 'stock-insumos', element: <StockInsumosSeccion/> },
                     { path: 'historial-entradas', element: <HistorialEntradasSeccion/> },
                     { path: 'historial-salidas', element: <HistorialSalidasSeccion/> },
                     { path: 'gestion-productos', element: <GestionProductosSeccion/> },
                     { path: 'caja-actual', element: <CajaActualSeccion/> },
                     { path: 'historial-cajas', element: <HistorialCajasSeccion/> },
-
                     { path: 'usuarios', element: <Usuarios/> },
                     { path: 'perfil', element: <Perfil/> },
                 ] // ruta por defecto del panel de admin
