@@ -46,34 +46,34 @@ const CalendarioReservasSeccion = () => {
     const config = estadosReserva[estado] || estadosReserva.pendiente;
     const estilos = {
       yellow: {
-        bg: "bg-yellow-50 dark:bg-yellow-900/20",
+        bg: "bg-yellow-50",
         border: "border-l-4 border-yellow-500",
-        text: "text-yellow-900 dark:text-yellow-200",
-        badge: "bg-yellow-200 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-200",
+        text: "text-yellow-900",
+        badge: "bg-yellow-200 text-yellow-800",
       },
       blue: {
-        bg: "bg-blue-50 dark:bg-blue-900/20",
+        bg: "bg-blue-50",
         border: "border-l-4 border-blue-500",
-        text: "text-blue-900 dark:text-blue-200",
-        badge: "bg-blue-200 dark:bg-blue-800/50 text-blue-800 dark:text-blue-200",
+        text: "text-blue-900",
+        badge: "bg-blue-200 text-blue-800",
       },
       green: {
-        bg: "bg-green-50 dark:bg-green-900/20",
+        bg: "bg-green-50",
         border: "border-l-4 border-green-500",
-        text: "text-green-900 dark:text-green-200",
-        badge: "bg-green-200 dark:bg-green-800/50 text-green-800 dark:text-green-200",
+        text: "text-green-900",
+        badge: "bg-green-200 text-green-800",
       },
       red: {
-        bg: "bg-red-50 dark:bg-red-900/20",
+        bg: "bg-red-50",
         border: "border-l-4 border-red-500",
-        text: "text-red-900 dark:text-red-200",
-        badge: "bg-red-200 dark:bg-red-800/50 text-red-800 dark:text-red-200",
+        text: "text-red-900",
+        badge: "bg-red-200 text-red-800",
       },
       gray: {
-        bg: "bg-gray-50 dark:bg-gray-900/20",
+        bg: "bg-gray-50",
         border: "border-l-4 border-gray-500",
-        text: "text-gray-900 dark:text-gray-200",
-        badge: "bg-gray-200 dark:bg-gray-800/50 text-gray-800 dark:text-gray-200",
+        text: "text-gray-900",
+        badge: "bg-gray-200 text-gray-800",
       },
     };
     return estilos[config.color] || estilos.yellow;
