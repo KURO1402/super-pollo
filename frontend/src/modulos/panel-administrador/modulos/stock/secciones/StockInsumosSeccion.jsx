@@ -1,5 +1,7 @@
 // librerías
 import { BsBoxSeam } from "react-icons/bs";
+// hook de react
+import { useState } from "react";
 // importar componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; // La barra de busqueda del componente reutilizable
@@ -15,6 +17,7 @@ import { useModal } from "../../../hooks/useModal";
 import { FilaInsumo } from "../componentes/FilaInsumo"; // nuestras filsa personalizadas
 import { ModalNuevoInsumo } from "../componentes/ModalNuevoInsumo";
 import { ModalMovimientoStock } from "../componentes/ModalMovimientoStock";
+import { ModalEditarStock } from "../componentes/ModalEditarStock";
 // data temporal
 import { insumos } from "../data-temporal/insumos"; // data temporal para hacer el diseño
 
@@ -22,9 +25,11 @@ const StockInsumosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); // utilizamos nuestro hook de busqueda, lo desestructuramos
   const { filtro, setFiltro, aplicarFiltros } = useFiltro(); // lo mismo para el filtro
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(8); // tambien para la paginación
+  const [insumoSeleccionado, setInsumoSeleccionado] = useState(null); // estado para insumo seleccionado
   // Modal para nuevo insumo
   const modalNuevoInsumo = useModal(false);
   const modalMovimientoStock = useModal(false);
+  const modalEditarStock = useModal(false); // modal para editar stock
   // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(insumos, [
     "nombreinsumo",
@@ -34,10 +39,6 @@ const StockInsumosSeccion = () => {
   // Aplicar filtros adicionales
   filtrados = aplicarFiltros(filtrados, "categoriaProducto");
   const { datosPaginados, totalPaginas } = paginar(filtrados);
-  // Mapear los insumos para las filas de la tabla
-  const filasInsumos = datosPaginados.map((insumo) => (
-    <FilaInsumo key={insumo.idInsumo} insumo={insumo} />
-  ));
   // Función para abrir modal de nuevo insumo
   const handleNuevoInsumo = () => {
     modalNuevoInsumo.abrir();
@@ -46,6 +47,20 @@ const StockInsumosSeccion = () => {
   const handleMovimientoStock = () => {
     modalMovimientoStock.abrir();
   };
+  // Función para abrir modal de edición
+  const handleEditarStock = (insumo) => {
+    setInsumoSeleccionado(insumo);
+    modalEditarStock.abrir();
+  };
+  // Mapear los insumos para las filas de la tabla
+  const filasInsumos = datosPaginados.map((insumo) => (
+    <FilaInsumo 
+      key={insumo.idInsumo} 
+      insumo={insumo} 
+      onEditarStock={handleEditarStock}
+    />
+  ));
+
   return (
     <div className="p-2">
       <div className="mb-4">
@@ -129,6 +144,23 @@ const StockInsumosSeccion = () => {
           onClose={modalMovimientoStock.cerrar}
           onGuardar={modalMovimientoStock.cerrar}
         />
+      </Modal>
+      {/* Modal para editar stock */}
+      <Modal
+        estaAbierto={modalEditarStock.estaAbierto}
+        onCerrar={modalEditarStock.cerrar}
+        titulo={`Editar Stock: ${insumoSeleccionado?.nombreInsumo || ''}`}
+        tamaño="md"
+        mostrarHeader={true}
+        mostrarFooter={false}
+      >
+        {insumoSeleccionado && (
+          <ModalEditarStock 
+            insumo={insumoSeleccionado}
+            onClose={modalEditarStock.cerrar}
+            onGuardar={modalEditarStock.cerrar}
+          />
+        )}
       </Modal>
     </div>
   );

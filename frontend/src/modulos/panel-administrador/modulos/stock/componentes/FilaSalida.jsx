@@ -67,19 +67,13 @@ export const FilaSalida = ({ salida }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <button 
-            className="p-1 text-blue-500 hover:text-blue-700 transition-colors"
-            title="Ver detalles"
-          >
-            <FiEye size={16} />
-          </button>
-          <button 
-            className="p-1 text-green-500 hover:text-green-700 transition-colors"
+            className="p-1 text-amber-400 hover:text-amber-500 transition-colors cursor-pointer"
             title="Editar salida"
           >
             <FiEdit size={16} />
           </button>
           <button 
-            className="p-1 text-red-500 hover:text-red-700 transition-colors"
+            className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
             title="Eliminar salida"
           >
             <FiTrash2 size={16} />
