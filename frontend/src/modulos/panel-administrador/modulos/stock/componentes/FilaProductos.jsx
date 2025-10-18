@@ -1,7 +1,7 @@
 import { FiTrash2, FiEdit  } from "react-icons/fi";
 import { LuChefHat } from "react-icons/lu";
 
-export const FilaProducto = ({ producto, onVerReceta }) => {
+export const FilaProducto = ({ producto, onVerReceta, onEditarProducto }) => {
   const getEstadoClases = (estado) => {
     if (estado === "Disponible") {
       return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
@@ -57,6 +57,7 @@ export const FilaProducto = ({ producto, onVerReceta }) => {
       <td className="px-4 py-3">
         <div className="flex space-x-2">
           <button 
+            onClick={() => onEditarProducto(producto)}
             className="p-1.5 text-amber-400 hover:text-amber-500 transition-colors cursor-pointer"
             title="Editar producto"
           >

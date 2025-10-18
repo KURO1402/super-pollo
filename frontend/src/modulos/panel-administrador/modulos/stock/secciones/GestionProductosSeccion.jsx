@@ -19,6 +19,7 @@ import { ModalNuevoProducto } from "../componentes/ModalNuevoProducto";
 import { FilaProducto } from '../componentes/FilaProductos';
 // datos temporales
 import { productos } from '../data-temporal/productos';
+import { ModalEditarProducto } from "../componentes/ModalEditarProducto";
 
 const GestionProductosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
@@ -29,7 +30,22 @@ const GestionProductosSeccion = () => {
   // modales
   const modalReceta = useModal(false);
   const modalNuevoProducto = useModal(false);
+  const modalEditarProducto = useModal(false);
 
+  // funcion que escucha el evente de ver receta
+  function handleVerReceta(producto) {
+    setProductoSeleccionado(producto);
+    modalReceta.abrir();
+  }
+  // funcion para abrir modal nuevo producto
+  function handleNuevoProducto() {
+    modalNuevoProducto.abrir();
+  }
+  // función para abrir modal editar producto
+  function handleEditarProducto(producto) {
+    setProductoSeleccionado(producto);
+    modalEditarProducto.abrir();
+  }
   // Aplicar búsqueda
   let productosFiltrados = filtrarPorBusqueda(productos, [
     "nombre",
@@ -47,17 +63,9 @@ const GestionProductosSeccion = () => {
       key={producto.id} 
       producto={producto}
       onVerReceta={handleVerReceta}
+      onEditarProducto={handleEditarProducto}
     />
   ));
-  // funcion que escucha el evente de ver receta
-  function handleVerReceta(producto) {
-    setProductoSeleccionado(producto);
-    modalReceta.abrir();
-  }
-  // funcion para abrir modal nuevo producto
-  function handleNuevoProducto() {
-    modalNuevoProducto.abrir();
-  }
 
   return (
     <div className="p-2">
@@ -135,6 +143,23 @@ const GestionProductosSeccion = () => {
           onClose={modalNuevoProducto.cerrar}
           onGuardar={modalNuevoProducto.cerrar}
         />
+      </Modal>
+      {/* Modal para agregar editar el producto */}
+      <Modal
+        estaAbierto={modalEditarProducto.estaAbierto}
+        onCerrar={modalEditarProducto.cerrar}
+        titulo={`Editar Producto: ${productoSeleccionado?.nombre || ''}`}
+        tamaño="md"
+        mostrarHeader={true}
+        mostrarFooter={false}
+      >
+        {productoSeleccionado && (
+          <ModalEditarProducto 
+            producto={productoSeleccionado}
+            onClose={modalEditarProducto.cerrar}
+            onGuardar={modalEditarProducto.cerrar}
+          />
+        )}
       </Modal>
     </div>
   );
