@@ -1,399 +1,381 @@
-// librerias externas
+// src/pages/reservas/componentes/CalendarioReservasSeccion.jsx
+
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-// hook de react
+import esLocale from '@fullcalendar/core/locales/es';
 import { useState, useRef, useEffect } from "react";
-// componentes reutilizables
+import { FiClock, FiUsers, FiPlus, FiLoader, FiCalendar } from "react-icons/fi";
+
 import Modal from "../../../componentes/modal/Modal";
-// custom hook 
 import { useModal } from "../../../hooks/useModal";
+import { mockReservas, estadosReserva } from "../data-temporal/mockReservas";
+import { convertirReservaAEvento, validarDisponibilidadMesa } from "../utilidades/ValidacionesReservaciones";
+import FormularioReserva from "../componentes/FormularioReservas";
 
 const CalendarioReservasSeccion = () => {
-  const [reservaSeleccionadaId, setReservaSeleccionadaId] = useState(null);
   const [reservas, setReservas] = useState([]);
+  const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  
+  const calendarioRef = useRef(null);
+  const { estaAbierto, abrir, cerrar } = useModal();
 
-  // Campos del formulario que sera reemplazado más adelante por react-hook form
-  const [nombreCliente, setNombreCliente] = useState("");
-  const [numeroMesa, setNumeroMesa] = useState("");
-  const [cantidadPersonas, setCantidadPersonas] = useState("");
-  const [fechaReserva, setFechaReserva] = useState("");
-  const [horaReserva, setHoraReserva] = useState("");
-  const [estadoReserva, setEstadoReserva] = useState("");
-
-  const referenciaCalendario = useRef(null);
-  const { estaAbierto, abrir, cerrar } = useModal(); // extraemos las funciones y estado del hoook del modal
-
-  // Configuración de estados de reserva con colores mejorados para modo claro/oscuro
-  const estadosReserva = {
-    Pendiente: { // cada uno tiene un estilo diferente
-      bg: "bg-yellow-100 dark:bg-yellow-900/30",
-      border: "border-l-4 border-yellow-400",
-      text: "text-yellow-800 dark:text-yellow-200"
-    },
-    Pagado: {
-      bg: "bg-green-100 dark:bg-green-900/30",
-      border: "border-l-4 border-green-400",
-      text: "text-green-800 dark:text-green-200"
-    },
-    Cancelado: {
-      bg: "bg-red-100 dark:bg-red-900/30",
-      border: "border-l-4 border-red-400",
-      text: "text-red-800 dark:text-red-200"
-    }
-  };
-
-  const fechaMinima = new Date().toISOString().split("T")[0]; // calcular la fecha de hoy para que sea la fecha mínima
-
-  // Datos de ejemplo para las reservas
   useEffect(() => {
-    setReservas([
-      {
-        id: "1",
-        title: "Juan Pérez (Mesa 3)",
-        start: "2025-10-06",
-        extendedProps: {
-          estado: "Pendiente",
-          hora: "19:00",
-          cantidad: 4,
-          mesa: 3,
-          cliente: "Juan Pérez",
-        },
-      },
-    ]);
+    cargarReservas();
   }, []);
 
-  // Reiniciar campos cuando el modal se cierra
-  useEffect(() => {
-    if (!estaAbierto) reiniciarCamposModal();
-  }, [estaAbierto]);
-
-  // Función para limpiar todos los campos del formulario
-  const reiniciarCamposModal = () => {
-    setReservaSeleccionadaId(null);
-    setNombreCliente("");
-    setNumeroMesa("");
-    setCantidadPersonas("");
-    setFechaReserva("");
-    setHoraReserva("");
-    setEstadoReserva("");
+  const cargarReservas = async () => {
+    try {
+      setCargando(true);
+      await new Promise(resolve => setTimeout(resolve, 800));
+      console.log('Cargando reservas desde el backend...');
+      setReservas(mockReservas);
+      console.log('Reservas cargadas:', mockReservas.length);
+    } catch (error) {
+      console.error('Error al cargar reservas:', error);
+      alert("Error al cargar las reservas");
+    } finally {
+      setCargando(false);
+    }
   };
 
-  // Abrir modal para agregar nueva reserva
-  const abrirAgregarReserva = () => {
-    reiniciarCamposModal();
+  const obtenerEstiloEstado = (estado) => {
+    const config = estadosReserva[estado] || estadosReserva.pendiente;
+    const estilos = {
+      yellow: {
+        bg: "bg-yellow-50 dark:bg-yellow-900/20",
+        border: "border-l-4 border-yellow-500",
+        text: "text-yellow-900 dark:text-yellow-200",
+        badge: "bg-yellow-200 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-200",
+      },
+      blue: {
+        bg: "bg-blue-50 dark:bg-blue-900/20",
+        border: "border-l-4 border-blue-500",
+        text: "text-blue-900 dark:text-blue-200",
+        badge: "bg-blue-200 dark:bg-blue-800/50 text-blue-800 dark:text-blue-200",
+      },
+      green: {
+        bg: "bg-green-50 dark:bg-green-900/20",
+        border: "border-l-4 border-green-500",
+        text: "text-green-900 dark:text-green-200",
+        badge: "bg-green-200 dark:bg-green-800/50 text-green-800 dark:text-green-200",
+      },
+      red: {
+        bg: "bg-red-50 dark:bg-red-900/20",
+        border: "border-l-4 border-red-500",
+        text: "text-red-900 dark:text-red-200",
+        badge: "bg-red-200 dark:bg-red-800/50 text-red-800 dark:text-red-200",
+      },
+      gray: {
+        bg: "bg-gray-50 dark:bg-gray-900/20",
+        border: "border-l-4 border-gray-500",
+        text: "text-gray-900 dark:text-gray-200",
+        badge: "bg-gray-200 dark:bg-gray-800/50 text-gray-800 dark:text-gray-200",
+      },
+    };
+    return estilos[config.color] || estilos.yellow;
+  };
+
+  const abrirNuevaReserva = () => {
+    setReservaSeleccionada(null);
     abrir();
   };
 
-  // Manejar selección de fecha en el calendario
   const manejarSeleccionFecha = (info) => {
-    const fechaSeleccionada = new Date(info.startStr);
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    // si la fecha es anterior a hoy entonces 
-    if (fechaSeleccionada < hoy) {
-      alert("No se pueden reservar fechas anteriores a hoy.");
-      return;
-    }
-
-    reiniciarCamposModal();
-    setFechaReserva(info.startStr);
-    abrir();
-  };
-
-  // Manejar click en una reserva existente para editarla
-  const manejarClickReserva = (info) => {
-    const event = info.event;
-    const props = event.extendedProps;
-    setReservaSeleccionadaId(event.id);
-    setNombreCliente(props?.cliente || "");
-    setNumeroMesa(props?.mesa || "");
-    setCantidadPersonas(props?.cantidad || "");
-    setFechaReserva(event.start?.toISOString().split("T")[0] || "");
-    setHoraReserva(props?.hora || "");
-    setEstadoReserva(props?.estado || "");
-    abrir();
-  };
-
-  // Validar y guardar la reserva
-  const manejarGuardarReserva = () => {
-    if (
-      !nombreCliente ||
-      !numeroMesa ||
-      !cantidadPersonas ||
-      !fechaReserva ||
-      !horaReserva ||
-      !estadoReserva
-    ) {
-      alert("Por favor, completa todos los campos.");
-      return;
-    }
-
-    const fechaSel = new Date(fechaReserva);
+    const fechaSel = new Date(info.startStr);
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
     if (fechaSel < hoy) {
-      alert("No se puede reservar una fecha anterior a hoy.");
+      alert("No se pueden reservar fechas anteriores a hoy");
       return;
     }
 
-    const nuevaReserva = {
-      id: reservaSeleccionadaId || Date.now().toString(),
-      title: `${nombreCliente} (Mesa ${numeroMesa})`,
-      start: fechaReserva,
-      allDay: true,
-      extendedProps: {
-        cliente: nombreCliente,
-        mesa: numeroMesa,
-        cantidad: cantidadPersonas,
-        hora: horaReserva,
-        estado: estadoReserva,
-      },
-    };
-
-    setReservas((prev) => {
-      if (reservaSeleccionadaId) {
-        return prev.map((r) => (r.id === reservaSeleccionadaId ? nuevaReserva : r));
-      }
-      return [...prev, nuevaReserva];
-    });
-
-    cerrar();
-    reiniciarCamposModal();
+    setReservaSeleccionada({ fechaReserva: info.startStr });
+    abrir();
   };
 
-  // Renderizado personalizado para los eventos en el calendario
-  const contenidoReserva = (info) => {
-    const estado = info.event.extendedProps?.estado || "Pendiente";
-    const estadoConfig = estadosReserva[estado] || estadosReserva.Pendiente;
-    
+  const manejarClickEvento = (info) => {
+    const reserva = reservas.find((r) => r.id === info.event.id);
+    if (reserva) {
+      setReservaSeleccionada(reserva);
+      abrir();
+    }
+  };
+
+  const manejarGuardar = async (datos) => {
+    try {
+      setGuardando(true);
+
+      const datosSanitizados = {
+        ...datos,
+        nombreCliente: datos.nombreCliente.trim(),
+        telefono: datos.telefono?.trim() || "",
+        comentarios: datos.comentarios?.trim() || "",
+      };
+
+      // Validar disponibilidad
+      if (!validarDisponibilidadMesa(
+        reservas,
+        datosSanitizados.fechaReserva,
+        datosSanitizados.horaReserva,
+        datosSanitizados.numeroMesa,
+        reservaSeleccionada?.id
+      )) {
+        alert("La mesa no está disponible en ese horario");
+        setGuardando(false);
+        return;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      if (reservaSeleccionada?.id) {
+        console.log('Actualizando reserva en el backend:', datosSanitizados);
+        const nuevaReserva = { ...datosSanitizados, id: reservaSeleccionada.id };
+        setReservas((prev) => prev.map((r) => (r.id === reservaSeleccionada.id ? nuevaReserva : r)));
+        console.log('Reserva actualizada exitosamente');
+        alert("Reserva actualizada exitosamente");
+      } else {
+        console.log('Creando nueva reserva en el backend:', datosSanitizados);
+        const nuevaReserva = {
+          ...datosSanitizados,
+          id: Date.now().toString(),
+          fechaCreacion: new Date().toISOString(),
+        };
+        setReservas((prev) => [...prev, nuevaReserva]);
+        console.log('Reserva creada exitosamente');
+        alert("Reserva creada exitosamente");
+      }
+
+      cerrar();
+      setReservaSeleccionada(null);
+    } catch (error) {
+      console.error('Error al guardar reserva:', error);
+      alert("Error al guardar la reserva");
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const renderizarEvento = (info) => {
+    const estado = info.event.extendedProps?.estado || "pendiente";
+    const estilos = obtenerEstiloEstado(estado);
+    const config = estadosReserva[estado];
+
     return (
-      <div
-        className={`p-2 rounded-lg ${estadoConfig.bg} ${estadoConfig.border} ${estadoConfig.text} text-xs font-semibold shadow-sm hover:shadow-md transition-shadow duration-200`}
-      >
-        <div className="truncate font-medium">{info.event.title}</div>
-        <div className="text-xs opacity-90 mt-1">
-          {info.event.extendedProps?.hora || ""}
+      <div className={`p-1.5 rounded ${estilos.bg} ${estilos.border} ${estilos.text} text-[11px] font-medium shadow-sm hover:shadow transition-all cursor-pointer`}>
+        <div className="flex items-center justify-between gap-1 mb-1">
+          <span className="truncate font-semibold text-xs">{info.event.title}</span>
+          <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${estilos.badge}`}>
+            {config.label}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-[10px] opacity-90">
+          <span className="flex items-center gap-0.5">
+            <FiClock className="w-3 h-3" />
+            {info.event.extendedProps?.hora}
+          </span>
+          <span className="flex items-center gap-0.5">
+            <FiUsers className="w-3 h-3" />
+            {info.event.extendedProps?.cantidad}
+          </span>
         </div>
       </div>
     );
   };
 
-  // Configuración de todas las mesas disponibles
-  const todasLasMesas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const eventosCalendario = reservas
+    .filter(r => r.estado !== "cancelado")
+    .map(convertirReservaAEvento);
 
-  // Filtrar mesas disponibles según fecha y hora seleccionadas
-  const mesasDisponibles = todasLasMesas.filter((mesa) => {
-    return !reservas.some(
-      (r) =>
-        r.extendedProps.mesa === mesa &&
-        r.start === fechaReserva &&
-        r.extendedProps.hora === horaReserva &&
-        r.id !== reservaSeleccionadaId
-    );
-  });
+  const fechaMinima = new Date().toISOString().split("T")[0];
 
   return (
-    <>
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
-        <FullCalendar
-          ref={referenciaCalendario}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{
-            left: "prev,next botonAgregarReserva",
-            center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay",
-          }}
-          events={reservas}
-          selectable={true}
-          select={manejarSeleccionFecha}
-          eventClick={manejarClickReserva}
-          eventContent={contenidoReserva}
-          customButtons={{
-            botonAgregarReserva: {
-              text: "Agregar Reserva +",
-              click: abrirAgregarReserva,
-            },
-          }}
-          locale="es"
-          validRange={{ start: fechaMinima }}
-          buttonText={{
-            today: "Hoy",
-            month: "Mes",
-            week: "Semana",
-            day: "Día",
-          }}
-          noEventsText="No hay reservas registradas"
-          height="auto"
-          dayMaxEvents={3}
-          // Estilos personalizados para el calendario
-          dayCellClassNames="group relative"
-          dayHeaderClassNames="text-gray-700 dark:text-gray-300 dark:bg-gray-900 font-semibold"
-          titleFormat={{ year: 'numeric', month: 'long' }}
-          titleClass="text-xl font-bold text-gray-900 dark:text-white"
-          buttonClass="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
-          buttonActiveClass="bg-brand-500 text-white border-brand-500 dark:bg-brand-600 dark:border-brand-600"
-          moreLinkClass="text-brand-500 hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300 text-sm font-medium"
-          moreLinkContent={(args) => `+${args.num} más`}
-          // Estilos para los números de día
-          dayCellContent={(args) => {
-            return (
-              <div className="flex items-start justify-start p-2">
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {args.dayNumberText}
-                </span>
-              </div>
-            );
-          }}
-          // Estilos para los eventos
-          eventClassNames="border-0 shadow-none"
-          // Estilos para el header
-          headerToolbarClass="flex flex-wrap items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700"
-        />
+    <div className="p-2">
+      {/* Header */}
+      <div className="mb-4">
+        <div className="mb-4 flex items-center">
+          <FiCalendar className="mr-3 text-2xl text-gray-900 dark:text-white" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Calendario de Reservas</h1>
+        </div>
+        <p className="text-gray-600 dark:text-gray-400">
+          Visualiza y gestiona todas las reservas programadas
+        </p>
+      </div>
 
-        {/* Modal para agregar/editar reservas */}
-        <Modal
-          estaAbierto={estaAbierto}
-          onCerrar={cerrar}
-          titulo={reservaSeleccionadaId ? "Editar Reserva" : "Agregar Reserva"}
-          tamaño="lg"
-          mostrarHeader={true}
-          mostrarFooter={false}
-        >
-          <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
-            <div className="mb-6">
-              <h5 className="text-xl font-bold text-gray-900 dark:text-white">
-                {reservaSeleccionadaId ? "Editar Reserva" : "Agregar Nueva Reserva"}
-              </h5>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {reservaSeleccionadaId 
-                  ? "Modifica los detalles de la reserva existente" 
-                  : "Completa la información para crear una nueva reserva"}
-              </p>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Nombre del Cliente
-                </label>
-                <input
-                  type="text"
-                  value={nombreCliente}
-                  onChange={(e) => setNombreCliente(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-colors duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  placeholder="Ej: Juan Pérez"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Cantidad de Personas
-                </label>
-                <input
-                  type="number"
-                  value={cantidadPersonas}
-                  onChange={(e) => setCantidadPersonas(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-colors duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  placeholder="Ej: 3"
-                  min="1"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Fecha de la Reserva
-                </label>
-                <input
-                  type="date"
-                  min={fechaMinima}
-                  value={fechaReserva}
-                  onChange={(e) => setFechaReserva(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-colors duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Hora de la Reserva
-                </label>
-                <input
-                  type="time"
-                  value={horaReserva}
-                  onChange={(e) => setHoraReserva(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-colors duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Número de Mesa
-                </label>
-                <select
-                  value={numeroMesa}
-                  onChange={(e) => setNumeroMesa(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-colors duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  disabled={!fechaReserva || !horaReserva}
-                >
-                  <option value="">
-                    {fechaReserva && horaReserva
-                      ? mesasDisponibles.length > 0
-                        ? "Seleccione una mesa disponible"
-                        : "No hay mesas disponibles en esta fecha/hora"
-                      : "Seleccione primero la fecha y hora"}
-                  </option>
-
-                  {mesasDisponibles.map((mesa) => (
-                    <option key={mesa} value={mesa}>
-                      Mesa {mesa}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Estado
-                </label>
-                <select
-                  value={estadoReserva}
-                  onChange={(e) => setEstadoReserva(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-colors duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                >
-                  <option value="">Seleccione un estado</option>
-                  {Object.keys(estadosReserva).map((estado) => (
-                    <option key={estado} value={estado}>
-                      {estado}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 mt-8 sm:justify-end">
-              <button
-                onClick={() => {
-                  cerrar();
-                  reiniciarCamposModal();
-                }}
-                className="rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={manejarGuardarReserva}
-                className="rounded-lg bg-brand-500 px-6 py-3 text-sm font-semibold text-gray-800 dark:text-white transition-colors duration-200 hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-              >
-                {reservaSeleccionadaId ? "Actualizar Reserva" : "Guardar Reserva"}
-              </button>
+      {/* Calendario */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        {cargando ? (
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <FiLoader className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400 font-medium">Cargando reservas...</p>
             </div>
           </div>
-        </Modal>
+        ) : (
+          <div className="calendar-wrapper p-4">
+            <FullCalendar
+              ref={calendarioRef}
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              locale={esLocale}
+              headerToolbar={{
+                left: "prev,next btnNuevaReserva",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay",
+              }}
+              events={eventosCalendario}
+              selectable={true}
+              select={manejarSeleccionFecha}
+              eventClick={manejarClickEvento}
+              eventContent={renderizarEvento}
+              customButtons={{
+                btnNuevaReserva: {
+                  text: "+ Nueva Reserva",
+                  click: abrirNuevaReserva,
+                },
+              }}
+              validRange={{ start: fechaMinima }}
+              buttonText={{
+                today: "Hoy",
+                month: "Mes",
+                week: "Semana",
+                day: "Día",
+              }}
+              height="auto"
+              dayMaxEvents={3}
+              moreLinkContent={(args) => `+${args.num} más`}
+            />
+          </div>
+        )}
       </div>
-    </>
+
+      {/* Modal */}
+      <Modal
+        estaAbierto={estaAbierto}
+        onCerrar={cerrar}
+        titulo={reservaSeleccionada?.id ? `Editar Reserva #${reservaSeleccionada.id}` : "Nueva Reserva"}
+        tamaño="lg"
+        mostrarHeader={true}
+        mostrarFooter={false}
+      >
+        <FormularioReserva
+          reservaInicial={reservaSeleccionada}
+          reservas={reservas}
+          onSubmit={manejarGuardar}
+          onCancelar={cerrar}
+          guardando={guardando}
+        />
+      </Modal>
+
+      <style jsx>{`
+        .calendar-wrapper :global(.fc) {
+          background: transparent;
+        }
+        
+        .calendar-wrapper :global(.fc .fc-toolbar-title) {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: rgb(17 24 39);
+        }
+        
+        .calendar-wrapper :global(.dark .fc .fc-toolbar-title) {
+          color: rgb(243 244 246);
+        }
+        
+        .calendar-wrapper :global(.fc-theme-standard th) {
+          background: transparent;
+          border-color: rgb(229 231 235);
+        }
+        
+        .calendar-wrapper :global(.dark .fc-theme-standard th) {
+          border-color: rgb(55 65 81);
+        }
+        
+        .calendar-wrapper :global(.fc-theme-standard td) {
+          border-color: rgb(229 231 235);
+        }
+        
+        .calendar-wrapper :global(.dark .fc-theme-standard td) {
+          border-color: rgb(55 65 81);
+        }
+        
+        .calendar-wrapper :global(.fc .fc-daygrid-day-number) {
+          color: rgb(17 24 39);
+          padding: 0.5rem;
+          font-weight: 500;
+        }
+        
+        .calendar-wrapper :global(.dark .fc .fc-daygrid-day-number) {
+          color: rgb(243 244 246);
+        }
+        
+        .calendar-wrapper :global(.fc .fc-col-header-cell-cushion) {
+          color: rgb(75 85 99);
+          font-weight: 600;
+          padding: 0.75rem 0.5rem;
+        }
+        
+        .calendar-wrapper :global(.dark .fc .fc-col-header-cell-cushion) {
+          color: rgb(209 213 219);
+        }
+        
+        .calendar-wrapper :global(.fc .fc-button-primary) {
+          background-color: rgb(37 99 235);
+          border-color: rgb(37 99 235);
+          color: #ffffff;
+          font-weight: 500;
+          padding: 0.5rem 1rem;
+          border-radius: 0.5rem;
+          font-size: 0.875rem;
+        }
+        
+        .calendar-wrapper :global(.fc .fc-button-primary:hover) {
+          background-color: rgb(29 78 216);
+          border-color: rgb(29 78 216);
+        }
+        
+        .calendar-wrapper :global(.fc .fc-button-primary:not(:disabled):active),
+        .calendar-wrapper :global(.fc .fc-button-primary:not(:disabled).fc-button-active) {
+          background-color: rgb(30 64 175);
+          border-color: rgb(30 64 175);
+        }
+        
+        .calendar-wrapper :global(.fc .fc-daygrid-day:hover) {
+          background-color: rgb(249 250 251);
+        }
+        
+        .calendar-wrapper :global(.dark .fc .fc-daygrid-day:hover) {
+          background-color: rgb(31 41 55 / 0.5);
+        }
+        
+        .calendar-wrapper :global(.fc .fc-daygrid-day.fc-day-today) {
+          background-color: rgb(219 234 254 / 0.3) !important;
+        }
+        
+        .calendar-wrapper :global(.dark .fc .fc-daygrid-day.fc-day-today) {
+          background-color: rgb(30 58 138 / 0.2) !important;
+        }
+        
+        .calendar-wrapper :global(.fc-event) {
+          border: none !important;
+          background: none !important;
+        }
+
+        .calendar-wrapper :global(.fc .fc-more-link) {
+          color: rgb(37 99 235);
+          font-weight: 500;
+          font-size: 0.75rem;
+        }
+
+        .calendar-wrapper :global(.dark .fc .fc-more-link) {
+          color: rgb(96 165 250);
+        }
+      `}</style>
+    </div>
   );
 };
 
