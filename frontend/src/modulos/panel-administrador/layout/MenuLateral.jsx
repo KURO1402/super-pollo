@@ -37,6 +37,7 @@ const navItems = [
       { name: "Stock Insumos", path: "/admin/stock-insumos" },
       { name: "Historial Entradas", path: "/admin/historial-entradas" },
       { name: "Historial Salidas", path: "/admin/historial-salidas" },
+      { name: "Gestión Productos", path: "/admin/gestion-productos" },
     ]
   },
   {
@@ -52,6 +53,7 @@ const navItems = [
     name: "Reservas",
     subItems: [
       { name: "Calendario", path: "/admin/calendario-reservas" },
+      { name: "Historial de Reservaciones", path: "/admin/historial-reservas" },
     ],
   },
   {

@@ -36,9 +36,14 @@ export const useAutenticacionGlobal = create(
                     set({ carga: false }); // seteamos la carga a false
                 }
             },
+            // Función para cerrar sesión
             logout: () => {
                 set({ usuario: null, accessToken: null });//Elimina del estado global el usuario y el token de acceso
-            }
+            },
+            // Función para actualizar el accessToken
+            setAccessToken: (token) => {
+                set({ accessToken: token }); // Actualiza el accessToken
+            },
         }),
         {
             name: 'auth-storage', // nombre clave en localStorage

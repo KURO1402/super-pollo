@@ -8,7 +8,7 @@ export const salidas = [
     fechaMovimiento: '2024-01-15 14:30:00',
     detallesMovimiento: 'Consumo para preparación - Pollo a la Brasa x 25 unidades',
     idUsuario: 2,
-    usuario: 'Cocina01',
+    usuario: 'Raul Gomez',
     unidadMedida: 'kg'
   },
   {
@@ -20,7 +20,7 @@ export const salidas = [
     fechaMovimiento: '2024-01-15 14:30:00',
     detallesMovimiento: 'Consumo para preparación - Papas Fritas',
     idUsuario: 2,
-    usuario: 'Cocina01',
+    usuario: 'Raul Gomez',
     unidadMedida: 'kg'
   },
   {
@@ -32,7 +32,7 @@ export const salidas = [
     fechaMovimiento: '2024-01-15 13:45:00',
     detallesMovimiento: 'Venta - Mesa 4 (Orden #001-245)',
     idUsuario: 3,
-    usuario: 'Caja01',
+    usuario: 'Luisa Martinez',
     unidadMedida: 'unid'
   },
   {
@@ -44,7 +44,7 @@ export const salidas = [
     fechaMovimiento: '2024-01-15 12:15:00',
     detallesMovimiento: 'Consumo para ensaladas del día',
     idUsuario: 2,
-    usuario: 'Cocina01',
+    usuario: 'Raul Gomez',
     unidadMedida: 'kg'
   },
   {
@@ -56,7 +56,7 @@ export const salidas = [
     fechaMovimiento: '2024-01-15 11:30:00',
     detallesMovimiento: 'Consumo para fritura - Turno mañana',
     idUsuario: 2,
-    usuario: 'Cocina01',
+    usuario: 'Raul Gomez',
     unidadMedida: 'lt'
   },
   {
@@ -68,7 +68,7 @@ export const salidas = [
     fechaMovimiento: '2024-01-15 13:20:00',
     detallesMovimiento: 'Venta - Delivery (Orden #001-246)',
     idUsuario: 3,
-    usuario: 'Caja01',
+    usuario: 'Luisa Martinez',
     unidadMedida: 'unid'
   },
   {
@@ -80,7 +80,7 @@ export const salidas = [
     fechaMovimiento: '2024-01-15 10:45:00',
     detallesMovimiento: 'Consumo para sazonar preparaciones',
     idUsuario: 2,
-    usuario: 'Cocina01',
+    usuario: 'Raul Gomez',
     unidadMedida: 'kg'
   },
   {
@@ -92,7 +92,7 @@ export const salidas = [
     fechaMovimiento: '2024-01-15 14:15:00',
     detallesMovimiento: 'Venta - Mesa 5 (Orden #001-247)',
     idUsuario: 3,
-    usuario: 'Caja01',
+    usuario: 'Luisa Martinez',
     unidadMedida: 'unid'
   }
 ];

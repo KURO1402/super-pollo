@@ -4,22 +4,6 @@ import { create } from "zustand";
 export const useVentaEstadoGlobal = create((set, get) => ({ // set para actualizar el estado y get para acceder
     detalle: [], // array donde se guardan los productos agregados a la venta
     cantidades: {}, // objeto donde se guardan las cantidades de cada producto
-    
-    // funcion para aumentar la cantidade de un producto
-    aumentarCantidad: (id) => set((state) =>({ // recibe el id del producto, actualiza el estado
-        cantidades: { // actualizamos el objeto de cantidades
-            ...state.cantidades, // mantenemos las cantidades anteriores
-            [id]: (state.cantidades[id] || 0) + 1 // aumentamos en 1 la cantidad del producto con el id recibido
-        }
-    })),
-
-    // funcion para disminuir la cantidad de un producto en el detalle de la venta
-    disminuirCantidad: (id) => set((state) =>({ // recibe el id del producto, actualiza el estado
-        cantidades: { // también actualizamos el objeto de cantidades
-            ...state.cantidades, // mantenemos las cantidades anteriores
-            [id]: Math.max((state.cantidades[id] || 0) - 1, 0) // disminuimos en 1 la cantidad del producto con el id recibido,
-        } // utilizamos Math.max para que no baje de 0
-    })), 
 
     // Nueva función para actualizar la cantidad directamente
     setCantidad: (id, cantidad) => set((state) => ({
@@ -27,6 +11,13 @@ export const useVentaEstadoGlobal = create((set, get) => ({ // set para actualiz
             ...state.cantidades,
             [id]: cantidad,
         }
+    })),
+
+    // función para actualizar cantidad de un producto en el detalle
+    actualizarCantidad: (id, nuevaCantidad) => set((state) => ({
+        detalle: state.detalle.map((item) => 
+            item.id === id ? { ...item, cantidad: nuevaCantidad } : item
+        )
     })),
 
     // funcion para agregar un producto al detalle de la venta
@@ -53,6 +44,12 @@ export const useVentaEstadoGlobal = create((set, get) => ({ // set para actualiz
     removerProducto : (id) => set((state) =>({ // recibe el id del producto, actualiza el estado
         detalle: state.detalle.filter((item) => item.id !== id) // filtramos el detalle para eliminar el producto con el id recibido
     })), // se uda filter para recorrer el array y devolver un nuevo array sin el producto eliminado
+
+    // funcion para limpiar el detalle de la venta
+    limpiarVenta: () => set({
+        detalle: [],
+        cantidades: {}
+    }),
 
     // funcion para calcular el subtotal de la venta
     subtotal: () => {

@@ -1,56 +1,230 @@
-import { FiMinus } from "react-icons/fi";
+import { FiMinus, FiPlus, FiTrash2, FiShoppingCart } from "react-icons/fi";
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
+import { useState, useEffect } from "react";
 
 export const DetalleVenta = () => {
-  const { detalle, removerProducto } = useVentaEstadoGlobal(); // vamos a usar el las funciones de detalle y remover productos
+  const { detalle, removerProducto, actualizarCantidad } = useVentaEstadoGlobal();
+  const [productoAEliminar, setProductoAEliminar] = useState(null);
+  const [inputValues, setInputValues] = useState({});
+
+  // Sincronizar inputValues cuando cambia el detalle
+  useEffect(() => {
+    const nuevosInputs = {};
+    detalle.forEach((item) => {
+      nuevosInputs[item.id] = item.cantidad.toString();
+    });
+    setInputValues(nuevosInputs);
+  }, [detalle]);
+
+  const handleCantidadChange = (id, valor) => {
+    // Permitir campo vacío temporalmente
+    setInputValues({ ...inputValues, [id]: valor });
+    
+    // Solo actualizar si es un número válido
+    const cantidad = parseInt(valor);
+    if (!isNaN(cantidad) && cantidad > 0 && cantidad <= 999) {
+      actualizarCantidad(id, cantidad);
+    }
+  };
+
+  const handleCantidadBlur = (id, cantidadActual) => {
+    // Al perder el foco, si está vacío o inválido, restaurar al valor anterior
+    const valor = inputValues[id];
+    const cantidad = parseInt(valor);
+    
+    if (!valor || isNaN(cantidad) || cantidad <= 0) {
+      setInputValues({ ...inputValues, [id]: cantidadActual.toString() });
+    } else if (cantidad > 999) {
+      actualizarCantidad(id, 999);
+      setInputValues({ ...inputValues, [id]: "999" });
+    }
+  };
+  // función para aumentar la cantidad desde el detalle, antes estaba en el estado global
+  const aumentarCantidad = (id, cantidadActual) => {
+    if (cantidadActual < 999) {
+      const nuevaCantidad = cantidadActual + 1;
+      actualizarCantidad(id, nuevaCantidad);
+      setInputValues({ ...inputValues, [id]: nuevaCantidad.toString() });
+    }
+  };
+  // de igual forma para disminuir, antes estaba en el estado global
+  const disminuirCantidad = (id, cantidadActual) => {
+    if (cantidadActual > 1) {
+      const nuevaCantidad = cantidadActual - 1;
+      actualizarCantidad(id, nuevaCantidad);
+      setInputValues({ ...inputValues, [id]: nuevaCantidad.toString() });
+    }
+  };
+  // para confirmar el cambio
+  const confirmarEliminacion = (id) => {
+    setProductoAEliminar(id);
+  };
+  // para eliminar el Producto
+  const eliminarProducto = () => {
+    if (productoAEliminar) {
+      removerProducto(productoAEliminar);
+      setProductoAEliminar(null);
+    }
+  };
+  // cancelar la eliminarión
+  const cancelarEliminacion = () => {
+    setProductoAEliminar(null);
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-        Detalle de Venta
-      </h2> 
-      {detalle.length === 0 ? ( // si no hay productos mostramos esto
-        <p className="text-gray-500 text-center py-8">
-          No hay productos agregados
-        </p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
-            <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-              <tr>
-                <th className="px-4 py-2 text-left">Cantidad</th>
-                <th className="px-4 py-2 text-left">Producto</th>
-                <th className="px-4 py-2 text-right">Precio Unit.</th>
-                <th className="px-4 py-2 text-right">Total</th>
-                <th className="px-4 py-2 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody> 
-              {detalle.map((item) => ( // mapeamos todos los productos para mostrar las filas 
-                <tr
-                  key={item.id}
-                  className="border-t border-gray-200 dark:border-gray-600"
-                >
-                  <td className="px-4 py-2 dark:text-gray-200">{item.cantidad}</td> 
-                  <td className="px-4 py-2 dark:text-gray-200">{item.nombre}</td>
-                  <td className="px-4 py-2 text-right dark:text-gray-200">
-                    S/ {item.precio.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-2 text-right font-semibold dark:text-gray-200">
-                    S/ {(item.cantidad * item.precio).toFixed(2)}
-                  </td>
-                  <td className="px-4 py-2 text-center">
-                    <button
-                      onClick={() => removerProducto(item.id)}
-                      className="text-red-500 hover:text-red-700 p-1 cursor-pointer hover:bg-red-200 rounded-sm"
-                    >
-                      <FiMinus size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          Detalle de Venta
+        </h2>
+        {detalle.length > 0 && (
+          <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
+            {detalle.length} {detalle.length === 1 ? 'producto' : 'productos'}
+          </span>
+        )}
+      </div>
+
+      {detalle.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 px-4">
+          <FiShoppingCart size={48} className="text-gray-400 dark:text-gray-600 mb-4" />
+          <p className="text-base font-medium text-gray-600 dark:text-gray-400 mb-2">
+            No hay productos agregados
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 text-center">
+            Selecciona productos del panel izquierdo para comenzar
+          </p>
         </div>
+      ) : (
+        <>
+          <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                <tr>
+                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">
+                    Cant.
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Producto
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">
+                    P. Unit.
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">
+                    Total
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {detalle.map((item, index) => (
+                  <tr
+                    key={item.id}
+                    className={`
+                      border-t border-gray-200 dark:border-gray-700 
+                      hover:bg-gray-50 dark:hover:bg-gray-750 
+                      transition-colors
+                      ${productoAEliminar === item.id ? 'bg-red-50 dark:bg-red-900/20' : ''}
+                      ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-800/50'}
+                    `}
+                  >
+                    {/* Columna Cantidad */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => disminuirCantidad(item.id, item.cantidad)}
+                          disabled={item.cantidad <= 1}
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-l border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          title="Disminuir cantidad"
+                        >
+                          <FiMinus size={14} />
+                        </button>
+                        
+                        <input
+                          type="number"
+                          min="1"
+                          max="999"
+                          value={inputValues[item.id] !== undefined ? inputValues[item.id] : item.cantidad}
+                          onChange={(e) => handleCantidadChange(item.id, e.target.value)}
+                          onBlur={() => handleCantidadBlur(item.id, item.cantidad)}
+                          onFocus={(e) => e.target.select()}
+                          className="w-14 h-7 text-center border-t border-b border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        
+                        <button
+                          onClick={() => aumentarCantidad(item.id, item.cantidad)}
+                          disabled={item.cantidad >= 999}
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-r border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          title="Aumentar cantidad"
+                        >
+                          <FiPlus size={14} />
+                        </button>
+                      </div>
+                    </td>
+
+                    {/* Columna Producto */}
+                    <td className="px-4 py-3 text-gray-900 dark:text-gray-200 font-medium">
+                      {item.nombre}
+                    </td>
+
+                    {/* Columna Precio Unitario */}
+                    <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
+                      S/ {item.precio.toFixed(2)}
+                    </td>
+
+                    {/* Columna Total */}
+                    <td className="px-4 py-3 text-right font-bold text-gray-900 dark:text-white">
+                      S/ {(item.cantidad * item.precio).toFixed(2)}
+                    </td>
+
+                    {/* Columna Acciones */}
+                    <td className="px-4 py-3 text-center">
+                      {productoAEliminar === item.id ? (
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={eliminarProducto}
+                            className="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                            title="Confirmar eliminación"
+                          >
+                            Sí
+                          </button>
+                          <button
+                            onClick={cancelarEliminacion}
+                            className="px-2 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors"
+                            title="Cancelar"
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => confirmarEliminacion(item.id)}
+                          className="inline-flex items-center justify-center w-8 h-8 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                          title="Eliminar producto"
+                        >
+                          <FiTrash2 size={16} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex justify-end">
+              <div className="w-full max-w-xs space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Items:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {detalle.reduce((acc, item) => acc + item.cantidad, 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
