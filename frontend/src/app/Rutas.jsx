@@ -21,7 +21,6 @@ import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 // secciones de venta
 import GenerarVenta from "../modulos/panel-administrador/modulos/ventas/secciones/GenerarVentaSeccion";
 import RegistroVentasSeccion from "../modulos/panel-administrador/modulos/ventas/secciones/RegistroVentasSeccion";
-import NuevoComprobanteSeccion from "../modulos/panel-administrador/modulos/ventas/secciones/NuevoComprobanteSeccion";
 
 // secciones de stock
 import StockInsumosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/StockInsumosSeccion";
@@ -32,9 +31,11 @@ import CajaActualSeccion from "../modulos/panel-administrador/modulos/caja/secci
 import HistorialCajasSeccion from "../modulos/panel-administrador/modulos/caja/secciones/HistorialCajasSeccion";
 // secciones de reserva
 import CalendarioReservasSeccion from "../modulos/panel-administrador/modulos/reservas/secciones/CalendarioReservasSeccion";
+import HistorialReservasSeccion from "../modulos/panel-administrador/modulos/reservas/secciones/HistorialReservasSeccion";
 // secciones de usuario y perfil
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
+import GestionProductosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/GestionProductosSeccion";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -56,23 +57,6 @@ const AppRutas = () => {
             ]
         },
 
-        /* {
-            path: '/admin-provisional', // ruta provisional para el admin
-            element: <EstructuraBaseAdmin />, // estructura base del panel de admin
-            children: [
-                { index: true, element: <PanelDeControl /> }, // ruta por defecto del panel de admin
-                { path: 'nuevo-comprobante', element: <NuevoComprobanteSeccion/> },
-                { path: 'generar-venta', element: <GenerarVenta/> },
-                { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
-                { path: 'stock', element: <Stock/> },
-                { path: 'caja', element: <Caja/> },
-                { path: 'reservas', element: <Reservas/> },
-                { path: 'usuarios', element: <Usuarios/> },
-                { path: 'perfil', element: <Perfil/> },
-
-            ]
-        }, */
-
         // Rutas protegidas según rol
         {
             path: '/admin', // ruta padre para el panel de admin
@@ -82,16 +66,16 @@ const AppRutas = () => {
                 element: <EstructuraBaseAdmin />, // la estructura base del panel
                 children: [
                     { index: true, element: <PanelDeControl /> },
-                    { path: 'nuevo-comprobante', element: <NuevoComprobanteSeccion/> },
                     { path: 'generar-venta', element: <GenerarVenta/> },
                     { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
                     { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
+                    { path: 'historial-reservas', element: <HistorialReservasSeccion/> },
                     { path: 'stock-insumos', element: <StockInsumosSeccion/> },
                     { path: 'historial-entradas', element: <HistorialEntradasSeccion/> },
                     { path: 'historial-salidas', element: <HistorialSalidasSeccion/> },
+                    { path: 'gestion-productos', element: <GestionProductosSeccion/> },
                     { path: 'caja-actual', element: <CajaActualSeccion/> },
                     { path: 'historial-cajas', element: <HistorialCajasSeccion/> },
-
                     { path: 'usuarios', element: <Usuarios/> },
                     { path: 'perfil', element: <Perfil/> },
                 ] // ruta por defecto del panel de admin
@@ -104,7 +88,6 @@ const AppRutas = () => {
             element: <RutaPrivadaConRol rolesPermitidos={[1]} />, // solo el superadmin 
             children: [
                 { index: true, element: <PanelDeControl /> }, // ruta por defecto del panel de admin
-                { path: 'nuevo-comprobante', element: <NuevoComprobanteSeccion/> },
                 { path: 'generar-venta', element: <GenerarVenta/> },
                 { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
                 { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },

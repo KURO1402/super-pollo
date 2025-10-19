@@ -8,7 +8,7 @@ export const entradas = [
     fechaMovimiento: '2024-01-15 08:30:00',
     detallesMovimiento: 'Compra a Proveedor Pollos SAC - Factura #001-234',
     idUsuario: 1,
-    usuario: 'Admin',
+    usuario: 'Juan Perez',
     unidadMedida: 'kg'
   },
   {
@@ -20,7 +20,7 @@ export const entradas = [
     fechaMovimiento: '2024-01-15 09:15:00',
     detallesMovimiento: 'Compra a Distribuidora Papas - 2 sacos',
     idUsuario: 1,
-    usuario: 'Admin',
+    usuario: 'Juan Perez',
     unidadMedida: 'kg'
   },
   {
@@ -32,7 +32,7 @@ export const entradas = [
     fechaMovimiento: '2024-01-14 14:20:00',
     detallesMovimiento: 'Compra a Coca Cola - Caja x 24 unidades',
     idUsuario: 1,
-    usuario: 'Admin',
+    usuario: 'Juan Perez',
     unidadMedida: 'unid'
   },
   {
@@ -44,7 +44,7 @@ export const entradas = [
     fechaMovimiento: '2024-01-14 11:45:00',
     detallesMovimiento: 'Compra a Aceites del Norte - 1 balde',
     idUsuario: 1,
-    usuario: 'Admin',
+    usuario: 'Juan Perez',
     unidadMedida: 'lt'
   },
   {
@@ -56,7 +56,7 @@ export const entradas = [
     fechaMovimiento: '2024-01-13 16:30:00',
     detallesMovimiento: 'Compra a Salinera - Saco x 25kg',
     idUsuario: 1,
-    usuario: 'Admin',
+    usuario: 'Juan Perez',
     unidadMedida: 'kg'
   },
   {
@@ -68,7 +68,7 @@ export const entradas = [
     fechaMovimiento: '2024-01-13 10:20:00',
     detallesMovimiento: 'Compra a Verduleria Fresca - 3 cajas',
     idUsuario: 1,
-    usuario: 'Admin',
+    usuario: 'Juan Perez',
     unidadMedida: 'kg'
   },
   {
@@ -80,7 +80,7 @@ export const entradas = [
     fechaMovimiento: '2024-01-12 15:45:00',
     detallesMovimiento: 'Compra a Distribuidora Bebidas - 3 cajas',
     idUsuario: 1,
-    usuario: 'Admin',
+    usuario: 'Juan Perez',
     unidadMedida: 'unid'
   },
   {
@@ -92,7 +92,7 @@ export const entradas = [
     fechaMovimiento: '2024-01-12 09:30:00',
     detallesMovimiento: 'Compra a Mercado Central - 2 kg',
     idUsuario: 1,
-    usuario: 'Admin',
+    usuario: 'Juan Perez',
     unidadMedida: 'kg'
   }
 ];

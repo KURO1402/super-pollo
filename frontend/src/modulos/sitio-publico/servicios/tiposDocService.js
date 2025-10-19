@@ -1,11 +1,11 @@
 import axios from "axios";
 
 // URL base del backend
-const API_URL = "http://localhost:3001"; 
+const apiUrl = import.meta.env.VITE_BACKEND_URL; 
 
 // Función que obtiene los tipos de documento
 export const obtenerTiposDocumento = async () => {
-  const respuesta = await axios.get(`${API_URL}/fuente-datos/tipos-documentos`);
+  const respuesta = await axios.get(`${apiUrl}/fuente-datos/tipos-documentos`);
   if(!respuesta.data.ok){
      throw new Error(respuesta.data.mensaje || "Error al obtener los tipos de documento");
   }
