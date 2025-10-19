@@ -1,4 +1,4 @@
-const { crearCajaService, cerrarCajaService, registrarIngresoCajaService, registrarEgresoCajaService, registrarArqueoCajaService, obtenerMovimientosPorCajaService, obtenerUltimosMovimientosCajaService, obtenerCajasCerradasService } = require('./cajaServicio');
+const { crearCajaService, cerrarCajaService, registrarIngresoCajaService, registrarEgresoCajaService, registrarArqueoCajaService, obtenerMovimientosPorCajaService, obtenerMovimientosCajaService, obtenerCajasService, obtenerArqueosCajaService, obtenerArqueosPorCajaService } = require('./cajaServicio');
 
 const crearCajaController = async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1]; // Extraer el token del encabezado Authorization
@@ -122,12 +122,12 @@ const obtenerMovimientosPorCajaController = async (req, res) => {
 };
 
 // Controlador para obtener los últimos movimientos de caja (10 en 10)
-const obtenerUltimosMovimientosCajaController = async (req, res) => {
+const obtenerMovimientosCajaController = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10; // Número de registros por página, por defecto 10
     const offset = parseInt(req.query.offset) || 0; // Desplazamiento para la paginación, por defecto 0
 
     try {
-        const movimientos = await obtenerUltimosMovimientosCajaService(limit, offset);
+        const movimientos = await obtenerMovimientosCajaService(limit, offset);
         res.status(200).json(movimientos);
     } catch (err) {
         // Manejo centralizado de errores
@@ -144,16 +144,59 @@ const obtenerUltimosMovimientosCajaController = async (req, res) => {
 };
 
 // Controlador para obtener las cajas cerradas (10 en 10)
-const obtenerCajasCerradasController = async (req, res) => {
+const obtenerCajasController = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10; // Número de registros por página, por defecto 10
     const offset = parseInt(req.query.offset) || 0; // Desplazamiento para la paginación, por defecto 0
 
     try {
-        const cajas = await obtenerCajasCerradasService(limit, offset);
+        const cajas = await obtenerCajasService(limit, offset);
         res.status(200).json(cajas);
     } catch (err) {
         // Manejo centralizado de errores
         console.error("Error en obtenerCajasCerradasController:", err.message);
+
+        // Determinar código de estado (usar 500 por defecto si no está especificado)
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
+};
+
+// Controlador para obtener los arqueos de caja (10 en 10)
+const obtenerArqueosCajaController = async (req, res) => {
+    const limit = parseInt(req.query.limit) || 10; // Número de registros por página, por defecto 10
+    const offset = parseInt(req.query.offset) || 0; // Desplazamiento para la paginación, por defecto 0 
+
+    try {
+        const arqueos = await obtenerArqueosCajaService(limit, offset);
+        res.status(200).json(arqueos);
+    } catch (err) {
+        // Manejo centralizado de errores
+        console.error("Error en obtenerArqueosCajaController:", err.message);
+
+        // Determinar código de estado (usar 500 por defecto si no está especificado)
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
+};
+
+// Controlador para obtener los arqueos de una caja específica
+const obtenerArqueosPorCajaController = async (req, res) => {
+    const { idCaja } = req.params;
+
+    try {
+        const arqueos = await obtenerArqueosPorCajaService(idCaja);
+        res.status(200).json(arqueos);
+    } catch (err) {
+        // Manejo centralizado de errores
+        console.error("Error en obtenerArqueosPorCajaController:", err.message);
 
         // Determinar código de estado (usar 500 por defecto si no está especificado)
         const statusCode = err.status || 500;
@@ -172,7 +215,8 @@ module.exports = {
   registrarEgresoCajaController, 
   registrarArqueoCajaController, 
   obtenerMovimientosPorCajaController, 
-  obtenerUltimosMovimientosCajaController, 
-  obtenerCajasCerradasController,
- obtenerCajasCerradasController
+  obtenerMovimientosCajaController, 
+  obtenerCajasController,
+  obtenerArqueosCajaController,
+  obtenerArqueosPorCajaController
 };

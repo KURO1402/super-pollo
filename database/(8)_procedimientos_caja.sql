@@ -10,6 +10,8 @@ DROP PROCEDURE IF EXISTS registrarArqueoCaja;
 DROP PROCEDURE IF EXISTS obtenerMovimientosPorCaja;
 DROP PROCEDURE IF EXISTS obtenerUltimosMovimientosCaja;
 DROP PROCEDURE IF EXISTS obtenerCajasCerradas;
+DROP PROCEDURE IF EXISTS obtenerArqueosCaja;
+DROP PROCEDURE IF EXISTS obtenerArqueosPorCaja;
 
 /* CREAR PROCEDIMIENTOS ALMACENADOS DEL MODULO DE CAJA */
 DELIMITER //
@@ -112,6 +114,7 @@ BEGIN
     ORDER BY fechaCaja DESC
     LIMIT 1;
 END //
+
 
 -- Procedimiento para registrar un ingreso en caja
 CREATE PROCEDURE registrarIngresoCaja(
@@ -239,18 +242,22 @@ BEGIN
     COMMIT;
 END //
 
--- Procedimiento para registrar un arqueo caja
+-- Procedimiento para registrar un arqueo de caja
 CREATE PROCEDURE registrarArqueoCaja(
     IN p_idUsuario INT,
-    IN p_montoContado DECIMAL(10,2),
+    IN p_montoFisico DECIMAL(10,2),
+    IN p_montoTarjeta DECIMAL(10,2),
+    IN p_montoBilletera DECIMAL(10,2),
+    IN p_montoOtros DECIMAL(10,2),
     IN p_diferencia DECIMAL(10,2),
-    IN p_estadoArqueo ENUM('cuadra','falta','sobra')
+    IN p_estadoArqueo VARCHAR(10)
 )
 BEGIN
     DECLARE v_idCaja INT;
+
+    -- Manejador de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
-        -- Si ocurre un error, se hace rollback
         ROLLBACK;
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Error al registrar el arqueo de caja';
@@ -273,14 +280,20 @@ BEGIN
 
     -- 3️⃣ Insertar el arqueo
     INSERT INTO arqueosCaja (
-        montoContado,
+        montoFisico,
+        montoTarjeta,
+        montoBilleteraDigital,
+        otros,
         diferencia,
         estadoCaja,
         idCaja,
         idUsuario
     )
     VALUES (
-        p_montoContado,
+        p_montoFisico,
+        p_montoTarjeta,
+        p_montoBilletera,
+        p_montoOtros,
         p_diferencia,
         p_estadoArqueo,
         v_idCaja,
@@ -352,6 +365,52 @@ BEGIN
     WHERE c.estadoCaja = 'cerrada'
     ORDER BY c.fechaCaja DESC
     LIMIT p_limit OFFSET p_offset;
+END //
+
+-- Procedimiento para obtener los arqueos de cajas anteriores
+CREATE PROCEDURE obtenerArqueosCaja(
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    SELECT 
+        DATE_FORMAT(ac.fechaArqueo, '%H:%i') AS horaArqueo,     -- Hora en formato hh:mm
+        ac.montoFisico,
+        ac.montoTarjeta,
+        ac.montoBilleteraDigital,
+        ac.otros,
+        ac.diferencia,
+        ac.estadoCaja,
+        DATE_FORMAT(c.fechaCaja, '%d/%m/%Y') AS fechaCaja,      -- Fecha en formato dd/mm/yyyy
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM arqueosCaja ac
+    INNER JOIN caja c ON ac.idCaja = c.idCaja
+    INNER JOIN usuarios u ON ac.idUsuario = u.idUsuario
+    ORDER BY ac.fechaArqueo DESC
+    LIMIT p_limit OFFSET p_offset;
+END //
+
+-- Procedimiento para obtener los arqueos de la caja abierta
+CREATE PROCEDURE obtenerArqueosPorCaja(
+    IN p_idCaja INT
+)
+BEGIN
+    -- Retornar los arqueos asociados a esa caja
+    SELECT 
+        DATE_FORMAT(ac.fechaArqueo, '%H:%i') AS horaArqueo,     -- Hora en formato hh:mm
+        ac.montoFisico,
+        ac.montoTarjeta,
+        ac.montoBilleteraDigital,
+        ac.otros,
+        ac.diferencia,
+        ac.estadoCaja,
+        DATE_FORMAT(c.fechaCaja, '%d/%m/%Y') AS fechaCaja,      -- Fecha en formato dd/mm/yyyy
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM arqueosCaja ac
+    INNER JOIN caja c ON ac.idCaja = c.idCaja
+    INNER JOIN usuarios u ON ac.idUsuario = u.idUsuario
+    WHERE ac.idCaja = p_idCaja
+    ORDER BY ac.fechaArqueo DESC;
 END //
 
 DELIMITER ;

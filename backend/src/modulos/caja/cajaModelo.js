@@ -80,15 +80,46 @@ const registrarEgresoCajaModel = async (datos, usuarioId) => {
 };
 
 // Modelo para registrar un arqueo de caja
-const registrarArqueoCajaModel = async (montoFisico, diferencia, estadoArqueo, usuarioId) => {
+const registrarArqueoCajaModel = async (montos, diferencia, estadoArqueo, usuarioId) => {
     let conexion;
     try {
+        const { montoFisico, montoTarjeta, montoBilleteraDigital, otros } = montos;
         conexion = await pool.getConnection();
-        const [result] = await conexion.query("CALL registrarArqueoCaja(?, ?, ?, ?)", [usuarioId, montoFisico, diferencia, estadoArqueo]);
+        const [result] = await conexion.query("CALL registrarArqueoCaja(?, ?, ?, ?, ?, ?, ?)", [usuarioId, montoFisico, montoTarjeta, montoBilleteraDigital, otros, diferencia, estadoArqueo]);
         return result;
     } catch (err) {
         console.error("Error en registrarArqueoCajaModel: ", err.message);
         throw new Error("Error al registrar el arqueo de caja en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para obtener  las cajas cerradas por partes
+const obtenerCajasModel = async (limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.query("CALL obtenerCajasCerradas(?, ?)", [limit, offset]);
+        return rows[0];
+    } catch (err) {
+        console.error("Error en obtenerCajasCerradasModel: ", err.message);
+        throw new Error("Error al obtener las cajas cerradas en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para obtener los movimientos de caja
+const obtenerMovimientosCajaModel = async (limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.query("CALL obtenerUltimosMovimientosCaja(?, ?)", [limit, offset]);
+        return rows[0];
+    } catch (err) {
+        console.error("Error en obtenerUltimosMovimientosCajaModel: ", err.message);
+        throw new Error("Error al obtener los últimos movimientos de caja en la base de datos");
     } finally {
         if (conexion) conexion.release();
     }
@@ -109,31 +140,32 @@ const obtenerMovimientosPorCajaModel = async (cajaId) => {
     }
 };
 
-// Modelo para obtener los movimientos de caja
-const obtenerUltimosMovimientosCajaModel = async (limit, offset) => {
+
+//Obtener arqueos de la caja abierta
+const obtenerArqueosCaja = async (limit, offset) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [rows] = await conexion.query("CALL obtenerUltimosMovimientosCaja(?, ?)", [limit, offset]);
+        const [rows] = await conexion.query("CALL obtenerArqueosCaja(?,?)", [limit, offset]);
         return rows[0];
     } catch (err) {
-        console.error("Error en obtenerUltimosMovimientosCajaModel: ", err.message);
-        throw new Error("Error al obtener los últimos movimientos de caja en la base de datos");
+        console.error("Error en obtenerArqueosCajas: ", err.message);
+        throw new Error("Error al obtener los arqueos de la caja en la base de datos");
     } finally {
         if (conexion) conexion.release();
     }
 };
 
-// Modelo para obtener  las cajas cerradas por partes
-const obtenerCajasCerradasModel = async (limit, offset) => {
+//Obtenemos arqueos de una caja específica
+const obtenerArqueosPorCajaModel = async (cajaId) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [rows] = await conexion.query("CALL obtenerCajasCerradas(?, ?)", [limit, offset]);
+        const [rows] = await conexion.query("CALL obtenerArqueosPorCaja(?)", [cajaId]);
         return rows[0];
     } catch (err) {
-        console.error("Error en obtenerCajasCerradasModel: ", err.message);
-        throw new Error("Error al obtener las cajas cerradas en la base de datos");
+        console.error("Error en obtenerArqueosPorCajaModel: ", err.message);
+        throw new Error("Error al obtener los arqueos de la caja en la base de datos");
     } finally {
         if (conexion) conexion.release();
     }
@@ -147,6 +179,8 @@ module.exports = {
     registrarEgresoCajaModel,
     registrarArqueoCajaModel,
     obtenerMovimientosPorCajaModel,
-    obtenerUltimosMovimientosCajaModel,
-    obtenerCajasCerradasModel
+    obtenerMovimientosCajaModel,
+    obtenerCajasModel,
+    obtenerArqueosCaja,
+    obtenerArqueosPorCajaModel
 }

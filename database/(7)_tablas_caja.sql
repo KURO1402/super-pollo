@@ -45,8 +45,11 @@ CREATE TABLE movimientosCaja (
 CREATE TABLE arqueosCaja(
     idArqueoCaja INT AUTO_INCREMENT PRIMARY KEY,
     fechaArqueo DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    montoContado DECIMAL(10,2) NOT NULL,
-    diferencia DECIMAL(10,2),
+    montoFisico DECIMAL(10,2) NOT NULL,
+    montoTarjeta DECIMAL(10,2) NOT NULL,
+    montoBilleteraDigital DECIMAL(10,2) NOT NULL,
+    otros DECIMAL(10,2), 
+    diferencia DECIMAL(10,2) NOT NULL,
     estadoCaja ENUM('cuadra','falta', 'sobra') NOT NULL,
     idCaja INT NOT NULL,
     idUsuario INT NOT NULL,
