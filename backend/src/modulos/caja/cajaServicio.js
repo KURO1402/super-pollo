@@ -1,6 +1,6 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { crearCajaModel, cerrarCajaModel, consultarCajaAbiertaModel, registrarIngresoCajaModel, registrarEgresoCajaModel, registrarArqueoCajaModel, obtenerMovimientosPorCajaModel, obtenerUltimosMovimientosCajaModel, obtenerCajasCerradasModel } = require("./cajaModelo")
+const { crearCajaModel, cerrarCajaModel, consultarCajaAbiertaModel, registrarIngresoCajaModel, registrarEgresoCajaModel, registrarArqueoCajaModel, obtenerMovimientosPorCajaModel, obtenerMovimientosCajaModel, obtenerCajasModel, obtenerArqueosCaja, obtenerArqueosPorCajaModel } = require("./cajaModelo")
 const { validarDatosAbrirCaja, validarDatosCerrarCaja, validarDatosIngresoCaja, validarDatosEgresoCaja, validarDatosArqueoCaja } = require("./cajaValidaciones");
 
 //Servicio para crear una nueva caja
@@ -81,9 +81,10 @@ const registrarArqueoCajaService = async (datos, token) => {
 
     await validarDatosArqueoCaja(datos, decodedToken.idUsuario);
     const cajaAbierta = await consultarCajaAbiertaModel();
-    const diferencia = datos.montoFisico - cajaAbierta[0].montoActual;
+    const montoTotal = datos.montoFisico + datos.montoTarjeta + datos.montoBilleteraDigital + datos.otros;
+    const diferencia = montoTotal - cajaAbierta[0].montoActual;
     const estadoArqueo = diferencia === 0 ? 'cuadra' : diferencia > 0 ? 'sobra' : 'falta';
-    const resultado = await registrarArqueoCajaModel(datos.montoFisico, diferencia, estadoArqueo, decodedToken.idUsuario);
+    const resultado = await registrarArqueoCajaModel(datos, diferencia, estadoArqueo, decodedToken.idUsuario);
 
     //Validar que se haya creado el arqueo
     if (resultado.affectedRows === 0) {
@@ -94,7 +95,7 @@ const registrarArqueoCajaService = async (datos, token) => {
         ok: true,
         mensaje: "Arqueo de caja registrado exitosamente"
     };
-}
+};
 
 // Servicio para obtener los movimientos de una caja específica
 const obtenerMovimientosPorCajaService = async (cajaId) => {
@@ -106,8 +107,8 @@ const obtenerMovimientosPorCajaService = async (cajaId) => {
 }
 
 // Servicio para obtener los últimos movimientos de caja (10 en 10)
-const obtenerUltimosMovimientosCajaService = async (limit, offset) => {
-    const movimientos = await obtenerUltimosMovimientosCajaModel(limit, offset);
+const obtenerMovimientosCajaService = async (limit, offset) => {
+    const movimientos = await obtenerMovimientosCajaModel(limit, offset);
     if (movimientos.length === 0) {
         throw Object.assign(new Error("No se encontraron movimientos de caja"), { status: 404 });
     }
@@ -115,12 +116,30 @@ const obtenerUltimosMovimientosCajaService = async (limit, offset) => {
 }
 
 // Servicio para obtener las cajas cerradas
-const obtenerCajasCerradasService = async (limit, offset) => {
-    const cajas = await obtenerCajasCerradasModel(limit, offset);
+const obtenerCajasService = async (limit, offset) => {
+    const cajas = await obtenerCajasModel(limit, offset);
     if (cajas.length === 0) {
         throw Object.assign(new Error("No se encontraron registros"), { status: 404 });
     }
     return cajas;
+}
+
+// Servicio para obtener los arqueos de caja
+const obtenerArqueosCajaService = async (limit, offset) => {
+    const arqueos = await obtenerArqueosCaja(limit, offset);
+    if (arqueos.length === 0) {
+        throw Object.assign(new Error("No se encontraron registros"), { status: 404 });
+    }
+    return arqueos;
+}
+
+// Servicio para obtener los arqueos de una caja específica
+const obtenerArqueosPorCajaService = async (cajaId) => {
+    const arqueos = await obtenerArqueosPorCajaModel(cajaId);
+    if (arqueos.length === 0) {
+        throw Object.assign(new Error("No se encontraron registros"), { status: 404 });
+    }
+    return arqueos;
 }
 
 module.exports = {
@@ -130,6 +149,8 @@ module.exports = {
     registrarEgresoCajaService,
     registrarArqueoCajaService,
     obtenerMovimientosPorCajaService,
-    obtenerUltimosMovimientosCajaService,
-    obtenerCajasCerradasService
+    obtenerMovimientosCajaService,
+    obtenerCajasService,
+    obtenerArqueosCajaService,
+    obtenerArqueosPorCajaService
 };
