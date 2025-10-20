@@ -84,7 +84,7 @@ const obtenerDetalleReservacionService = async (idReservacion) => {
     // si falta algun dato se lanza el error
     throw Object.assing(new Error("Faltan datos obligatorios"), { status: 400 });
     // si todo esta bien se llama al modelo para ejecutar el procedimiento
-    return await obtenerDetalleReservacionModel(datos);
+    return await obtenerDetalleReservacionModel(idReservacion);
 }    
 
 // exportamos los modulos

@@ -2,7 +2,7 @@ const express = require('express');
 // SDK de Mercado Pago
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 // Importamos las rutas de reservaciones
-const { obtenerReservacionService, insertarPagoService } = require('../modulos/reservaciones/reservacionesServicio.js')
+const { obtenerDetalleReservacionService, insertarPagoService } = require('../modulos/reservaciones/reservacionesServicio.js')
 
 const app = express();
 app.use(express.json());
@@ -13,19 +13,20 @@ const client = new MercadoPagoConfig({
 });
 
 const crearPreferencia = async (idReservacion) => {
-    // Obtener datos de la reservacion
-    const reserva = await obtenerReservacionService(idReservacion);
-    if (!reserva) throw new Error("Reservación no encontrada");
+    const detalles = await obtenerDetalleReservacionService(idReservacion);
+    if (!detalles || detalles.length === 0) throw new Error("No hay detalles para esta reservación");
+
+    const items = detalles.map(d => ({
+        title: d.producto,
+        quantity: Number(d.cantidadProductoReservacion),
+        unit_price: Number(d.precioUnitario)
+    }));
 
     // Crear preferencia Mercado Pago
     const preference = new Preference(client);
     const result = await preference.create({
         body: {
-            items: [{
-                title: reserva.producto || "Pollo loco",
-                quantity: reserva.cantidadPersonas || 2,
-                unit_price: reserva.precio_total || 50
-            }],
+            items,
             back_urls: {
                 success: "https://www.google.com/success", /*http://localhost:5173/pago-exitoso",*/
                 failure: "https://www.google.com/failure", /*http://localhost:5173/pago-fallido",*/
@@ -41,10 +42,13 @@ const crearPreferencia = async (idReservacion) => {
         }
     });
 
+    // Calcular monto total
+    const montoTotal = detalles.reduce((sum, d) => sum + (d.cantidadProductoReservacion * d.precioUnitario), 0);
+
     // Guardar la preference_id en el pago de la reservación
     await insertarPagoService({
         idReservacion,
-        montoTotal: reserva.precio_total || 50,
+        montoTotal,
         montoPagado: 0,
         porcentajePago: 0,
         idTransaccion: result.id,
