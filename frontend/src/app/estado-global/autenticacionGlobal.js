@@ -13,7 +13,7 @@ export const useAutenticacionGlobal = create(
 
             registrar: async (datos) => {
                 try {
-                    set({ carga: true, erro: null }); // seteamos la carga a true y el error a null
+                    set({ carga: true, error: null }); // seteamos la carga a true y el error a null
                     const respuesta = await registrarUsuario(datos); // llamamos al servicio de registro
                     set({ usuario: respuesta.usuario, accessToken: respuesta.accessToken, }); // seteamos el usuario y el token de acceso
                     return respuesta.usuario; // devolvemos el usuario registrado
@@ -26,7 +26,7 @@ export const useAutenticacionGlobal = create(
 
             login: async (datos) => {
                 try {
-                    set({ carga: true, erro: null }); // seteamos la carga a true y el error a null
+                    set({ carga: true, error: null }); // seteamos la carga a true y el error a null
                     const respuesta = await loginUsuario(datos); // llamamos al servicio de login
                     set({ usuario: respuesta.usuario, accessToken: respuesta.accessToken, }); // seteamos el usuario y el token de acceso
                     return respuesta.usuario; // devolvemos el usuario logueado
@@ -44,6 +44,7 @@ export const useAutenticacionGlobal = create(
             setAccessToken: (token) => {
                 set({ accessToken: token }); // Actualiza el accessToken
             },
+            limpiarError: () => set({ error: null }), // Función para limpiar el error
         }),
         {
             name: 'auth-storage', // nombre clave en localStorage

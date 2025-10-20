@@ -63,7 +63,7 @@ const FormularioInicioSesion = ({ alEnviar, estaCargando = false }) => {
           className={`
             w-full py-3 px-4 rounded-lg font-medium transition-colors duration-200
             ${isValid && !estaCargando 
-              ? 'bg-azul-primario hover:bg-azul-secundario text-white' 
+              ? 'bg-azul-primario hover:bg-azul-secundario text-white cursor-pointer' 
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-azul-primario

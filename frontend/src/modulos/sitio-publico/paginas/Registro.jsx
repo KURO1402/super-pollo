@@ -1,6 +1,8 @@
 import FormularioRegistro from "../componentes/FormularioRegistro"; // importamos el formulario
 import { Link, useNavigate } from "react-router-dom"; // importamos Link para navegar a Inicio de Sesion
 import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacionGlobal";
+import { mostrarAlerta } from "../../../utilidades/toastUtilidades";
+import { useEffect } from "react";
 
 const Registro = () => {
   // obtenemos la funcion de registrar del estado global
@@ -8,6 +10,7 @@ const Registro = () => {
   // obtenemos el estado de carga y error del estado global
   const carga = useAutenticacionGlobal((state) => state.carga);
   const error = useAutenticacionGlobal((state) => state.error);
+  const limpiarError = useAutenticacionGlobal((state) => state.limpiarError);
   // hook de navegacion para redirigir despues del registro
   const navigate = useNavigate()
   // se activa cuando se da click al boton de crear cuenta en el formulario
@@ -18,6 +21,14 @@ const Registro = () => {
       navigate("/usuario"); // redirige a la zona de usuarios
     }
   };
+  // mostrar alerta si hay error
+  useEffect(() => {
+      if (error) { // si existe algun error
+        mostrarAlerta.error(error); // mostramos la alerta con el mensaje de error
+        const timer = setTimeout(() => limpiarError(), 200); // limpiamos después de mostrar
+        return () => clearTimeout(timer); // limpiamos el timeout
+      }
+    }, [error, limpiarError]); // dependencias del useEffect
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -58,12 +69,6 @@ const Registro = () => {
                     Inicia sesión aquí
                 </Link>
             </p>
-            {/* mostrar el error si existe mejorar más adelante el estilo*/}
-            {error && (
-              <p className="mt-4 text-center text-red-500">
-                {error}
-              </p>
-            )}
           </div>
         </div>
       </div>

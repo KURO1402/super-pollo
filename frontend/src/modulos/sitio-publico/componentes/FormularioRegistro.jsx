@@ -23,6 +23,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
     handleSubmit, // manejar el envio
     formState: { errors, isValid }, // errores y estado de validez
     reset, // para limpiar el formulario
+    trigger, // para validar manualmente
   } = useForm({
     resolver: yupResolver(registroValidacion), // usamos la validación con yup
     mode: 'onChange', // Validación en tiempo real
@@ -56,7 +57,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
     try {
       console.log("Datos preparados para el backend:", datos);
       await alEnviar(datos); // Llama a la función que recibe los datos (prop)
-      reset(); // Limpia el formulario después del envío exitoso
+      await trigger();
     } catch (error) {
         // mostrar error si ocurre alguno
       console.error('Error al enviar el formulario:', error);
@@ -192,7 +193,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
           className={`
             w-full py-3 px-4 rounded-lg font-medium transition-colors duration-200
             ${isValid && !estaCargando 
-              ? 'bg-azul-primario hover:bg-azul-secundario text-white' 
+              ? 'bg-azul-primario hover:bg-azul-secundario text-white cursor-pointer' 
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-azul-primario

@@ -3,11 +3,11 @@ import FormularioInicioSesion from '../componentes/FormularioInicioSesion';
 import { Link, useNavigate } from 'react-router-dom'; // Para navegar a registro
 // Importamos el estado global de autenticacion
 import { useAutenticacionGlobal } from '../../../app/estado-global/autenticacionGlobal';
+import { mostrarAlerta } from '../../../utilidades/toastUtilidades';
+import { useEffect } from 'react';
 
 const InicioSesion = ()=> {
-  const login = useAutenticacionGlobal((state) => state.login); // obtenemos la funcion de login del estado global
-  const carga = useAutenticacionGlobal((state) => state.carga); // obtenemos el estado de carga del estado global
-  const error = useAutenticacionGlobal((state) => state.error); // obtenemos el estado de error del estado global
+  const { login, carga, error, limpiarError } = useAutenticacionGlobal(); // obtenemos varias cosas del estado global}
   const navigate = useNavigate(); // hook de navegacion para redirigir despues del login
 
   //funcion que se ejecuta al enviar el formulario
@@ -25,6 +25,14 @@ const InicioSesion = ()=> {
       }
     }
   };
+  // mostrar alerta si hay error 
+  useEffect(() => {
+    if (error) {
+      mostrarAlerta.error(error); // mostramos la alerta con el mensaje de error 
+      const timer = setTimeout(() => limpiarError(), 200); // limpiamos después de mostrar
+      return () => clearTimeout(timer); // limpiamos el timeout al desmontar
+    }
+  }, [error, limpiarError]);
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -64,12 +72,6 @@ const InicioSesion = ()=> {
                 Regístrate aquí
               </Link>
             </p>
-            {/* mostrar el error si existe mejorar más adelante el estilo*/}
-            {error && (
-              <p className="mt-4 text-center text-red-500">
-                {error}
-              </p>
-            )}
           </div>
         </div>
       </div>
