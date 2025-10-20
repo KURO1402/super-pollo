@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import 'react-toastify/dist/ReactToastify.css';
 
 @theme {
   --color-amarillo: #ffa10a;
