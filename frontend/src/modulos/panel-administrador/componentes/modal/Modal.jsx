@@ -51,7 +51,7 @@ const Modal = ({
             </h2>
             <button
               onClick={onCerrar}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
             >
               <FiX size={24} />
             </button>

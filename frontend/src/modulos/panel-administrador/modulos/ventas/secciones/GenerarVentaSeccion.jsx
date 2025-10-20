@@ -9,9 +9,12 @@ import { registrarVenta } from "../servicios/ventasServicio";
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
 // componentes reutilizables
 import Modal from "../../../componentes/modal/Modal";
+import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda";
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 // custom hooks
 import { useModal } from "../../../hooks/useModal";
+import { useConfirmacion } from "../../../hooks/useConfirmacion";
 import { useBusqueda } from "../../../hooks/useBusqueda";
 // componentes de la seccion
 import { TarjetaProducto } from "../componentes/TarjetaProducto";
@@ -26,6 +29,7 @@ const SeccionVentas = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
   const { detalle, subtotal, impuesto, total, limpiarVenta } = useVentaEstadoGlobal();
   const { estaAbierto, abrir, cerrar } = useModal();
+   const { confirmacionVisible, mensajeConfirmacion, tituloConfirmacion, solicitarConfirmacion, ocultarConfirmacion, confirmarAccion} = useConfirmacion();
   // guardar los datos en estados locales
   const [tipoComprobante, setTipoComprobante] = useState(2);
   const [tipoPago, setTipoPago] = useState("contado");
@@ -54,27 +58,32 @@ const SeccionVentas = () => {
   };
   // guardar datos del cliente desde el formulario
   const handleClienteGuardado = (cliente) => {
-    console.log("Cliente guardado:", cliente);
+    mostrarAlerta.exito("Cliente agregado a la venta");
     setDatosCliente(cliente);
     cerrar();
   };
   // eliminar cleinte de la venta
   const handleEliminarCliente = () => {
-    if (window.confirm("¿Desea quitar el cliente de esta venta?")) {
-      setDatosCliente(null);
-    }
+    solicitarConfirmacion(
+      "¿Desea quitar el cliente de esta venta?",
+      () => {
+        setDatosCliente(null);
+        mostrarAlerta.exito("Cliente quitado de la venta");
+      },
+      "Quitar cliente"
+    );
   };
   // generar el comprobante, aqui se llama al servicio
   const handleGenerarComprobante = async () => {
     // Validaciones
     if (detalle.length === 0) {
-      alert("Debe agregar al menos un producto"); // será cambiado por alertas visuales
+      mostrarAlerta.advertencia("Debe agregar al menos un producto")
       return;
     }
 
     // Solo obligatorio para factura
     if (tipoComprobante === 1 && !datosCliente) {
-      alert("Debe agregar un cliente para emitir factura");
+      mostrarAlerta.advertencia("Debe agregar un cliente para emitir factura")
       return;
     }
 
@@ -113,10 +122,10 @@ const SeccionVentas = () => {
         if (ventaRegistrada.enlace_del_pdf) {
           setUrlPDF(ventaRegistrada.enlace_del_pdf);
           setMostrarPDF(true);
+          mostrarAlerta.exito("Comprobante generado");
         } else {
-          alert("Comprobante generado exitosamente");
+          mostrarAlerta.error("No se ha podido realizar la venta con éxito");
         }
-
         // Limpiar todo
         limpiarVenta();
         setObservaciones("");
@@ -124,7 +133,7 @@ const SeccionVentas = () => {
       }
     } catch (error) {
       console.error("Error al generar comprobante:", error);
-      alert("Error al generar el comprobante: " + error.message);
+      mostrarAlerta.error("Error al generar el comprobante");
     } finally {
       setCargando(false);
     }
@@ -132,11 +141,16 @@ const SeccionVentas = () => {
   // limpiar toda la venta
   const handleLimpiarVenta = () => {
     if (detalle.length > 0 || datosCliente) {
-      if (window.confirm("¿Estás seguro de limpiar toda la venta?")) {
-        limpiarVenta();
-        setObservaciones("");
-        setDatosCliente(null);
-      }
+      solicitarConfirmacion(
+        "¿Estás seguro de limpiar toda la venta?",
+        () => {
+          limpiarVenta();
+          setObservaciones("");
+          setDatosCliente(null);
+          mostrarAlerta.exito("Venta limpiada correctamente");
+        },
+        "Limpiar venta"
+      );
     }
   };
   // cerrar modal de pdf
@@ -420,6 +434,17 @@ const SeccionVentas = () => {
           </div>
         </Modal>
       )}
+      {/* Modal de confirmación */}
+      <ModalConfirmacion
+        visible={confirmacionVisible}
+        onCerrar={ocultarConfirmacion}
+        onConfirmar={confirmarAccion}
+        titulo={tituloConfirmacion}
+        mensaje={mensajeConfirmacion}
+        textoConfirmar="Sí, quitar"
+        textoCancelar="Cancelar"
+        tipo="peligro"
+      />
     </div>
   );
 };
