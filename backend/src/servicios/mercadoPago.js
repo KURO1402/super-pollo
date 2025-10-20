@@ -1,6 +1,8 @@
 const express = require('express');
 // SDK de Mercado Pago
 const { MercadoPagoConfig, Preference } = require('mercadopago');
+// Importamos las rutas de reservaciones
+const { obtenerReservacionService, insertarPagoService } = require('../modulos/reservaciones/reservacionesServicio.js')
 
 const app = express();
 app.use(express.json());
@@ -10,19 +12,20 @@ const client = new MercadoPagoConfig({
     accessToken: 'APP_USR-412908639165268-101313-aaf1c24aeffd6d32165dc5dded689461-2923267294' 
 });
 
-app.post('/crear-preferencia', async (req, res) => {
-  const preference = new Preference(client);
+const crearPreferencia = async (idReservacion) => {
+    // Obtener datos de la reservacion
+    const reserva = await obtenerReservacionService(idReservacion);
+    if (!reserva) throw new Error("Reservación no encontrada");
 
-  try {
+    // Crear preferencia Mercado Pago
+    const preference = new Preference(client);
     const result = await preference.create({
         body: {
-            items: [
-              {
-                title: req.body.titulo,
-                quantity: Number(req.body.cantidad),
-                unit_price: Number(req.body.precio)
-              }
-            ],
+            items: [{
+                title: reserva.producto || "Pollo loco",
+                quantity: reserva.cantidadPersonas || 2,
+                unit_price: reserva.precio_total || 50
+            }],
             back_urls: {
                 success: "https://www.google.com/success", /*http://localhost:5173/pago-exitoso",*/
                 failure: "https://www.google.com/failure", /*http://localhost:5173/pago-fallido",*/
@@ -38,29 +41,20 @@ app.post('/crear-preferencia', async (req, res) => {
         }
     });
 
-    res.json({
-      id: result.id,
-      init_point: result.init_point
+    // Guardar la preference_id en el pago de la reservación
+    await insertarPagoService({
+        idReservacion,
+        montoTotal: reserva.precio_total || 50,
+        montoPagado: 0,
+        porcentajePago: 0,
+        idTransaccion: result.id,
+        estadoPago: "pendiente"
     });
-  } catch (error) {
-    if (error.response) {
-        console.error("Error Mercado Pago - Status:", error.response.status);
-        console.error("Error Mercado Pago - Data:", error.response.data);
-        // Retornamos el error para que el servicio lo maneje
-        res.status(error.response.status).json(error.response.data);
-    } else {
-        console.error("Error de conexión:", error.message);
-        res.status(500).json({ error: "Error de conexión con Mercado Pago" });
-    }
-  }
-});
 
-app.get('/', (req, res) => {
-  res.send('Servidor funcionando correctamente ✅');
-});
+    return { init_point: result.init_point, preference_id: result.id };
+};
 
-app.listen(3000, () => console.log('Servidor corriendo en http://localhost:3000'));
-
+module.exports = { crearPreferencia };
 
 /* USUARIO DE PRUEBA PARA COMPRAR
     USUARIO: TESTUSER5327885063936142262 
