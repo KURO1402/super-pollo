@@ -1,5 +1,4 @@
-// validaciones/insumosValidator.js
-const { obtenerValoresEnum } = require('../helpers/inventarioHelper');
+const { obtenerValoresEnum } = require('../../../helpers/inventario-helpers/inventarioHelper');
 
 const esSoloNumeros = (texto) => /^[0-9]+$/.test(texto);
 
@@ -14,8 +13,8 @@ const validarDatosInsumo = async (datos) => {
         if (esSoloNumeros(datos.nombreInsumo)) {
             errores.push("El nombre del insumo no puede ser solo un número");
         }
-        if (datos.nombreInsumo.length > 100) {
-            errores.push("El nombre del insumo excede los 100 caracteres");
+        if (datos.nombreInsumo.length > 50) {
+            errores.push("El nombre del insumo excede los 50 caracteres");
         }
     }
 

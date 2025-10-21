@@ -16,6 +16,10 @@ const comprobanteRoutes = require("./src/modulos/ventas/rutas/comprobanteRutas")
 //ruta para reservaciones
 const reservacionesRoutes = require("./src/modulos/reservaciones/reservacionesRutas.js");
 
+//rutas para inventario
+const inventarioRoutes = require("./src/modulos/inventario/rutas/inventarioRutas.js");
+const movimientoRoutes = require("./src/modulos/inventario/rutas/movimientoRutas.js");
+
 // Rutas para caja
 const cajaRoutes = require("./src/modulos/caja/cajaRutas.js");
 
@@ -45,6 +49,8 @@ app.use('/ventas', ventasRoutes);
 app.use('/ventas', comprobanteRoutes);
 app.use('/autenticacion', autenticacionRoutes);
 app.use('/fuente-datos', fuenteDatosRouter);
+app.use('/inventario', inventarioRoutes);
+app.use('/inventario-movimientos', movimientoRoutes)
 app.use('/reservaciones', reservacionesRoutes);
 app.use('/caja', cajaRoutes);
 
