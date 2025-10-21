@@ -50,7 +50,7 @@ app.use('/ventas', comprobanteRoutes);
 app.use('/autenticacion', autenticacionRoutes);
 app.use('/fuente-datos', fuenteDatosRouter);
 app.use('/inventario', inventarioRoutes);
-app.use('/inventario', movimientoRoutes)
+app.use('/inventario-movimientos', movimientoRoutes)
 app.use('/reservaciones', reservacionesRoutes);
 app.use('/caja', cajaRoutes);
 
