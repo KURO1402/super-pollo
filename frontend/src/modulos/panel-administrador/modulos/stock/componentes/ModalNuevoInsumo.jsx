@@ -1,30 +1,40 @@
 // librerías externas
 import { useForm } from 'react-hook-form';
+import { alertasCRUD } from '../../../../../utilidades/toastUtilidades';
+import { crearInsumoServicio } from '../servicios/insumosServicios';
 
 export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las funciones para cerrar y guardar
   const {
     register, handleSubmit, formState: { errors }, reset
   } = useForm({
     defaultValues: {
-      nombre: '',
-      stock: '',
+      nombreInsumo: '',
       unidadMedida: '',
-      categoria: '',
+      stockInsumo: '',
+      categoriaProducto: '',
     }
   });
   // funcion que se ejecuta al enviar el formulario
   const onSubmit = async (data) => {
+    const stockInsumoDecimal = parseFloat(data.stockInsumo);
+
+    // Verificar si la conversión fue exitosa
+    if (isNaN(stockInsumoDecimal)) {
+      alertasCRUD.error('El valor de stock no es válido');
+      return;
+    }
+    // Actualizar el valor de stockInsumo a número
+    data.stockInsumo = stockInsumoDecimal;
     console.log('Insumo guardado:', data);
-    e.preventDefault();
     try {
       // Llamar al servicio de guardar insumo
-      const resultado = await guardarInsumoServicio(data);
-      
+      const resultado = await crearInsumoServicio(data);
+
       if (resultado) {
-        setMensajeExito('Insumo guardado correctamente');
+        alertasCRUD.creado();
       }
     } catch (error) {
-      setError('Error al guardar el insumo');
+      console.error("Error al crear un nuevo producto", error)
     }
     onGuardar();
     reset();
@@ -62,7 +72,7 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
           </label>
           <input
             type="text"
-            {...register("nombre", { 
+            {...register("nombreInsumo", { 
               required: "El nombre es requerido",
               minLength: {
                 value: 2,
@@ -70,15 +80,15 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
               }
             })}
             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.nombre 
+              errors.nombreInsumo 
                 ? 'border-red-500 dark:border-red-400' 
                 : 'border-gray-300 dark:border-gray-600'
             }`}
             placeholder="Ej: Pollo entero, Papas, Coca Cola"
           />
-          {errors.nombre && (
+          {errors.nombreInsumo && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.nombre.message}
+              {errors.nombreInsumo.message}
             </p>
           )}
         </div>
@@ -90,12 +100,12 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
               Categoría *
             </label>
             <select
-              {...register("categoria", { 
+              {...register("categoriaProducto", { 
                 required: "La categoría es requerida",
                 validate: value => value !== "" || "Seleccione una categoría"
               })}
               className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.categoria 
+                errors.categoriaProducto 
                   ? 'border-red-500 dark:border-red-400' 
                   : 'border-gray-300 dark:border-gray-600'
               }`}
@@ -106,9 +116,9 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
                 </option>
               ))}
             </select>
-            {errors.categoria && (
+            {errors.categoriaProducto && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.categoria.message}
+                {errors.categoriaProducto.message}
               </p>
             )}
           </div>
@@ -151,7 +161,7 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
               type="number"
               step="0.01"
               min="0"
-              {...register("stock", { 
+              {...register("stockInsumo", { 
                 required: "El stock actual es requerido",
                 min: {
                   value: 0,
@@ -159,15 +169,15 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
                 }
               })}
               className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.stock 
+                errors.stockInsumo 
                   ? 'border-red-500 dark:border-red-400' 
                   : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="0.00"
             />
-            {errors.stock && (
+            {errors.stockInsumo && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.stock.message}
+                {errors.stockInsumo.message}
               </p>
             )}
         </div>

@@ -2,17 +2,18 @@ import API from "../../../../../app/servicio/axiosConfiguracion";
 
 export const crearInsumoServicio = async (data) => {
   try {
-    // Hacemos la solicitud con axios, que ya incluye el authorization y content-Type en los headers
-    const respuesta = await API.post('/invetario/crear', data);
-    //verificamos que la respuesta sea correcta
-    if (!respuesta.ok) {
+    // Hacemos la solicitud con axios
+    const respuesta = await API.post('/inventario/crear', data);
+
+    // Verificamos si la respuesta tiene un código de estado exitoso (2xx)
+    if (respuesta.status < 200 || respuesta.status >= 300) {
       throw new Error(respuesta.data.mensaje || "Error al crear el insumo");
     }
+
     return respuesta.data.mensaje;
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error al crear insumo:', error.message);
-    throw error; // Lanza el error para que se maneje en el componente
+    throw error; // Lanza el error para que lo maneje el componente
   }
 };
 
