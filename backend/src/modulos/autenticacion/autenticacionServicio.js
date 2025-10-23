@@ -1,62 +1,16 @@
 require('dotenv').config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { validarCorreo, validarDocumento, validarTelefono } = require("../../utilidades/validaciones.js");
+const { registrarUsuarioValidacion } = require("./autenticacionValidaciones");
 const { insertarUsuarioModel, seleccionarUsuarioModel } = require("./autenticacionModelo.js");
 
 // FUNCION PARA REGISTRAR USUARIO
 const registrarUsuarioService = async (datos) => {
-  //Desestructuración de el objeto recibido por el frontend
-  const {
-    nombresUsuario,
-    apellidosUsuario,
-    correoUsuario,
-    clave,
-    idTipoDocumento,
-    numeroDocumentoUsuario,
-    telefonoUsuario
-  } = datos;
-
-  //Creamos un array para los campos obligatorios 
-  const camposObligatorios = [
-    nombresUsuario, 
-    apellidosUsuario, 
-    correoUsuario, 
-    clave, 
-    numeroDocumentoUsuario, 
-    telefonoUsuario, 
-    idTipoDocumento
-  ];
-  
-  //Usamos el metodo some que verifica que todos los campos tengan un valor y si encuentra algo que no cumple lanza true y entra a crear un error
-  if (camposObligatorios.some(campo => !campo)) {
-    //Creamos el error
-    const error = new Error("Faltan datos obligatorios");
-    //Asiganmos una nueva propiedad al error
-    error.status = 400;
-    //lanzamos el error
-    throw error;
-  }
-
-  // Validaciones para cada caso especifico, todos estos casos se hace lo mismo al crear el error(crear, asignar valor y lanzar error) solo que aca esta en una linea
-  validarCorreo(correoUsuario);
-
-  validarDocumento(idTipoDocumento, numeroDocumentoUsuario);
-
-  if (clave.length < 8) {
-    throw Object.assign(new Error("La contraseña debe tener al menos 8 caracteres"), { status: 400 });
-  }
-
-  validarTelefono(telefonoUsuario);
-  
-  //Verificar duplicado de correo (mantener comentario como recordatorio)
-  const usuarioExistente = await seleccionarUsuarioModel(correoUsuario);
-  if (usuarioExistente.length > 0) {
-    throw Object.assign(new Error("Ya existe un usuario registrado con el correo ingresado"), { status: 409 });
-  }
+  //Validaciones
+  await registrarUsuarioValidacion(datos);
 
   //Encriptar la contraseña - costo de hashing configurado según rendimiento/seguridad(en este caso 10)
-  const claveEncriptada = await bcrypt.hash(clave, 10);
+  const claveEncriptada = await bcrypt.hash(datos.clave, 10);
 
   //Insertar usuario en la BD mediante el modelo creado
   const nuevoUsuario = await insertarUsuarioModel(datos, claveEncriptada);
@@ -85,14 +39,15 @@ const registrarUsuarioService = async (datos) => {
 };
 
 //FUNCION PARA INICIAR SESION
-const seleccionarUsuarioService = async ({ email, clave }) => {
+const seleccionarUsuarioService = async (datos) => {
+  const { email, clave } = datos;
   //Array de campos obligatorios igual que el de registra usuario
   const camposObligatorios = [email, clave];
 
   //Verificar los campos con some igual que en la de registrar usuario
   if (camposObligatorios.some(campo => !campo)) {
     //Lanzar error para el controlador
-    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
+    throw Object.assign(new Error("Se necesita correo y contraseña para iniciar sesion"), { status: 400 });
   }
   //Llamamos al modelo que interactua con la BD para traer al usuario
   const resultado = await seleccionarUsuarioModel(email);
@@ -103,7 +58,7 @@ const seleccionarUsuarioService = async ({ email, clave }) => {
     throw Object.assign(new Error("Credenciales de acceso invalidas"), {status: 401});
   }
 
-  //Guaradamos el usuario en una constante
+  //Guardamos el usuario en una constante
   const usuario = resultado[0];
 
   // Verificar contraseña con bcrypt (retorna true si las claves coinciden)

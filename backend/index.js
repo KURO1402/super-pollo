@@ -44,7 +44,6 @@ app.get('/', (req, res) => {
 });
 
 //usar rutas
-app.use('/usuarios', autenticacionRoutes);
 app.use('/ventas', ventasRoutes);
 app.use('/ventas', comprobanteRoutes);
 app.use('/autenticacion', autenticacionRoutes);

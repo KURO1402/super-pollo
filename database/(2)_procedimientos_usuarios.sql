@@ -13,6 +13,7 @@ DROP PROCEDURE IF EXISTS actualizarClave;
 DROP PROCEDURE IF EXISTS eliminarUsuario;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioCorreo;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioId;
+DROP PROCEDURE IF EXISTS registrarCodigoVerificacion;
 
 DELIMITER //
 
@@ -189,5 +190,28 @@ BEGIN
     WHERE u.idUsuario = p_idUsuario;
 END //
 
+-- Procedimiento que registra codigos de verificaion del correo
+CREATE PROCEDURE registrarCodigoVerificacion(
+    IN p_correo VARCHAR(100),
+    IN p_codigo VARCHAR(6),
+    IN p_expiracion BIGINT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    -- Si el correo ya tenía un código anterior, lo eliminamos
+    DELETE FROM verificacionCorreos WHERE correoVerificacion = p_correo;
+
+    -- Insertamos el nuevo código
+    INSERT INTO verificacionCorreos (correoVerificacion, codigoVerificacion, expiracionVerificacion)
+    VALUES (p_correo, p_codigo, p_expiracion);
+
+    COMMIT;
+END //
 DELIMITER ;
 

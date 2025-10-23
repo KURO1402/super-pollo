@@ -1,5 +1,5 @@
-const { consultarCajaAbiertaModel } = require("../modulos/caja/cajaModelo")
-const { consultarUsuarioPorIdModel } = require("../modulos/usuarios/usuarioModelo")
+const { consultarCajaAbiertaModel, obtenerArqueosPorCajaModel } = require("./cajaModelo")
+const { consultarUsuarioPorIdModel } = require("../usuarios/usuarioModelo")
 
 const validarDatosAbrirCaja = async (montoInicial, usuarioId) => {
 
@@ -46,6 +46,12 @@ const validarDatosCerrarCaja = async (usuarioId) => {
     const caja = await consultarCajaAbiertaModel();
     if (caja.length === 0) {
         throw Object.assign(new Error("No hay una caja abierta para cerrar."), { status: 400 });
+    }
+
+    //Validar que la caja ya este arqueada
+    const arqueos = await obtenerArqueosPorCajaModel(caja.idCaja);
+    if (arqueos.length === 0) {
+        throw Object.assign(new Error("No se puede cerrar la caja sin antes hacer un arqueo."), { status: 400 });
     }
 
     // Validar que el usuarioId exista en la base de datos
@@ -120,9 +126,44 @@ const validarDatosEgresoCaja = async (datos, usuarioId) => {
     }
 }
 
+const validarDatosArqueoCaja = async (datos, usuarioId) => {
+    if(!datos || typeof datos !== 'object') {
+        throw Object.assign(new Error("Se necesitan datos como el dinero fisico de caja"), { status: 400 });
+    }
+    const { montoFisico, montoTarjeta, montoBilleteraDigital, otros } = datos;
+
+    if (montoFisico == undefined || typeof montoFisico !== 'number' || montoFisico < 0) {
+        throw Object.assign(new Error("Se necesita el monto fisico de caja y que sea un número válido"), { status: 400 });
+    }
+    if (montoTarjeta === undefined || typeof montoTarjeta !== 'number' || montoTarjeta < 0) {
+        throw Object.assign(new Error("Se necesita el monto de tarjeta y que sea un número válido"), { status: 400 });
+    }
+
+    if (montoBilleteraDigital === undefined || typeof montoBilleteraDigital !== 'number' || montoBilleteraDigital < 0) {
+        throw Object.assign(new Error("Se necesita el monto de billetera digital y que sea un número válido"), { status: 400 });
+    }
+
+    if (otros === undefined || typeof otros !== 'number' || otros < 0) {
+        throw Object.assign(new Error("Se necesita el monto de otros y que sea un número válido"), { status: 400 });
+    }
+
+    //Validar que el usuarioId exista en la base de datos
+    const usuario = await consultarUsuarioPorIdModel(usuarioId);
+    if (usuario.length === 0) {
+        throw Object.assign(new Error("Usuario inexistente"), { status: 400 });
+    }
+
+    //Validar que exista una caja abierta
+    cajas = await consultarCajaAbiertaModel();
+    if (cajas.length === 0) {
+        throw Object.assign(new Error("No hay ninguna caja abierta para registrar el arqueo"), { status: 400 });
+    }
+};
+
 module.exports = { 
     validarDatosAbrirCaja, 
     validarDatosCerrarCaja, 
     validarDatosIngresoCaja,
-    validarDatosEgresoCaja 
+    validarDatosEgresoCaja,
+    validarDatosArqueoCaja 
 };
