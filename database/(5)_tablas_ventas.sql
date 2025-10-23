@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS detalleVentas;
 DROP TABLE IF EXISTS ventas;
 DROP TABLE IF EXISTS medioPago;
 DROP TABLE IF EXISTS tipoComprobantes;
-DROP TABLE IF EXISTS cantidadInsumoProducto;
+/*DROP TABLE IF EXISTS cantidadInsumoProducto;
 DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS movimientosStock;
 DROP TABLE IF EXISTS insumos;
@@ -46,7 +46,7 @@ cantidadUso DECIMAL(10,2) NOT NULL,
 PRIMARY KEY (idProducto, idInsumo),
 FOREIGN KEY (idProducto) REFERENCES productos(idProducto),
 FOREIGN KEY (idInsumo) REFERENCES insumos(idInsumo)
-);
+); */
 
 CREATE TABLE tipoComprobantes(
     idTipoComprobante INT PRIMARY KEY AUTO_INCREMENT,

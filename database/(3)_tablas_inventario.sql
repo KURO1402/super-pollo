@@ -12,7 +12,8 @@ CREATE TABLE insumos(
     nombreInsumo VARCHAR(50) NOT NULL,
     stockInsumo DECIMAL(10,2) NOT NULL,
     unidadMedida VARCHAR(20) NOT NULL,
-    categoriaProducto ENUM('insumo','bebida') NOT NULL
+    categoriaProducto ENUM('insumo','bebida') NOT NULL,
+    estadoInsumo ENUM('1', '0') NOT NULL DEFAULT '1'
 );
 
 -- Tabla de movimientos de stock
@@ -36,7 +37,7 @@ CREATE TABLE productos(
     imagen VARCHAR(300),
     unidad VARCHAR(50) NOT NULL,
     precio DECIMAL(10,2) NOT NULL,
-    estado ENUM('eliminado','activo') NOT NULL DEFAULT 'activo'
+    estadoProducto ENUM('eliminado','activo') NOT NULL DEFAULT 'activo'
 );
 
 -- Relación insumo - producto
