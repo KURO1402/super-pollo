@@ -193,25 +193,50 @@ END //
 -- Procedimiento que registra codigos de verificaion del correo
 CREATE PROCEDURE registrarCodigoVerificacion(
     IN p_correo VARCHAR(100),
-    IN p_codigo VARCHAR(6),
-    IN p_expiracion BIGINT
+    IN p_codigo VARCHAR(6)
 )
 BEGIN
+    DECLARE v_existente INT DEFAULT 0;
+
+    -- Manejador de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN
         ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al registrar o actualizar el código de verificación.';
     END;
 
     START TRANSACTION;
 
-    -- Si el correo ya tenía un código anterior, lo eliminamos
-    DELETE FROM verificacionCorreos WHERE correoVerificacion = p_correo;
+    -- Verificamos si ya existe un registro no verificado para este correo
+    SELECT COUNT(*) INTO v_existente
+    FROM verificacionCorreos
+    WHERE correoVerificacion = p_correo AND verificado = 0;
 
-    -- Insertamos el nuevo código
-    INSERT INTO verificacionCorreos (correoVerificacion, codigoVerificacion, expiracionVerificacion)
-    VALUES (p_correo, p_codigo, p_expiracion);
+    IF v_existente > 0 THEN
+        -- Si existe, actualizamos el código y la expiración
+        UPDATE verificacionCorreos
+        SET 
+            codigoVerificacion = p_codigo,
+            expiracionVerificacion = DATE_ADD(NOW(), INTERVAL 5 MINUTE),
+            registroVerificacion = NOW()
+        WHERE correoVerificacion = p_correo AND verificado = 0;
+    ELSE
+        -- Si no existe, insertamos un nuevo registro
+        INSERT INTO verificacionCorreos (
+            correoVerificacion,
+            codigoVerificacion,
+            expiracionVerificacion
+        )
+        VALUES (
+            p_correo,
+            p_codigo,
+            DATE_ADD(NOW(), INTERVAL 5 MINUTE)
+        );
+    END IF;
 
     COMMIT;
 END //
+
 DELIMITER ;
 

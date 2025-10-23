@@ -74,8 +74,27 @@ const seleccionarUsuarioModel = async (correoUsuario) => {
     }
 };
 
+// Modulo para registrar un codigo de verificaión de un correo
+const insertarVerificacionCorreoModel = async (correo, codigo) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.query("CALL registrarCodigoVerificacion(?, ?)", [correo, codigo]);
+        
+        return result
+    } catch (err) {
+        //Mostramos el error
+        console.error("Error al insertar codigo de verificacion del correo:", err.message);
+         //Creamos un error para manejarlo en el controlador
+        throw new Error("Error al insertar codigo de verificacion en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+}
+
 //Exportamos modulo
 module.exports = {
     insertarUsuarioModel,
-    seleccionarUsuarioModel
+    seleccionarUsuarioModel,
+    insertarVerificacionCorreoModel
 };

@@ -1,4 +1,4 @@
-const { registrarUsuarioService, seleccionarUsuarioService, renovarAccessTokenService } = require("./autenticacionServicio.js");
+const { registrarUsuarioService, seleccionarUsuarioService, renovarAccessTokenService, insertarVerificacionCorreoService } = require("./autenticacionServicio.js");
 
 //CONTROLADOR PAR INSERTAR USUARIO
 const insertarUsuarioController = async (req, res) => {
@@ -104,9 +104,32 @@ const renovarAccessTokenController = async (req, res) => {
   }
 };
 
+// Controlador para registrar un codigo de verificaión de un correo
+const insertarVerificacionCorreoController = async (req, res) => {
+  try {
+
+    const resultado = await insertarVerificacionCorreoService(req.body.correo);
+    return res.status(200).json(resultado);
+
+  } catch (err) {
+    //Aqui manejamos los errores del servicio y segun eso enviamos respuesta al cliente
+    console.error("Error en insertarVerificacionCorreoController:", err.message);
+
+    //Capturamos el status del error
+    const statusCode = err.status || 500;
+
+    //Enviamos una respuesta al cliente
+    return res.status(statusCode).json({
+      ok: false,
+      mensaje: err.message || "Error interno del servidor",
+    });
+  }
+}
+
 //Exportamos modulo
 module.exports = { 
   insertarUsuarioController,
   seleccionarUsuarioController,
-  renovarAccessTokenController
+  renovarAccessTokenController,
+  insertarVerificacionCorreoController
 };

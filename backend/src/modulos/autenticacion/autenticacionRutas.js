@@ -3,7 +3,8 @@ const express = require("express");
 const { 
     insertarUsuarioController, 
     seleccionarUsuarioController, 
-    renovarAccessTokenController 
+    renovarAccessTokenController,
+    insertarVerificacionCorreoController 
 } = require("./autenticacionControlador.js");
 
 //creamos en router
@@ -16,6 +17,9 @@ router.post("/login", seleccionarUsuarioController );
 
 //ruta para renovar accesToken
 router.post("/token", renovarAccessTokenController);
+
+//Ruta para verificar un correo sea existente
+router.post("/generar-codigo", insertarVerificacionCorreoController);
 
 
 module.exports = router;

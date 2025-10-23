@@ -1,7 +1,7 @@
 // Funcion para validar correo electrónico tiene el formato correcto
-// Función para validar correo electrónico
 const validarCorreo = (correo) => {
-  if (!correo) {
+
+  if (!correo || typeof correo !== "string") {
     throw Object.assign(new Error("El correo es obligatorio"), { status: 400 });
   }
 
