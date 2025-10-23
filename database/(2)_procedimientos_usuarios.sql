@@ -14,6 +14,7 @@ DROP PROCEDURE IF EXISTS eliminarUsuario;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioCorreo;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioId;
 DROP PROCEDURE IF EXISTS registrarCodigoVerificacion;
+DROP PROCEDURE IF EXISTS verificarCodigoVerificacion;
 
 DELIMITER //
 
@@ -236,6 +237,71 @@ BEGIN
     END IF;
 
     COMMIT;
+END //
+
+-- Procemiento almacenado para verificar un codigo de correo
+CREATE PROCEDURE verificarCodigoVerificacion(
+    IN p_correo VARCHAR(100),
+    IN p_codigo VARCHAR(6)
+)
+BEGIN
+    DECLARE v_expiracion DATETIME;
+    DECLARE v_verificado TINYINT(1);
+
+    -- Manejador de errores SQL
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Revertir cualquier cambio si hay un error
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al verificar el código.';
+    END;
+
+    -- Iniciar la transacción
+    START TRANSACTION;
+
+    -- Buscar el registro con el correo y el código
+    SELECT 
+        expiracionVerificacion, 
+        verificado
+    INTO 
+        v_expiracion, 
+        v_verificado
+    FROM verificacionCorreos
+    WHERE correoVerificacion = p_correo
+      AND codigoVerificacion = p_codigo
+    LIMIT 1;
+
+    -- Si no existe el código o correo
+    IF v_expiracion IS NULL THEN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Código incorrecto.';
+    END IF;
+
+    -- Si ya fue verificado
+    IF v_verificado = 1 THEN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El correo ya fue validado';
+    END IF;
+
+    -- Si el código expiró
+    IF v_expiracion < NOW() THEN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El código ha expirado, genere uno nuevo';
+    END IF;
+
+    -- Si todo está correcto, se marca como verificado
+    UPDATE verificacionCorreos
+    SET verificado = 1
+    WHERE correoVerificacion = p_correo
+      AND codigoVerificacion = p_codigo;
+
+    -- Confirmar la transacción
+    COMMIT;
+
 END //
 
 DELIMITER ;

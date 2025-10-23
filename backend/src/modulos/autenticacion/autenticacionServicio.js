@@ -2,7 +2,7 @@ require('dotenv').config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { registrarUsuarioValidacion } = require("./autenticacionValidaciones");
-const { insertarUsuarioModel, seleccionarUsuarioModel, insertarVerificacionCorreoModel } = require("./autenticacionModelo.js");
+const { insertarUsuarioModel, seleccionarUsuarioModel, insertarVerificacionCorreoModel, validarCodigoVerificacionCorreoModel } = require("./autenticacionModelo.js");
 const { validarCorreo } = require('../../utilidades/validaciones.js');
 const enviarCorreoVerificacion = require("../../helpers/enviarCorreo")
 
@@ -143,6 +143,27 @@ const insertarVerificacionCorreoService = async (correo) => {
     ok: true, 
     mensaje: "Código de verificación enviado correctamente." 
   };
+};
+
+// Servicio para validar el codigo de verificacion del correo
+const validarCodigoVerificacionCorreoService = async (datos) => {
+  const { correo, codigo } = datos;
+  if(!codigo || typeof codigo !== "string"){
+    throw Object.assign(new Error("Se necesita el codigo de verificación"));
+  };
+  if(codigo.length !== 6){
+    throw Object.assign(new Error("El codigo debe tener 6 digitos"));
+  }
+  validarCorreo(correo);
+  const resultado = await validarCodigoVerificacionCorreoModel(correo, codigo);
+
+  if(resultado.affectedRows === 0){
+    throw Object.assign(new Error("No se pudo validar el codigo"), { status: 500 });
+  }
+  return {
+    ok: true,
+    mensaje: "Codigo verificado correctamente"
+  }
 }
 
 //Exportamos modulo
@@ -150,5 +171,6 @@ module.exports = {
   registrarUsuarioService,
   seleccionarUsuarioService,
   renovarAccessTokenService,
-  insertarVerificacionCorreoService
+  insertarVerificacionCorreoService,
+  validarCodigoVerificacionCorreoService
 };

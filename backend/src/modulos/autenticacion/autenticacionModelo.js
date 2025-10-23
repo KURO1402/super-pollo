@@ -35,7 +35,7 @@ const insertarUsuarioModel = async (datos, claveEncriptada) => {
         await conexion.commit();
         //Guardamos el usuario ya que el result contiene dos arrays y el primero es el usuario por eso [0][0] 
         const usuario = result[0][0]
-        
+
         return usuario;
     } catch (err) {
         // Si algo falla, revertimos cambios
@@ -59,14 +59,14 @@ const seleccionarUsuarioModel = async (correoUsuario) => {
         conexion = await pool.getConnection();
 
         //Llamamos al procedimiento de seleccionar usario por correo
-        const [result] = await conexion.query("CALL seleccionarUsuarioCorreo(?)", [correoUsuario]);
+        const [result] = await conexion.execute("CALL seleccionarUsuarioCorreo(?)", [correoUsuario]);
 
         //Retornamos la fila siempre en cuando exista el usuario con el correo especificado, si no hay ninguna fila retornamos null
         return result[0];
     } catch (err) {
         //Mostramos el error
         console.error("Error al buscar usuario por correo:", err.message);
-         //Creamos un error para manejarlo en el controlador
+        //Creamos un error para manejarlo en el controlador
         throw new Error("Error en la base de datos al buscar usuario");
     } finally {
         //Liberamos la conexion
@@ -79,14 +79,43 @@ const insertarVerificacionCorreoModel = async (correo, codigo) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [result] = await conexion.query("CALL registrarCodigoVerificacion(?, ?)", [correo, codigo]);
-        
-        return result
+        const [result] = await conexion.execute("CALL registrarCodigoVerificacion(?, ?)", [correo, codigo]);
+
+        return result;
     } catch (err) {
         //Mostramos el error
         console.error("Error al insertar codigo de verificacion del correo:", err.message);
-         //Creamos un error para manejarlo en el controlador
+        //Creamos un error para manejarlo en el controlador
         throw new Error("Error al insertar codigo de verificacion en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para validar el codigo de verificacion del correo
+const validarCodigoVerificacionCorreoModel = async (correo, codigo) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL verificarCodigoVerificacion(?, ?)", [correo, codigo]);
+
+        return result;
+    } catch (err) {
+        //Mostramos el error
+        if (err.sqlMessage) {
+            console.error("Error al validar codigo de verificacion del correo:", err.sqlMessage);
+            if (err.sqlMessage.includes('Código incorrecto.')) {
+                throw Object.assign(new Error('Código incorrecto'), { status: 400 });
+            } else if (err.sqlMessage.includes('El correo ya fue validado')) {
+                throw Object.assign(new Error('El correo ya fue validado'), { status: 400 });
+            } else if (err.sqlMessage.includes('El código ha expirado, genere uno nuevo')) {
+                throw Object.assign(new Error('El código ha expirado, genere uno nuevo'), { status: 400 });
+            } else {
+                throw Object.assign(new Error('Error desconocido al verificar el código'), { status: 500 });
+            }
+        };
+        //console.error("Error al validar codigo de verificacion del correo:", err.message);
+        throw Object.assign(new Error('Error desconocido al verificar el código'), { status: 500 });
     } finally {
         if (conexion) conexion.release();
     }
@@ -96,5 +125,6 @@ const insertarVerificacionCorreoModel = async (correo, codigo) => {
 module.exports = {
     insertarUsuarioModel,
     seleccionarUsuarioModel,
-    insertarVerificacionCorreoModel
+    insertarVerificacionCorreoModel,
+    validarCodigoVerificacionCorreoModel
 };
