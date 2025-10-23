@@ -14,9 +14,9 @@ CREATE PROCEDURE insertarInsumo(
     IN p_categoriaProducto ENUM('insumo','bebida')
 )
 BEGIN
-    INSERT INTO insumos (nombreInsumo, stockInsumo, unidadMedida, categoriaProducto, estado)
+    INSERT INTO insumos (nombreInsumo, stockInsumo, unidadMedida, categoriaProducto, estadoInsumo)
     VALUES (p_nombreInsumo, p_stockInsumo, p_unidadMedida, p_categoriaProducto,
-            CASE WHEN p_stockInsumo <= 0 THEN 'inactivo' ELSE 'activo' END);
+            CASE WHEN p_stockInsumo <= 0 THEN '0' ELSE '1' END);
 END //
 DELIMITER ;
 
@@ -48,9 +48,9 @@ BEGIN
         stockInsumo = p_stockInsumo,
         unidadMedida = p_unidadMedida,
         categoriaProducto = p_categoriaProducto,
-        estado = CASE 
-                    WHEN p_stockInsumo <= 0 THEN 'inactivo'
-                    ELSE 'activo'
+        estadoInsumo = CASE 
+                    WHEN p_stockInsumo <= 0 THEN '0'
+                    ELSE '1'
                  END
     WHERE idInsumo = p_idInsumo;
 END //
@@ -59,7 +59,7 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE eliminarInsumo(IN p_idInsumo INT)
 BEGIN
-    UPDATE insumos SET estado = 'inactivo' WHERE idInsumo = p_idInsumo;
+    UPDATE insumos SET estadoInsumo = '0' WHERE idInsumo = p_idInsumo;
 END //
 DELIMITER ;
 
@@ -98,7 +98,7 @@ BEGIN
 
     -- Actualizar estado
     UPDATE insumos
-    SET estado = CASE WHEN stockInsumo <= 0 THEN 'inactivo' ELSE 'activo' END
+    SET estadoInsumo = CASE WHEN stockInsumo <= 0 THEN '0' ELSE '1' END
     WHERE idInsumo = p_idInsumo;
 END //
 

@@ -23,7 +23,7 @@ CREATE TABLE eventosCaja (
     idUsuario INT NOT NULL,
     FOREIGN KEY (idCaja) REFERENCES caja(idCaja),
     FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
-)
+);
 
 CREATE TABLE movimientosCaja (
     idMovimientoCaja INT AUTO_INCREMENT PRIMARY KEY,
