@@ -1,14 +1,11 @@
--- Usar la base de datos
 USE super_pollo;
 
--- Eliminar procedimientos si ya existen
 DROP PROCEDURE IF EXISTS insertarInsumo;
 DROP PROCEDURE IF EXISTS obtenerInsumos;
 DROP PROCEDURE IF EXISTS obtenerInsumoPorID;
 DROP PROCEDURE IF EXISTS actualizarInsumo;
 DROP PROCEDURE IF EXISTS eliminarInsumo;
 
--- Crear procedimiento: insertarInsumo
 DELIMITER //
 CREATE PROCEDURE insertarInsumo(
     IN p_nombreInsumo VARCHAR(50),
@@ -17,12 +14,12 @@ CREATE PROCEDURE insertarInsumo(
     IN p_categoriaProducto ENUM('insumo','bebida')
 )
 BEGIN
-    INSERT INTO insumos (nombreInsumo, stockInsumo, unidadMedida, categoriaProducto)
-    VALUES (p_nombreInsumo, p_stockInsumo, p_unidadMedida, p_categoriaProducto);
+    INSERT INTO insumos (nombreInsumo, stockInsumo, unidadMedida, categoriaProducto, estado)
+    VALUES (p_nombreInsumo, p_stockInsumo, p_unidadMedida, p_categoriaProducto,
+            CASE WHEN p_stockInsumo <= 0 THEN 'inactivo' ELSE 'activo' END);
 END //
 DELIMITER ;
 
--- Crear procedimiento: obtenerInsumos
 DELIMITER //
 CREATE PROCEDURE obtenerInsumos()
 BEGIN
@@ -30,7 +27,6 @@ BEGIN
 END //
 DELIMITER ;
 
--- Crear procedimiento: obtenerInsumoPorID
 DELIMITER //
 CREATE PROCEDURE obtenerInsumoPorID(IN p_idInsumo INT)
 BEGIN
@@ -38,7 +34,6 @@ BEGIN
 END //
 DELIMITER ;
 
--- Crear procedimiento: actualizarInsumo
 DELIMITER //
 CREATE PROCEDURE actualizarInsumo(
     IN p_idInsumo INT,
@@ -52,30 +47,27 @@ BEGIN
     SET nombreInsumo = p_nombreInsumo,
         stockInsumo = p_stockInsumo,
         unidadMedida = p_unidadMedida,
-        categoriaProducto = p_categoriaProducto
+        categoriaProducto = p_categoriaProducto,
+        estado = CASE 
+                    WHEN p_stockInsumo <= 0 THEN 'inactivo'
+                    ELSE 'activo'
+                 END
     WHERE idInsumo = p_idInsumo;
 END //
 DELIMITER ;
 
--- Crear procedimiento: eliminarInsumo
 DELIMITER //
 CREATE PROCEDURE eliminarInsumo(IN p_idInsumo INT)
 BEGIN
-    DELETE FROM insumos WHERE idInsumo = p_idInsumo;
+    UPDATE insumos SET estado = 'inactivo' WHERE idInsumo = p_idInsumo;
 END //
 DELIMITER ;
 
--- MOVIMEINTOS DEL STOCK
-USE super_pollo; 
-
--- Eliminar procedimientos si existen
 DROP PROCEDURE IF EXISTS registrarMovimientoStock;
 DROP PROCEDURE IF EXISTS listarMovimientos;
 DROP PROCEDURE IF EXISTS obtenerMovimientosPorInsumo;
 
 DELIMITER //
-
--- Procedimiento para Registrar un movimiento
 CREATE PROCEDURE registrarMovimientoStock(
     IN p_idInsumo INT,
     IN p_tipoMovimiento ENUM('entrada', 'salida'),
@@ -83,19 +75,33 @@ CREATE PROCEDURE registrarMovimientoStock(
     IN p_idUsuario INT
 )
 BEGIN
-    -- Insertar el movimiento
+    DECLARE v_stockActual DECIMAL(10,2);
+
+    -- Obtener stock actual
+    SELECT stockInsumo INTO v_stockActual FROM insumos WHERE idInsumo = p_idInsumo;
+
+    -- Validar stock suficiente para salida
+    IF p_tipoMovimiento = 'salida' AND v_stockActual < p_cantidadMovimiento THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No hay suficiente stock para realizar la salida.';
+    END IF;
+
+    -- Insertar movimiento
     INSERT INTO movimientosstock (idInsumo, tipoMovimiento, cantidadMovimiento, fechaMovimiento, idUsuario)
     VALUES (p_idInsumo, p_tipoMovimiento, p_cantidadMovimiento, NOW(), p_idUsuario);
 
-    -- Actualizar el stock según tipoMovimiento
+    -- Actualizar stock
     IF p_tipoMovimiento = 'entrada' THEN
         UPDATE insumos SET stockInsumo = stockInsumo + p_cantidadMovimiento WHERE idInsumo = p_idInsumo;
     ELSE
         UPDATE insumos SET stockInsumo = stockInsumo - p_cantidadMovimiento WHERE idInsumo = p_idInsumo;
     END IF;
+
+    -- Actualizar estado
+    UPDATE insumos
+    SET estado = CASE WHEN stockInsumo <= 0 THEN 'inactivo' ELSE 'activo' END
+    WHERE idInsumo = p_idInsumo;
 END //
 
--- Procedimeinto pata listar los movimientos
 CREATE PROCEDURE listarMovimientos()
 BEGIN
     SELECT m.idMovimientoStock, i.nombreInsumo, m.tipoMovimiento, 
@@ -105,10 +111,8 @@ BEGIN
     ORDER BY m.fechaMovimiento DESC;
 END //
 
--- Procedimiento para obtener movimiento de un insumo
 CREATE PROCEDURE obtenerMovimientosPorInsumo(IN p_idInsumo INT)
 BEGIN
     SELECT * FROM movimientosstock WHERE idInsumo = p_idInsumo ORDER BY fechaMovimiento DESC;
 END //
-
 DELIMITER ;
