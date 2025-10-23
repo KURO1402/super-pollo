@@ -9,7 +9,7 @@ export const FilaInsumo = ({ insumo, onEditarStock }) => {
     return { texto: 'Stock Bueno', color: 'green', icono: <FiPackage size={14} /> };
   };
 
-  const estado = getEstadoStock(insumo.stockinsumo);
+  const estado = getEstadoStock(insumo.stockInsumo);
 
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -28,7 +28,7 @@ export const FilaInsumo = ({ insumo, onEditarStock }) => {
           </div>
           <div>
             <div className="text-sm font-medium text-gray-900 dark:text-white">
-              {insumo.nombreinsumo}
+              {insumo.nombreInsumo}
             </div>
             <div className="text-xs text-gray-500">ID: {insumo.idInsumo}</div>
           </div>
@@ -49,7 +49,7 @@ export const FilaInsumo = ({ insumo, onEditarStock }) => {
       {/* Stock Actual */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-medium text-gray-900 dark:text-white">
-          {insumo.stockinsumo}
+          {insumo.stockInsumo}
         </div>
       </td>
 

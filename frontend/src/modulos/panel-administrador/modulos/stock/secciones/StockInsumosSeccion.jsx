@@ -1,7 +1,9 @@
 // librerías
 import { BsBoxSeam } from "react-icons/bs";
 // hook de react
-import { useState } from "react";
+import { useState, useEffect } from "react";
+// servicios
+import { listarInsumoServicio } from "../servicios/insumosServicios";
 // importar componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; // La barra de busqueda del componente reutilizable
@@ -18,21 +20,35 @@ import { FilaInsumo } from "../componentes/FilaInsumo"; // nuestras filsa person
 import { ModalNuevoInsumo } from "../componentes/ModalNuevoInsumo";
 import { ModalMovimientoStock } from "../componentes/ModalMovimientoStock";
 import { ModalEditarStock } from "../componentes/ModalEditarStock";
-// data temporal
-import { insumos } from "../data-temporal/insumos"; // data temporal para hacer el diseño
 
 const StockInsumosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); // utilizamos nuestro hook de busqueda, lo desestructuramos
   const { filtro, setFiltro, aplicarFiltros } = useFiltro(); // lo mismo para el filtro
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(8); // tambien para la paginación
   const [insumoSeleccionado, setInsumoSeleccionado] = useState(null); // estado para insumo seleccionado
+  const [ insumos, setInsumos ] = useState([]) // estado para los insumos
+  const [ error, setError ] = useState(null); // estado para errores
   // Modal para nuevo insumo
   const modalNuevoInsumo = useModal(false);
   const modalMovimientoStock = useModal(false);
   const modalEditarStock = useModal(false); // modal para editar stock
+  // useEffect para cargar los insumos al montar el componente
+  useEffect(() => {
+    const obtenerInsumos = async () => {
+      try {
+        const respuesta = await listarInsumoServicio(); // Llamada al servicio
+        setInsumos(respuesta.data); // Asumimos que respuesta es un array de insumos
+      } catch (error) {
+        setError("Error al obtener los insumos");
+        console.error(error);
+      }
+    };
+    obtenerInsumos();
+  }, []); // Se ejecuta solo una vez al montar el componente
+
   // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(insumos, [
-    "nombreinsumo",
+    "nombreInsumo",
     "unidadMedida",
     "categoriaProducto"
   ]);

@@ -13,9 +13,19 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
     }
   });
   // funcion que se ejecuta al enviar el formulario
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log('Insumo guardado:', data);
-    // Aquí iría la lógica para guardar el insumo en el backend
+    e.preventDefault();
+    try {
+      // Llamar al servicio de guardar insumo
+      const resultado = await guardarInsumoServicio(data);
+      
+      if (resultado) {
+        setMensajeExito('Insumo guardado correctamente');
+      }
+    } catch (error) {
+      setError('Error al guardar el insumo');
+    }
     onGuardar();
     reset();
   };
