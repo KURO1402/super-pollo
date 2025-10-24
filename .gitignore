@@ -19,6 +19,7 @@ dist-ssr
 # Archivos locales de entorno
 *.local
 backend/.env
+frontend/.env
 
 # Configuración de editores y archivos del sistema
 .vscode/*
