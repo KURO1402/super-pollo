@@ -7,7 +7,6 @@ const cloudinaryService = async (req, res) => {
         const result = await cloudinary.uploader.upload(req.file.path, {
             folder: 'superpollo', // Carpeta en Cloudinary
         });
-
         // Eliminar el archivo temporal del servidor
         fs.unlinkSync(req.file.path);
 

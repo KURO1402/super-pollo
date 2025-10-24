@@ -1,14 +1,34 @@
+const fs = require('fs');
 const upload = require('../config/multerConfig');
 
 const verificarImagen = (req, res, next) => {
-  // Procesamos el campo "image" y permitimos como máximo 2 (para poder validar)
   upload.array('image', 2)(req, res, function (err) {
-    // Error de multer (tipo de archivo inválido, etc.)
+    // Error de multer (tipo inválido, tamaño, etc.)
     if (err) {
+      // Intentar eliminar cualquier archivo temporal si existe
+      if (req.files && req.files.length > 0) {
+        req.files.forEach((file) => {
+          if (file && file.path) {
+            try {
+              fs.unlinkSync(file.path);
+            } catch (unlinkError) {
+              console.error('Error al borrar archivo inválido:', unlinkError.message);
+            }
+          }
+        });
+      } else if (req.file && req.file.path) {
+        // En caso de single file
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (unlinkError) {
+          console.error('Error al borrar archivo inválido:', unlinkError.message);
+        }
+      }
+
       return res.status(400).json({ ok: false, message: err.message });
     }
 
-    // Si no se envió ningún archivo
+    // No se envió ningún archivo
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         ok: false,
@@ -16,18 +36,26 @@ const verificarImagen = (req, res, next) => {
       });
     }
 
-    // Si se enviaron más de 1 imagen
+    // Se enviaron más de 1 imagen → borrar todas
     if (req.files.length > 1) {
+      req.files.forEach((file) => {
+        if (file && file.path) {
+          try {
+            fs.unlinkSync(file.path);
+          } catch (unlinkError) {
+            console.error('Error al borrar archivo extra:', unlinkError.message);
+          }
+        }
+      });
+
       return res.status(400).json({
         ok: false,
         message: 'Solo puedes subir una imagen a la vez',
       });
     }
 
-    const file = req.files[0];
-
-    // Todo correcto → guardar el archivo como req.file para Cloudinary
-    req.file = file;
+    // ✅ Todo correcto → solo una imagen válida
+    req.file = req.files[0];
     next();
   });
 };
