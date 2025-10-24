@@ -13,7 +13,6 @@ const ProtegerPorPermiso = ({ permiso, children, fallback }) => {
   const tieneAcceso = tienePermiso(usuario?.idRol, permiso);
 
   if (!tieneAcceso) {
-    // Si hay fallback, mostrarlo
     if (fallback) {
       return fallback;
     }

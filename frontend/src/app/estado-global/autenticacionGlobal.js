@@ -1,6 +1,6 @@
 import { create } from 'zustand'; // importamos zustand para crear el estado global
 import { persist } from 'zustand/middleware'; //Importamos persist para persistir el estado global auqnue se refresque la pagina
-import { loginUsuario, registrarUsuario } from '../servicio/autenticacionServicio'; // importamos el servicio de autenticacion
+import { loginUsuario, registrarUsuario, generarCodigoVerificacion, validarCodigoVerificacion } from '../servicio/autenticacionServicio'; // importamos el servicio de autenticacion
 
 // creamos el estado global para la autenticacion
 export const useAutenticacionGlobal = create(
@@ -34,6 +34,32 @@ export const useAutenticacionGlobal = create(
                     set({ error: err.response?.data?.mensaje || 'Error al iniciar sesión' }); // seteamos el error
                 } finally {
                     set({ carga: false }); // seteamos la carga a false
+                }
+            },
+            // función para verificar correo
+            verificarCorreo: async (correo) => {
+                try {
+                    set({ carga: true, error: null });
+                    const respuesta = await generarCodigoVerificacion(correo);
+                    return respuesta;
+                } catch (err) {
+                    set({ error: err.response?.data?.mensaje || 'Error al enviar código de verificación' });
+                    throw err;
+                } finally {
+                    set({ carga: false });
+                }
+            },
+            // función para validar código
+            validarCodigo: async (datos) => {
+                try {
+                    set({ carga: true, error: null });
+                    const respuesta = await validarCodigoVerificacion(datos);
+                    return respuesta;
+                } catch (err) {
+                    set({ error: err.response?.data?.mensaje || 'Error al validar código' });
+                    throw err;
+                } finally {
+                    set({ carga: false });
                 }
             },
             // Función para cerrar sesión
