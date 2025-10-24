@@ -3,9 +3,10 @@ const router = express.Router();
 
 //Importamos lso controladores
 const {
-    registrarMovimientoController,
+  registrarMovimientoController,
   listarMovimientosController,
   obtenerMovimientosPorInsumoController,
+  eliminarMovimientoController
 } = require("../controlador/movimientoControlador");
 
 //ruta para registrar un movimiento
@@ -16,6 +17,9 @@ router.get("/", listarMovimientosController);
 
 //ruta para obtener movimiento especifico
 router.get("/:id", obtenerMovimientosPorInsumoController);
+
+// Ruta para eliminar un movimiento
+router.delete("/:id", eliminarMovimientoController);
 
 //importamos las rutas
 module.exports = router;
