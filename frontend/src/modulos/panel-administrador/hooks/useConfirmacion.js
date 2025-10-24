@@ -1,34 +1,40 @@
 import { useState } from "react";
-// Hook personalizado para manejar confirmaciones
+
 export const useConfirmacion = () => {
   const [estadoConfirmacion, setEstadoConfirmacion] = useState({
     visible: false,
     mensaje: "",
     onConfirmar: null,
     titulo: "Confirmar acción",
-  }); // estado inicial de la confirmacion
-  // función para solicitar confirmacion
-  const solicitarConfirmacion = (mensaje, onConfirmar, titulo = "Confirmar acción") => {
+    tipo: "default",
+    textoConfirmar: "Confirmar",
+    textoCancelar: "Cancelar",
+  });
+
+  const solicitarConfirmacion = (mensaje, onConfirmar, config = {}) => {
     setEstadoConfirmacion({
       visible: true,
       mensaje,
       onConfirmar,
-      titulo,
+      titulo: config.titulo || "Confirmar acción",
+      tipo: config.tipo || "default",
+      textoConfirmar: config.textoConfirmar || "Confirmar",
+      textoCancelar: config.textoCancelar || "Cancelar",
     });
   };
-  // funcion para ocultar confirmacion
+
   const ocultarConfirmacion = () => {
     setEstadoConfirmacion(prev => ({
       ...prev,
       visible: false
     }));
   };
-  // funcion para confirmar accion
+
   const confirmarAccion = () => {
-    if (estadoConfirmacion.onConfirmar) { // si hay una funcion de confirmacion, la ejecutamos
-      estadoConfirmacion.onConfirmar(); // ejecutamos
+    if (estadoConfirmacion.onConfirmar) {
+      estadoConfirmacion.onConfirmar();
     }
-    ocultarConfirmacion(); // ocultamos la confirmacion
+    ocultarConfirmacion();
   };
 
   return {
@@ -36,6 +42,9 @@ export const useConfirmacion = () => {
     confirmacionVisible: estadoConfirmacion.visible,
     mensajeConfirmacion: estadoConfirmacion.mensaje,
     tituloConfirmacion: estadoConfirmacion.titulo,
+    tipoConfirmacion: estadoConfirmacion.tipo,
+    textoConfirmar: estadoConfirmacion.textoConfirmar,
+    textoCancelar: estadoConfirmacion.textoCancelar,
     
     // Acciones
     solicitarConfirmacion,

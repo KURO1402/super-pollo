@@ -25,19 +25,16 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
     }
     // Actualizar el valor de stockInsumo a número
     data.stockInsumo = stockInsumoDecimal;
-    console.log('Insumo guardado:', data);
-    try {
-      // Llamar al servicio de guardar insumo
-      const resultado = await crearInsumoServicio(data);
 
-      if (resultado) {
-        alertasCRUD.creado();
-      }
+    try {
+      await crearInsumoServicio(data);
+      alertasCRUD.creado();
+      onGuardar();
+      reset();
     } catch (error) {
-      console.error("Error al crear un nuevo producto", error)
+      console.error("Error al crear un nuevo producto", error);
+      alertasCRUD.error("Error al crear el insumo");
     }
-    onGuardar();
-    reset();
   };
   // funcion para cancelar y cerrar el modal
   const handleCancelar = () => {
@@ -47,13 +44,13 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
 
   const unidadesMedida = [
     { value: '', label: 'Seleccionar unidad' },
-    { value: 'kg', label: 'Kilogramos (kg)' },
-    { value: 'g', label: 'Gramos (g)' },
-    { value: 'l', label: 'Litros (l)' },
-    { value: 'ml', label: 'Mililitros (ml)' },
-    { value: 'unidades', label: 'Unidades' },
-    { value: 'paquetes', label: 'Paquetes' },
-    { value: 'cajas', label: 'Cajas' }
+    { value: 'Kilogramos', label: 'Kilogramos (kg)' },
+    { value: 'Gramos', label: 'Gramos (g)' },
+    { value: 'Litros', label: 'Litros (l)' },
+    { value: 'Mililitros', label: 'Mililitros (ml)' },
+    { value: 'Unidades', label: 'Unidades' },
+    { value: 'Paquetes', label: 'Paquetes' },
+    { value: 'Cajas', label: 'Cajas' }
   ];
 
   const categorias = [

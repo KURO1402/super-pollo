@@ -2,27 +2,19 @@
 import { useForm } from 'react-hook-form';
 // hook propios de react
 import { useEffect } from 'react';
+// servicios
+import { alertasCRUD } from '../../../../../utilidades/toastUtilidades';
+import { actualizarInsumoServicio } from '../servicios/insumosServicios';
 
 export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
     setValue,
     watch
-  } = useForm({
-    defaultValues: {
-      nombreInsumo: '',
-      categoria: '',
-      stockActual: '',
-      stockMinimo: '',
-      unidadMedida: '',
-      fechaActualizacion: '',
-    }
-  });
-
-  console.log('Insumo recibido en modal:', insumo);
+  } = useForm();
 
   // Cargar datos del insumo cuando se abre el modal
   useEffect(() => {
@@ -32,24 +24,44 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
       
       // Precargar todos los datos del insumo
       setValue('nombreInsumo', insumo.nombreInsumo || '');
-      setValue('categoria', insumo.categoriaProducto || '');
-      setValue('stockActual', insumo.stockActual || '');
-      setValue('stockMinimo', insumo.stockMinimo || '');
+      setValue('categoriaProducto', insumo.categoriaProducto || '');
+      setValue('stockInsumo', insumo.stockActual || insumo.stockInsumo || '');
       setValue('unidadMedida', insumo.unidadMedida || '');
       setValue('fechaActualizacion', fechaActual);
     }
   }, [insumo, setValue]);
 
-  const onSubmit = (data) => {
-    const datosCompletos = {
-      ...data,
-      idInsumo: insumo.idInsumo
-    };
+  const onSubmit = async (data) => {
     
-    console.log('Insumo actualizado:', datosCompletos);
-    // Aquí iría la lógica para actualizar el insumo en el backend
-    onGuardar(datosCompletos);
-    reset();
+    try {
+      // Preparar datos para el backend
+      const datosParaBackend = {
+        nombreInsumo: data.nombreInsumo,
+        categoriaProducto: data.categoriaProducto,
+        stockInsumo: parseFloat(data.stockInsumo).toFixed(2),
+        unidadMedida: data.unidadMedida,
+      };
+
+      // Llamar al servicio de actualización
+      const resultado = await actualizarInsumoServicio(insumo.idInsumo, datosParaBackend);
+
+      if (resultado && resultado.ok) {
+        alertasCRUD.actualizado();
+        
+        // Obtener el insumo actualizado de la respuesta
+        const insumoActualizado = resultado.data?.data || {
+          ...insumo,
+          ...datosParaBackend,
+          idInsumo: insumo.idInsumo
+        };
+        // Pasar el insumo actualizado al componente principal
+        onGuardar(insumoActualizado);
+      }
+    } catch (error) {
+      console.error('Error al actualizar insumo:', error);
+      const mensajeError = error.response?.data?.mensaje || "Error al actualizar el insumo";
+      alertasCRUD.error(mensajeError);
+    }
   };
 
   const handleCancelar = () => {
@@ -57,21 +69,20 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
     onClose();
   };
 
-  const stockActual = watch('stockActual');
-  const stockMinimo = watch('stockMinimo');
+  const stockInsumo = watch('stockInsumo');
   const unidadMedida = watch('unidadMedida');
   const nombreInsumo = watch('nombreInsumo');
+  const descripcion = watch('descripcion');
 
-  // Calcular estado del stock basado en los valores
+  // Calcular estado del stock basado en valores fijos
   const calcularEstadoStock = () => {
-    const actual = parseFloat(stockActual) || 0;
-    const minimo = parseFloat(stockMinimo) || 0;
+    const actual = parseFloat(stockInsumo) || 0;
+    const stockMinimo = 5; 
     
-    if (minimo === 0) return 'Sin stock mínimo';
     if (actual === 0) return 'Stock Agotado';
-    if (actual <= minimo * 0.3) return 'Stock Crítico';
-    if (actual <= minimo) return 'Stock Bajo';
-    if (actual <= minimo * 1.5) return 'Stock Normal';
+    if (actual <= stockMinimo * 0.3) return 'Stock Crítico';
+    if (actual <= stockMinimo) return 'Stock Bajo';
+    if (actual <= stockMinimo * 1.5) return 'Stock Normal';
     return 'Stock Óptimo';
   };
 
@@ -88,12 +99,12 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
 
   const getBgColorEstado = (estado) => {
     switch (estado) {
-      case 'Stock Óptimo': return 'bg-green-100 dark:bg-green-900/30';
-      case 'Stock Normal': return 'bg-blue-100 dark:bg-blue-900/30';
-      case 'Stock Bajo': return 'bg-yellow-100 dark:bg-yellow-900/30';
-      case 'Stock Crítico': return 'bg-orange-100 dark:bg-orange-900/30';
-      case 'Stock Agotado': return 'bg-red-100 dark:bg-red-900/30';
-      default: return 'bg-gray-100 dark:bg-gray-900/30';
+      case 'Stock Óptimo': return 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800';
+      case 'Stock Normal': return 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800';
+      case 'Stock Bajo': return 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800';
+      case 'Stock Crítico': return 'bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800';
+      case 'Stock Agotado': return 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800';
+      default: return 'bg-gray-100 dark:bg-gray-900/30 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -104,16 +115,19 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
   ];
 
   const unidadesMedida = [
-    { value: 'kg', label: 'Kilogramos (kg)' },
-    { value: 'g', label: 'Gramos (g)' },
-    { value: 'l', label: 'Litros (l)' },
-    { value: 'ml', label: 'Mililitros (ml)' },
-    { value: 'unidades', label: 'Unidades' },
-    { value: 'paquetes', label: 'Paquetes' },
-    { value: 'cajas', label: 'Cajas' }
+    { value: '', label: 'Seleccionar unidad' },
+    { value: 'Kilogramos', label: 'Kilogramos (kg)' },
+    { value: 'Gramos', label: 'Gramos (g)' },
+    { value: 'Litros', label: 'Litros (l)' },
+    { value: 'Mililitros', label: 'Mililitros (ml)' },
+    { value: 'Unidades', label: 'Unidades' },
+    { value: 'Paquetes', label: 'Paquetes' },
+    { value: 'Cajas', label: 'Cajas' }
   ];
 
   if (!insumo) return null;
+
+  const estadoActual = calcularEstadoStock();
 
   return (
     <div className="space-y-6">
@@ -126,7 +140,7 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
           <div>
             <span className="text-blue-600 dark:text-blue-400">Stock Actual:</span>
             <span className="ml-2 text-blue-800 dark:text-blue-200 font-medium">
-              {insumo.stockActual} {insumo.unidadMedida}
+              {insumo.stockActual || insumo.stockInsumo} {insumo.unidadMedida}
             </span>
           </div>
           <div>
@@ -157,8 +171,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
                 : 'border-gray-300 dark:border-gray-600'
             }`}
             placeholder="Ingrese el nombre del insumo"
-            value={nombreInsumo}
-            onChange={(e) => setValue('nombreInsumo', e.target.value)}
           />
           {errors.nombreInsumo && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -174,11 +186,11 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
               Categoría *
             </label>
             <select
-              {...register("categoria", { 
+              {...register("categoriaProducto", { 
                 required: "La categoría es requerida"
               })}
               className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.categoria 
+                errors.categoriaProducto 
                   ? 'border-red-500 dark:border-red-400' 
                   : 'border-gray-300 dark:border-gray-600'
               }`}
@@ -190,9 +202,9 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
                 </option>
               ))}
             </select>
-            {errors.categoria && (
+            {errors.categoriaProducto && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.categoria.message}
+                {errors.categoriaProducto.message}
               </p>
             )}
           </div>
@@ -226,86 +238,47 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
           </div>
         </div>
 
-        {/* Stock Actual y Stock Mínimo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Stock Actual *
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                {...register("stockActual", { 
-                  required: "El stock actual es requerido",
-                  min: {
-                    value: 0,
-                    message: "El stock no puede ser negativo"
-                  }
-                })}
-                className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.stockActual 
-                    ? 'border-red-500 dark:border-red-400' 
-                    : 'border-gray-300 dark:border-gray-600'
-                }`}
-                placeholder="0.0"
-                value={stockActual}
-                onChange={(e) => setValue('stockActual', e.target.value)}
-              />
-              {unidadMedida && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span className="text-gray-500 dark:text-gray-400 text-sm">
-                    {unidadMedida}
-                  </span>
-                </div>
-              )}
-            </div>
-            {errors.stockActual && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.stockActual.message}
-              </p>
+        {/* Stock Actual */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Stock Actual *
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register("stockInsumo", { 
+                required: "El stock actual es requerido",
+                min: {
+                  value: 0,
+                  message: "El stock no puede ser negativo"
+                },
+                validate: value => {
+                  const numValue = parseFloat(value);
+                  return !isNaN(numValue) || "El stock debe ser un número válido";
+                }
+              })}
+              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.stockInsumo 
+                  ? 'border-red-500 dark:border-red-400' 
+                  : 'border-gray-300 dark:border-gray-600'
+              }`}
+              placeholder="0.00"
+            />
+            {unidadMedida && (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <span className="text-gray-500 dark:text-gray-400 text-sm">
+                  {unidadMedida}
+                </span>
+              </div>
             )}
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Stock Mínimo
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                {...register("stockMinimo", { 
-                  min: {
-                    value: 0,
-                    message: "El stock mínimo no puede ser negativo"
-                  }
-                })}
-                className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.stockMinimo 
-                    ? 'border-red-500 dark:border-red-400' 
-                    : 'border-gray-300 dark:border-gray-600'
-                }`}
-                placeholder="0.0 (opcional)"
-                value={stockMinimo}
-                onChange={(e) => setValue('stockMinimo', e.target.value)}
-              />
-              {unidadMedida && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span className="text-gray-500 dark:text-gray-400 text-sm">
-                    {unidadMedida}
-                  </span>
-                </div>
-              )}
-            </div>
-            {errors.stockMinimo && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.stockMinimo.message}
-              </p>
-            )}
-          </div>
+          {errors.stockInsumo && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {errors.stockInsumo.message}
+            </p>
+          )}
         </div>
 
         {/* Fecha de Actualización */}
@@ -330,19 +303,25 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
         </div>
 
         {/* Estado del Stock (Calculado) */}
-        <div className={`p-4 rounded-lg border ${getBgColorEstado(calcularEstadoStock())}`}>
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-            Estado del Stock:
-          </h4>
-          <p className={`text-lg font-bold ${getColorEstado(calcularEstadoStock())}`}>
-            {calcularEstadoStock()}
-          </p>
-          {stockMinimo && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Stock actual: {stockActual} {unidadMedida} | 
-              Mínimo: {stockMinimo} {unidadMedida}
-            </p>
-          )}
+        <div className={`p-4 rounded-lg border ${getBgColorEstado(estadoActual)}`}>
+          <div className="flex items-center gap-3">
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                Estado del Stock:
+              </h4>
+              <p className={`text-lg font-bold ${getColorEstado(estadoActual)}`}>
+                {estadoActual}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Stock actual: <span className="font-medium">{stockInsumo || 0}</span> {unidadMedida || 'unidades'}
+                {estadoActual !== 'Stock Agotado' && (
+                  <span className="ml-3">
+                    • Mínimo recomendado: <span className="font-medium">5</span> {unidadMedida || 'unidades'}
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Botones de acción */}
@@ -350,15 +329,24 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
           <button
             type="button"
             onClick={handleCancelar}
-            className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded-lg transition-colors"
+            disabled={isSubmitting}
+            className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded-lg transition-colors disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+            disabled={isSubmitting}
+            className="px-4 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 flex items-center gap-2"
           >
-            Actualizar Insumo
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Actualizando...
+              </>
+            ) : (
+              'Actualizar Insumo'
+            )}
           </button>
         </div>
       </form>

@@ -1,6 +1,9 @@
 import { FiPackage, FiDroplet, FiAlertTriangle, FiEdit, FiTrash2 } from "react-icons/fi";
 
-export const FilaInsumo = ({ insumo, onEditarStock }) => {
+export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
+  const handleEliminarClick = () => {
+    onEliminarInsumo(insumo); //
+  };
   // Función para determinar el estado del stock
   const getEstadoStock = (stock) => {
     if (stock === 0) return { texto: 'Sin Stock', color: 'red', icono: <FiAlertTriangle size={14} /> };
@@ -85,6 +88,7 @@ export const FilaInsumo = ({ insumo, onEditarStock }) => {
             <FiEdit size={16} />
           </button>
           <button 
+            onClick={handleEliminarClick}
             className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
             title="Eliminar insumo"
           >

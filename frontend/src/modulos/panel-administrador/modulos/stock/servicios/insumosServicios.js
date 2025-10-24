@@ -6,13 +6,13 @@ export const crearInsumoServicio = async (data) => {
     const respuesta = await API.post('/inventario/crear', data);
 
     // Verificamos si la respuesta tiene un código de estado exitoso (2xx)
-    if (respuesta.status < 200 || respuesta.status >= 300) {
-      throw new Error(respuesta.data.mensaje || "Error al crear el insumo");
+    if (respuesta.data && respuesta.data.ok) {
+      return respuesta.data;
+    } else {
+      throw new Error(respuesta.data?.mensaje || "Error al crear el insumo");
     }
-
-    return respuesta.data.mensaje;
   } catch (error) {
-    console.error('Error al crear insumo:', error.message);
+    console.error('Error en crearInsumoServicio:', error);
     throw error; // Lanza el error para que lo maneje el componente
   }
 };
@@ -52,10 +52,10 @@ export const actualizarInsumoServicio = async (id, data) => {
   try {
     const respuesta = await API.put(`/inventario/${id}`, data);
     //verificamos que la respuesta sea correcta
-    if (!respuesta.ok) {
+    if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al actualizar el insumo");
     }
-    return respuesta.data.mensaje;
+    return respuesta.data;
   }
   catch (error) {
     console.error('Error al actualizar el insumo:', error.message);
@@ -67,10 +67,10 @@ export const eliminarInsumoServicio = async (id) => {
   try {
     const respuesta = await API.delete(`/inventario/${id}`);
     //verificamos que la respuesta sea correcta
-    if (!respuesta.ok) {
+    if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al eliminar el insumo");
     }
-    return respuesta.data.mensaje;
+    return respuesta.data;
   }
   catch (error) {
     console.error('Error al eliminar el insumo:', error.message);

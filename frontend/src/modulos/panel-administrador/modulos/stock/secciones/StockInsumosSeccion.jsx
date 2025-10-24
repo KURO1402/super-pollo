@@ -3,7 +3,7 @@ import { BsBoxSeam } from "react-icons/bs";
 // hook de react
 import { useState, useEffect } from "react";
 // servicios
-import { listarInsumoServicio } from "../servicios/insumosServicios";
+import { eliminarInsumoServicio, listarInsumoServicio } from "../servicios/insumosServicios";
 // importar componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; // La barra de busqueda del componente reutilizable
@@ -20,31 +20,37 @@ import { FilaInsumo } from "../componentes/FilaInsumo"; // nuestras filsa person
 import { ModalNuevoInsumo } from "../componentes/ModalNuevoInsumo";
 import { ModalMovimientoStock } from "../componentes/ModalMovimientoStock";
 import { ModalEditarStock } from "../componentes/ModalEditarStock";
+import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
+import { useConfirmacion } from "../../../hooks/useConfirmacion";
+import { alertasCRUD } from "../../../../../utilidades/toastUtilidades";
 
 const StockInsumosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); // utilizamos nuestro hook de busqueda, lo desestructuramos
   const { filtro, setFiltro, aplicarFiltros } = useFiltro(); // lo mismo para el filtro
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(8); // tambien para la paginación
   const [insumoSeleccionado, setInsumoSeleccionado] = useState(null); // estado para insumo seleccionado
+  const [insumoAEliminar, setInsumoAEliminar] = useState(null);
   const [ insumos, setInsumos ] = useState([]) // estado para los insumos
   const [ error, setError ] = useState(null); // estado para errores
   // Modal para nuevo insumo
   const modalNuevoInsumo = useModal(false);
   const modalMovimientoStock = useModal(false);
   const modalEditarStock = useModal(false); // modal para editar stock
-  // useEffect para cargar los insumos al montar el componente
+  const confirmacionEliminar = useConfirmacion();
+  // obtener los insumos
+  const obtenerInsumos = async () => {
+    try {
+      const respuesta = await listarInsumoServicio();
+      setInsumos(respuesta.data);
+    } catch (error) {
+      setError("Error al obtener los insumos");
+      console.error(error);
+    }
+  };
+  // useEffect para cargar los insumos solo al montar el componente
   useEffect(() => {
-    const obtenerInsumos = async () => {
-      try {
-        const respuesta = await listarInsumoServicio(); // Llamada al servicio
-        setInsumos(respuesta.data); // Asumimos que respuesta es un array de insumos
-      } catch (error) {
-        setError("Error al obtener los insumos");
-        console.error(error);
-      }
-    };
-    obtenerInsumos();
-  }, []); // Se ejecuta solo una vez al montar el componente
+    obtenerInsumos(); // Cargar los insumos cuando se monta el componente
+  }, []); // Solo se ejecuta una vez al montar el componente
 
   // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(insumos, [
@@ -63,6 +69,64 @@ const StockInsumosSeccion = () => {
   const handleMovimientoStock = () => {
     modalMovimientoStock.abrir();
   };
+  // funciones para actulizar el estado desde los modales
+  const handleInsumoCreado = async () => {
+    // Dar tiempo al backend para procesar
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // Recargar la lista completa desde el backend
+    await obtenerInsumos();
+    // Cerrar modal
+    modalNuevoInsumo.cerrar();
+  };
+
+  const handleInsumoActualizado = async () => {
+    // Dar tiempo al backend para procesar
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // Recargar la lista completa desde el backend
+    await obtenerInsumos();
+    // Cerrar modal y limpiar selección
+    modalEditarStock.cerrar();
+    setInsumoSeleccionado(null);
+  };
+
+  const solicitarConfirmacionEliminar = (insumo) => {
+  setInsumoAEliminar(insumo);
+  
+  confirmacionEliminar.solicitarConfirmacion(
+    `¿Estás seguro de eliminar el insumo "${insumo.nombreInsumo}"? Esta acción no se puede deshacer.`,
+    () => {
+      // Esta función se ejecuta cuando el usuario confirma
+      handleEliminarInsumo(insumo.idInsumo);
+    },
+    {
+      titulo: "Eliminar Insumo",
+      tipo: "peligro",
+      textoConfirmar: "Sí, eliminar",
+      textoCancelar: "Cancelar"
+    }
+  );
+};
+
+  const cancelarEliminacion = () => {
+    setInsumoAEliminar(null);
+    confirmacionEliminar.ocultarConfirmacion();
+  };
+
+const handleEliminarInsumo = async (idInsumo) => {
+  
+  try {
+    await eliminarInsumoServicio(idInsumo);
+    setInsumos(prev => prev.filter(insumo => insumo.idInsumo !== idInsumo));
+    
+    alertasCRUD.eliminado();
+    
+  } catch (error) {
+    alertasCRUD.error("Error al eliminar el insumo");
+  } finally {
+    // Limpiar el estado
+    setInsumoAEliminar(null);
+  }
+};
   // Función para abrir modal de edición
   const handleEditarStock = (insumo) => {
     setInsumoSeleccionado(insumo);
@@ -74,6 +138,7 @@ const StockInsumosSeccion = () => {
       key={insumo.idInsumo} 
       insumo={insumo} 
       onEditarStock={handleEditarStock}
+      onEliminarInsumo={solicitarConfirmacionEliminar}
     />
   ));
 
@@ -144,7 +209,7 @@ const StockInsumosSeccion = () => {
       >
         <ModalNuevoInsumo 
           onClose={modalNuevoInsumo.cerrar}
-          onGuardar={modalNuevoInsumo.cerrar}
+          onGuardar={handleInsumoCreado}
         />
       </Modal>
       {/* Modal para movimiento de stock */}
@@ -164,7 +229,10 @@ const StockInsumosSeccion = () => {
       {/* Modal para editar stock */}
       <Modal
         estaAbierto={modalEditarStock.estaAbierto}
-        onCerrar={modalEditarStock.cerrar}
+        onCerrar={() => {
+          modalEditarStock.cerrar();
+          setInsumoSeleccionado(null); // Limpiar selección al cerrar
+        }}
         titulo={`Editar Stock: ${insumoSeleccionado?.nombreInsumo || ''}`}
         tamaño="md"
         mostrarHeader={true}
@@ -173,11 +241,31 @@ const StockInsumosSeccion = () => {
         {insumoSeleccionado && (
           <ModalEditarStock 
             insumo={insumoSeleccionado}
-            onClose={modalEditarStock.cerrar}
-            onGuardar={modalEditarStock.cerrar}
+            onClose={() => {
+              modalEditarStock.cerrar();
+              setInsumoSeleccionado(null);
+            }}
+            onGuardar={handleInsumoActualizado}
           />
         )}
       </Modal>
+      return (
+  <div className="p-2">
+    {/* ... todo el contenido actual ... */}
+    
+    {/* ✅ MODAL DE CONFIRMACIÓN (agregar esto) */}
+    <ModalConfirmacion
+      visible={confirmacionEliminar.confirmacionVisible}
+      onCerrar={cancelarEliminacion}
+      onConfirmar={confirmacionEliminar.confirmarAccion}
+      titulo={confirmacionEliminar.tituloConfirmacion}
+      mensaje={confirmacionEliminar.mensajeConfirmacion}
+      tipo={confirmacionEliminar.tipoConfirmacion}
+      textoConfirmar={confirmacionEliminar.textoConfirmar}
+      textoCancelar={confirmacionEliminar.textoCancelar}
+    />
+  </div>
+);
     </div>
   );
 };
