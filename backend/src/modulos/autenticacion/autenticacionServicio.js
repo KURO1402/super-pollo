@@ -156,14 +156,7 @@ const validarCodigoVerificacionCorreoService = async (datos) => {
   }
   validarCorreo(correo);
   const resultado = await validarCodigoVerificacionCorreoModel(correo, codigo);
-
-  if(resultado.affectedRows === 0){
-    throw Object.assign(new Error("No se pudo validar el codigo"), { status: 500 });
-  }
-  return {
-    ok: true,
-    mensaje: "Codigo verificado correctamente"
-  }
+  return resultado;
 }
 
 //Exportamos modulo

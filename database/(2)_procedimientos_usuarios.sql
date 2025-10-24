@@ -14,7 +14,9 @@ DROP PROCEDURE IF EXISTS eliminarUsuario;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioCorreo;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioId;
 DROP PROCEDURE IF EXISTS registrarCodigoVerificacion;
-DROP PROCEDURE IF EXISTS verificarCodigoVerificacion;
+DROP PROCEDURE IF EXISTS obtenerVerificacionCorreo;
+DROP PROCEDURE IF EXISTS actualizarVerificacionCorreo;
+DROP PROCEDURE IF EXISTS obtenerEstadoVerificacionCorreo;
 
 DELIMITER //
 
@@ -239,69 +241,56 @@ BEGIN
     COMMIT;
 END //
 
--- Procemiento almacenado para verificar un codigo de correo
-CREATE PROCEDURE verificarCodigoVerificacion(
+-- Procedimiento almacenado para verificar un codigo de correo
+CREATE PROCEDURE obtenerVerificacionCorreo(
     IN p_correo VARCHAR(100),
     IN p_codigo VARCHAR(6)
 )
 BEGIN
-    DECLARE v_expiracion DATETIME;
-    DECLARE v_verificado TINYINT(1);
-
-    -- Manejador de errores SQL
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-    BEGIN
-        -- Revertir cualquier cambio si hay un error
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al verificar el código.';
-    END;
-
-    -- Iniciar la transacción
-    START TRANSACTION;
-
-    -- Buscar el registro con el correo y el código
     SELECT 
-        expiracionVerificacion, 
+        idVerificacion,
+        expiracionVerificacion,
         verificado
-    INTO 
-        v_expiracion, 
-        v_verificado
     FROM verificacionCorreos
     WHERE correoVerificacion = p_correo
       AND codigoVerificacion = p_codigo
     LIMIT 1;
+END //
 
-    -- Si no existe el código o correo
-    IF v_expiracion IS NULL THEN
+-- Procedimiento para actualizar el estado de verificacion de un correo
+CREATE PROCEDURE actualizarVerificacionCorreo(
+    IN p_correo VARCHAR(100),
+    IN p_codigo VARCHAR(6)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre algún error, revertimos la transacción
         ROLLBACK;
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Código incorrecto.';
-    END IF;
+        SET MESSAGE_TEXT = 'Error al actualizar la verificación del correo.';
+    END;
 
-    -- Si ya fue verificado
-    IF v_verificado = 1 THEN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El correo ya fue validado';
-    END IF;
+    START TRANSACTION;
 
-    -- Si el código expiró
-    IF v_expiracion < NOW() THEN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El código ha expirado, genere uno nuevo';
-    END IF;
-
-    -- Si todo está correcto, se marca como verificado
     UPDATE verificacionCorreos
     SET verificado = 1
     WHERE correoVerificacion = p_correo
       AND codigoVerificacion = p_codigo;
 
-    -- Confirmar la transacción
     COMMIT;
+END //
 
+-- Procedimiento para obtener la verificaion de correo
+CREATE PROCEDURE obtenerEstadoVerificacionCorreo(
+    IN p_correo VARCHAR(100)
+)
+BEGIN
+    SELECT verificado
+    FROM verificacionCorreos
+    WHERE correoVerificacion = p_correo
+    ORDER BY registroVerificacion DESC
+    LIMIT 1;
 END //
 
 DELIMITER ;

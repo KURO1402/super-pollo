@@ -94,37 +94,72 @@ const insertarVerificacionCorreoModel = async (correo, codigo) => {
 
 // Modelo para validar el codigo de verificacion del correo
 const validarCodigoVerificacionCorreoModel = async (correo, codigo) => {
+    const conexion = await pool.getConnection();
+    try {
+        // 1️⃣ Buscar el registro
+        const [rows] = await conexion.execute(
+            "CALL obtenerVerificacionCorreo(?, ?)",
+            [correo, codigo]
+        );
+
+        const registro = rows[0][0]; // Primer resultado
+
+        // Validaciones en servidor
+        if (!registro) {
+            throw Object.assign(new Error('Código incorrecto'), { status: 400 });
+        }
+
+        if (registro.verificado === 1) {
+            throw Object.assign(new Error('El correo ya fue validado'), { status: 400 });
+        }
+
+        const expiracion = new Date(registro.expiracionVerificacion);
+        if (expiracion < new Date()) {
+            throw Object.assign(new Error('El código ha expirado, genere uno nuevo'), { status: 400 });
+        }
+
+        // Si todo está correcto, marcar como verificado
+        await conexion.execute(
+            "CALL actualizarVerificacionCorreo(?, ?)",
+            [correo, codigo]
+        );
+
+        return {ok: true, mensaje: 'Correo verificado con éxito' };
+    } catch (err) {
+        console.error("Error al validar código de verificación del correo:", err.message);
+        throw err;
+    } finally {
+        conexion.release();
+    }
+};
+
+// Modelo para traer la verificacion de un correo si esta verificado o no
+const obtenerEstadoVerificacionCorreoModel = async (correo) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [result] = await conexion.execute("CALL verificarCodigoVerificacion(?, ?)", [correo, codigo]);
+        const [rows] = await conexion.execute(
+            "CALL obtenerEstadoVerificacionCorreo(?)",
+            [correo]
+        );
 
-        return result;
+        // MySQL devuelve los resultados dentro de un array adicional cuando se usa CALL
+        const resultado = rows[0]?.[0] || null;
+
+        return resultado; // Devuelve { verificado: 0 } o { verificado: 1 } o null si no hay datos
     } catch (err) {
-        //Mostramos el error
-        if (err.sqlMessage) {
-            console.error("Error al validar codigo de verificacion del correo:", err.sqlMessage);
-            if (err.sqlMessage.includes('Código incorrecto.')) {
-                throw Object.assign(new Error('Código incorrecto'), { status: 400 });
-            } else if (err.sqlMessage.includes('El correo ya fue validado')) {
-                throw Object.assign(new Error('El correo ya fue validado'), { status: 400 });
-            } else if (err.sqlMessage.includes('El código ha expirado, genere uno nuevo')) {
-                throw Object.assign(new Error('El código ha expirado, genere uno nuevo'), { status: 400 });
-            } else {
-                throw Object.assign(new Error('Error desconocido al verificar el código'), { status: 500 });
-            }
-        };
-        //console.error("Error al validar codigo de verificacion del correo:", err.message);
-        throw Object.assign(new Error('Error desconocido al verificar el código'), { status: 500 });
+        console.error("Error al obtener el estado de verificación del correo:", err.message);
+        throw Object.assign(new Error('Error al obtener el estado de verificación del correo'), { status: 500 });
     } finally {
         if (conexion) conexion.release();
     }
-}
+};
 
 //Exportamos modulo
 module.exports = {
     insertarUsuarioModel,
     seleccionarUsuarioModel,
     insertarVerificacionCorreoModel,
-    validarCodigoVerificacionCorreoModel
+    validarCodigoVerificacionCorreoModel,
+    obtenerEstadoVerificacionCorreoModel
 };
