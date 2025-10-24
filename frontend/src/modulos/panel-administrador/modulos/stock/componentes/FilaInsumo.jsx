@@ -1,6 +1,9 @@
 import { FiPackage, FiDroplet, FiAlertTriangle, FiEdit, FiTrash2 } from "react-icons/fi";
 
-export const FilaInsumo = ({ insumo, onEditarStock }) => {
+export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
+  const handleEliminarClick = () => {
+    onEliminarInsumo(insumo); //
+  };
   // Función para determinar el estado del stock
   const getEstadoStock = (stock) => {
     if (stock === 0) return { texto: 'Sin Stock', color: 'red', icono: <FiAlertTriangle size={14} /> };
@@ -9,7 +12,7 @@ export const FilaInsumo = ({ insumo, onEditarStock }) => {
     return { texto: 'Stock Bueno', color: 'green', icono: <FiPackage size={14} /> };
   };
 
-  const estado = getEstadoStock(insumo.stockinsumo);
+  const estado = getEstadoStock(insumo.stockInsumo);
 
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -28,7 +31,7 @@ export const FilaInsumo = ({ insumo, onEditarStock }) => {
           </div>
           <div>
             <div className="text-sm font-medium text-gray-900 dark:text-white">
-              {insumo.nombreinsumo}
+              {insumo.nombreInsumo}
             </div>
             <div className="text-xs text-gray-500">ID: {insumo.idInsumo}</div>
           </div>
@@ -49,7 +52,7 @@ export const FilaInsumo = ({ insumo, onEditarStock }) => {
       {/* Stock Actual */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-medium text-gray-900 dark:text-white">
-          {insumo.stockinsumo}
+          {insumo.stockInsumo}
         </div>
       </td>
 
@@ -85,6 +88,7 @@ export const FilaInsumo = ({ insumo, onEditarStock }) => {
             <FiEdit size={16} />
           </button>
           <button 
+            onClick={handleEliminarClick}
             className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
             title="Eliminar insumo"
           >
