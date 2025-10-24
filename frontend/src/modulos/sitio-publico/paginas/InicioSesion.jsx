@@ -1,27 +1,39 @@
-// Importa el componente del formulario de inicio de sesion
-import FormularioInicioSesion from '../componentes/FormularioInicioSesion';
-import { Link, useNavigate } from 'react-router-dom'; // Para navegar a registro
+// librerías externas
+import { Link, useLocation, useNavigate } from 'react-router-dom'; // Para navegar a registro
+// hook de react
+import { useEffect } from 'react';
 // Importamos el estado global de autenticacion
 import { useAutenticacionGlobal } from '../../../app/estado-global/autenticacionGlobal';
+// componentes internos
+import FormularioInicioSesion from '../componentes/FormularioInicioSesion';
+// utilidades y constantes
 import { mostrarAlerta } from '../../../utilidades/toastUtilidades';
-import { useEffect } from 'react';
+import { obtenerRutaRedireccion } from '../../../app/constantes/roles';
 
 const InicioSesion = ()=> {
-  const { login, carga, error, limpiarError } = useAutenticacionGlobal(); // obtenemos varias cosas del estado global}
+  const { login, carga, error, limpiarError, usuario } = useAutenticacionGlobal(); // obtenemos varias cosas del estado global}
   const navigate = useNavigate(); // hook de navegacion para redirigir despues del login
+  const location = useLocation(); // obtenemos la ubicacion actual  
 
   //funcion que se ejecuta al enviar el formulario
   const manejarEnvioInicioSesion = async (datosFormulario) => {
-    console.log('Datos del formulario de inicio de sesión:', datosFormulario);
     const usuarioLogueado = await login(datosFormulario); // llamamos a la funcion de login del estado global
     // si el usuario se logueo correctamente
     if (usuarioLogueado){
-      if (usuarioLogueado.idRol === 1) {
-        navigate("/superadmin"); // redirige a la zona de admin
-      } else if (usuarioLogueado.idRol === 2) {
-        navigate("/admin"); // redirige a la zona de admin
+      // Obtener la ruta de redirección según su rol
+      const rutaDestino = obtenerRutaRedireccion(usuarioLogueado.idRol);
+      
+      // Si venía de algún lugar específico
+      const from = location.state?.from?.pathname;
+      
+      // Mensaje de bienvenida personalizado
+      mostrarAlerta.exito('¡Bienvenido de nuevo!');
+      
+      // Redirigir a donde corresponde o de donde venía
+      if (from && from !== '/inicio-sesion') {
+        navigate(from, { replace: true });
       } else {
-        navigate("/usuario"); // redirige a la zona de usuarios
+        navigate(rutaDestino, { replace: true });
       }
     }
   };

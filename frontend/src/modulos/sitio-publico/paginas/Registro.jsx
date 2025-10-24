@@ -1,13 +1,17 @@
-import FormularioRegistro from "../componentes/FormularioRegistro"; // importamos el formulario
-import { Link, useNavigate } from "react-router-dom"; // importamos Link para navegar a Inicio de Sesion
-import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacionGlobal";
-import { mostrarAlerta } from "../../../utilidades/toastUtilidades";
+// librerías externas
+import { Link, useNavigate, useLocation } from "react-router-dom"; // importamos Link para navegar a Inicio de Sesion
+// hooks de ract
 import { useEffect } from "react";
+// estado global
+import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacionGlobal";
+// componentes internos
+import FormularioRegistro from "../componentes/FormularioRegistro"; // importamos el formulario
+import { mostrarAlerta } from "../../../utilidades/toastUtilidades";
+import { ROLES } from "../../../app/constantes/roles";
 
 const Registro = () => {
   // obtenemos la funcion de registrar del estado global
   const registrar = useAutenticacionGlobal((state) => state.registrar); 
-  // obtenemos el estado de carga y error del estado global
   const carga = useAutenticacionGlobal((state) => state.carga);
   const error = useAutenticacionGlobal((state) => state.error);
   const limpiarError = useAutenticacionGlobal((state) => state.limpiarError);
@@ -18,7 +22,16 @@ const Registro = () => {
     const usuarioRegistrado = await registrar(formularioData); // llamamos a la funcion de registro del estado global
     // si el usuario se registro correctamente
     if (usuarioRegistrado){
-      navigate("/usuario"); // redirige a la zona de usuarios
+      // Mensaje de exito
+      mostrarAlerta.exito(
+        `¡Bienvenido! Tu cuenta ha sido creada exitosamente.`
+      );
+      // los usuarios registrados por defecto tienen rol USUARIO (3)
+      // por lo tanto, siempre redirigen a la landing page
+      if (usuarioRegistrado.idRol === ROLES.USUARIO) {
+        // Usuario normal va al landing
+        navigate("/", { replace: true });
+      };
     }
   };
   // mostrar alerta si hay error

@@ -1,0 +1,44 @@
+import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacionGlobal";
+import { tienePermiso } from '../../../app/constantes/roles';
+
+/**
+ * @param {string} permiso - Nombre del permiso requerido
+ * @param {React.Component} children - Componente a proteger
+ * @param {React.Component} fallback - Componente alternativo si no tiene permiso
+ */
+const ProtegerPorPermiso = ({ permiso, children, fallback }) => {
+  const usuario = useAutenticacionGlobal((state) => state.usuario);
+
+  // Verificar si el usuario tiene el permiso
+  const tieneAcceso = tienePermiso(usuario?.idRol, permiso);
+
+  if (!tieneAcceso) {
+    // Si hay fallback, mostrarlo
+    if (fallback) {
+      return fallback;
+    }
+
+    // Si no, mostrar mensaje de acceso denegado
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center max-w-md px-4">
+          <div className="text-5xl mb-4">🔒</div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+            Acceso Restringido
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            No tienes permisos para acceder a esta sección.
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-500">
+            Contacta al administrador si crees que esto es un error.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Tiene permiso, mostrar el contenido
+  return <>{children}</>;
+};
+
+export default ProtegerPorPermiso;

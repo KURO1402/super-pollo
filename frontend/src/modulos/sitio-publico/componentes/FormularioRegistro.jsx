@@ -55,7 +55,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
   // Funcion que se ejecuta cuando se envia el formulario
   const manejarEnvioFormulario = async (datos) => {
     try {
-      console.log("Datos preparados para el backend:", datos);
       await alEnviar(datos); // Llama a la función que recibe los datos (prop)
       await trigger();
     } catch (error) {

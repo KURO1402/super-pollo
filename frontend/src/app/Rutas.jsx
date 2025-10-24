@@ -4,19 +4,21 @@ import { useRoutes } from "react-router-dom";
 import RutaPrivadaConRol from "./RutaPrivadaConRol";
 // importamos el hook 
 import useScrollAlInicio from "../modulos/sitio-publico/hooks/useScrollAlInicio";
+import { ROLES } from "./constantes/roles";
 
 // Sitio publico
 import EstructuraBase from "../modulos/sitio-publico/layout/EstructuraBase";
 import Inicio from "../modulos/sitio-publico/paginas/Inicio";
 import Registro from "../modulos/sitio-publico/paginas/Registro";
 import InicioSesion from "../modulos/sitio-publico/paginas/InicioSesion";
+import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 
-// Administrador
+// Reservas usuario autenticado
+
+// PANEL DE ADMINISTRACION
 import EstructuraBaseAdmin from "../modulos/panel-administrador/layout/EstructuraBaseAdmin";
 import PanelDeControl from "../modulos/panel-administrador/paginas/PanelDeControl";
 
-// Página no encontrada
-import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 
 // secciones de venta
 import GenerarVenta from "../modulos/panel-administrador/modulos/ventas/secciones/GenerarVentaSeccion";
@@ -26,16 +28,19 @@ import RegistroVentasSeccion from "../modulos/panel-administrador/modulos/ventas
 import StockInsumosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/StockInsumosSeccion";
 import HistorialEntradasSeccion from "../modulos/panel-administrador/modulos/stock/secciones/HistorialEntradasSeccion";
 import HistorialSalidasSeccion from "../modulos/panel-administrador/modulos/stock/secciones/HistorialSalidasSeccion";
+import GestionProductosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/GestionProductosSeccion";
+
 // secciones de caja
 import CajaActualSeccion from "../modulos/panel-administrador/modulos/caja/secciones/CajaActualSeccion";
 import HistorialCajasSeccion from "../modulos/panel-administrador/modulos/caja/secciones/HistorialCajasSeccion";
+
 // secciones de reserva
 import CalendarioReservasSeccion from "../modulos/panel-administrador/modulos/reservas/secciones/CalendarioReservasSeccion";
 import HistorialReservasSeccion from "../modulos/panel-administrador/modulos/reservas/secciones/HistorialReservasSeccion";
+
 // secciones de usuario y perfil
 import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
 import Perfil from "../modulos/panel-administrador/paginas/Perfil";
-import GestionProductosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/GestionProductosSeccion";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -57,55 +62,63 @@ const AppRutas = () => {
             ]
         },
 
-        // Rutas protegidas según rol
+        // PANEL DE ADMINISTRACION
         {
             path: '/admin', // ruta padre para el panel de admin
-            element: <RutaPrivadaConRol rolesPermitidos={[1, 2]} />, // solo superadmin y admin
+            element: <RutaPrivadaConRol rolesPermitidos={[ROLES.SUPERADMIN, ROLES.ADMIN]} redirectTo="/" />, // solo superadmin y admin
             children: [
                 { // se renderiza en el Outelt del componente RutaprivadaconRol
                 element: <EstructuraBaseAdmin />, // la estructura base del panel
                 children: [
+                    // Dashboard - Solo SuperAdmin
                     { index: true, element: <PanelDeControl /> },
+                    // Ventas - SuperAdmin y Admin
                     { path: 'generar-venta', element: <GenerarVenta/> },
                     { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
-                    { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
-                    { path: 'historial-reservas', element: <HistorialReservasSeccion/> },
+                    // Ventas - SuperAdmin y Admin
                     { path: 'stock-insumos', element: <StockInsumosSeccion/> },
                     { path: 'historial-entradas', element: <HistorialEntradasSeccion/> },
                     { path: 'historial-salidas', element: <HistorialSalidasSeccion/> },
                     { path: 'gestion-productos', element: <GestionProductosSeccion/> },
+                    // Reservas - SuperAdmin y Admin
+                    { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
+                    { path: 'historial-reservas', element: <HistorialReservasSeccion/> },
+                    // Caja - SuperAdmin y Admin
                     { path: 'caja-actual', element: <CajaActualSeccion/> },
                     { path: 'historial-cajas', element: <HistorialCajasSeccion/> },
+                    // Usuarios - Solo SuperAdmin
                     { path: 'usuarios', element: <Usuarios/> },
+                    // Perfil - SuperAdmin y Admin
                     { path: 'perfil', element: <Perfil/> },
                 ] // ruta por defecto del panel de admin
                 }
             ]
         },
-
-        { // ruta padre para superadmin
-            path: '/superadmin',
-            element: <RutaPrivadaConRol rolesPermitidos={[1]} />, // solo el superadmin 
-            children: [
-                { index: true, element: <PanelDeControl /> }, // ruta por defecto del panel de admin
-                { path: 'generar-venta', element: <GenerarVenta/> },
-                { path: 'registro-ventas', element: <RegistroVentasSeccion/> },
-                { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
-                { path: 'usuarios', element: <Usuarios/> },
-                { path: 'perfil', element: <Perfil/> },
-
-            ]
+        // Ruta de no autorizado
+        {
+            path: '/no-autorizado',
+            element: (
+                <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+                <div className="text-center max-w-md px-4">
+                    <div className="text-6xl mb-4">🚫</div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    Acceso No Autorizado
+                    </h1>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    No tienes permisos para acceder a esta sección.
+                    </p>
+                    <a
+                    href="/"
+                    className="inline-block px-6 py-3 bg-rojo text-white rounded-lg hover:bg-rojo/90 transition-colors"
+                    >
+                    Volver al Inicio
+                    </a>
+                </div>
+                </div>
+            )
         },
 
-        { // ruta padre para usuarios, aun quue no se si va a ver alguna, pero por si acaso 
-            path: '/usuario',
-            element: <RutaPrivadaConRol rolesPermitidos={[3]} />, // solo usuarios
-            children: [ // ruta por defecto 
-                { index: true, element: <h1>Zona Usuarios</h1> }
-            ]
-        },
-
-        // Cualquier ruta que no existe
+        // Cualquier ruta que no existe - 404
         { path: '*', element: <NotFound /> },
     ])
     // retornamos las rutas generadas 
