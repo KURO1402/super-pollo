@@ -26,8 +26,10 @@ CREATE TABLE movimientosStock(
     idInsumo INT,
     idUsuario INT,
     FOREIGN KEY (idInsumo) REFERENCES insumos(idInsumo),
-    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
+    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario),
+    INDEX idx_movimientos_idInsumo (idInsumo) 
 );
+
 
 -- Tabla de productos
 CREATE TABLE productos(

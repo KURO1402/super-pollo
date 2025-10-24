@@ -30,9 +30,15 @@ const obtenerMovimientosPorInsumoModel = async (idInsumo) => {
     return rows[0];
 };
 
+//Eliminar movimiento 
+const eliminarMovimientoModel = async(id) => {
+    await db.query("CALL eliminarMovimientoStock(?)", [id])
+};
+
 // Exportamos las funciones del modelo
 module.exports = {
     registrarMovimientoModel,
     listarMovimientosModel,
-    obtenerMovimientosPorInsumoModel
+    obtenerMovimientosPorInsumoModel,
+    eliminarMovimientoModel
 };

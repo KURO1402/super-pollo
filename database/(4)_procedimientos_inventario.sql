@@ -5,6 +5,11 @@ DROP PROCEDURE IF EXISTS obtenerInsumos;
 DROP PROCEDURE IF EXISTS obtenerInsumoPorID;
 DROP PROCEDURE IF EXISTS actualizarInsumo;
 DROP PROCEDURE IF EXISTS eliminarInsumo;
+DROP PROCEDURE IF EXISTS registrarMovimientoStock;
+DROP PROCEDURE IF EXISTS listarMovimientos;
+DROP PROCEDURE IF EXISTS obtenerMovimientosPorInsumo;
+DROP PROCEDURE IF EXISTS obtenerStockActual;
+DROP PROCEDURE IF EXISTS eliminarMovimientoStock;
 
 DELIMITER //
 CREATE PROCEDURE insertarInsumo(
@@ -63,10 +68,7 @@ BEGIN
 END //
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS registrarMovimientoStock;
-DROP PROCEDURE IF EXISTS listarMovimientos;
-DROP PROCEDURE IF EXISTS obtenerMovimientosPorInsumo;
-
+-- MOVIMIENTOS STOCK
 DELIMITER //
 CREATE PROCEDURE registrarMovimientoStock(
     IN p_idInsumo INT,
@@ -115,4 +117,50 @@ CREATE PROCEDURE obtenerMovimientosPorInsumo(IN p_idInsumo INT)
 BEGIN
     SELECT * FROM movimientosstock WHERE idInsumo = p_idInsumo ORDER BY fechaMovimiento DESC;
 END //
+DELIMITER ;
+
+-- Procedimeitno para hhalar el stock actual
+DELIMITER $$
+
+CREATE PROCEDURE obtenerStockActual (
+    IN p_idInsumo INT
+)
+BEGIN
+    SELECT 
+        i.idInsumo,
+        i.nombreInsumo,
+        i.stockInsumo
+            + IFNULL((
+                SELECT SUM(
+                    CASE 
+                        WHEN m.tipoMovimiento = 'entrada' THEN m.cantidadMovimiento
+                        ELSE -m.cantidadMovimiento
+                    END
+                )
+                FROM movimientosStock AS m
+                WHERE m.idInsumo = i.idInsumo
+            ), 0) AS stockActual
+    FROM insumos AS i
+    WHERE i.idInsumo = p_idInsumo;
+END$$
+
+DELIMITER ;
+
+-- Procedimiento para eliminar un movimiento
+DELIMITER $$
+
+CREATE PROCEDURE eliminarMovimientoStock (
+    IN p_idMovimiento INT
+)
+BEGIN
+    -- Primero verificamos si el movimiento existe
+    IF EXISTS (SELECT 1 FROM movimientosStock WHERE idMovimientoStock = p_idMovimiento) THEN
+        DELETE FROM movimientosStock 
+        WHERE idMovimientoStock = p_idMovimiento;
+    ELSE
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Movimiento no encontrado';
+    END IF;
+END$$
+
 DELIMITER ;
