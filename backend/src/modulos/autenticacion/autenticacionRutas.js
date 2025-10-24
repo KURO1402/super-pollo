@@ -3,7 +3,9 @@ const express = require("express");
 const { 
     insertarUsuarioController, 
     seleccionarUsuarioController, 
-    renovarAccessTokenController 
+    renovarAccessTokenController,
+    insertarVerificacionCorreoController,
+    validarCodigoVerificacionCorreoController 
 } = require("./autenticacionControlador.js");
 
 //creamos en router
@@ -16,6 +18,12 @@ router.post("/login", seleccionarUsuarioController );
 
 //ruta para renovar accesToken
 router.post("/token", renovarAccessTokenController);
+
+//Ruta para verificar un correo sea existente
+router.post("/generar-codigo", insertarVerificacionCorreoController);
+
+//Ruta para validar el codgo de verificaion de correo
+router.post("/validar-codigo", validarCodigoVerificacionCorreoController);
 
 
 module.exports = router;

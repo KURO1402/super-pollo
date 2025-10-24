@@ -1,5 +1,5 @@
 const { validarCorreo, validarDocumento, validarTelefono } = require("../../utilidades/validaciones.js");
-const { seleccionarUsuarioModel } = require("./autenticacionModelo.js");
+const { seleccionarUsuarioModel, obtenerEstadoVerificacionCorreoModel } = require("./autenticacionModelo.js");
 
 const registrarUsuarioValidacion = async (datos) => {
   // 1️⃣ Validar que los datos existan y sean un objeto
@@ -53,9 +53,23 @@ const registrarUsuarioValidacion = async (datos) => {
   const usuarioExistente = await seleccionarUsuarioModel(datos.correoUsuario);
   if (usuarioExistente.length > 0) {
     throw Object.assign(new Error("Ya existe un usuario registrado con el correo ingresado"), { status: 409 });
-  }
+  };
+  
+  const estado = await obtenerEstadoVerificacionCorreoModel(datos.correoUsuario);
+
+  if (!estado) {
+    // No hay código generado todavía, el correo no ha recibido verificación
+    throw Object.assign(
+      new Error("No se ha generado un código de verificación para este correo."),
+      { status: 400 }
+    );
+  };
+
+  if (estado.verificado === 0) {
+    throw Object.assign(new Error("El correo aún no ha sido validado. Por favor verifica tu correo."), { status: 400 });
+  };
 };
 
 module.exports = {
-    registrarUsuarioValidacion
+  registrarUsuarioValidacion
 }

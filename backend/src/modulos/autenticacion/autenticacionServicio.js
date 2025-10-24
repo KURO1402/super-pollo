@@ -2,7 +2,9 @@ require('dotenv').config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { registrarUsuarioValidacion } = require("./autenticacionValidaciones");
-const { insertarUsuarioModel, seleccionarUsuarioModel } = require("./autenticacionModelo.js");
+const { insertarUsuarioModel, seleccionarUsuarioModel, insertarVerificacionCorreoModel, validarCodigoVerificacionCorreoModel } = require("./autenticacionModelo.js");
+const { validarCorreo } = require('../../utilidades/validaciones.js');
+const enviarCorreoVerificacion = require("../../helpers/enviarCorreo")
 
 // FUNCION PARA REGISTRAR USUARIO
 const registrarUsuarioService = async (datos) => {
@@ -14,7 +16,7 @@ const registrarUsuarioService = async (datos) => {
 
   //Insertar usuario en la BD mediante el modelo creado
   const nuevoUsuario = await insertarUsuarioModel(datos, claveEncriptada);
-  
+
   //Generación de tokens con los datos del usuario y tiempos especificos para cada token
   //Token para realizar modificaciones que se envia al frontend
   const accessToken = jwt.sign(
@@ -53,9 +55,9 @@ const seleccionarUsuarioService = async (datos) => {
   const resultado = await seleccionarUsuarioModel(email);
 
   //Verificamos que el modelo nos ha devuelto un usuario
-  if(resultado.length == 0){
+  if (resultado.length == 0) {
     //Lanzamos un error para el catch del controlador
-    throw Object.assign(new Error("Credenciales de acceso invalidas"), {status: 401});
+    throw Object.assign(new Error("Credenciales de acceso invalidas"), { status: 401 });
   }
 
   //Guardamos el usuario en una constante
@@ -65,9 +67,9 @@ const seleccionarUsuarioService = async (datos) => {
   const contraseñaValida = await bcrypt.compare(clave, usuario.clave);
 
   //Si es false es decir que las contraseñas no coinciden
-  if(!contraseñaValida){
+  if (!contraseñaValida) {
     //Lanzamos error
-    throw Object.assign(new Error("Credenciales de acceso invalidas"), {status: 401});
+    throw Object.assign(new Error("Credenciales de acceso invalidas"), { status: 401 });
   }
 
   // Creamos un objeto con los datos necesarios del usuario para el token y enviar al forntend
@@ -77,7 +79,7 @@ const seleccionarUsuarioService = async (datos) => {
     apellidosUsuario: usuario.apellidosUsuario,
     idRol: usuario.idRol
   };
-  
+
   //Mismo manejo que al registrar usuario
   //Creamos el accesToken
   const accessToken = jwt.sign(
@@ -123,9 +125,45 @@ const renovarAccessTokenService = async (refreshToken) => {
   return nuevoAccessToken;
 };
 
+// Servicio para registrar un codigo de verificaión de un correo
+const insertarVerificacionCorreoService = async (correo) => {
+
+  validarCorreo(correo);
+
+  //Generamos un coodigo de 6 digitos aleatorios
+  const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+  const resultado = await insertarVerificacionCorreoModel(correo, codigo);
+
+  if (resultado.affectedRows === 0) {
+    throw Object.assign(new Error("No se pudo verificar el correo"), { status: 500 });
+  }
+  await enviarCorreoVerificacion(correo, codigo)
+  return { 
+    ok: true, 
+    mensaje: "Código de verificación enviado correctamente." 
+  };
+};
+
+// Servicio para validar el codigo de verificacion del correo
+const validarCodigoVerificacionCorreoService = async (datos) => {
+  const { correo, codigo } = datos;
+  if(!codigo || typeof codigo !== "string"){
+    throw Object.assign(new Error("Se necesita el codigo de verificación"));
+  };
+  if(codigo.length !== 6){
+    throw Object.assign(new Error("El codigo debe tener 6 digitos"));
+  }
+  validarCorreo(correo);
+  const resultado = await validarCodigoVerificacionCorreoModel(correo, codigo);
+  return resultado;
+}
+
 //Exportamos modulo
 module.exports = {
   registrarUsuarioService,
   seleccionarUsuarioService,
-  renovarAccessTokenService
+  renovarAccessTokenService,
+  insertarVerificacionCorreoService,
+  validarCodigoVerificacionCorreoService
 };

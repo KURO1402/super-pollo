@@ -43,7 +43,7 @@ CREATE TABLE verificacionCorreos (
     idVerificacion INT AUTO_INCREMENT PRIMARY KEY,
     correoVerificacion VARCHAR(100) NOT NULL,
     codigoVerificacion VARCHAR(6) NOT NULL,
-    expiracionVerificacion BIGINT NOT NULL, -- tiempo en milisegundos desde Node.js (Date.now())
+    expiracionVerificacion DATETIME NOT NULL,
     verificado TINYINT(1) DEFAULT 0,
     registroVerificacion DATETIME DEFAULT CURRENT_TIMESTAMP
 );
