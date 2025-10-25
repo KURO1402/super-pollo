@@ -1,15 +1,23 @@
 import { FiArrowDown, FiEdit, FiTrash2 } from "react-icons/fi";
 
 export const FilaEntrada = ({ entrada, onEntradaStock }) => {
-  // Formatear fecha para mostrar
-  const formatearFecha = (fechaString) => {
+  // Función para formatear solo la FECHA
+  const formatearSoloFecha = (fechaString) => {
     const fecha = new Date(fechaString);
     return fecha.toLocaleDateString('es-PE', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  // Función para formatear solo la HORA
+  const formatearSoloHora = (fechaString) => {
+    const fecha = new Date(fechaString);
+    return fecha.toLocaleTimeString('es-PE', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: true // Esto mostrará AM/PM
     });
   };
 
@@ -25,7 +33,7 @@ export const FilaEntrada = ({ entrada, onEntradaStock }) => {
             <div className="text-sm font-medium text-gray-900 dark:text-white">
               {entrada.nombreInsumo}
             </div>
-            <div className="text-xs text-gray-500">ID: {entrada.idInsumo}</div>
+            <div className="text-xs text-gray-500">ID: {entrada.idMovimientoStock}</div>
           </div>
         </div>
       </td>
@@ -34,32 +42,22 @@ export const FilaEntrada = ({ entrada, onEntradaStock }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-            +{entrada.canfidadMovimiento}
-          </span>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {entrada.unidadMedida}
+            +{entrada.cantidadMovimiento}
           </span>
         </div>
       </td>
 
-      {/* Fecha */}
+      {/* Fecha (solo fecha) */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-900 dark:text-white">
-          {formatearFecha(entrada.fechaMovimiento)}
+          {formatearSoloFecha(entrada.fechaMovimiento)}
         </div>
       </td>
 
-      {/* Detalles */}
-      <td className="px-6 py-4">
-        <div className="text-sm text-gray-900 dark:text-white max-w-xs">
-          {entrada.detallesMovimiento}
-        </div>
-      </td>
-
-      {/* Usuario */}
+      {/* Hora (solo hora) */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-900 dark:text-white">
-          {entrada.usuario}
+          {formatearSoloHora(entrada.fechaMovimiento)}
         </div>
       </td>
 

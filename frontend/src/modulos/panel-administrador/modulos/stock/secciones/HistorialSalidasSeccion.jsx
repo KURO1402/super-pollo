@@ -1,7 +1,7 @@
 // librerías
 import { MdHistory } from "react-icons/md";
 // hooks de react
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // importamos nuestros componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; 
@@ -16,39 +16,89 @@ import { useModal } from "../../../hooks/useModal";
 // importamos los componentes que solo vana a servir para construir esta sección
 import { FilaSalida } from "../componentes/FilaSalida";
 import { ModalSalidaStock } from "../componentes/ModalSalidaStock";
-// la data temporal solo para el diseño
-import { salidas } from "../data-temporal/salidas";
+// servicios del backend 
+import { listarMovimientosServicio } from "../servicios/movientosStockServicio";
+import { listarInsumoServicio } from "../servicios/insumosServicios";
 
 const HistorialSalidasSeccion = () => {
-  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); // lo mismo, desestructuración del estado y la función del hook
-  const { filtro, setFiltro, aplicarFiltros } = useFiltro(); // tambien para el hook de filtro
-  const { paginaActual, setPaginaActual, paginar } = usePaginacion(8); // de igual manera para la paginación
-  const [ salidaSeleccionada, setSalidaSeleccionada] = useState(null); // estado para la salida seleccionada
+  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
+  const { filtro, setFiltro, aplicarFiltros } = useFiltro();
+  const { paginaActual, setPaginaActual, paginar } = usePaginacion(8);
+  const [salidaSeleccionada, setSalidaSeleccionada] = useState(null);
+  const [movimientos, setMovimientos] = useState([]);
+  const [insumos, setInsumos] = useState([]);
+  
   // modal para salida de stock
   const modalSalidaStock = useModal(false);
+
+  // Obtener movimientos del backend
+  const obtenerMovimientos = async () => {
+    try {
+      const data = await listarMovimientosServicio();
+      setMovimientos(data);
+    } catch (error) {
+      console.error("Error al obtener movimientos:", error);
+    }
+  };
+
+  // Obtener insumos del backend
+  const obtenerInsumos = async () => {
+    try {
+      const respuesta = await listarInsumoServicio();
+      setInsumos(respuesta.data);
+    } catch (error) {
+      console.error("Error al obtener insumos:", error);
+    }
+  };
+
+  useEffect(() => {
+    obtenerMovimientos();
+    obtenerInsumos();
+  }, []);
+
+  // Filtrar solo salidas
+  const salidas = movimientos.filter(mov => mov.tipoMovimiento === 'salida');
+
   // función para abrir modal de salida
-  const handleSalidaStock = (salidas) => {
-    setSalidaSeleccionada(salidas);
+  const handleSalidaStock = (salida) => {
+    setSalidaSeleccionada(salida);
     modalSalidaStock.abrir();
   };
+
   // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(salidas, [
     "nombreInsumo",
-    "detallesMovimiento",
-    "usuario",
-    "unidadMedida"
+    "idMovimientoStock",
+    "cantidadMovimiento"
   ]);
-  // Aplicar filtros por unidad de medida
-  filtrados = aplicarFiltros(filtrados, "unidadMedida");
+
+  // Aplicar filtro por insumo (si no es "todos")
+  if (filtro !== "todos") {
+    filtrados = filtrados.filter(salida => 
+      salida.nombreInsumo === filtro
+    );
+  }
+
   const { datosPaginados, totalPaginas } = paginar(filtrados);
+
+  // Generar opciones de insumos para el filtro
+  const opcionesInsumos = [
+    { value: "todos", label: "Todos los insumos" },
+    ...insumos.map(insumo => ({
+      value: insumo.nombreInsumo,
+      label: insumo.nombreInsumo
+    }))
+  ];
+
   // Mapear las salidas para las filas de la tabla
   const filasSalidas = datosPaginados.map((salida) => (
     <FilaSalida 
-      key={salida.idMovimiento} 
+      key={salida.idMovimientoStock} 
       salida={salida} 
       onSalidaStock={handleSalidaStock}
-      />
+    />
   ));
+
   return (
     <div className="p-2">
       <div className="mb-4">
@@ -58,42 +108,41 @@ const HistorialSalidasSeccion = () => {
         </div>
         <p className="text-gray-600 dark:text-gray-400">Registro de consumos y ventas de insumos</p>
       </div>
+      
       {/* Barra de búsqueda y filtros */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
           <BarraBusqueda
             valor={terminoBusqueda} 
             onChange={setTerminoBusqueda}
-            placeholder="Buscar por insumo, detalles, usuario o unidad..."
+            placeholder="Buscar por insumo, ID movimiento o cantidad..."
           />
+          
+          {/* Filtro por insumo */}
           <FiltroBusqueda
             valor={filtro}
             onChange={setFiltro} 
-            opciones={[
-              { value: "todos", label: "Todas las unidades" },
-              { value: "kg", label: "Kilogramos (kg)" },
-              { value: "lt", label: "Litros (lt)" },
-              { value: "unid", label: "Unidades (unid)" },
-              { value: "saco", label: "Sacos" },
-              { value: "balde", label: "Baldes" },
-            ]}
+            opciones={opcionesInsumos}
           />
         </div>
       </div>
+      
       {/* Tabla de salidas */}
       <Tabla
-        encabezados={["Insumo", "Cantidad", "Fecha", "Detalles", "Usuario", "Acciones"]}
+        encabezados={["Insumo", "Cantidad", "Fecha", "Hora", "Acciones"]}
         registros={filasSalidas}
       /> 
+      
       <Paginacion
         paginaActual={paginaActual}
         totalPaginas={totalPaginas}
         alCambiarPagina={setPaginaActual}
       />
+      
       <Modal
         estaAbierto={modalSalidaStock.estaAbierto}
         onCerrar={modalSalidaStock.cerrar}
-        titulo={`Salida de Stock: ${modalSalidaStock?.nombreInsumo || ''}`}
+        titulo={`Salida de Stock: ${salidaSeleccionada?.nombreInsumo || ''}`}
         tamaño="md"
         mostrarHeader={true}
         mostrarFooter={false}

@@ -249,23 +249,19 @@ const handleEliminarInsumo = async (idInsumo) => {
           />
         )}
       </Modal>
-      return (
-  <div className="p-2">
-    {/* ... todo el contenido actual ... */}
-    
-    {/* ✅ MODAL DE CONFIRMACIÓN (agregar esto) */}
-    <ModalConfirmacion
-      visible={confirmacionEliminar.confirmacionVisible}
-      onCerrar={cancelarEliminacion}
-      onConfirmar={confirmacionEliminar.confirmarAccion}
-      titulo={confirmacionEliminar.tituloConfirmacion}
-      mensaje={confirmacionEliminar.mensajeConfirmacion}
-      tipo={confirmacionEliminar.tipoConfirmacion}
-      textoConfirmar={confirmacionEliminar.textoConfirmar}
-      textoCancelar={confirmacionEliminar.textoCancelar}
-    />
-  </div>
-);
+      <div className="p-2">
+        {/*  modal de confirmación*/}
+        <ModalConfirmacion
+          visible={confirmacionEliminar.confirmacionVisible}
+          onCerrar={cancelarEliminacion}
+          onConfirmar={confirmacionEliminar.confirmarAccion}
+          titulo={confirmacionEliminar.tituloConfirmacion}
+          mensaje={confirmacionEliminar.mensajeConfirmacion}
+          tipo={confirmacionEliminar.tipoConfirmacion}
+          textoConfirmar={confirmacionEliminar.textoConfirmar}
+          textoCancelar={confirmacionEliminar.textoCancelar}
+        />
+      </div>
     </div>
   );
 };
