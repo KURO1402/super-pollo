@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS cantidadInsumoProducto;
 DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS movimientosStock;
 DROP TABLE IF EXISTS insumos;
+DROP TABLE IF EXISTS imagenesProductos;
 
 -- Tabla de insumos
 CREATE TABLE insumos(
@@ -13,7 +14,7 @@ CREATE TABLE insumos(
     stockInsumo DECIMAL(10,2) NOT NULL,
     unidadMedida VARCHAR(20) NOT NULL,
     categoriaProducto ENUM('insumo','bebida') NOT NULL,
-    estadoInsumo ENUM('1', '0') NOT NULL DEFAULT '1'
+    estadoInsumo TINYINT(1) NOT NULL DEFAULT 1
 );
 
 -- Tabla de movimientos de stock
@@ -26,20 +27,25 @@ CREATE TABLE movimientosStock(
     idInsumo INT,
     idUsuario INT,
     FOREIGN KEY (idInsumo) REFERENCES insumos(idInsumo),
-    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario),
-    INDEX idx_movimientos_idInsumo (idInsumo) 
+    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
 );
 
+CREATE TABLE imagenesProductos(
+    idImagenProducto INT PRIMARY KEY AUTO_INCREMENT,
+    urlImagen VARCHAR(300),
+    publicID VARCHAR(100)
+);
 
 -- Tabla de productos
 CREATE TABLE productos(
     idProducto INT PRIMARY KEY AUTO_INCREMENT,
     nombreProducto VARCHAR(50) NOT NULL,
     descripcionProducto TEXT,
-    imagen VARCHAR(300),
-    unidad VARCHAR(50) NOT NULL,
     precio DECIMAL(10,2) NOT NULL,
-    estadoProducto ENUM('eliminado','activo') NOT NULL DEFAULT 'activo'
+    usaInsumos TINYINT(1) NOT NULL DEFAULT 0,
+    estadoProducto TINYINT(1) NOT NULL DEFAULT 1,
+    idImagenProducto INT,
+    FOREIGN KEY (idImagenProducto) REFERENCES imagenesProductos(idImagenProducto)
 );
 
 -- Relación insumo - producto

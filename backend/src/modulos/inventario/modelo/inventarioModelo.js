@@ -19,8 +19,17 @@ const obtenerInsumosModel = async () => {
 
 // Obtener insumo por ID
 const obtenerInsumoIDModel = async (id) => {
-    const [rows] = await db.query("CALL obtenerInsumoPorID(?)", [id]);
+    let conexion;
+    try {
+        conexion = await db.getConnection();
+    const [rows] = await db.execute("CALL obtenerInsumoPorID(?)", [id]);
     return rows[0][0]; // Devuelve la primera fila del primer resultado
+    } catch (err) {
+        console.error("Error en obtenerInsumoIDModel: ", err.message);
+        throw new Error("Error al obtener al insumo");
+    } finally {
+        if (conexion) conexion.release();
+    }
 };
 
 // Actualizar insumo
