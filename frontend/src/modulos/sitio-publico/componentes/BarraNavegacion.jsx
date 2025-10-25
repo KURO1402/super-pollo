@@ -12,14 +12,27 @@ const enlaces = [
 const BarraNavegacion = () => {
   const locacionRuta = useLocation();
 
+  // Determinar si estamos en una página donde funciona el scroll
+  const esPaginaConScroll = () => {
+    return locacionRuta.pathname === "/" || locacionRuta.pathname === "/usuario";
+  };
+
+  // Determinar la ruta de destino para redirección
+  const obtenerRutaDestino = () => {
+    if (locacionRuta.pathname.startsWith('/admin')) {
+      return "/";
+    } else {
+      return "/";
+    }
+  };
+
   return (
     <nav>
       <ul className="flex flex-wrap justify-center space-x-4 lg:space-x-6">
         {enlaces.map(({ nombre, enlace }) => (
           <li key={nombre}>
-            {/* Verificar si estamos en la página principal O en /usuario */}
-            {locacionRuta.pathname === "/" || locacionRuta.pathname === "/usuario" ? (
-              // Si estamos en "/" o "/usuario" se usa react-scroll
+            {esPaginaConScroll() ? (
+              // Si estamos en página con scroll, usar react-scroll
               <ScrollLink
                 to={enlace}
                 smooth={true}
@@ -36,10 +49,12 @@ const BarraNavegacion = () => {
                 {nombre}
               </ScrollLink>
             ) : (
-              // Si esta en otra ruta, volvemos al home y se manda scrollTo
+              // Si estamos en otra ruta, redirigir al inicio con scroll
               <RouterLink
-                to={locacionRuta.pathname.startsWith('/admin') ? "/" : "/usuario"} // Redirige según el área
-                state={{ scrollTo: enlace }}
+                to={{
+                  pathname: obtenerRutaDestino(),
+                  state: { scrollTo: enlace }
+                }}
                 className="relative cursor-pointer text-gray-100 text-sm font-medium
                   transition-colors duration-200 hover:text-rojo
                   after:content-[''] after:absolute after:bottom-0 after:left-0
