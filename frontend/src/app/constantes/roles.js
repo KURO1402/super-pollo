@@ -85,7 +85,7 @@ export const PERMISOS = {
     usuarios: false,
     
     // Área pública
-    verLandingPage: true,
+    accesoAreaUsuario: true,
     hacerReservas: true,
     verMisReservas: true,
     modificarReservas: true,
@@ -102,8 +102,8 @@ export const PERMISOS = {
 
 export const RUTAS_REDIRECCION = {
   [ROLES.SUPERADMIN]: '/admin',
-  [ROLES.ADMIN]: '/admin',
-  [ROLES.USUARIO]: '/',
+  [ROLES.ADMIN]: '/admin/generar-venta',
+  [ROLES.USUARIO]: '/usuario',
 };
 
 /**
@@ -144,4 +144,12 @@ export const obtenerRutaRedireccion = (idRol) => {
  */
 export const puedeAccederPanelAdmin = (idRol) => {
   return tienePermiso(idRol, 'accesoPanelAdmin');
+};
+/**
+ * Verificar si el usuario puede acceder al área de usuario
+ * @param {number} idRol - ID del rol
+ * @returns {boolean}
+ */
+export const puedeAccederAreaUsuario = (idRol) => {
+  return tienePermiso(idRol, 'accesoAreaUsuario');
 };

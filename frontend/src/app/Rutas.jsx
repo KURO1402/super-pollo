@@ -13,12 +13,16 @@ import Registro from "../modulos/sitio-publico/paginas/Registro";
 import InicioSesion from "../modulos/sitio-publico/paginas/InicioSesion";
 import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 
-// Reservas usuario autenticado
+// Páginas del usuario
+import EstructuraBaseUsuario from "../modulos/sitio-publico/layout/EstructuraBaseUsuario";
+import InicioUsuario from "../modulos/sitio-publico/paginas/InicioUsuario";
+import NuevaReservacion from "../modulos/sitio-publico/paginas/NuevaReservacion";
+import MisReservaciones from "../modulos/sitio-publico/paginas/MisReservaciones";
+import PerfilUsuario from "../modulos/sitio-publico/paginas/PerfilUsuario";
 
 // PANEL DE ADMINISTRACION
 import EstructuraBaseAdmin from "../modulos/panel-administrador/layout/EstructuraBaseAdmin";
 import PanelDeControl from "../modulos/panel-administrador/paginas/PanelDeControl";
-
 
 // secciones de venta
 import GenerarVenta from "../modulos/panel-administrador/modulos/ventas/secciones/GenerarVentaSeccion";
@@ -59,6 +63,24 @@ const AppRutas = () => {
                 // las demás rutas 
                 { path: '/registro', element: <Registro /> },
                 { path: '/inicio-sesion', element: <InicioSesion /> },
+            ]
+        },
+
+        {
+            path: '/usuario',
+            element: <RutaPrivadaConRol rolesPermitidos={[ROLES.USUARIO]} redirectTo="/" />,
+            children: [
+                {
+                element: <EstructuraBaseUsuario />,
+                children: [
+                    // rutas
+                    { index: true, element: <InicioUsuario /> },
+                    { path:'mis-reservaciones', element: <MisReservaciones /> },
+                    { path: 'nueva-reservacion', element: <NuevaReservacion /> },
+                    { path: 'reservaciones', element: <MisReservaciones /> },
+                    { path: 'perfil', element: <PerfilUsuario /> }, // Nuevo componente, no reutilizado
+                ]
+                }
             ]
         },
 
