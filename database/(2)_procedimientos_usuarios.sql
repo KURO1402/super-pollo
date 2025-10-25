@@ -294,4 +294,3 @@ BEGIN
 END //
 
 DELIMITER ;
-

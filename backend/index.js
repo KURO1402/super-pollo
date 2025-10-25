@@ -24,7 +24,7 @@ const movimientoRoutes = require("./src/modulos/inventario/rutas/movimientoRutas
 const cajaRoutes = require("./src/modulos/caja/cajaRutas.js");
 
 //Rutas para imagenes
-const productoRoutes = require("./src/modulos/productos/productosRutas")
+const productoRoutes = require("./src/modulos/inventario/rutas/productoRutas");
 
 const app = express();
 
