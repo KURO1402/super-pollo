@@ -19,6 +19,8 @@ DROP PROCEDURE IF EXISTS obtenerProductoPorId;
 DROP PROCEDURE IF EXISTS eliminarProducto;
 DROP PROCEDURE IF EXISTS actualizarImagenProducto;
 DROP PROCEDURE IF EXISTS obtenerPublicIDPorProducto;
+DROP PROCEDURE IF EXISTS actualizarCantidadUsoInsumoProducto;
+DROP PROCEDURE IF EXISTS verificarRelacionProductoInsumo;
 
 
 DELIMITER //
@@ -411,6 +413,50 @@ BEGIN
 
     -- Devolver el resultado
     SELECT v_publicID AS publicID;
+END //
+
+-- Procedimiento para actualizar las cantidades de uso de un insumo en un producto
+CREATE PROCEDURE actualizarCantidadUsoInsumoProducto(
+    IN p_idProducto INT,
+    IN p_idInsumo INT,
+    IN p_nuevaCantidad DECIMAL(10,2)
+)
+BEGIN
+    -- Manejador de errores SQL
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar la cantidad de uso del insumo en el producto';
+    END;
+
+    START TRANSACTION;
+    -- Actualizar la cantidad de uso
+    UPDATE cantidadInsumoProducto
+    SET cantidadUso = p_nuevaCantidad
+    WHERE idProducto = p_idProducto AND idInsumo = p_idInsumo;
+
+    COMMIT;
+END //
+
+-- Procedimiento para verificar si existe una relacion entre insumo y producto
+CREATE PROCEDURE verificarRelacionProductoInsumo(
+    IN p_idProducto INT,
+    IN p_idInsumo INT
+)
+BEGIN
+
+    -- Manejador de errores SQL
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al verificar la relación entre producto e insumo';
+    END;
+
+    -- Verificar existencia
+    SELECT COUNT(*) AS contador
+    FROM cantidadInsumoProducto
+    WHERE idProducto = p_idProducto AND idInsumo = p_idInsumo;
 END //
 
 DELIMITER ;

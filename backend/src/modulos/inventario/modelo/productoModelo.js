@@ -160,7 +160,44 @@ const obtenerPublicIdImagenModel = async (idProducto) => {
     } finally {
         if (conexion) conexion.release();
     }
-}
+};
+
+// Modelo actualiza la cantidad de uso de un insumo para un producto determinado
+const actualizarCantidadUsoInsumoProductoModel = async (idProducto, idInsumo, nuevaCantidad) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        await conexion.execute("CALL actualizarCantidadUsoInsumoProducto(?, ?, ?)", [
+            idProducto,
+            idInsumo,
+            nuevaCantidad
+        ]);
+
+        return { ok: true, mensaje: "Cantidad de uso actualizada correctamente" };
+    } catch (err) {
+        console.error("Error en actualizarCantidadUsoInsumoProductoModel:", err.message);
+        throw new Error("Error al actualizar la cantidad de uso del insumo en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para verificar relacion de un insumo y producto
+const verificarRelacionProductoInsumoModel = async (idProducto, idInsumo) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.execute("CALL verificarRelacionProductoInsumo(?, ?)", [idProducto, idInsumo]);
+
+        // El procedimiento devuelve un COUNT(*) como 'contador'
+        return rows[0][0].contador;
+    } catch (err) {
+        console.error("Error en verificarRelacionProductoInsumoModel:", err.message);
+        throw new Error("Error al verificar la relación entre producto e insumo en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
 
 module.exports = {
     insertarProductoModel,
@@ -171,5 +208,7 @@ module.exports = {
     obtenerProductoPorIdModel,
     eliminarProductoModel,
     actualizarImagenProductoModel,
-    obtenerPublicIdImagenModel
+    obtenerPublicIdImagenModel,
+    actualizarCantidadUsoInsumoProductoModel,
+    verificarRelacionProductoInsumoModel
 }

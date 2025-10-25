@@ -1,7 +1,7 @@
 const cloudinary = require("../../../config/cloudinaryConfig");
 const fs = require('fs');
-const { insertarProductoModel, insertarCantidadInsumoProductoModel, validarProductoPorNombre, registrarImagenProductoModel, actualizarProductoModel, obtenerProductoPorIdModel, eliminarProductoModel, actualizarImagenProductoModel, obtenerPublicIdImagenModel } = require("../modelo/productoModelo");
-const { validarInsertarProduto, validarActualizarProducto } = require("../validaciones/productoValidaciones");
+const { insertarProductoModel, insertarCantidadInsumoProductoModel, validarProductoPorNombre, registrarImagenProductoModel, actualizarProductoModel, obtenerProductoPorIdModel, eliminarProductoModel, actualizarImagenProductoModel, obtenerPublicIdImagenModel, actualizarCantidadUsoInsumoProductoModel, verificarRelacionProductoInsumoModel } = require("../modelo/productoModelo");
+const { validarInsertarProduto, validarActualizarProducto, validarActualizarCantidadesProducto } = require("../validaciones/productoValidaciones");
 
 const insertarProductoService = async (datos, file) => {
     
@@ -103,7 +103,7 @@ const actualizarImagenProductoService = async (idProducto, file) => {
     };
 
     const publicID = await obtenerPublicIdImagenModel(idProducto);
-    
+
     let cloudinaryResult
     try {
         await cloudinary.uploader.destroy(publicID);
@@ -119,11 +119,35 @@ const actualizarImagenProductoService = async (idProducto, file) => {
         ok: true,
         mensaje: "Imagen actualizada correctamente"
     }
+};
+
+// Servicio para actualizar cantidad de uso de insumos de un producto
+const actualizarCantidadUsoInsumoProductoService = async (datos) => {
+
+    validarActualizarCantidadesProducto(datos);
+
+    const { idInsumo, idProducto, nuevaCantidad } = datos;
+    const producto = await obtenerProductoPorIdModel(idProducto);
+    if(producto.length === 0){
+        throw Object.assign(new Error("El producto especificado no existe"), { status: 400 });
+    };
+    if(producto[0].usaInsumos === 0){
+        throw Object.assign(new Error("El producto no usa insumos"), { status: 400 });
+    }
+
+    const contador = await verificarRelacionProductoInsumoModel(idProducto, idInsumo);
+    if(contador === 0){
+        throw Object.assign(new Error("No existe relación entre el producto y el insumo"), { status: 400 });
+    }
+   const respuesta = await actualizarCantidadUsoInsumoProductoModel(idProducto, idInsumo, nuevaCantidad);
+
+   return respuesta;
 }
 
 module.exports = {
     insertarProductoService,
     actualizarProductoService,
     eliminarProductoService,
-    actualizarImagenProductoService
+    actualizarImagenProductoService,
+    actualizarCantidadUsoInsumoProductoService
 }

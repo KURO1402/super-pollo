@@ -110,10 +110,30 @@ const validarActualizarProducto = (idProducto, datos) => {
         throw Object.assign(new Error("El precio debe ser mayor a 0"), { status: 400 });
     }
 
+};
+
+const validarActualizarCantidadesProducto = (datos) => {
+    if (!datos || typeof datos !== 'object') {
+        throw Object.assign(new Error("Se necesitan tanto el id del insumo como del producto y la nueva cantidad"), { status: 400 });
+    };
+    const { idInsumo, idProducto, nuevaCantidad } = datos;
+    if(!idInsumo || typeof idInsumo !== "number"){
+        throw Object.assign(new Error("Se necesita el id del insumo"), { status: 400 });
+    }
+    if(!idProducto || typeof idProducto !== "number"){
+        throw Object.assign(new Error("Se necesita el id del producto"), { status: 400 });
+    }
+    if(!nuevaCantidad || typeof idInsumo !== "number"){
+        throw Object.assign(new Error("Se necesita la nueva cantidad de uso"), { status: 400 });
+    }
+    if(nuevaCantidad <= 0){
+        throw Object.assign(new Error("La nueva cantidad debe ser mayor a 0"), { status: 400 });
+    }
 }
 
 
 module.exports = {
     validarInsertarProduto,
-    validarActualizarProducto
+    validarActualizarProducto,
+    validarActualizarCantidadesProducto
 }
