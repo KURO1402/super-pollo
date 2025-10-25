@@ -5,6 +5,7 @@ const {
   obtenerReservacionModel,
   actualizarReservacionModel,
   insertarPagoModel,
+  actualizarPagoModel,
   obtenerPagoModel,
   insertarDetalleReservacionModel,
   obtenerDetalleReservacionModel
@@ -32,7 +33,7 @@ const obtenerReservacionService = async (idReservacion) => {
   // validacion de que el idReservacion es obligatorio
   if (!idReservacion)
     // si falta algun dato se lanza el error
-    throw Object.assing(new Error("Faltan datos obligatorios"), { status: 400 });
+    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
     // si todo esta bien se llama al modelo para ejecutar el procedimiento
     return await obtenerReservacionModel(idReservacion);
 }
@@ -42,29 +43,35 @@ const actualizarReservacionService = async (datos) => {
   // validacion de que el idReservacion es obligatorio
   if(!datos.idReservacion)
     // si falta algun dato se lanza el error
-    throw Object.assing(new Error("Faltan datos obligatorios"), { status: 400 });
+    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
     // si todo esta bien se llama al modelo para ejecutar el procedimiento
     return await actualizarReservacionModel(datos);
 }
 
-//servicio para actualizar una reservacion
+//servicio para insertar el pago de una reservacion
 const insertarPagoService = async (datos) => {
   // validacion de que el idReservacion es obligatorio
   if(!datos.idReservacion)
     // si falta algun dato se lanza el error
-    throw Object.assing(new Error("Faltan datos obligatorios"), { status: 400 });
+    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
     // si todo esta bien se llama al modelo para ejecutar el procedimiento
     return await insertarPagoModel(datos);
 }    
+//servicio para actualizar el pago de una reservacion
+const actualizarPagoService = async ({ idTransaccion, estadoPago }) => {
+  if (!idTransaccion || !estadoPago)
+    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
+  return await actualizarPagoModel({ idTransaccion, estadoPago });
+};
 
 //servicio para obtener pago por id de reservacion
 const obtenerPagoService = async (idReservacion) => {
   // validacion de que el idReservacion es obligatorio
   if(!idReservacion)
     // si falta algun dato se lanza el error
-    throw Object.assing(new Error("Faltan datos obligatorios"), { status: 400 });
+    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
     // si todo esta bien se llama al modelo para ejecutar el procedimiento
-    return await obtenerPagoModel(datos);
+    return await obtenerPagoModel(idReservacion);
 }    
 
 //servicio para insertar detalle de reservacion
@@ -72,7 +79,7 @@ const insertarDetalleReservacionService = async (datos) => {
   // validacion de que el idReservacion es obligatorio
   if(!datos.idReservacion || !datos.idProducto)
     // si falta algun dato se lanza el error
-    throw Object.assing(new Error("Faltan datos obligatorios"), { status: 400 });
+    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
     // si todo esta bien se llama al modelo para ejecutar el procedimiento
     return await insertarDetalleReservacionModel(datos);
 } 
@@ -82,7 +89,7 @@ const obtenerDetalleReservacionService = async (idReservacion) => {
   // validacion de que no falten datos
   if(!idReservacion)
     // si falta algun dato se lanza el error
-    throw Object.assing(new Error("Faltan datos obligatorios"), { status: 400 });
+    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
     // si todo esta bien se llama al modelo para ejecutar el procedimiento
     return await obtenerDetalleReservacionModel(idReservacion);
 }    
@@ -94,6 +101,7 @@ module.exports = {
   obtenerReservacionService,
   actualizarReservacionService,
   insertarPagoService,
+  actualizarPagoService,
   obtenerPagoService,
   insertarDetalleReservacionService,
   obtenerDetalleReservacionService

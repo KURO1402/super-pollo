@@ -6,6 +6,7 @@ DROP PROCEDURE IF EXISTS listarReservaciones;
 DROP PROCEDURE IF EXISTS obtenerReservacion;
 DROP PROCEDURE IF EXISTS actualizarReservacion;
 DROP PROCEDURE IF EXISTS insertarPago;
+DROP PROCEDURE IF EXISTS actualizarPago;
 DROP PROCEDURE IF EXISTS obtenerPago;
 DROP PROCEDURE IF EXISTS insertarDetalleReservacion;
 DROP PROCEDURE IF EXISTS obtenerDetalleReservacion;
@@ -110,6 +111,17 @@ BEGIN
         p_montoTotal, p_montoPagado, p_porcentajePago,
         p_idTransaccion, NOW(), p_estadoPago, p_idReservacion
     );
+END //
+
+/* PROCEDIMIENTO ALMACENADO actualizarPago */
+CREATE PROCEDURE actualizarPago(
+    IN p_idTransaccion VARCHAR(100),
+    IN p_estadoPago ENUM('pendiente','confirmado','fallido')
+)
+BEGIN
+    UPDATE pago
+    SET estadoPago = p_estadoPago
+    WHERE idTransaccion = p_idTransaccion;
 END //
 
 /* PROCEDIMIENTO ALMACENADO obtenerPago (por ID de Reservacion) */

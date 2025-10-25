@@ -44,7 +44,7 @@ const listarReservacionesController = async (req, res) => {
 const obtenerReservacionController = async (req, res) => {
   try { 
     // llamamos al servicio y esperamos la respuesta
-    const result = await obtenerReservacionService(req.query.id);
+    const result = await obtenerReservacionService(req.params.id);
     // si todo sale bien devuelve el mensaje de exito 
     return res.status(200).json({ ok: true, reservacion: result });
   } catch (err) { // capturar cualquier error del try
@@ -55,7 +55,7 @@ const obtenerReservacionController = async (req, res) => {
   }
 } 
 
-// controlador para obtener una reservacion por id
+// controlador para actualizar una reservacion por id
 const actualizarReservacionController = async (req, res) => {
   try { 
     // llamamos al servicio y esperamos la respuesta
@@ -121,7 +121,7 @@ const obtenerDetalleReservacionController = async (req, res) => {
     // llamamos al servicio y esperamos la respuesta
     const result = await obtenerDetalleReservacionService(req.params.idReservacion);
     // si todo sale bien devuelve el mensaje de exito
-    return res.status(200).json({ ok: true, pago: result });
+    return res.status(200).json({ ok: true, detalle: result });
   } catch (err) { // capturar cualquier error del try
     // mostramos el error en consola
     console.error("Error en obtenerDetalleReservacionController:", err.message);

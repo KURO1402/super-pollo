@@ -123,6 +123,25 @@ const insertarPagoModel = async (datos) => {
     }
 };
 
+// modelo para actualizar estado del pago (por idTransaccion)
+const actualizarPagoModel = async (datos) => {
+  const { idTransaccion, estadoPago } = datos;
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    await conexion.beginTransaction();
+    await conexion.execute("CALL actualizarPago(?, ?)", [idTransaccion, estadoPago]);
+    await conexion.commit();
+    return { mensaje: "Estado del pago actualizado exitosamente" };
+  } catch (err) {
+    if (conexion) await conexion.rollback();
+    console.error("Error en actualizarPagoModel:", err.message);
+    throw new Error("Error al actualizar estado del pago");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
 // modelo para obtener pago por id de reservacion
 const obtenerPagoModel = async (idReservacion) => {
     let conexion; // declaramos la variable conexion
@@ -151,7 +170,7 @@ const insertarDetalleReservacionModel = async (datos) => {
       conexion = await pool.getConnection(); // pedimos una conexion del pool
       await conexion.beginTransaction(); // iniciamos una transaccion 
       // ejecutamos el llamado al procedimiento almacenado
-      await conexion.execute("CALL insertarDetalleReservacion(?, ?, ?, ?, ?)", [
+      await conexion.execute("CALL insertarDetalleReservacion(?, ?, ?, ?)", [
         cantidadProductoReservacion, precioUnitario, idReservacion, idProducto  
       ]);
       // confirmamos que la transaccion fue exitosa
@@ -196,6 +215,7 @@ module.exports = {
   obtenerReservacionModel,
   actualizarReservacionModel,
   insertarPagoModel,
+  actualizarPagoModel,
   obtenerPagoModel,
   insertarDetalleReservacionModel,
   obtenerDetalleReservacionModel
