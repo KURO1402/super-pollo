@@ -1,15 +1,18 @@
 // Conexión a la BD
 const pool = require("../../../config/conexionDB");
 
-const insertarProductoModel = async (nombreProducto, descProducto, precio, usaInsumo, idImagen) => {
+const insertarProductoModel = async (nombreProducto, descProducto, precio, usaInsumo) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [result] = await conexion.execute("CALL registrarProducto(?, ?, ?, ?, ?)", [nombreProducto, descProducto, precio, usaInsumo, idImagen]);
+        const [result] = await conexion.execute("CALL registrarProducto(?, ?, ?, ?)", [nombreProducto, descProducto, precio, usaInsumo]);
+
+        if(result[1].affectedRows === 0){
+            throw new Error("No se pudo registrar el producto");
+        };
 
         const respuesta = result[0][0];
-
-        return respuesta;
+        return respuesta.idGenerado;
 
     } catch (err) {
         console.error("Error en insertarProductoModel: ", err.message);
@@ -25,7 +28,7 @@ const insertarCantidadInsumoProductoModel = async (idProducto, idInsumo, cantida
     try {
         conexion = await pool.getConnection();
         const [result] = await conexion.execute("CALL registrarCantidadInsumoProducto(?, ?, ?)", [idProducto, idInsumo, cantidad]);
-        if(result[1].affectedRows === 0){
+        if(result.affectedRows === 0){
             throw new Error("No se registro a cantidad de insumos para un producto");
         };
         return true;
@@ -53,12 +56,15 @@ const validarProductoPorNombre = async (nombreProducto) => {
 };
 
 // Modelo para registrar una imagen de un producto
-const registrarImagenProductoModel = async (urlImagen, publicId) => {
+const registrarImagenProductoModel = async (urlImagen, publicId, idProducto) => {
     let conexion
     try {
         conexion = await pool.getConnection();
-        const [result] = await conexion.execute("CALL registrarImagenProducto(?, ?)", [urlImagen, publicId]);
-        return result[0][0].idInsertado;
+        const [result] = await conexion.execute("CALL registrarImagenProducto(?, ?, ?)", [urlImagen, publicId, idProducto]);
+        if(result.affectedRows === 0){
+            throw new Error("No se pudo insertar la imagen del producto");
+        }
+        return true;
     } catch (err) {
         console.error("Error en registrarImagenProductoModel: ", err.message);
         throw new Error("Error al validar el producto en la base de datos");

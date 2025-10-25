@@ -51,20 +51,15 @@ const validarInsertarProduto = async (datos) => {
     for (const insumo of insumos) {
         // Validar estructura del insumo
         if (typeof insumo !== 'object' || insumo === null) {
-            erroresInsumos.push("Todos los insumos deben ser objetos");
-            continue;
+            throw Object.assign(new Error("Se necesitan datos del insumo"), { status: 400 });
         }
-
         if (!insumo.idInsumo || insumo.cantidadUso === null || insumo.cantidadUso === undefined || typeof insumo.idInsumo !== "number" || typeof insumo.cantidadUso !== "number") {
-            erroresInsumos.push("Cada insumo debe tener idInsumo y cantidadUso como números");
-            continue;
+            throw Object.assign(new Error("Cada insumo debe tener el identificador del insumo y su cantidad de uso en formato valido"), { status: 400 });
         }
 
         if (insumo.cantidadUso <= 0) {
-            erroresInsumos.push("La cantidad tiene que ser un número mayor a 0");
-            continue;
+            throw Object.assign(new Error("La cantidad tiene que ser mayor a 0"), { status: 400 });
         }
-
         // Validar existencia en base de datos
         try {
             const insumoExistente = await obtenerInsumoIDModel(insumo.idInsumo);

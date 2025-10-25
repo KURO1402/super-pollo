@@ -3,8 +3,18 @@ const { insertarProductoService, actualizarProductoService, eliminarProductoServ
 
 const insertarProductoController = async (req, res) => {
     try {
-         const datos = JSON.parse(req.body.datos); // JSON del producto
-        const file = req.file;    
+        if (!req.body.datos) {
+            throw Object.assign(new Error("Se necesita los datos del producto."), { status: 400 });
+        }
+
+        // 🧠 Intentar convertir el JSON
+        let datos;
+        try {
+            datos = JSON.parse(req.body.datos);
+        } catch (parseError) {
+            throw Object.assign(new Error("Formato incorrecto de los datos del producto."), { status: 400 });
+        }
+        const file = req.file;
         const respuesta = await insertarProductoService(datos, file);
         return res.status(200).json(respuesta);
     } catch (err) {

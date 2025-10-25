@@ -172,8 +172,7 @@ CREATE PROCEDURE registrarProducto(
     IN p_nombreProducto VARCHAR(50),
     IN p_descripcionProducto TEXT,
     IN p_precio DECIMAL(10,2),
-    IN p_usaInsumos TINYINT(1),
-    IN p_idImagenProducto INT
+    IN p_usaInsumos TINYINT(1)
 )
 BEGIN
     DECLARE v_idProducto INT;
@@ -192,15 +191,13 @@ BEGIN
         nombreProducto,
         descripcionProducto,
         precio,
-        usaInsumos,
-        idImagenProducto
+        usaInsumos
     )
     VALUES (
         p_nombreProducto,
         p_descripcionProducto,
         p_precio,
-        p_usaInsumos,
-        p_idImagenProducto
+        p_usaInsumos
     );
 
     -- Obtener el ID del producto recién insertado
@@ -211,8 +208,7 @@ BEGIN
 
     -- Retornar el resultado
     SELECT 
-        v_idProducto AS idGenerado,
-        CONCAT('Producto ', p_nombreProducto, ' registrado correctamente.') AS mensaje;
+        v_idProducto AS idGenerado;
 END //
 
 -- Procedimiento para registrar la cantidad de uso de un insumo en un producto
@@ -266,27 +262,25 @@ END //
 -- Procedimiento que registra una imagen 
 CREATE PROCEDURE registrarImagenProducto(
     IN p_urlImagen VARCHAR(300),
-    IN p_publicID VARCHAR(100)
+    IN p_publicID VARCHAR(100),
+    IN p_idProducto INT
 )
 BEGIN
-    DECLARE v_idImagen INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No se pudo agregar la imagen del producto';
         ROLLBACK;
-        SELECT 'Error al registrar la imagen. Transacción revertida.' AS mensaje;
     END;
 
     START TRANSACTION;
 
-    INSERT INTO imagenesProductos (urlImagen, publicID)
-    VALUES (p_urlImagen, p_publicID);
-
-    SET v_idImagen = LAST_INSERT_ID();
+    INSERT INTO imagenesProductos (urlImagen, publicID, idProducto)
+    VALUES (p_urlImagen, p_publicID, p_idProducto);
 
     COMMIT;
 
-    SELECT v_idImagen AS idInsertado;
 END //
 
 -- Procedimiento para actualizar datos de un producto

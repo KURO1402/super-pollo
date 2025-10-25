@@ -2,10 +2,12 @@ USE super_pollo;
 
 -- Eliminar si existen
 DROP TABLE IF EXISTS cantidadInsumoProducto;
-DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS movimientosStock;
 DROP TABLE IF EXISTS insumos;
+DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS imagenesProductos;
+
+
 
 -- Tabla de insumos
 CREATE TABLE insumos(
@@ -30,12 +32,6 @@ CREATE TABLE movimientosStock(
     FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
 );
 
-CREATE TABLE imagenesProductos(
-    idImagenProducto INT PRIMARY KEY AUTO_INCREMENT,
-    urlImagen VARCHAR(300),
-    publicID VARCHAR(100)
-);
-
 -- Tabla de productos
 CREATE TABLE productos(
     idProducto INT PRIMARY KEY AUTO_INCREMENT,
@@ -43,9 +39,15 @@ CREATE TABLE productos(
     descripcionProducto TEXT,
     precio DECIMAL(10,2) NOT NULL,
     usaInsumos TINYINT(1) NOT NULL DEFAULT 0,
-    estadoProducto TINYINT(1) NOT NULL DEFAULT 1,
-    idImagenProducto INT,
-    FOREIGN KEY (idImagenProducto) REFERENCES imagenesProductos(idImagenProducto)
+    estadoProducto TINYINT(1) NOT NULL DEFAULT 1
+);
+
+CREATE TABLE imagenesProductos(
+    idImagenProducto INT PRIMARY KEY AUTO_INCREMENT,
+    urlImagen VARCHAR(300),
+    publicID VARCHAR(100),
+    idProducto INT,
+    FOREIGN KEY (idProducto) REFERENCES productos(idProducto)
 );
 
 -- Relación insumo - producto
