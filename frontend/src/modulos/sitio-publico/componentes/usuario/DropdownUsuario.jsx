@@ -7,8 +7,8 @@ import {
   FaSignOutAlt,
   FaChevronDown
 } from 'react-icons/fa';
-import { useAutenticacionGlobal } from '../../../app/estado-global/autenticacionGlobal'; // importamos el estado global
-import { mostrarAlerta } from '../../../utilidades/toastUtilidades';
+import { useAutenticacionGlobal } from '../../../../app/estado-global/autenticacionGlobal'; // importamos el estado global
+import { mostrarAlerta } from '../../../../utilidades/toastUtilidades';
 // se crea el componente
 const DropdownUsuario = ({ usuario, mobile = false }) => {
   const [dropdownAbierto, setDropdownAbierto] = useState(false);

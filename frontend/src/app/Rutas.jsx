@@ -15,10 +15,10 @@ import NotFound from "../modulos/sitio-publico/paginas/NotFound";
 
 // Páginas del usuario
 import EstructuraBaseUsuario from "../modulos/sitio-publico/layout/EstructuraBaseUsuario";
-import InicioUsuario from "../modulos/sitio-publico/paginas/InicioUsuario";
-import NuevaReservacion from "../modulos/sitio-publico/paginas/NuevaReservacion";
-import MisReservaciones from "../modulos/sitio-publico/paginas/MisReservaciones";
-import PerfilUsuario from "../modulos/sitio-publico/paginas/PerfilUsuario";
+import InicioUsuario from "../modulos/sitio-publico/paginas/usuario/InicioUsuario";
+import NuevaReservacion from "../modulos/sitio-publico/paginas/usuario/NuevaReservacion";
+import MisReservaciones from "../modulos/sitio-publico/paginas/usuario/MisReservaciones";
+import PerfilUsuario from "../modulos/sitio-publico/paginas/usuario/PerfilUsuario";
 
 // PANEL DE ADMINISTRACION
 import EstructuraBaseAdmin from "../modulos/panel-administrador/layout/EstructuraBaseAdmin";

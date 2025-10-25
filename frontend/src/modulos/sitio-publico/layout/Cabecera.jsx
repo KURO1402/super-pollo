@@ -6,7 +6,7 @@ import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacion
 import BarraNavegacion from "../componentes/BarraNavegacion";
 import BotonIniciarSesion from "../componentes/BotonIniciarSesion";
 import BotonRegistro from "../componentes/BotonRegistro";
-import DropdownUsuario from "../componentes/DropdownUsuario";
+import DropdownUsuario from "../componentes/usuario/DropdownUsuario";
 import NombreEmpresa from "../../../assets/imagenes/Nombre_Empresa.png";
 import Logo from "../../../assets/imagenes/Logo.svg";
 import { ROLES } from "../../../app/constantes/roles";
