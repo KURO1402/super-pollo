@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { insertarProductoService, actualizarProductoService, eliminarProductoService, actualizarImagenProductoService, actualizarCantidadUsoInsumoProductoService } = require("../servicio/productoServicio");
+const { insertarProductoService, actualizarProductoService, eliminarProductoService, actualizarImagenProductoService, actualizarCantidadUsoInsumoProductoService, eliminarCantidadInsumoProductoService, insertarCantidadInsumoProductoService } = require("../servicio/productoServicio");
 
 const insertarProductoController = async (req, res) => {
     try {
@@ -103,12 +103,48 @@ const actualizarCantidadUsoInsumoProductoController = async (req, res) => {
             mensaje: err.message || "Error interno del servidor",
         });
     }
-}
+};
+
+// Controlador para eliminar la cantidad de insumos que usa un producto
+const eliminarCantidadInsumoProductoController = async (req, res) => {
+    try {
+        const respuesta = await eliminarCantidadInsumoProductoService(req.body);
+        return res.status(200).json(respuesta);
+    } catch (err) {
+        // Manejo centralizado de errores
+        console.error("Error en eliminarCantidadInsumoProductoController:", err.message);
+
+        // Determinar código de estado (usar 500 por defecto si no está especificado)
+        const statusCode = err.status || 500;
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
+};
+
+// Controlador para insertar una cantidad de insumos de un producto
+const insertarCantidadInsumoProductoController = async (req, res) => {
+    try {
+        const respuesta = await insertarCantidadInsumoProductoService(req.body);
+        return res.status(201).json(respuesta);
+    } catch (err) {
+        console.error("Error en insertarCantidadInsumoProductoController:", err.message);
+
+        const statusCode = err.status || 500;
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
+};
 
 module.exports = {
     insertarProductoController,
     actualizarProductoController,
     eliminarProductoController,
     actualizarImagenProductoController,
-    actualizarCantidadUsoInsumoProductoController
+    actualizarCantidadUsoInsumoProductoController,
+    eliminarCantidadInsumoProductoController,
+    insertarCantidadInsumoProductoController
 }

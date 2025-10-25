@@ -199,6 +199,74 @@ const verificarRelacionProductoInsumoModel = async (idProducto, idInsumo) => {
     }
 };
 
+// Modelo para eliminar la cantidad de insumos que usa un prodcuto
+const eliminarCantidadInsumoProductoModel = async (idProducto, idInsumo) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute(
+            "CALL eliminarCantidadInsumoProducto(?, ?)",
+            [idProducto, idInsumo]
+        );
+
+        if (result.affectedRows === 0) {
+            throw new Error("No se pudo eliminar la relación producto-insumo en la base de datos");
+        }
+
+        return { ok: true, mensaje: "Cantidad de uso eliminada correctamente" };
+    } catch (err) {
+        console.error("Error en eliminarCantidadInsumoProductoModel:", err.message);
+        throw new Error("Error al eliminar la relación producto-insumo de la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Procedimiento almacenado que actualiza el estado de si usa insumos
+const actualizarUsaInsumosProductoModel = async (idProducto, usaInsumo) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute(
+            "CALL actualizarUsaInsumosProducto(?, ?)",
+            [idProducto, usaInsumo]
+        );
+
+        if (result.affectedRows === 0) {
+            throw new Error("No se pudo actualizar el campo usaInsumos del producto en la base de datos");
+        }
+
+        return true;
+    } catch (err) {
+        console.error("Error en actualizarUsaInsumosProductoModel:", err.message);
+        throw new Error("Error al actualizar el campo usaInsumos del producto en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para obtener el numero de insumos que usa un producto
+const contarInsumosPorProductoModel = async (idProducto) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.execute(
+            "CALL contarInsumosPorProducto(?)",
+            [idProducto]
+        );
+
+        // El procedimiento devuelve un resultado dentro de rows[0]
+        const totalInsumos = rows[0][0]?.totalInsumos;
+
+        return totalInsumos;
+    } catch (err) {
+        console.error("Error en contarInsumosPorProductoModel:", err.message);
+        throw new Error("Error al contar los insumos del producto en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 module.exports = {
     insertarProductoModel,
     insertarCantidadInsumoProductoModel,
@@ -210,5 +278,8 @@ module.exports = {
     actualizarImagenProductoModel,
     obtenerPublicIdImagenModel,
     actualizarCantidadUsoInsumoProductoModel,
-    verificarRelacionProductoInsumoModel
+    verificarRelacionProductoInsumoModel,
+    eliminarCantidadInsumoProductoModel,
+    actualizarUsaInsumosProductoModel,
+    contarInsumosPorProductoModel
 }
