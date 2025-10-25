@@ -16,9 +16,6 @@ const comprobanteRoutes = require("./src/modulos/ventas/rutas/comprobanteRutas")
 //ruta para reservaciones
 const reservacionesRoutes = require("./src/modulos/reservaciones/reservacionesRutas.js");
 
-//Importar webhook de Mercado Pago
-const mercadoPagoWebhook = require("./src/servicios/mercadoPagoWebhook.js");
-
 //rutas para inventario
 const inventarioRoutes = require("./src/modulos/inventario/rutas/inventarioRutas.js");
 const movimientoRoutes = require("./src/modulos/inventario/rutas/movimientoRutas.js");
@@ -54,7 +51,6 @@ app.use('/fuente-datos', fuenteDatosRouter);
 app.use('/inventario', inventarioRoutes);
 app.use('/inventario-movimientos', movimientoRoutes)
 app.use('/reservaciones', reservacionesRoutes);
-app.use('/mercadopago', mercadoPagoWebhook);
 app.use('/caja', cajaRoutes);
 
 // Iniciar servidor

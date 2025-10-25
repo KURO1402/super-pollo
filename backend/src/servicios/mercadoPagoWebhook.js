@@ -12,7 +12,7 @@ const client = new MercadoPagoConfig({
 });
 
 // Ruta del webhook
-router.post('/webhook', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const evento = req.body;
 

@@ -71,7 +71,7 @@ const obtenerPagoService = async (idReservacion) => {
     // si falta algun dato se lanza el error
     throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
     // si todo esta bien se llama al modelo para ejecutar el procedimiento
-    return await obtenerPagoModel(datos);
+    return await obtenerPagoModel(idReservacion);
 }    
 
 //servicio para insertar detalle de reservacion

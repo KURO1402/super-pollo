@@ -12,6 +12,8 @@ const {
 } = require("./reservacionesControlador.js")
 // importamos mercadoPago.js
 const { crearPreferencia } = require('../../servicios/mercadoPago.js');
+// importamos el webhook de Mercado Pago
+const mercadoPagoWebhook = require('../../servicios/mercadoPagoWebhook.js');
 
 // creamos el enrutador
 const router = express.Router();
@@ -44,6 +46,9 @@ router.post("/:idReservacion/crear-preferencia", async (req, res) => {
         res.status(500).json({ ok: false, mensaje: err.message });
     }
 });
+
+// ruta para recibir notificaciones del webhook de Mercado Pago
+router.use("/mercadopago/webhook", mercadoPagoWebhook);
 
 // exportamos el enrutador
 module.exports = router;
