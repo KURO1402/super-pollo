@@ -80,7 +80,7 @@ const actualizarProductoModel = async (idProducto, nombreProducto, descProducto,
         conexion = await pool.getConnection();
         const [result] = await conexion.execute("CALL actualizarProducto(?, ?, ? , ?)", [idProducto, nombreProducto, descProducto, precio]);
         if(result.affectedRows === 0){
-            throw new Error("No se actualizo el producto");
+            throw new Error("No se actualizo el producto  en la bd");
         };
         return true;
     } catch (err) {
@@ -101,7 +101,7 @@ const obtenerProductoPorIdModel = async (idProducto) => {
         return row[0];
 
     } catch (err) {
-        console.error("Error en obtenerProductoPorId: ", err.message);
+        console.error("Error en obtenerProductoPorIdModel: ", err.message);
         throw new Error("Error al obtener el producto de la base de datos");
     } finally {
         if (conexion) conexion.release();
@@ -115,7 +115,7 @@ const eliminarProductoModel = async (idProducto) => {
         conexion = await pool.getConnection();
         const [result] = await conexion.execute("CALL eliminarProducto(?)", [idProducto]);
         if(result.affectedRows === 0){
-            throw new Error("No se pudo eliminar el producto");
+            throw new Error("No se pudo eliminar el producto  en la bd");
         };
         return true;
 
@@ -125,8 +125,42 @@ const eliminarProductoModel = async (idProducto) => {
     } finally {
         if (conexion) conexion.release();
     }
-}
+};
 
+// Modelo para actualizar una imagen de un producto
+const actualizarImagenProductoModel = async (idProducto, nuevaUrl, nuevoPublicId) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL actualizarImagenProducto(?, ?, ?)", [idProducto, nuevaUrl, nuevoPublicId]);
+        if(result.affectedRows === 0){
+            throw new Error("No se pudo actualizar la imagen en la bd");
+        };
+        return true;
+
+    } catch (err) {
+        console.error("Error en actualizarImagenProductoModel: ", err.message);
+        throw new Error("Error al actualizar la imagen de la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para obtener el public id de la imagen para eliminarlo de cloudinary
+const obtenerPublicIdImagenModel = async (idProducto) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [row] = await conexion.execute("CALL obtenerPublicIDPorProducto(?)", [idProducto]);
+
+        return row[0][0].publicID;
+    } catch (err) {
+        console.error("Error en obtenerPublicIdImagenModel: ", err.message);
+        throw new Error("Error al obtener public id de la imagen de la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+}
 
 module.exports = {
     insertarProductoModel,
@@ -135,5 +169,7 @@ module.exports = {
     registrarImagenProductoModel,
     actualizarProductoModel,
     obtenerProductoPorIdModel,
-    eliminarProductoModel
+    eliminarProductoModel,
+    actualizarImagenProductoModel,
+    obtenerPublicIdImagenModel
 }

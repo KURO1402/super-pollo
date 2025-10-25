@@ -1,6 +1,6 @@
 const cloudinary = require("../../../config/cloudinaryConfig");
 const fs = require('fs');
-const { insertarProductoModel, insertarCantidadInsumoProductoModel, validarProductoPorNombre, registrarImagenProductoModel, actualizarProductoModel, obtenerProductoPorIdModel, eliminarProductoModel } = require("../modelo/productoModelo");
+const { insertarProductoModel, insertarCantidadInsumoProductoModel, validarProductoPorNombre, registrarImagenProductoModel, actualizarProductoModel, obtenerProductoPorIdModel, eliminarProductoModel, actualizarImagenProductoModel, obtenerPublicIdImagenModel } = require("../modelo/productoModelo");
 const { validarInsertarProduto, validarActualizarProducto } = require("../validaciones/productoValidaciones");
 
 const insertarProductoService = async (datos, file) => {
@@ -30,13 +30,13 @@ const insertarProductoService = async (datos, file) => {
         }
     };
     // Subir la imagen a Cloudinary usando el archivo pasado
-    let result
+    let cloudinaryResult
     try {
-        result = await cloudinary.uploader.upload(file.path, { folder: 'superpollo' });
+        cloudinaryResult = await cloudinary.uploader.upload(file.path, { folder: 'superpollo' });
     } catch (err) {
         throw Object.assign(new Error("No se pudo subir la imagen a cloudinary"), { status: 500 });
     }
-    const respuesta = await registrarImagenProductoModel(result.secure_url, result.public_id, productoId);
+    const respuesta = await registrarImagenProductoModel(cloudinaryResult.secure_url, cloudinaryResult.public_id, productoId);
     if(!respuesta){
         throw Object.assign(new Error("No se pudo insertar la imagen del producto"), { status: 500 });
     }
@@ -74,7 +74,7 @@ const actualizarProductoService = async (idProducto, datos) => {
 // Servicio para eliminar un producto
 const eliminarProductoService = async (idProducto) => {
     if(!idProducto){
-        throw Object.assign(new Error("Se necesita el id del produccto a eliminar"), { status: 400 });
+        throw Object.assign(new Error("Se necesita el id del producto a eliminar"), { status: 400 });
     };
     const producto = await obtenerProductoPorIdModel(idProducto);
     if(producto.length === 0){
@@ -88,10 +88,42 @@ const eliminarProductoService = async (idProducto) => {
         ok: true,
         mensaje: "Producto eliminado correctamente"
     }
+};
+
+// Servicio para actualizar la imagen de un producto
+const actualizarImagenProductoService = async (idProducto, file) => {
+    if(!idProducto){
+        throw Object.assign(new Error("Se necesita el id del produccto para actualizar su imagen"), { status: 400 });
+    };
+
+    const producto = await obtenerProductoPorIdModel(idProducto);
+
+    if(producto.length === 0){
+        throw Object.assign(new Error("El producto especificado no existe"), { status: 400 });
+    };
+
+    const publicID = await obtenerPublicIdImagenModel(idProducto);
+    
+    let cloudinaryResult
+    try {
+        await cloudinary.uploader.destroy(publicID);
+        cloudinaryResult = await cloudinary.uploader.upload(file.path, { folder: 'superpollo' });
+    } catch(err){
+        throw Object.assign(new Error("Error al actualizar imagen en cloudinary"), { status: 500 });
+    }
+    actualizarImagenProductoModel(idProducto, cloudinaryResult.secure_url, cloudinaryResult.public_id)
+    
+    // Eliminar archivo temporal del servidor
+    fs.unlinkSync(file.path);
+    return {
+        ok: true,
+        mensaje: "Imagen actualizada correctamente"
+    }
 }
 
 module.exports = {
     insertarProductoService,
     actualizarProductoService,
-    eliminarProductoService
+    eliminarProductoService,
+    actualizarImagenProductoService
 }

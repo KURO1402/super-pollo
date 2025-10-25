@@ -17,6 +17,8 @@ DROP PROCEDURE IF EXISTS registrarImagenProducto;
 DROP PROCEDURE IF EXISTS actualizarProducto;
 DROP PROCEDURE IF EXISTS obtenerProductoPorId;
 DROP PROCEDURE IF EXISTS eliminarProducto;
+DROP PROCEDURE IF EXISTS actualizarImagenProducto;
+DROP PROCEDURE IF EXISTS obtenerPublicIDPorProducto;
 
 
 DELIMITER //
@@ -269,9 +271,9 @@ BEGIN
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
+        ROLLBACK;
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'No se pudo agregar la imagen del producto';
-        ROLLBACK;
     END;
 
     START TRANSACTION;
@@ -294,9 +296,9 @@ BEGIN
     DECLARE exit HANDLER FOR SQLEXCEPTION 
     BEGIN
         -- Si ocurre un error, revierte la transacción
+        ROLLBACK;
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Error al actualizar datos de producto';
-        ROLLBACK;
     END;
 
     START TRANSACTION;
@@ -330,8 +332,7 @@ BEGIN
         descripcionProducto,
         precio,
         usaInsumos,
-        estadoProducto,
-        idImagenProducto
+        estadoProducto
     FROM productos
     WHERE idProducto = p_idProducto;
 END //
@@ -343,9 +344,9 @@ CREATE PROCEDURE eliminarProducto(
 BEGIN
     DECLARE exit HANDLER FOR SQLEXCEPTION 
     BEGIN
+        ROLLBACK;
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Error al eliminar producto';
-        ROLLBACK;
     END;
 
     START TRANSACTION;
@@ -362,6 +363,54 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'El producto especificado no existe';
     END IF;
+END //
+
+-- Procedimiento para actualizar una imagen de un producto
+CREATE PROCEDURE actualizarImagenProducto(
+    IN p_idProducto INT,
+    IN p_nuevaUrlImagen VARCHAR(300),
+    IN p_nuevoPublicID VARCHAR(100)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre algún error, se revierte la transacción
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al actualizar la imagen del producto';
+    END;
+
+    START TRANSACTION;
+    -- Actualizar imagen
+    UPDATE imagenesProductos
+    SET 
+        urlImagen = p_nuevaUrlImagen,
+        publicID = p_nuevoPublicID
+    WHERE idProducto = p_idProducto;
+
+    COMMIT;
+END //
+
+-- Procediemiento para obtener el public id de la imagen para eliminarlo de cloudinary
+CREATE PROCEDURE obtenerPublicIDPorProducto(
+    IN p_idProducto INT
+)
+BEGIN
+    DECLARE v_publicID VARCHAR(100);
+
+    -- Manejador de errores generales
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al obtener el publicID del producto';
+    END;
+
+    -- Obtener el publicID correspondiente al producto
+    SELECT publicID INTO v_publicID
+    FROM imagenesProductos
+    WHERE idProducto = p_idProducto;
+
+    -- Devolver el resultado
+    SELECT v_publicID AS publicID;
 END //
 
 DELIMITER ;

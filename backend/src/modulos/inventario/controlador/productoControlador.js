@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { insertarProductoService, actualizarProductoService, eliminarProductoService } = require("../servicio/productoServicio");
+const { insertarProductoService, actualizarProductoService, eliminarProductoService, actualizarImagenProductoService } = require("../servicio/productoServicio");
 
 const insertarProductoController = async (req, res) => {
     try {
@@ -65,10 +65,31 @@ const eliminarProductoController = async (req, res) => {
             mensaje: err.message || "Error interno del servidor",
         });
     }
+};
+
+// Controlador para actualizar una imagen 
+const actualizarImagenProductoController = async (req, res) => {
+    try {
+        const file = req.file;
+        const respuesta = await actualizarImagenProductoService(req.params.idProducto, file);
+        return res.status(200).json(respuesta);
+    } catch (err) {
+        // Manejo centralizado de errores
+        console.error("Error en eliminarProductoController:", err.message);
+
+        // Determinar código de estado (usar 500 por defecto si no está especificado)
+        const statusCode = err.status || 500;
+        fs.unlinkSync(req.file.path);
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
 }
 
 module.exports = {
     insertarProductoController,
     actualizarProductoController,
-    eliminarProductoController
+    eliminarProductoController,
+    actualizarImagenProductoController
 }
