@@ -14,6 +14,9 @@ DROP PROCEDURE IF EXISTS registrarProducto;
 DROP PROCEDURE IF EXISTS registrarCantidadInsumoProducto;
 DROP PROCEDURE IF EXISTS validarProductoPorNombre;
 DROP PROCEDURE IF EXISTS registrarImagenProducto;
+DROP PROCEDURE IF EXISTS actualizarProducto;
+DROP PROCEDURE IF EXISTS obtenerProductoPorId;
+DROP PROCEDURE IF EXISTS eliminarProducto;
 
 
 DELIMITER //
@@ -284,6 +287,87 @@ BEGIN
     COMMIT;
 
     SELECT v_idImagen AS idInsertado;
+END //
+
+-- Procedimiento para actualizar datos de un producto
+CREATE PROCEDURE actualizarProducto(
+    IN p_idProducto INT,
+    IN p_nombreProducto VARCHAR(50),
+    IN p_descripcionProducto TEXT,
+    IN p_precio DECIMAL(10,2)
+)
+BEGIN
+    DECLARE exit HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error, revierte la transacción
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar datos de producto';
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    -- Verificar si el producto existe
+    IF EXISTS (SELECT 1 FROM productos WHERE idProducto = p_idProducto) THEN
+        UPDATE productos
+        SET 
+            nombreProducto = p_nombreProducto,
+            descripcionProducto = p_descripcionProducto,
+            precio = p_precio
+        WHERE idProducto = p_idProducto;
+
+        COMMIT;
+    ELSE
+        -- Si no existe, revierte y lanza un mensaje
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'El producto especificado no existe';
+    END IF;
+END //
+
+-- Procedimiento para obtener un producto por su id
+CREATE PROCEDURE obtenerProductoPorId(
+    IN p_idProducto INT
+)
+BEGIN
+    SELECT 
+        idProducto,
+        nombreProducto,
+        descripcionProducto,
+        precio,
+        usaInsumos,
+        estadoProducto,
+        idImagenProducto
+    FROM productos
+    WHERE idProducto = p_idProducto;
+END //
+
+-- Procedimiento para eliminar un producto
+CREATE PROCEDURE eliminarProducto(
+    IN p_idProducto INT
+)
+BEGIN
+    DECLARE exit HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al eliminar producto';
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    -- Verificar si el producto existe
+    IF EXISTS (SELECT 1 FROM productos WHERE idProducto = p_idProducto) THEN
+        UPDATE productos
+        SET estadoProducto = 0
+        WHERE idProducto = p_idProducto;
+
+        COMMIT;
+    ELSE
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El producto especificado no existe';
+    END IF;
 END //
 
 DELIMITER ;

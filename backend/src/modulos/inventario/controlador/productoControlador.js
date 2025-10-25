@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { insertarProductoService } = require("../servicio/productoServicio");
+const { insertarProductoService, actualizarProductoService, eliminarProductoService } = require("../servicio/productoServicio");
 
 const insertarProductoController = async (req, res) => {
     try {
@@ -19,8 +19,46 @@ const insertarProductoController = async (req, res) => {
             mensaje: err.message || "Error interno del servidor",
         });
     }
+};
+
+// Controlador para actualizar datos de un producto
+const actualizarProductoController = async (req, res) => {
+    try {
+        const respuesta = await actualizarProductoService(req.params.idProducto, req.body);
+        return res.status(200).json(respuesta);
+    } catch (err) {
+        // Manejo centralizado de errores
+        console.error("Error en actualizarProductoController:", err.message);
+
+        // Determinar código de estado (usar 500 por defecto si no está especificado)
+        const statusCode = err.status || 500;
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
+};
+
+// Controlador para eliminar un producto
+const eliminarProductoController = async (req, res) => {
+    try {
+        const respuesta = await eliminarProductoService(req.params.idProducto);
+        return res.status(200).json(respuesta);
+    } catch (err) {
+        // Manejo centralizado de errores
+        console.error("Error en eliminarProductoController:", err.message);
+
+        // Determinar código de estado (usar 500 por defecto si no está especificado)
+        const statusCode = err.status || 500;
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor",
+        });
+    }
 }
 
 module.exports = {
-    insertarProductoController
+    insertarProductoController,
+    actualizarProductoController,
+    eliminarProductoController
 }

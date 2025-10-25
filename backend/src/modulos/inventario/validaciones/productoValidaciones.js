@@ -84,7 +84,41 @@ const validarInsertarProduto = async (datos) => {
     }
 };
 
+const validarActualizarProducto = (idProducto, datos) => {
+    //Validar que contenga un id de producto
+    if(!idProducto){
+        throw Object.assign(new Error("Se necesita el id del producto a actualizar"), { status: 400 });
+    }
+
+    if (!datos || typeof datos !== 'object') {
+        throw Object.assign(new Error("Se necesitan datos del producto para poder actualizar los datos"), { status: 400 });
+    };
+
+    const { nombreProducto, descripcionProducto, precio } = datos;
+
+    // Validación para nombreProducto
+    if (!nombreProducto || typeof nombreProducto !== "string" || nombreProducto.trim().length === 0) {
+        throw Object.assign(new Error("Se necesita el nombre del producto"), { status: 400 });
+    }
+
+    // Validación para descripcionProducto (opcional pero si viene debe ser string)
+    if (!descripcionProducto || typeof descripcionProducto !== "string" || descripcionProducto.trim().length === 0) {
+        throw Object.assign(new Error("Se necesita una descripcion del producto"), { status: 400 });
+    }
+
+    // Validación para precio
+    if (!precio || typeof precio !== "number") {
+        throw Object.assign(new Error("Se necesita el precio del producto"), { status: 400 });
+    }
+
+    if (precio <= 0) {
+        throw Object.assign(new Error("El precio debe ser mayor a 0"), { status: 400 });
+    }
+
+}
+
 
 module.exports = {
-    validarInsertarProduto
+    validarInsertarProduto,
+    validarActualizarProducto
 }

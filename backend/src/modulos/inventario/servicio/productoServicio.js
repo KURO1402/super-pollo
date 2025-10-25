@@ -1,7 +1,7 @@
 const cloudinary = require("../../../config/cloudinaryConfig");
 const fs = require('fs');
-const { insertarProductoModel, insertarCantidadInsumoProductoModel, validarProductoPorNombre, registrarImagenProductoModel } = require("../modelo/productoModelo");
-const { validarInsertarProduto } = require("../validaciones/productoValidaciones");
+const { insertarProductoModel, insertarCantidadInsumoProductoModel, validarProductoPorNombre, registrarImagenProductoModel, actualizarProductoModel, obtenerProductoPorIdModel, eliminarProductoModel } = require("../modelo/productoModelo");
+const { validarInsertarProduto, validarActualizarProducto } = require("../validaciones/productoValidaciones");
 
 const insertarProductoService = async (datos, file) => {
     await validarInsertarProduto(datos);
@@ -40,6 +40,49 @@ const insertarProductoService = async (datos, file) => {
     }
 };
 
+// Servicio para actualizar datos de un producto
+const actualizarProductoService = async (idProducto, datos) => {
+    validarActualizarProducto(idProducto, datos);
+    const { nombreProducto, descripcionProducto, precio } = datos;
+    const producto = await obtenerProductoPorIdModel(idProducto);
+    if(producto.length === 0){
+        throw Object.assign(new Error("El producto especificado no existe"), { status: 400 });
+    };
+    const existeProducto = await validarProductoPorNombre(nombreProducto);
+    if (existeProducto.length > 0) {
+        throw Object.assign(new Error("El nombre de producto ya esta en uso"), { status: 400 });
+    };
+    const respuesta = await actualizarProductoModel(idProducto, nombreProducto, descripcionProducto, precio);
+    if(!respuesta){
+        throw Object.assign(new Error("Error al actualizar producto"), { status: 500 });
+    }
+    return {
+        ok: true,
+        mensaje: "Producto actualizado correctamente"
+    }
+};
+ 
+// Servicio para eliminar un producto
+const eliminarProductoService = async (idProducto) => {
+    if(!idProducto){
+        throw Object.assign(new Error("Se necesita el id del produccto a eliminar"), { status: 400 });
+    };
+    const producto = await obtenerProductoPorIdModel(idProducto);
+    if(producto.length === 0){
+        throw Object.assign(new Error("El producto especificado no existe"), { status: 400 });
+    };
+    const respuesta = await eliminarProductoModel(idProducto);
+    if(!respuesta){
+        throw Object.assign(new Error("Error al actualizar producto"), { status: 500 });
+    }
+    return {
+        ok: true,
+        mensaje: "Producto eliminado correctamente"
+    }
+}
+
 module.exports = {
-    insertarProductoService
+    insertarProductoService,
+    actualizarProductoService,
+    eliminarProductoService
 }

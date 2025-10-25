@@ -65,11 +65,69 @@ const registrarImagenProductoModel = async (urlImagen, publicId) => {
     } finally {
         if (conexion) conexion.release()
     }
+};
+
+//Modelo para actualizar un producto
+const actualizarProductoModel = async (idProducto, nombreProducto, descProducto, precio) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL actualizarProducto(?, ?, ? , ?)", [idProducto, nombreProducto, descProducto, precio]);
+        if(result.affectedRows === 0){
+            throw new Error("No se actualizo el producto");
+        };
+        return true;
+    } catch (err) {
+        console.error("Error en actualizarProductoModel: ", err.message);
+        throw new Error("Error al actualizar el producto en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
 }
+
+// Modelo para obtener los datos de un producto por id 
+const obtenerProductoPorIdModel = async (idProducto) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [row] = await conexion.execute("CALL obtenerProductoPorId(?)", [idProducto]);
+        
+        return row[0];
+
+    } catch (err) {
+        console.error("Error en obtenerProductoPorId: ", err.message);
+        throw new Error("Error al obtener el producto de la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para eliminar un producto
+const eliminarProductoModel = async (idProducto) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL eliminarProducto(?)", [idProducto]);
+        if(result.affectedRows === 0){
+            throw new Error("No se pudo eliminar el producto");
+        };
+        return true;
+
+    } catch (err) {
+        console.error("Error en eliminarProductoModel: ", err.message);
+        throw new Error("Error al obtener el producto de la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+}
+
 
 module.exports = {
     insertarProductoModel,
     insertarCantidadInsumoProductoModel,
     validarProductoPorNombre,
-    registrarImagenProductoModel
+    registrarImagenProductoModel,
+    actualizarProductoModel,
+    obtenerProductoPorIdModel,
+    eliminarProductoModel
 }
