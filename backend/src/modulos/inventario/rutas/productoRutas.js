@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const verificarImagen = require("../../../middlewares/verificarImagenMiddleware");
+const autenticacionToken = require("../../../middlewares/autenticacionMiddleware")
 
 const {
     insertarProductoController,
@@ -9,20 +10,30 @@ const {
     actualizarImagenProductoController,
     actualizarCantidadUsoInsumoProductoController,
     eliminarCantidadInsumoProductoController,
-    insertarCantidadInsumoProductoController
+    insertarCantidadInsumoProductoController,
+    obtenerProductosController,
+    obtenerProductoPorIdController,
+    buscarProductosPorNombreController,
+    obtenerInsumosPorProductoControlller
 } = require("../controlador/productoControlador");
 
 // ✅ Rutas relacionadas a productos
-router.post("/agregar-producto", verificarImagen, insertarProductoController);
-router.put("/actualizar-producto/:idProducto", actualizarProductoController);
-router.delete("/eliminar-producto/:idProducto", eliminarProductoController);
+router.post("/agregar-producto", autenticacionToken, verificarImagen, insertarProductoController);
+router.put("/actualizar-producto/:idProducto", autenticacionToken, actualizarProductoController);
+router.delete("/eliminar-producto/:idProducto", autenticacionToken, eliminarProductoController);
 
 // ✅ Rutas relacionadas a imágenes
-router.put("/actualizar-imagen/:idProducto", verificarImagen, actualizarImagenProductoController);
+router.put("/actualizar-imagen/:idProducto", autenticacionToken, verificarImagen, actualizarImagenProductoController);
 
 // ✅ Rutas relacionadas a insumos y cantidades
-router.patch("/modificar-cantidad", actualizarCantidadUsoInsumoProductoController);
-router.delete("/eliminar-cantidad", eliminarCantidadInsumoProductoController);
-router.post("/agregar-cantidad", insertarCantidadInsumoProductoController);
+router.patch("/modificar-cantidad", autenticacionToken, actualizarCantidadUsoInsumoProductoController);
+router.delete("/eliminar-cantidad", autenticacionToken, eliminarCantidadInsumoProductoController);
+router.post("/agregar-cantidad", autenticacionToken, insertarCantidadInsumoProductoController);
+
+
+router.get("/busqueda", buscarProductosPorNombreController);
+router.get("/", obtenerProductosController);
+router.get("/:idProducto", obtenerProductoPorIdController);
+router.get("/insumos-cantidad/:idProducto", obtenerInsumosPorProductoControlller);
 
 module.exports = router;

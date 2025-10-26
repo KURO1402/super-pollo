@@ -14,7 +14,10 @@ const {
     verificarRelacionProductoInsumoModel,
     eliminarCantidadInsumoProductoModel,
     actualizarUsaInsumosProductoModel,
-    contarInsumosPorProductoModel
+    contarInsumosPorProductoModel,
+    obtenerProductosModel,
+    buscarProductosPorNombreModel,
+    obtenerInsumosPorProductoModel
 } = require("../modelo/productoModelo");
 
 const {
@@ -253,6 +256,68 @@ const insertarCantidadInsumoProductoService = async (datos) => {
     return { ok: true, mensaje: respuesta };
 };
 
+//Servicio para obtener todos los productos
+const obtenerProductosService = async (limit, offset) => {
+    // Asignar valores por defecto si no se envían
+    const limite = parseInt(limit) || 10;
+    const desplazamiento = parseInt(offset) || 0;
+
+    const productos = await obtenerProductosModel(limite, desplazamiento);
+    if (!productos || productos.length === 0) {
+        throw Object.assign(
+            new Error("No existen productos registrados."),
+            { status: 404 }
+        );
+    }
+
+    return productos;
+};
+
+//Servicio para obtener datos de un producto por id
+const obtenerProductoPorIdService = async (idProducto) => {
+    if (!idProducto) {
+        throw Object.assign(new Error("Se necesita el ID del producto."), { status: 400 });
+    }
+
+    const producto = await obtenerProductoPorIdModel(idProducto);
+
+    if (!producto || producto.length === 0) {
+        throw Object.assign(new Error("No existe un producto con el ID especificado."), { status: 404 });
+    }
+
+    return producto;
+};
+
+// Servicio para buscar un producto
+const buscarProductosPorNombreService = async (nombre) => {
+    if (!nombre || typeof nombre !== "string") {
+        throw Object.assign(new Error("Se necesita un nombre válido para buscar productos."), { status: 400 });
+    }
+
+    const productos = await buscarProductosPorNombreModel(nombre);
+
+    if (!productos || productos.length === 0) {
+        throw Object.assign(new Error("No existen productos que coincidan con la búsqueda."), { status: 404 });
+    }
+
+    return productos;
+};
+
+// Servicio para obtener los insumos y su cantidad de un producto
+const obtenerInsumosPorProductoService = async (idProducto) => {
+    if (!idProducto) {
+        throw Object.assign(new Error("Se necesita el ID del producto."), { status: 400 });
+    }
+
+    const insumos = await obtenerInsumosPorProductoModel(idProducto);
+
+    if (!insumos || insumos.length === 0) {
+        throw Object.assign(new Error("No existen insumos asociados a este producto."), { status: 404 });
+    }
+
+    return insumos;
+};
+
 
 module.exports = {
     insertarProductoService,
@@ -261,5 +326,9 @@ module.exports = {
     actualizarImagenProductoService,
     actualizarCantidadUsoInsumoProductoService,
     eliminarCantidadInsumoProductoService,
-    insertarCantidadInsumoProductoService
+    insertarCantidadInsumoProductoService,
+    obtenerProductosService,
+    obtenerProductoPorIdService,
+    buscarProductosPorNombreService,
+    obtenerInsumosPorProductoService
 };
