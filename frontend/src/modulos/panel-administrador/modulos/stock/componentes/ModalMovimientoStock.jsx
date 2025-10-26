@@ -56,10 +56,7 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
         idInsumo: parseInt(data.idInsumo),
         tipoMovimiento: data.tipoMovimiento,
         cantidadMovimiento: parseFloat(data.cantidadMovimiento)
-        // El backend genera automáticamente fechaMovimiento y idUsuario
       };
-
-      console.log('Enviando movimiento:', movimientoData);
       
       await crearMovimientoServicio(movimientoData);
       
@@ -207,8 +204,8 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
                 Stock actual: {insumoActual.stockInsumo} {insumoActual.unidadMedida} → 
                 Stock nuevo: <strong>
                   {tipoMovimiento === 'entrada' 
-                    ? (insumoActual.stockInsumo + parseFloat(watch('cantidadMovimiento') || 0))
-                    : (insumoActual.stockInsumo - parseFloat(watch('cantidadMovimiento') || 0))
+                    ? (parseFloat(insumoActual.stockInsumo) + parseFloat(watch('cantidadMovimiento') || 0)).toFixed(2)
+                    : (parseFloat(insumoActual.stockInsumo) - parseFloat(watch('cantidadMovimiento') || 0)).toFixed(2)
                   } {insumoActual.unidadMedida}
                 </strong>
               </p>

@@ -89,6 +89,15 @@ const StockInsumosSeccion = () => {
     setInsumoSeleccionado(null);
   };
 
+  const handleMovimientoCreado = async () => {
+    // Dar tiempo al backend para procesar
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // Recargar la lista completa desde el backend
+    await obtenerInsumos();
+    // Cerrar modal
+    modalMovimientoStock.cerrar();
+  };
+
   const solicitarConfirmacionEliminar = (insumo) => {
   setInsumoAEliminar(insumo);
   
@@ -107,10 +116,10 @@ const StockInsumosSeccion = () => {
   );
 };
 
-  const cancelarEliminacion = () => {
-    setInsumoAEliminar(null);
-    confirmacionEliminar.ocultarConfirmacion();
-  };
+const cancelarEliminacion = () => {
+  setInsumoAEliminar(null);
+  confirmacionEliminar.ocultarConfirmacion();
+};
 
 const handleEliminarInsumo = async (idInsumo) => {
   
@@ -223,7 +232,7 @@ const handleEliminarInsumo = async (idInsumo) => {
       >
         <ModalMovimientoStock 
           onClose={modalMovimientoStock.cerrar}
-          onGuardar={modalMovimientoStock.cerrar}
+          onGuardar={handleMovimientoCreado}
         />
       </Modal>
       {/* Modal para editar stock */}

@@ -8,17 +8,20 @@ import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusque
 import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import Modal from "../../../componentes/modal/Modal";
+import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
+import { alertasCRUD } from "../../../../../utilidades/toastUtilidades";
 // importar custom hooks
 import { useBusqueda } from "../../../hooks/useBusqueda"; 
 import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
+import { useConfirmacion } from "../../../hooks/useConfirmacion";
 // importar componentes de su propio módulo
 import { FilaEntrada } from "../componentes/FilaEntrada";
 import { ModalEntradaStock } from "../componentes/ModalEntradaStock";
 // servicios del backend 
 import { listarMovimientosServicio } from "../servicios/movientosStockServicio";
-import { listarInsumoServicio } from "../servicios/insumosServicios"; // ← Importar servicio de insumos
+import { eliminarInsumoServicio, listarInsumoServicio } from "../servicios/insumosServicios"; 
 
 const HistorialEntradasSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); 
@@ -26,10 +29,12 @@ const HistorialEntradasSeccion = () => {
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(8);
   const [entradaSeleccionada, setEntradaSeleccionada] = useState(null);
   const [movimientos, setMovimientos] = useState([]); 
-  const [insumos, setInsumos] = useState([]); // ← Nuevo estado para insumos
+  const [insumos, setInsumos] = useState([]);
+  const [movimientoAEliminar, setMovimientoAEliminar] = useState(null);
   
   // modal para entrada de stock
   const modalEntradaStock = useModal(false);
+  const confirmacionEliminar = useConfirmacion();
 
   // Obtener movimientos del backend
   const obtenerMovimientos = async () => {
@@ -90,12 +95,54 @@ const HistorialEntradasSeccion = () => {
     }))
   ];
 
+  // Función para solicitar confirmación de eliminación
+  const solicitarConfirmacionEliminar = (movimiento) => {
+    setMovimientoAEliminar(movimiento);
+    
+    confirmacionEliminar.solicitarConfirmacion(
+      `¿Estás seguro de eliminar la entrada de "${movimiento.nombreInsumo}"? Esta acción no se puede deshacer.`,
+      () => {
+        handleEliminarMovimiento(movimiento.idMovimientoStock);
+      },
+      {
+        titulo: "Eliminar Entrada",
+        tipo: "peligro",
+        textoConfirmar: "Sí, eliminar",
+        textoCancelar: "Cancelar"
+      }
+    );
+  };
+
+  // Función para eliminar movimiento
+  const handleEliminarMovimiento = async (idMovimiento) => {
+    try {
+      await eliminarInsumoServicio(idMovimiento);
+      
+      // Actualizar estado local
+      setMovimientos(prev => prev.filter(mov => mov.idMovimientoStock !== idMovimiento));
+      
+      alertasCRUD.eliminado();
+      
+    } catch (error) {
+      console.error('Error al eliminar movimiento:', error);
+      alertasCRUD.error("Error al eliminar la entrada");
+    } finally {
+      setMovimientoAEliminar(null);
+    }
+  };
+
+  const cancelarEliminacion = () => {
+    setMovimientoAEliminar(null);
+    confirmacionEliminar.ocultarConfirmacion();
+  };
+
   // Mapear las entradas para las filas de la tabla
   const filasEntradas = datosPaginados.map((entrada) => (
     <FilaEntrada 
       key={entrada.idMovimientoStock} 
       entrada={entrada} 
       onEntradaStock={handleEntradaStock}
+      onEliminarMovimiento={solicitarConfirmacionEliminar}
     />
   ));
 
@@ -153,6 +200,19 @@ const HistorialEntradasSeccion = () => {
           />
         )}
       </Modal>
+      <div className="p-2">
+      {/* Modal de confirmación */}
+        <ModalConfirmacion
+          visible={confirmacionEliminar.confirmacionVisible}
+          onCerrar={cancelarEliminacion}
+          onConfirmar={confirmacionEliminar.confirmarAccion}
+          titulo={confirmacionEliminar.tituloConfirmacion}
+          mensaje={confirmacionEliminar.mensajeConfirmacion}
+          tipo={confirmacionEliminar.tipoConfirmacion}
+          textoConfirmar={confirmacionEliminar.textoConfirmar}
+          textoCancelar={confirmacionEliminar.textoCancelar}
+        />
+      </div>
     </div>
   );
 };

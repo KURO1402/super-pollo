@@ -8,17 +8,21 @@ import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusque
 import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import Modal from "../../../componentes/modal/Modal";
+import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
+import { alertasCRUD } from "../../../../../utilidades/toastUtilidades";
 // tambien los custom hooks
 import { useBusqueda } from "../../../hooks/useBusqueda"; 
 import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
+import { useConfirmacion } from "../../../hooks/useConfirmacion";
 // importamos los componentes que solo vana a servir para construir esta sección
 import { FilaSalida } from "../componentes/FilaSalida";
 import { ModalSalidaStock } from "../componentes/ModalSalidaStock";
 // servicios del backend 
-import { listarMovimientosServicio } from "../servicios/movientosStockServicio";
+import { eliminarMovimientoServicio, listarMovimientosServicio } from "../servicios/movientosStockServicio";
 import { listarInsumoServicio } from "../servicios/insumosServicios";
+import { eliminarInsumoServicio } from "../servicios/insumosServicios";
 
 const HistorialSalidasSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
@@ -27,6 +31,8 @@ const HistorialSalidasSeccion = () => {
   const [salidaSeleccionada, setSalidaSeleccionada] = useState(null);
   const [movimientos, setMovimientos] = useState([]);
   const [insumos, setInsumos] = useState([]);
+  const [movimientoAEliminar, setMovimientoAEliminar] = useState(null);
+  const confirmacionEliminar = useConfirmacion();
   
   // modal para salida de stock
   const modalSalidaStock = useModal(false);
@@ -81,6 +87,41 @@ const HistorialSalidasSeccion = () => {
 
   const { datosPaginados, totalPaginas } = paginar(filtrados);
 
+  const solicitarConfirmacionEliminar = (movimiento) => {
+    setMovimientoAEliminar(movimiento);
+    
+    confirmacionEliminar.solicitarConfirmacion(
+      `¿Estás seguro de eliminar la salida de "${movimiento.nombreInsumo}"? Esta acción no se puede deshacer.`,
+      () => {
+        handleEliminarMovimiento(movimiento.idMovimientoStock);
+      },
+      {
+        titulo: "Eliminar Salida",
+        tipo: "peligro", 
+        textoConfirmar: "Sí, eliminar",
+        textoCancelar: "Cancelar"
+      }
+    );
+  };
+
+  const handleEliminarMovimiento = async (idMovimiento) => {
+    try {
+      await eliminarMovimientoServicio(idMovimiento);
+      setMovimientos(prev => prev.filter(mov => mov.idMovimientoStock !== idMovimiento));
+      alertasCRUD.eliminado();
+    } catch (error) {
+      console.error('Error al eliminar movimiento:', error);
+      alertasCRUD.error("Error al eliminar la salida");
+    } finally {
+      setMovimientoAEliminar(null);
+    }
+  };
+
+  const cancelarEliminacion = () => {
+    setMovimientoAEliminar(null);
+    confirmacionEliminar.ocultarConfirmacion();
+  };
+
   // Generar opciones de insumos para el filtro
   const opcionesInsumos = [
     { value: "todos", label: "Todos los insumos" },
@@ -96,6 +137,7 @@ const HistorialSalidasSeccion = () => {
       key={salida.idMovimientoStock} 
       salida={salida} 
       onSalidaStock={handleSalidaStock}
+      onEliminarMovimiento={solicitarConfirmacionEliminar}
     />
   ));
 
@@ -155,6 +197,18 @@ const HistorialSalidasSeccion = () => {
           />
         )}
       </Modal>
+      <div className="p-2">
+        <ModalConfirmacion
+          visible={confirmacionEliminar.confirmacionVisible}
+          onCerrar={cancelarEliminacion}
+          onConfirmar={confirmacionEliminar.confirmarAccion}
+          titulo={confirmacionEliminar.tituloConfirmacion}
+          mensaje={confirmacionEliminar.mensajeConfirmacion}
+          tipo={confirmacionEliminar.tipoConfirmacion}
+          textoConfirmar={confirmacionEliminar.textoConfirmar}
+          textoCancelar={confirmacionEliminar.textoCancelar}
+        />
+      </div>
     </div>
   );
 };

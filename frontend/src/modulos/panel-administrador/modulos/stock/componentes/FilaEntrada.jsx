@@ -1,6 +1,6 @@
 import { FiArrowDown, FiEdit, FiTrash2, FiUser } from "react-icons/fi";
 
-export const FilaEntrada = ({ entrada, onEntradaStock }) => {
+export const FilaEntrada = ({ entrada, onEntradaStock, onEliminarMovimiento  }) => {
   // Función para formatear solo FECHA
   const formatearSoloFecha = (fechaString) => {
     const fecha = new Date(fechaString);
@@ -19,6 +19,10 @@ export const FilaEntrada = ({ entrada, onEntradaStock }) => {
       minute: '2-digit',
       hour12: true 
     });
+  };
+
+  const handleEliminarClick = () => {
+    onEliminarMovimiento(entrada);
   };
 
   return (
@@ -80,6 +84,7 @@ export const FilaEntrada = ({ entrada, onEntradaStock }) => {
             <FiEdit size={16} />
           </button> */}
           <button 
+            onClick={handleEliminarClick}
             className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
             title="Eliminar entrada"
           >

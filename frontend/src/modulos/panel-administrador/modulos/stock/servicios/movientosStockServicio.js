@@ -12,6 +12,7 @@ export const crearMovimientoServicio = async (data) => {
     }
   } catch (error) {
     console.error('Error en crearMovimientoServicio:', error);
+    console.error('Response data:', error.response?.data);
     throw error;
   }
 };
