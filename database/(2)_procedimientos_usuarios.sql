@@ -95,37 +95,40 @@ END //
    📁 SECCIÓN 3: USUARIOS
    ============================================================ */
 
+-- Procedimiento para actualizar datos de un usuario
 CREATE PROCEDURE actualizarUsuario(
     IN p_idUsuario INT,
     IN p_nombresUsuario VARCHAR(50),
     IN p_apellidosUsuario VARCHAR(50),
-    IN p_correoUsuario VARCHAR(50),
     IN p_numeroDocumentoUsuario VARCHAR(12),
     IN p_telefonoUsuario VARCHAR(15),
-    IN p_idRol INT,
     IN p_idTipoDocumento INT
 )
 BEGIN
+    -- 🔹 Manejador de errores SQL
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al actualizar el usuario.';
+        SET MESSAGE_TEXT = 'Error al actualizar los datos del usuario.';
     END;
 
     START TRANSACTION;
 
+    -- 🔸 Actualizar los datos 
     UPDATE usuarios
-    SET nombresUsuario = p_nombresUsuario,
+    SET 
+        nombresUsuario = p_nombresUsuario,
         apellidosUsuario = p_apellidosUsuario,
-        correoUsuario = p_correoUsuario,
         numeroDocumentoUsuario = p_numeroDocumentoUsuario,
         telefonoUsuario = p_telefonoUsuario,
-        idRol = p_idRol,
         idTipoDocumento = p_idTipoDocumento
     WHERE idUsuario = p_idUsuario;
 
     COMMIT;
+
+    -- 🔹 Retornar mensaje de éxito
+    SELECT 'Usuario actualizado correctamente' AS mensaje;
 END //
 
 CREATE PROCEDURE actualizarClave(
@@ -180,7 +183,8 @@ BEGIN
         u.clave,
         u.idRol
     FROM usuarios u
-    WHERE u.idUsuario = p_idUsuario;
+    WHERE u.idUsuario = p_idUsuario
+    AND u.estadoUsuario = 1;
 END //
 
 DELIMITER ;

@@ -26,6 +26,9 @@ const cajaRoutes = require("./src/modulos/caja/cajaRutas.js");
 //Rutas para imagenes
 const productoRoutes = require("./src/modulos/inventario/rutas/productoRutas");
 
+//Rutas de usuarios
+const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas")
+
 const app = express();
 
 const corsOptions = {
@@ -56,6 +59,7 @@ app.use('/inventario-movimientos', movimientoRoutes)
 app.use('/reservaciones', reservacionesRoutes);
 app.use('/caja', cajaRoutes);
 app.use('/productos', productoRoutes);
+app.use('/usuarios', usuariosRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
