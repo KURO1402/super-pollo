@@ -1,21 +1,41 @@
 // librerías externas
 import { useForm } from 'react-hook-form';
-// hook de react
-import { useEffect } from 'react';
+// hooks de react
+import { useEffect, useState } from 'react';
+// servicios
+import { crearMovimientoServicio } from '../servicios/movientosStockServicio';
+import { listarInsumoServicio } from '../servicios/insumosServicios';
+// utilidades
+import { alertasCRUD } from '../../../../../utilidades/toastUtilidades';
 
-export const ModalMovimientoStock = ({ onClose, onGuardar }) => { // recibe las funciones para cerrar y guardar
+export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
   const {
-    register, handleSubmit, formState: { errors }, reset, setValue, watch // funciones de react-hook-form
+    register, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch
   } = useForm({
     defaultValues: {
-      insumo: '',
+      idInsumo: '',
       tipoMovimiento: 'entrada',
-      cantidad: '',
+      cantidadMovimiento: '',
       fecha: '',
       hora: '',
-      detalle: ''
     }
   });
+
+  const [insumos, setInsumos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+
+  // Obtener insumos del backend
+  const obtenerInsumos = async () => {
+    try {
+      const respuesta = await listarInsumoServicio();
+      setInsumos(respuesta.data);
+    } catch (error) {
+      console.error('Error al obtener insumos:', error);
+      alertasCRUD.error('Error al cargar los insumos');
+    } finally {
+      setCargando(false);
+    }
+  };
 
   // Establecer fecha y hora actual por defecto
   useEffect(() => {
@@ -25,33 +45,45 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => { // recibe las 
     
     setValue('fecha', fechaActual);
     setValue('hora', horaActual);
+    obtenerInsumos();
   }, [setValue]);
+
   // función que se ejecuta al enviar el formulario
-  const onSubmit = (data) => {
-    console.log('Movimiento registrado:', data);
-    // Aquí iría la lógica para guardar el movimiento en el backend
-    onGuardar();
-    reset();
+  const onSubmit = async (data) => {
+    try {
+      // Preparar datos para el backend
+      const movimientoData = {
+        idInsumo: parseInt(data.idInsumo),
+        tipoMovimiento: data.tipoMovimiento,
+        cantidadMovimiento: parseFloat(data.cantidadMovimiento)
+        // El backend genera automáticamente fechaMovimiento y idUsuario
+      };
+
+      console.log('Enviando movimiento:', movimientoData);
+      
+      await crearMovimientoServicio(movimientoData);
+      
+      alertasCRUD.creado();
+      onGuardar(); // Recargar la lista
+      reset();
+      onClose();
+    } catch (error) {
+      console.error('Error al registrar movimiento:', error);
+      alertasCRUD.error('Error al registrar el movimiento');
+    }
   };
+
   // función para cancelar y cerrar el modal
   const handleCancelar = () => {
     reset();
     onClose();
   };
 
-  // Data temporal de insumos (debería venir del backend)
-  const insumosDisponibles = [
-    { id: 1, nombre: 'Pollo entero', unidad: 'kg' },
-    { id: 2, nombre: 'Papas', unidad: 'kg' },
-    { id: 3, nombre: 'Lechuga', unidad: 'kg' },
-    { id: 4, nombre: 'Tomate', unidad: 'kg' },
-    { id: 5, nombre: 'Coca Cola 500ml', unidad: 'unidades' },
-    { id: 6, nombre: 'Inca Kola 500ml', unidad: 'unidades' },
-    { id: 7, nombre: 'Arroz', unidad: 'kg' },
-    { id: 8, nombre: 'Aceite vegetal', unidad: 'l' }
-  ];
+  const tipoMovimiento = watch('tipoMovimiento');
+  const insumoSeleccionado = watch('idInsumo');
 
-  const tipoMovimiento = watch('tipoMovimiento'); // observar el tipo de movimiento
+  // Obtener el insumo seleccionado para mostrar detalles
+  const insumoActual = insumos.find(insumo => insumo.idInsumo === parseInt(insumoSeleccionado));
 
   return (
     <div className="space-y-6">
@@ -62,27 +94,40 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => { // recibe las 
             Insumo *
           </label>
           <select
-            {...register("insumo", { 
+            {...register("idInsumo", { 
               required: "Seleccione un insumo",
               validate: value => value !== "" || "Seleccione un insumo"
             })}
+            disabled={cargando}
             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.insumo 
+              errors.idInsumo 
                 ? 'border-red-500 dark:border-red-400' 
                 : 'border-gray-300 dark:border-gray-600'
-            }`}
+            } ${cargando ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <option value="">Seleccionar insumo...</option>
-            {insumosDisponibles.map(insumo => (
-              <option key={insumo.id} value={insumo.id}>
-                {insumo.nombre} ({insumo.unidad})
+            <option value="">{cargando ? 'Cargando insumos...' : 'Seleccionar insumo...'}</option>
+            {insumos.map(insumo => (
+              <option key={insumo.idInsumo} value={insumo.idInsumo}>
+                {insumo.nombreInsumo} ({insumo.unidadMedida})
               </option>
             ))}
           </select>
-          {errors.insumo && (
+          {errors.idInsumo && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.insumo.message}
+              {errors.idInsumo.message}
             </p>
+          )}
+          
+          {/* Información del insumo seleccionado */}
+          {insumoActual && (
+            <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <p className="text-xs text-blue-700 dark:text-blue-300">
+                Stock actual: <strong>{insumoActual.stockInsumo} {insumoActual.unidadMedida}</strong>
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                Categoría: {insumoActual.categoriaProducto === 'bebida' ? 'Bebida' : 'Insumo'}
+              </p>
+            </div>
           )}
         </div>
 
@@ -96,8 +141,8 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => { // recibe las 
               {...register("tipoMovimiento", { required: true })}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="entrada" className="text-green-600">Entrada</option>
-              <option value="salida" className="text-red-600">Salida</option>
+              <option value="entrada">Entrada (+)</option>
+              <option value="salida">Salida (-)</option>
             </select>
           </div>
           
@@ -109,135 +154,84 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => { // recibe las 
               type="number"
               step="0.01"
               min="0.01"
-              {...register("cantidad", { 
+              {...register("cantidadMovimiento", { 
                 required: "La cantidad es requerida",
                 min: {
                   value: 0.01,
                   message: "La cantidad debe ser mayor a 0"
+                },
+                validate: {
+                  stockSuficiente: (value) => {
+                    if (tipoMovimiento === 'salida' && insumoActual) {
+                      return parseFloat(value) <= insumoActual.stockInsumo || 
+                        'No hay suficiente stock disponible';
+                    }
+                    return true;
+                  }
                 }
               })}
               className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.cantidad 
+                errors.cantidadMovimiento 
                   ? 'border-red-500 dark:border-red-400' 
                   : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="0.00"
             />
-            {errors.cantidad && (
+            {errors.cantidadMovimiento && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.cantidad.message}
+                {errors.cantidadMovimiento.message}
               </p>
             )}
           </div>
-        </div>
-
-        {/* Fecha y Hora */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Fecha del Movimiento *
-            </label>
-            <input
-              type="date"
-              {...register("fecha", { required: "La fecha es requerida" })}
-              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.fecha 
-                  ? 'border-red-500 dark:border-red-400' 
-                  : 'border-gray-300 dark:border-gray-600'
-              }`}
-            />
-            {errors.fecha && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.fecha.message}
-              </p>
-            )}
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Hora del Movimiento *
-            </label>
-            <input
-              type="time"
-              {...register("hora", { required: "La hora es requerida" })}
-              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.hora 
-                  ? 'border-red-500 dark:border-red-400' 
-                  : 'border-gray-300 dark:border-gray-600'
-              }`}
-            />
-            {errors.hora && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.hora.message}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Detalle del Movimiento */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Detalle del Movimiento *
-          </label>
-          <textarea
-            {...register("detalle", { 
-              required: "El detalle es requerido",
-              minLength: {
-                value: 5,
-                message: "El detalle debe tener al menos 5 caracteres"
-              }
-            })}
-            rows="3"
-            className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
-              errors.detalle 
-                ? 'border-red-500 dark:border-red-400' 
-                : 'border-gray-300 dark:border-gray-600'
-            }`}
-            placeholder="Describe el motivo del movimiento (compra, venta, ajuste, etc.)"
-          />
-          {errors.detalle && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.detalle.message}
-            </p>
-          )}
         </div>
 
         {/* Resumen del Movimiento */}
-        <div className={`p-4 rounded-lg border ${
-          tipoMovimiento === 'entrada' 
-            ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-            : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
-        }`}>
-          <h4 className={`font-semibold ${
+        {insumoActual && (
+          <div className={`p-4 rounded-lg border ${
             tipoMovimiento === 'entrada' 
-              ? 'text-green-800 dark:text-green-300'
-              : 'text-red-800 dark:text-red-300'
+              ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+              : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
           }`}>
-            Resumen del Movimiento:
-          </h4>
-          <p className={`text-sm mt-1 ${
-            tipoMovimiento === 'entrada' 
-              ? 'text-green-700 dark:text-green-400'
-              : 'text-red-700 dark:text-red-400'
-          }`}>
-            {tipoMovimiento === 'entrada' ? '+ Entrada' : '- Salida'} de stock
-          </p>
-        </div>
+            <h4 className={`font-semibold text-sm ${
+              tipoMovimiento === 'entrada' 
+                ? 'text-green-800 dark:text-green-300'
+                : 'text-red-800 dark:text-red-300'
+            }`}>
+              Resumen del Movimiento:
+            </h4>
+            <div className="text-xs mt-1 space-y-1">
+              <p className={tipoMovimiento === 'entrada' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}>
+                <strong>{tipoMovimiento === 'entrada' ? '+' : '-'}{watch('cantidadMovimiento') || '0'} {insumoActual?.unidadMedida}</strong> de {insumoActual?.nombreInsumo}
+              </p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Stock actual: {insumoActual.stockInsumo} {insumoActual.unidadMedida} → 
+                Stock nuevo: <strong>
+                  {tipoMovimiento === 'entrada' 
+                    ? (insumoActual.stockInsumo + parseFloat(watch('cantidadMovimiento') || 0))
+                    : (insumoActual.stockInsumo - parseFloat(watch('cantidadMovimiento') || 0))
+                  } {insumoActual.unidadMedida}
+                </strong>
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Botones de acción */}
         <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"
             onClick={handleCancelar}
-            className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded-lg transition-colors cursor-pointer"
+            disabled={isSubmitting}
+            className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium cursor-pointer"
+            disabled={isSubmitting || cargando}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Registrar Movimiento
+            {isSubmitting ? 'Registrando...' : 'Registrar Movimiento'}
           </button>
         </div>
       </form>

@@ -129,7 +129,7 @@ const HistorialSalidasSeccion = () => {
       
       {/* Tabla de salidas */}
       <Tabla
-        encabezados={["Insumo", "Cantidad", "Fecha", "Hora", "Acciones"]}
+        encabezados={["Insumo", "Cantidad", "Fecha", "Hora", "Usuario", "Acciones"]}
         registros={filasSalidas}
       /> 
       

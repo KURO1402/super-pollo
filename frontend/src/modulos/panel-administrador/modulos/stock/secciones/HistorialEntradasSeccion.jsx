@@ -127,7 +127,7 @@ const HistorialEntradasSeccion = () => {
       </div>
 
       <Tabla
-        encabezados={["Insumo", "Cantidad", "Fecha", "Hora", "Acciones"]}
+        encabezados={["Insumo", "Cantidad", "Fecha", "Hora", "Usuario", "Acciones"]}
         registros={filasEntradas}
       /> 
       

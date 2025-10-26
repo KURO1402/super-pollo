@@ -1,7 +1,7 @@
-import { FiArrowDown, FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiArrowDown, FiEdit, FiTrash2, FiUser } from "react-icons/fi";
 
 export const FilaEntrada = ({ entrada, onEntradaStock }) => {
-  // Función para formatear solo la FECHA
+  // Función para formatear solo FECHA
   const formatearSoloFecha = (fechaString) => {
     const fecha = new Date(fechaString);
     return fecha.toLocaleDateString('es-PE', {
@@ -11,13 +11,13 @@ export const FilaEntrada = ({ entrada, onEntradaStock }) => {
     });
   };
 
-  // Función para formatear solo la HORA
+  // Función para formatear solo HORA
   const formatearSoloHora = (fechaString) => {
     const fecha = new Date(fechaString);
     return fecha.toLocaleTimeString('es-PE', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true // Esto mostrará AM/PM
+      hour12: true 
     });
   };
 
@@ -61,16 +61,24 @@ export const FilaEntrada = ({ entrada, onEntradaStock }) => {
         </div>
       </td>
 
+      {/* Usuario*/}
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center gap-1 text-sm text-gray-900 dark:text-white">
+          <FiUser size={14} className="text-gray-400" />
+          ID: {entrada.idUsuario}
+        </div>
+      </td>
+
       {/* Acciones */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
-          <button 
+          {/* <button 
             onClick={() => onEntradaStock(entrada)}
             className="p-1 text-amber-400 hover:text-amber-500 transition-colors cursor-pointer" 
             title="Editar entrada"
           >
             <FiEdit size={16} />
-          </button>
+          </button> */}
           <button 
             className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
             title="Eliminar entrada"

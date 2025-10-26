@@ -61,7 +61,7 @@ export const FilaSalida = ({ salida, onSalidaStock }) => {
         </div>
       </td>
 
-      {/* Usuario (adaptado a la estructura real) */}
+      {/* Usuario*/}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-1 text-sm text-gray-900 dark:text-white">
           <FiUser size={14} className="text-gray-400" />
@@ -72,13 +72,13 @@ export const FilaSalida = ({ salida, onSalidaStock }) => {
       {/* Acciones */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
-          <button 
+          {/* <button 
             onClick={() => onSalidaStock(salida)}
             className="p-1 text-amber-400 hover:text-amber-500 transition-colors cursor-pointer"
             title="Editar salida"
           >
             <FiEdit size={16} />
-          </button>
+          </button> */}
           <button 
             className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
             title="Eliminar salida"
