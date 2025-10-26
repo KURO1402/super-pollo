@@ -2,60 +2,25 @@ USE super_pollo;
 
 -- Eliminar procedimientos de productos
 DROP PROCEDURE IF EXISTS registrarProducto;
-DROP PROCEDURE IF EXISTS registrarCantidadInsumoProducto;
 DROP PROCEDURE IF EXISTS validarProductoPorNombre;
 DROP PROCEDURE IF EXISTS registrarImagenProducto;
-DROP PROCEDURE IF EXISTS actualizarProducto;
+DROP PROCEDURE IF EXISTS registrarCantidadInsumoProducto;
 DROP PROCEDURE IF EXISTS obtenerProductoPorId;
-DROP PROCEDURE IF EXISTS eliminarProducto;
+DROP PROCEDURE IF EXISTS actualizarProducto;
 DROP PROCEDURE IF EXISTS actualizarImagenProducto;
-DROP PROCEDURE IF EXISTS obtenerPublicIDPorProducto;
 DROP PROCEDURE IF EXISTS actualizarCantidadUsoInsumoProducto;
-DROP PROCEDURE IF EXISTS verificarRelacionProductoInsumo;
-DROP PROCEDURE IF EXISTS eliminarCantidadInsumoProducto;
 DROP PROCEDURE IF EXISTS actualizarUsaInsumosProducto;
+DROP PROCEDURE IF EXISTS verificarRelacionProductoInsumo;
 DROP PROCEDURE IF EXISTS contarInsumosPorProducto;
+DROP PROCEDURE IF EXISTS obtenerPublicIDPorProducto;
+DROP PROCEDURE IF EXISTS eliminarCantidadInsumoProducto;
+DROP PROCEDURE IF EXISTS eliminarProducto;
 
 DELIMITER //
+
 -- =============================================
--- PROCEDIMIENTOS PARA PRODUCTOS
+-- PROCEDIMIENTOS QUE DEVUELVEN DATOS (SELECT)
 -- =============================================
-
-CREATE PROCEDURE registrarProducto(
-    IN p_nombreProducto VARCHAR(50),
-    IN p_descripcionProducto TEXT,
-    IN p_precio DECIMAL(10,2),
-    IN p_usaInsumos TINYINT(1)
-)
-BEGIN
-    DECLARE v_idProducto INT;
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
-    
-    START TRANSACTION;
-    
-    INSERT INTO productos (
-        nombreProducto,
-        descripcionProducto,
-        precio,
-        usaInsumos
-    )
-    VALUES (
-        p_nombreProducto,
-        p_descripcionProducto,
-        p_precio,
-        p_usaInsumos
-    );
-
-    SET v_idProducto = LAST_INSERT_ID();
-
-    COMMIT;
-
-    SELECT v_idProducto AS idGenerado;
-END //
 
 CREATE PROCEDURE obtenerProductoPorId(
     IN p_idProducto INT
@@ -69,65 +34,8 @@ BEGIN
         usaInsumos,
         estadoProducto
     FROM productos
-    WHERE idProducto = p_idProducto;
-END //
-
-CREATE PROCEDURE actualizarProducto(
-    IN p_idProducto INT,
-    IN p_nombreProducto VARCHAR(50),
-    IN p_descripcionProducto TEXT,
-    IN p_precio DECIMAL(10,2)
-)
-BEGIN
-    DECLARE exit HANDLER FOR SQLEXCEPTION 
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al actualizar datos de producto';
-    END;
-
-    START TRANSACTION;
-
-    IF EXISTS (SELECT 1 FROM productos WHERE idProducto = p_idProducto) THEN
-        UPDATE productos
-        SET 
-            nombreProducto = p_nombreProducto,
-            descripcionProducto = p_descripcionProducto,
-            precio = p_precio
-        WHERE idProducto = p_idProducto;
-
-        COMMIT;
-    ELSE
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'El producto especificado no existe';
-    END IF;
-END //
-
-CREATE PROCEDURE eliminarProducto(
-    IN p_idProducto INT
-)
-BEGIN
-    DECLARE exit HANDLER FOR SQLEXCEPTION 
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al eliminar producto';
-    END;
-
-    START TRANSACTION;
-
-    IF EXISTS (SELECT 1 FROM productos WHERE idProducto = p_idProducto) THEN
-        UPDATE productos
-        SET estadoProducto = 0
-        WHERE idProducto = p_idProducto;
-
-        COMMIT;
-    ELSE
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El producto especificado no existe';
-    END IF;
+    WHERE idProducto = p_idProducto
+    AND estadoProducto = 1;
 END //
 
 CREATE PROCEDURE validarProductoPorNombre(
@@ -141,9 +49,66 @@ BEGIN
       AND estadoProducto = 1;
 END //
 
+CREATE PROCEDURE verificarRelacionProductoInsumo(
+    IN p_idProducto INT,
+    IN p_idInsumo INT
+)
+BEGIN
+    SELECT COUNT(*) AS contador
+    FROM cantidadInsumoProducto
+    WHERE idProducto = p_idProducto AND idInsumo = p_idInsumo;
+END //
+
+CREATE PROCEDURE contarInsumosPorProducto(
+    IN p_idProducto INT
+)
+BEGIN
+    SELECT COUNT(*) AS totalInsumos
+    FROM cantidadInsumoProducto
+    WHERE idProducto = p_idProducto;
+END //
+
+CREATE PROCEDURE obtenerPublicIDPorProducto(
+    IN p_idProducto INT
+)
+BEGIN
+    SELECT publicID
+    FROM imagenesProductos
+    WHERE idProducto = p_idProducto;
+END //
+
 -- =============================================
--- PROCEDIMIENTOS PARA IMÁGENES DE PRODUCTOS
+-- PROCEDIMIENTOS QUE DEVUELVEN MENSAJES (INSERT/UPDATE/DELETE)
 -- =============================================
+
+CREATE PROCEDURE registrarProducto(
+    IN p_nombreProducto VARCHAR(50),
+    IN p_descripcionProducto TEXT,
+    IN p_precio DECIMAL(10,2),
+    IN p_usaInsumos TINYINT(1)
+)
+BEGIN
+    DECLARE v_idProducto INT;
+    
+    START TRANSACTION;
+    
+    INSERT INTO productos (
+        nombreProducto,
+        descripcionProducto,
+        precio,
+        usaInsumos
+    ) VALUES (
+        p_nombreProducto,
+        p_descripcionProducto,
+        p_precio,
+        p_usaInsumos
+    );
+
+    SET v_idProducto = LAST_INSERT_ID();
+    COMMIT;
+
+    SELECT v_idProducto AS idGenerado;
+END //
 
 CREATE PROCEDURE registrarImagenProducto(
     IN p_urlImagen VARCHAR(300),
@@ -151,19 +116,52 @@ CREATE PROCEDURE registrarImagenProducto(
     IN p_idProducto INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'No se pudo agregar la imagen del producto';
-    END;
-
     START TRANSACTION;
 
     INSERT INTO imagenesProductos (urlImagen, publicID, idProducto)
     VALUES (p_urlImagen, p_publicID, p_idProducto);
 
     COMMIT;
+
+    SELECT 'Imagen registrada correctamente' AS mensaje;
+END //
+
+CREATE PROCEDURE registrarCantidadInsumoProducto(
+    IN p_idProducto INT,
+    IN p_idInsumo INT,
+    IN p_cantidadUso DECIMAL(10,2)
+)
+BEGIN
+    START TRANSACTION;
+
+    INSERT INTO cantidadInsumoProducto (idProducto, idInsumo, cantidadUso)
+    VALUES (p_idProducto, p_idInsumo, p_cantidadUso)
+    ON DUPLICATE KEY UPDATE cantidadUso = VALUES(cantidadUso);
+
+    COMMIT;
+
+    SELECT 'Relación producto-insumo registrada correctamente' AS mensaje;
+END //
+
+CREATE PROCEDURE actualizarProducto(
+    IN p_idProducto INT,
+    IN p_nombreProducto VARCHAR(50),
+    IN p_descripcionProducto TEXT,
+    IN p_precio DECIMAL(10,2)
+)
+BEGIN
+    START TRANSACTION;
+
+    UPDATE productos
+    SET 
+        nombreProducto = p_nombreProducto,
+        descripcionProducto = p_descripcionProducto,
+        precio = p_precio
+    WHERE idProducto = p_idProducto;
+
+    COMMIT;
+
+    SELECT 'Producto actualizado correctamente' AS mensaje;
 END //
 
 CREATE PROCEDURE actualizarImagenProducto(
@@ -172,12 +170,6 @@ CREATE PROCEDURE actualizarImagenProducto(
     IN p_nuevoPublicID VARCHAR(100)
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al actualizar la imagen del producto';
-    END;
-
     START TRANSACTION;
 
     UPDATE imagenesProductos
@@ -187,62 +179,8 @@ BEGIN
     WHERE idProducto = p_idProducto;
 
     COMMIT;
-END //
 
-CREATE PROCEDURE obtenerPublicIDPorProducto(
-    IN p_idProducto INT
-)
-BEGIN
-    DECLARE v_publicID VARCHAR(100);
-
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al obtener el publicID del producto';
-    END;
-
-    SELECT publicID INTO v_publicID
-    FROM imagenesProductos
-    WHERE idProducto = p_idProducto;
-
-    SELECT v_publicID AS publicID;
-END //
-
--- =============================================
--- PROCEDIMIENTOS PARA RELACIÓN PRODUCTO-INSUMO
--- =============================================
-
-CREATE PROCEDURE registrarCantidadInsumoProducto(
-    IN p_idProducto INT,
-    IN p_idInsumo INT,
-    IN p_cantidadUso DECIMAL(10,2)
-)
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
-
-    START TRANSACTION;
-
-    IF NOT EXISTS (SELECT 1 FROM productos WHERE idProducto = p_idProducto) THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El producto no existe';
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM insumos WHERE idInsumo = p_idInsumo) THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El insumo no existe';
-    END IF;
-
-    INSERT INTO cantidadInsumoProducto (idProducto, idInsumo, cantidadUso)
-    VALUES (p_idProducto, p_idInsumo, p_cantidadUso)
-    ON DUPLICATE KEY UPDATE cantidadUso = VALUES(cantidadUso);
-
-    COMMIT;
-
-    SELECT CONCAT('verdadero') AS mensaje;
+    SELECT 'Imagen actualizada correctamente' AS mensaje;
 END //
 
 CREATE PROCEDURE actualizarCantidadUsoInsumoProducto(
@@ -251,13 +189,6 @@ CREATE PROCEDURE actualizarCantidadUsoInsumoProducto(
     IN p_nuevaCantidad DECIMAL(10,2)
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al actualizar la cantidad de uso del insumo en el producto';
-    END;
-
     START TRANSACTION;
 
     UPDATE cantidadInsumoProducto
@@ -265,61 +196,15 @@ BEGIN
     WHERE idProducto = p_idProducto AND idInsumo = p_idInsumo;
 
     COMMIT;
+
+    SELECT 'Cantidad de uso actualizada correctamente' AS mensaje;
 END //
 
-CREATE PROCEDURE verificarRelacionProductoInsumo(
-    IN p_idProducto INT,
-    IN p_idInsumo INT
-)
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al verificar la relación entre producto e insumo';
-    END;
-
-    SELECT COUNT(*) AS contador
-    FROM cantidadInsumoProducto
-    WHERE idProducto = p_idProducto AND idInsumo = p_idInsumo;
-END //
-
--- Procedimiento para eliminar la cantidad de uso de un insumo en un producto
-CREATE PROCEDURE eliminarCantidadInsumoProducto(
-    IN p_idProducto INT,
-    IN p_idInsumo INT
-)
-BEGIN
-    -- Manejador de errores
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al eliminar el registro de cantidadInsumoProducto';
-    END;
-
-    START TRANSACTION;
-
-    DELETE FROM cantidadInsumoProducto
-    WHERE idProducto = p_idProducto
-      AND idInsumo = p_idInsumo;
-
-    COMMIT;
-END //
-
--- Procedimiento almacenado que obtiene si un producto usa insumos o no 
 CREATE PROCEDURE actualizarUsaInsumosProducto(
     IN p_idProducto INT,
     IN p_usaInsumo INT
 )
 BEGIN
-    -- Manejador de errores SQL
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al actualizar el campo usaInsumos del producto';
-    END;
-
     START TRANSACTION;
 
     UPDATE productos
@@ -327,26 +212,38 @@ BEGIN
     WHERE idProducto = p_idProducto;
 
     COMMIT;
+
+    SELECT 'Campo usaInsumos actualizado correctamente' AS mensaje;
 END //
 
--- Procedimiento para obtener el numero de insumos que usa un producto
-CREATE PROCEDURE contarInsumosPorProducto(
+CREATE PROCEDURE eliminarCantidadInsumoProducto(
+    IN p_idProducto INT,
+    IN p_idInsumo INT
+)
+BEGIN
+    START TRANSACTION;
+
+    DELETE FROM cantidadInsumoProducto
+    WHERE idProducto = p_idProducto AND idInsumo = p_idInsumo;
+
+    COMMIT;
+
+    SELECT 'Relación producto-insumo eliminada correctamente' AS mensaje;
+END //
+
+CREATE PROCEDURE eliminarProducto(
     IN p_idProducto INT
 )
 BEGIN
-    DECLARE v_totalInsumos INT DEFAULT 0;
+    START TRANSACTION;
 
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al contar los insumos del producto';
-    END;
-
-    SELECT COUNT(*) INTO v_totalInsumos
-    FROM cantidadInsumoProducto
+    UPDATE productos
+    SET estadoProducto = 0
     WHERE idProducto = p_idProducto;
 
-    SELECT v_totalInsumos AS totalInsumos;
+    COMMIT;
+
+    SELECT 'Producto eliminado correctamente' AS mensaje;
 END //
 
 DELIMITER ;

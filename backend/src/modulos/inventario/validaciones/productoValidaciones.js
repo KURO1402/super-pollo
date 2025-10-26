@@ -1,152 +1,159 @@
 const { obtenerInsumoIDModel } = require("../../inventario/modelo/inventarioModelo");
 
+// 🟢 Validar datos para insertar un producto
 const validarInsertarProducto = async (datos) => {
     if (!datos || typeof datos !== 'object') {
-        throw Object.assign(new Error("Se necesitan datos del producto para poder registrar un nuevo producto"), { status: 400 });
-    };
+        throw Object.assign(new Error("Se necesitan los datos del producto para registrarlo"), { status: 400 });
+    }
+
     const { nombreProducto, descripcionProducto, precio, usaInsumo, insumos } = datos;
 
-    // Validación para nombreProducto
-    if (!nombreProducto || typeof nombreProducto !== "string" || nombreProducto.trim().length === 0) {
-        throw Object.assign(new Error("Se necesita el nombre del producto"), { status: 400 });
+    // 🔸 Nombre
+    if (!nombreProducto || typeof nombreProducto !== "string" || !nombreProducto.trim()) {
+        throw Object.assign(new Error("El nombre del producto es obligatorio y debe ser texto"), { status: 400 });
     }
 
-    // Validación para descripcionProducto (opcional pero si viene debe ser string)
-    if (!descripcionProducto || typeof descripcionProducto !== "string" || descripcionProducto.trim().length === 0) {
-        throw Object.assign(new Error("Se necesita una descripcion del producto"), { status: 400 });
+    // 🔸 Descripción
+    if (!descripcionProducto || typeof descripcionProducto !== "string" || !descripcionProducto.trim()) {
+        throw Object.assign(new Error("La descripción del producto es obligatoria y debe ser texto"), { status: 400 });
     }
 
-    // Validación para precio
-    if (!precio || typeof precio !== "number") {
-        throw Object.assign(new Error("Se necesita el precio del producto"), { status: 400 });
+    // 🔸 Precio
+    if (typeof precio !== "number" || isNaN(precio)) {
+        throw Object.assign(new Error("El precio del producto debe ser un número válido"), { status: 400 });
     }
-
     if (precio <= 0) {
-        throw Object.assign(new Error("El precio debe ser mayor a 0"), { status: 400 });
+        throw Object.assign(new Error("El precio del producto debe ser mayor a 0"), { status: 422 });
     }
 
-    // Validación para usaInsumo
+    // 🔸 usaInsumo
     if (usaInsumo === null || usaInsumo === undefined || typeof usaInsumo !== "number") {
-        throw Object.assign(new Error("Se necesita especificar si el producto usa insumos"), { status: 400 });
+        throw Object.assign(new Error("Debe especificarse si el producto usa insumos"), { status: 400 });
+    }
+    if (![0, 1].includes(usaInsumo)) {
+        throw Object.assign(new Error("El campo usaInsumo debe ser 0 (no usa) o 1 (usa)"), { status: 422 });
     }
 
-    // Si es número, validar que sea 0 o 1
-    if (usaInsumo !== 0 && usaInsumo !== 1) {
-        throw Object.assign(new Error("El campo usaInsumo debe ser 0 (false) o 1 (true)"), { status: 400 });
-    }
-
-    //Validar que insumos sea una array
+    // 🔸 insumos
     if (!Array.isArray(insumos)) {
-        throw Object.assign(new Error("Los insumos deben ser un array"), { status: 400 });
+        throw Object.assign(new Error("El campo insumos debe ser un arreglo"), { status: 400 });
+    }
+    if (usaInsumo === 1 && insumos.length === 0) {
+        throw Object.assign(new Error("Debe especificar al menos un insumo y su cantidad"), { status: 422 });
     }
 
-    //Si usa insumos entoces debe contener datos el array de insumos
-    if (usaInsumo === 1 && insumos.length === 0) {
-        throw Object.assign(new Error("Especifique insumos y su cantidad"), { status: 400 });
-    };
-
-    // ✅ SOLUCIÓN: Validar existencia de insumos en BD
+    // 🔍 Validar existencia de insumos en la base de datos
     const erroresInsumos = [];
-    
+
     for (const insumo of insumos) {
-        // Validar estructura del insumo
         if (typeof insumo !== 'object' || insumo === null) {
-            throw Object.assign(new Error("Se necesitan datos del insumo"), { status: 400 });
-        }
-        if (!insumo.idInsumo || insumo.cantidadUso === null || insumo.cantidadUso === undefined || typeof insumo.idInsumo !== "number" || typeof insumo.cantidadUso !== "number") {
-            throw Object.assign(new Error("Cada insumo debe tener el identificador del insumo y su cantidad de uso en formato valido"), { status: 400 });
+            throw Object.assign(new Error("Cada insumo debe ser un objeto con ID y cantidad"), { status: 400 });
         }
 
-        if (insumo.cantidadUso <= 0) {
-            throw Object.assign(new Error("La cantidad tiene que ser mayor a 0"), { status: 400 });
+        const { idInsumo, cantidadUso } = insumo;
+
+        if (typeof idInsumo !== "number" || typeof cantidadUso !== "number") {
+            throw Object.assign(new Error("El idInsumo y la cantidadUso deben ser numéricos"), { status: 400 });
         }
-        // Validar existencia en base de datos
+
+        if (cantidadUso <= 0) {
+            throw Object.assign(new Error("La cantidad de uso debe ser mayor a 0"), { status: 422 });
+        }
+
+        // 🔎 Verificar existencia real del insumo
         try {
-            const insumoExistente = await obtenerInsumoIDModel(insumo.idInsumo);
-            
+            const insumoExistente = await obtenerInsumoIDModel(idInsumo);
             if (!insumoExistente) {
-                erroresInsumos.push(`El insumo con ID ${insumo.idInsumo} no existe`);
+                erroresInsumos.push(`El insumo con ID ${idInsumo} no existe`);
             }
-            
         } catch (err) {
-            erroresInsumos.push(`Error al validar insumo ID ${insumo.idInsumo}: ${err.message}`);
+            erroresInsumos.push(`Error al validar el insumo con ID ${idInsumo}: ${err.message}`);
         }
-    };
+    }
 
-    // ✅ IMPORTANTE: Lanzar error si hay problemas con los insumos
     if (erroresInsumos.length > 0) {
-        throw Object.assign(new Error("No existe uno o mas de los insumos ingresados"), { status: 400 });
+        throw Object.assign(new Error("Uno o más insumos no existen o son inválidos"), { status: 404 });
     }
 };
 
+
+// 🟢 Validar datos para actualizar un producto
 const validarActualizarProducto = (idProducto, datos) => {
-    //Validar que contenga un id de producto
-    if(!idProducto){
-        throw Object.assign(new Error("Se necesita el id del producto a actualizar"), { status: 400 });
+    if (!idProducto || typeof idProducto !== "number") {
+        throw Object.assign(new Error("Se necesita un ID de producto válido para actualizarlo"), { status: 400 });
     }
 
     if (!datos || typeof datos !== 'object') {
-        throw Object.assign(new Error("Se necesitan datos del producto para poder actualizar los datos"), { status: 400 });
-    };
+        throw Object.assign(new Error("Se necesitan los datos del producto a actualizar"), { status: 400 });
+    }
 
     const { nombreProducto, descripcionProducto, precio } = datos;
 
-    // Validación para nombreProducto
-    if (!nombreProducto || typeof nombreProducto !== "string" || nombreProducto.trim().length === 0) {
-        throw Object.assign(new Error("Se necesita el nombre del producto"), { status: 400 });
+    if (!nombreProducto || typeof nombreProducto !== "string" || !nombreProducto.trim()) {
+        throw Object.assign(new Error("El nombre del producto es obligatorio y debe ser texto"), { status: 400 });
     }
 
-    // Validación para descripcionProducto (opcional pero si viene debe ser string)
-    if (!descripcionProducto || typeof descripcionProducto !== "string" || descripcionProducto.trim().length === 0) {
-        throw Object.assign(new Error("Se necesita una descripcion del producto"), { status: 400 });
+    if (!descripcionProducto || typeof descripcionProducto !== "string" || !descripcionProducto.trim()) {
+        throw Object.assign(new Error("La descripción del producto es obligatoria y debe ser texto"), { status: 400 });
     }
 
-    // Validación para precio
-    if (!precio || typeof precio !== "number") {
-        throw Object.assign(new Error("Se necesita el precio del producto"), { status: 400 });
+    if (typeof precio !== "number" || isNaN(precio)) {
+        throw Object.assign(new Error("El precio del producto debe ser un número válido"), { status: 400 });
     }
-
     if (precio <= 0) {
-        throw Object.assign(new Error("El precio debe ser mayor a 0"), { status: 400 });
+        throw Object.assign(new Error("El precio debe ser mayor a 0"), { status: 422 });
     }
-
 };
 
+
+// 🟢 Validar datos para actualizar la cantidad de uso de un insumo
 const validarActualizarCantidadesProducto = (datos) => {
     if (!datos || typeof datos !== 'object') {
-        throw Object.assign(new Error("Se necesitan tanto el id del insumo como del producto y la nueva cantidad"), { status: 400 });
-    };
+        throw Object.assign(new Error("Se necesitan el ID del producto, el ID del insumo y la nueva cantidad"), { status: 400 });
+    }
+
     const { idInsumo, idProducto, nuevaCantidad } = datos;
-    if(!idInsumo || typeof idInsumo !== "number"){
-        throw Object.assign(new Error("Se necesita el id del insumo"), { status: 400 });
+
+    if (!idInsumo || typeof idInsumo !== "number") {
+        throw Object.assign(new Error("El ID del insumo es obligatorio y debe ser numérico"), { status: 400 });
     }
-    if(!idProducto || typeof idProducto !== "number"){
-        throw Object.assign(new Error("Se necesita el id del producto"), { status: 400 });
+
+    if (!idProducto || typeof idProducto !== "number") {
+        throw Object.assign(new Error("El ID del producto es obligatorio y debe ser numérico"), { status: 400 });
     }
-    if(!nuevaCantidad || typeof nuevaCantidad  !== "number"){
-        throw Object.assign(new Error("Se necesita la nueva cantidad de uso"), { status: 400 });
+
+    if (typeof nuevaCantidad !== "number" || isNaN(nuevaCantidad)) {
+        throw Object.assign(new Error("La nueva cantidad de uso debe ser un número válido"), { status: 400 });
     }
-    if(nuevaCantidad <= 0){
-        throw Object.assign(new Error("La nueva cantidad debe ser mayor a 0"), { status: 400 });
+
+    if (nuevaCantidad <= 0) {
+        throw Object.assign(new Error("La nueva cantidad de uso debe ser mayor a 0"), { status: 422 });
     }
 };
 
+
+// 🟢 Validar datos para insertar una nueva relación producto–insumo
 const validarInsertarCantidadesProducto = (datos) => {
     if (!datos || typeof datos !== 'object') {
-        throw Object.assign(new Error("Se necesitan tanto el id del insumo como del producto y cantidad"), { status: 400 });
-    };
+        throw Object.assign(new Error("Se necesitan el ID del producto, el ID del insumo y la cantidad de uso"), { status: 400 });
+    }
+
     const { idInsumo, idProducto, cantidadUso } = datos;
-    if(!idInsumo || typeof idInsumo !== "number"){
-        throw Object.assign(new Error("Se necesita el id del insumo"), { status: 400 });
+
+    if (!idInsumo || typeof idInsumo !== "number") {
+        throw Object.assign(new Error("El ID del insumo es obligatorio y debe ser numérico"), { status: 400 });
     }
-    if(!idProducto || typeof idProducto !== "number"){
-        throw Object.assign(new Error("Se necesita el id del producto"), { status: 400 });
+
+    if (!idProducto || typeof idProducto !== "number") {
+        throw Object.assign(new Error("El ID del producto es obligatorio y debe ser numérico"), { status: 400 });
     }
-    if(!cantidadUso || typeof cantidadUso  !== "number"){
-        throw Object.assign(new Error("Se necessita la cantidad de uso"), { status: 400 });
+
+    if (typeof cantidadUso !== "number" || isNaN(cantidadUso)) {
+        throw Object.assign(new Error("La cantidad de uso debe ser un número válido"), { status: 400 });
     }
-    if(cantidadUso <= 0){
-        throw Object.assign(new Error("La cantidad debe ser mayor a 0"), { status: 400 });
+
+    if (cantidadUso <= 0) {
+        throw Object.assign(new Error("La cantidad de uso debe ser mayor a 0"), { status: 422 });
     }
 };
 
@@ -156,4 +163,4 @@ module.exports = {
     validarActualizarProducto,
     validarActualizarCantidadesProducto,
     validarInsertarCantidadesProducto
-}
+};

@@ -21,11 +21,11 @@ CREATE PROCEDURE insertarInsumo(
     IN p_nombreInsumo VARCHAR(50),
     IN p_stockInsumo DECIMAL(10,2),
     IN p_unidadMedida VARCHAR(20),
-    IN p_categoriaProducto ENUM('insumo','bebida')
+    IN p_categoriaInsumo ENUM('insumo','bebida')
 )
 BEGIN
-    INSERT INTO insumos (nombreInsumo, stockInsumo, unidadMedida, categoriaProducto, estadoInsumo)
-    VALUES (p_nombreInsumo, p_stockInsumo, p_unidadMedida, p_categoriaProducto,
+    INSERT INTO insumos (nombreInsumo, stockInsumo, unidadMedida, categoriaInsumo, estadoInsumo)
+    VALUES (p_nombreInsumo, p_stockInsumo, p_unidadMedida, p_categoriaInsumo,
             CASE WHEN p_stockInsumo <= 0 THEN '0' ELSE '1' END);
 END //
 
@@ -43,7 +43,7 @@ BEGIN
         nombreInsumo,
         stockInsumo,
         unidadMedida,
-        categoriaProducto,
+        categoriaInsumo,
         estadoInsumo
     FROM insumos
     WHERE idInsumo = p_idInsumo 
@@ -55,14 +55,14 @@ CREATE PROCEDURE actualizarInsumo(
     IN p_nombreInsumo VARCHAR(50),
     IN p_stockInsumo DECIMAL(10,2),
     IN p_unidadMedida VARCHAR(20),
-    IN p_categoriaProducto ENUM('insumo','bebida')
+    IN p_categoriaInsumo ENUM('insumo','bebida')
 )
 BEGIN
     UPDATE insumos
     SET nombreInsumo = p_nombreInsumo,
         stockInsumo = p_stockInsumo,
         unidadMedida = p_unidadMedida,
-        categoriaProducto = p_categoriaProducto,
+        categoriaInsumo = p_categoriaInsumo,
         estadoInsumo = CASE 
                     WHEN p_stockInsumo <= 0 THEN '0'
                     ELSE '1'
