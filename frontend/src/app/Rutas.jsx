@@ -28,11 +28,13 @@ import PanelDeControl from "../modulos/panel-administrador/paginas/PanelDeContro
 import GenerarVenta from "../modulos/panel-administrador/modulos/ventas/secciones/GenerarVentaSeccion";
 import RegistroVentasSeccion from "../modulos/panel-administrador/modulos/ventas/secciones/RegistroVentasSeccion";
 
+// seccion de productos
+import GestionProductosSeccion from "../modulos/panel-administrador/modulos/productos/secciones/GestionProductosSeccion";
+
 // secciones de stock
 import StockInsumosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/StockInsumosSeccion";
 import HistorialEntradasSeccion from "../modulos/panel-administrador/modulos/stock/secciones/HistorialEntradasSeccion";
 import HistorialSalidasSeccion from "../modulos/panel-administrador/modulos/stock/secciones/HistorialSalidasSeccion";
-import GestionProductosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/GestionProductosSeccion";
 
 // secciones de caja
 import CajaActualSeccion from "../modulos/panel-administrador/modulos/caja/secciones/CajaActualSeccion";

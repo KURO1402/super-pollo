@@ -15,11 +15,11 @@ import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
 // componentes de la seccion
 import { ModalReceta } from '../componentes/ModalReceta';
-import { ModalNuevoProducto } from "../componentes/ModalNuevoProducto";
+import { ModalNuevoProducto } from '../componentes/ModalNuevoProducto'
 import { FilaProducto } from '../componentes/FilaProductos';
-// datos temporales
-import { productos } from '../data-temporal/productos';
 import { ModalEditarProducto } from "../componentes/ModalEditarProducto";
+// datos temporales
+import { productos } from '../../stock/data-temporal/productos';
 
 const GestionProductosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
