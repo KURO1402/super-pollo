@@ -31,3 +31,19 @@ export const obtenerProductosServicio = async () => {
     throw error;
   }
 };
+// funcion para actulizar un producto
+export const actualizarProductoServicio = async (idProducto, datosActualizados) => {
+  try {
+    
+    const respuesta = await API.put(`/productos/actualizar-producto/${idProducto}`, datosActualizados);
+
+    if (respuesta.data && respuesta.data.ok) {
+      return respuesta.data;
+    } else {
+      throw new Error(respuesta.data?.mensaje || "Error al actualizar el producto");
+    }
+  } catch (error) {
+    console.error('Error en actualizarProductoServicio:', error);
+    throw error;
+  }
+};

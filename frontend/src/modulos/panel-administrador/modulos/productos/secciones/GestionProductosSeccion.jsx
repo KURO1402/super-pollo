@@ -67,17 +67,17 @@ const GestionProductosSeccion = () => {
     modalEditarProducto.cerrar();
   }
 
-  // Aplicar búsqueda - CORREGIDO para usar las propiedades correctas
+  // Aplicar búsqueda 
   let productosFiltrados = filtrarPorBusqueda(productos, [
-    "nombreProducto", // Cambiado de "nombre" a "nombreProducto"
-    "descripcionProducto" // Agregado para buscar también en descripción
+    "nombreProducto", 
+    "descripcionProducto"
   ]);
-  
+
   // productosFiltrados = aplicarFiltros(productosFiltrados, "categoria");
 
   const { datosPaginados, totalPaginas } = paginar(productosFiltrados);
 
-  // Mapear los productos para las filas de la tabla - CORREGIDO
+  // Mapear los productos para las filas de la tabla
   const filasProductos = datosPaginados.map((producto) => (
     <FilaProducto 
       key={producto.idProducto} // Cambiado de id a idProducto
