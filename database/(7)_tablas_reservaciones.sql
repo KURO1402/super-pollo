@@ -10,7 +10,7 @@ CREATE TABLE mesas(
     idMesa INT PRIMARY KEY AUTO_INCREMENT,
     numeroMesa INT NOT NULL,
     capacidad INT NOT NULL,
-    estadoMesa ENUM('disponible','reservada') NOT NULL DEFAULT 'disponible'
+    estadoMesa ENUM('disponible','reservada', 'ocupada') NOT NULL DEFAULT 'disponible'
 );
 
 CREATE TABLE reservaciones(

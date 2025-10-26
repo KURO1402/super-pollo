@@ -7,7 +7,8 @@ const {
   insertarPagoService,
   obtenerPagoService,
   insertarDetalleReservacionService,
-  obtenerDetalleReservacionService
+  obtenerDetalleReservacionService,
+  listarMesasDisponiblesService
 } = require ("./reservacionesServicio.js")
 
 // controlador para insertar reservacion
@@ -130,6 +131,18 @@ const obtenerDetalleReservacionController = async (req, res) => {
   }
 }
 
+// controlador para listar mesas disponibles por fecha y hora
+const listarMesasDisponiblesController = async (req, res) => {
+  try {
+    const { fecha, hora } = req.query; // frontend enviará ?fecha=YYYY-MM-DD&hora=HH:MM:SS
+    const result = await listarMesasDisponiblesService(fecha, hora);
+    return res.status(200).json({ ok: true, mesas: result });
+  } catch (err) {
+    console.error("Error en listarMesasDisponiblesController:", err.message);
+    return res.status(err.status || 500).json({ ok: false, mensaje: err.message });
+  }
+};
+
 // exportamos los modulos
 module.exports = {
   insertarReservacionController,
@@ -139,5 +152,6 @@ module.exports = {
   insertarPagoController,
   obtenerPagoController,
   insertarDetalleReservacionController,
-  obtenerDetalleReservacionController
+  obtenerDetalleReservacionController,
+  listarMesasDisponiblesController
 }

@@ -13,6 +13,8 @@ const insertarReservacionModel = async (datos) => {
       await conexion.execute("CALL insertarReservacion(?, ?, ?, ?, ?)", [
         fechaReservacion, horaReservacion, cantidadPersonas, idUsuario, idMesa  
       ]);
+      // actualizamos el estado de la mesa a 'reservada'
+      await conexion.query("UPDATE mesas SET estadoMesa = 'reservada' WHERE idMesa = ?", [idMesa]);
       // confirmamos que la transaccion fue exitosa
       await conexion.commit();
       return { mensaje: "Reservación registrada exitosamente" };
@@ -208,6 +210,21 @@ const obtenerDetalleReservacionModel = async (idReservacion) => {
     }
 };
 
+// modelo para mostrar mesas disponibles por fecha y hora
+const listarMesasDisponiblesModel = async (fechaReservacion, horaReservacion) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.query("CALL listarMesasDisponibles(?, ?)", [fechaReservacion, horaReservacion]);
+    return result[0];
+  } catch (err) {
+    console.error("Error en listarMesasDisponiblesModel:", err.message);
+    throw new Error("Error al obtener mesas disponibles");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
 // exportamos los modulos
 module.exports = {
   insertarReservacionModel,
@@ -218,5 +235,6 @@ module.exports = {
   actualizarPagoModel,
   obtenerPagoModel,
   insertarDetalleReservacionModel,
-  obtenerDetalleReservacionModel
+  obtenerDetalleReservacionModel,
+  listarMesasDisponiblesModel
 };

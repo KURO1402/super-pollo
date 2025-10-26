@@ -8,7 +8,8 @@ const {
     insertarPagoController,
     obtenerPagoController,
     insertarDetalleReservacionController,
-    obtenerDetalleReservacionController
+    obtenerDetalleReservacionController,
+    listarMesasDisponiblesController
 } = require("./reservacionesControlador.js")
 // importamos mercadoPago.js
 const { crearPreferencia } = require('../../servicios/mercadoPago.js');
@@ -34,6 +35,8 @@ router.get("/:idReservacion/pago", obtenerPagoController);
 router.post("/detalle", insertarDetalleReservacionController);
 // ruta para obtener detalle de una reservacion por id
 router.get("/:idReservacion/detalle", obtenerDetalleReservacionController);
+// nueva ruta para listar mesas disponibles por fecha y hora
+router.get("/mesas/disponibles", listarMesasDisponiblesController);
 
 // ruta para crear preferencia de Mercado Pago para una reservación
 router.post("/:idReservacion/crear-preferencia", async (req, res) => {

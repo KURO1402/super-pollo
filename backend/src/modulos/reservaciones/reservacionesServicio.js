@@ -8,7 +8,8 @@ const {
   actualizarPagoModel,
   obtenerPagoModel,
   insertarDetalleReservacionModel,
-  obtenerDetalleReservacionModel
+  obtenerDetalleReservacionModel,
+  listarMesasDisponiblesModel
 } = require("./reservacionesModelo.js");
 
 // servicio para insertar reservacion
@@ -94,6 +95,14 @@ const obtenerDetalleReservacionService = async (idReservacion) => {
     return await obtenerDetalleReservacionModel(idReservacion);
 }    
 
+// servicio para mostrar mesas disponibles por fecha y hora
+const listarMesasDisponiblesService = async (fechaReservacion, horaReservacion) => {
+  if (!fechaReservacion || !horaReservacion)
+    throw Object.assign(new Error("Falta la fecha o hora de reservación"), { status: 400 });
+
+  return await listarMesasDisponiblesModel(fechaReservacion, horaReservacion);
+}; 
+
 // exportamos los modulos
 module.exports = {
   insertarReservacionService,
@@ -104,5 +113,6 @@ module.exports = {
   actualizarPagoService,
   obtenerPagoService,
   insertarDetalleReservacionService,
-  obtenerDetalleReservacionService
+  obtenerDetalleReservacionService,
+  listarMesasDisponiblesService
 }

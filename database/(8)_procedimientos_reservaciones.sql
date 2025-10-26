@@ -167,4 +167,27 @@ BEGIN
     WHERE dr.idReservacion = p_idReservacion;
 END //
 
+/* PROCEDIMIENTO ALMACENADO para obtener las mesa disponibles  */
+CREATE PROCEDURE listarMesasDisponibles(
+  IN fechaBuscada DATE,
+  IN horaBuscada TIME
+)
+BEGIN
+  SELECT 
+    m.idMesa, 
+    m.numeroMesa, 
+    m.capacidad
+  FROM mesas m
+  WHERE 
+    m.estadoMesa = 'disponible'
+    AND m.idMesa NOT IN (
+      SELECT r.idMesa
+      FROM reservaciones r
+      WHERE DATE(r.fechaReservacion) = fechaBuscada
+        AND TIME(r.horaReservacion) <= horaBuscada
+        AND ADDTIME(r.horaReservacion, '02:00:00') > horaBuscada
+    )
+  ORDER BY m.numeroMesa;
+END //
+
 DELIMITER ;
