@@ -32,7 +32,7 @@ const verificarImagen = (req, res, next) => {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         ok: false,
-        message: 'Se necesita la imagen del producto en formato PNG O JPJ',
+        message: 'Se necesita la imagen en formato PNG O JPJ',
       });
     }
 
@@ -50,7 +50,7 @@ const verificarImagen = (req, res, next) => {
 
       return res.status(400).json({
         ok: false,
-        message: 'Solo puedes subir una imagen del producto',
+        message: 'Solo puedes subir una imagen a la vez',
       });
     }
 
