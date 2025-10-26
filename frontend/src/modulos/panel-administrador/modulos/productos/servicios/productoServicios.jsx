@@ -47,3 +47,18 @@ export const actualizarProductoServicio = async (idProducto, datosActualizados) 
     throw error;
   }
 };
+// Efunción para eliminar un productp
+export const eliminarProductoServicio = async (idProducto) => {
+  try {
+    const respuesta = await API.delete(`/productos/eliminar-producto/${idProducto}`);
+
+    if (respuesta.data && respuesta.data.ok) {
+      return respuesta.data;
+    } else {
+      throw new Error(respuesta.data?.mensaje || "Error al eliminar el producto");
+    }
+  } catch (error) {
+    console.error('Error en eliminarProductoServicio:', error);
+    throw error;
+  }
+};

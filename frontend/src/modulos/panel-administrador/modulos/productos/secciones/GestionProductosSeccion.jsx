@@ -5,33 +5,36 @@ import { useState } from 'react';
 // componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda";
-import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import Modal from '../../../componentes/modal/Modal';
+import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
 // custom hooks
 import { useBusqueda } from "../../../hooks/useBusqueda";
-import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
+import { useConfirmacion } from "../../../hooks/useConfirmacion";
 import { useProductos } from "../hooks/useProductos";
 // componentes de la seccion
 import { ModalReceta } from '../componentes/ModalReceta';
 import { ModalNuevoProducto } from '../componentes/ModalNuevoProducto'
 import { FilaProducto } from '../componentes/FilaProductos';
+// servicio
+import { eliminarProductoServicio } from "../servicios/productoServicios";
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 import { ModalEditarProducto } from "../componentes/ModalEditarProducto";
-// datos temporales
 
 const GestionProductosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
   const { productos, cargando, error, refetch } = useProductos();
-  const { filtro, setFiltro, aplicarFiltros } = useFiltro();
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(8);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [productoAEliminar, setProductoAEliminar] = useState(null);
 
   // modales
   const modalReceta = useModal(false);
   const modalNuevoProducto = useModal(false);
   const modalEditarProducto = useModal(false);
+  const confirmacionEliminar = useConfirmacion();
 
   // funcion que escucha el evente de gestionar insumos
   function handleGestionarInsumos(producto) {
@@ -50,13 +53,47 @@ const GestionProductosSeccion = () => {
     modalEditarProducto.abrir();
   }
 
+  // función para solicitar confirmación de eliminación
+  function handleSolicitarEliminar(producto) {
+    setProductoAEliminar(producto);
+    
+    confirmacionEliminar.solicitarConfirmacion(
+      `¿Estás seguro de eliminar el producto "${producto.nombreProducto}"? Esta acción no se puede deshacer.`,
+      () => {
+        // Esta función se ejecuta cuando el usuario confirma
+        handleEliminarProducto(producto.idProducto);
+      },
+      {
+        titulo: "Eliminar Producto",
+        tipo: "peligro",
+        textoConfirmar: "Sí, eliminar",
+        textoCancelar: "Cancelar"
+      }
+    );
+  }
+
+  // función para cancelar eliminación
+  function cancelarEliminacion() {
+    setProductoAEliminar(null);
+    confirmacionEliminar.ocultarConfirmacion();
+  }
+
   // función para eliminar producto
-  function handleEliminarProducto(producto) {
-    if (confirm(`¿Estás seguro de eliminar "${producto.nombreProducto}"?`)) {
-      console.log('Eliminar producto:', producto);
-      // Aquí llamarías al servicio de eliminar producto
-      // await eliminarProductoServicio(producto.idProducto);
-      // refetch(); // Recargar la lista después de eliminar
+  async function handleEliminarProducto(idProducto) {
+    try {
+      await eliminarProductoServicio(idProducto);
+      
+      // Actualizar la lista localmente sin recargar toda la página
+      refetch();
+      
+      // Mostrar mensaje de éxito
+      mostrarAlerta.exito('Producto eliminado exitosamente');
+      
+    } catch (error) {
+      console.error('Error al eliminar producto:', error);
+    } finally {
+      // Limpiar el estado
+      setProductoAEliminar(null);
     }
   }
 
@@ -73,8 +110,6 @@ const GestionProductosSeccion = () => {
     "descripcionProducto"
   ]);
 
-  // productosFiltrados = aplicarFiltros(productosFiltrados, "categoria");
-
   const { datosPaginados, totalPaginas } = paginar(productosFiltrados);
 
   // Mapear los productos para las filas de la tabla
@@ -84,7 +119,7 @@ const GestionProductosSeccion = () => {
       producto={producto}
       onGestionarInsumos={handleGestionarInsumos} // Cambiado de onVerReceta
       onEditarProducto={handleEditarProducto}
-      onEliminarProducto={handleEliminarProducto} // Agregado
+      onEliminarProducto={handleSolicitarEliminar} 
     />
   ));
 
@@ -134,19 +169,6 @@ const GestionProductosSeccion = () => {
             onChange={setTerminoBusqueda}
             placeholder="Buscar por nombre o descripción..."
           />
-          {/* Filtro temporalmente comentado hasta que tengamos categorías
-          <FiltroBusqueda
-            valor={filtro}
-            onChange={setFiltro}
-            opciones={[
-              { value: "todos", label: "Todas las categorías" },
-              { value: "Platos principales", label: "Platos principales" },
-              { value: "Bebidas", label: "Bebidas" },
-              { value: "Entradas", label: "Entradas" },
-              { value: "Postres", label: "Postres" },
-            ]}
-          />
-          */}
           <button 
             onClick={handleNuevoProducto}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer">
@@ -216,6 +238,19 @@ const GestionProductosSeccion = () => {
           />
         )}
       </Modal>
+      <div className="p-2">
+        {/* Modal de confirmación para eliminar */}
+        <ModalConfirmacion
+          visible={confirmacionEliminar.confirmacionVisible}
+          onCerrar={cancelarEliminacion}
+          onConfirmar={confirmacionEliminar.confirmarAccion}
+          titulo={confirmacionEliminar.tituloConfirmacion}
+          mensaje={confirmacionEliminar.mensajeConfirmacion}
+          tipo={confirmacionEliminar.tipoConfirmacion}
+          textoConfirmar={confirmacionEliminar.textoConfirmar}
+          textoCancelar={confirmacionEliminar.textoCancelar}
+        />
+      </div>
     </div>
   );
 };
