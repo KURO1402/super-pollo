@@ -18,6 +18,7 @@ API.interceptors.request.use(
             try {
                 const parsed = JSON.parse(authStorage);
                 accessToken = parsed.state.accessToken;
+                console.log('Token usado en request:', accessToken?.substring(0, 20) + '...');
             } catch (error) {
                 console.error('Error parsing auth storage:', error);
             }
@@ -38,18 +39,25 @@ API.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+        
+        console.log('Error en response:', {
+            status: error.response?.status,
+            url: originalRequest.url,
+            mensaje: error.response?.data?.mensaje
+        });
 
         // Verificar si es error 403 (token expirado)
         if (error.response && error.response.status === 403 && !originalRequest._retry) {
             originalRequest._retry = true;
             
             try {
-                console.log('🔄 Intentando renovar token...');
+                console.log('Intentando renovar token...');
                 
-                const refreshResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/usuarios/token`);
+                const refreshResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/autenticacion/token`);
                 const nuevoAccessToken = refreshResponse.data.accessToken;
 
                 if (nuevoAccessToken) {
+                    console.log('Token renovado exitosamente:', nuevoAccessToken.substring(0, 20) + '...');
                     
                     // Actualizar el token en el estado global
                     const { useAutenticacionGlobal } = await import('../estado-global/autenticacionGlobal');
@@ -62,10 +70,13 @@ API.interceptors.response.use(
                         const oldToken = parsed.state.accessToken;
                         parsed.state.accessToken = nuevoAccessToken;
                         localStorage.setItem('auth-storage', JSON.stringify(parsed));
+                        console.log('Token actualizado en localStorage');
+                        console.log('Cambio de token:', oldToken?.substring(0, 20) + '... → ' + nuevoAccessToken.substring(0, 20) + '...');
                     }
 
                     // Actualizar header y reintentar
                     originalRequest.headers['Authorization'] = `Bearer ${nuevoAccessToken}`;
+                    console.log('Reintentando request original...');
                     
                     return API(originalRequest);
                 } else {
@@ -76,13 +87,15 @@ API.interceptors.response.use(
                 
                 const { useAutenticacionGlobal } = await import('../estado-global/autenticacionGlobal');
                 useAutenticacionGlobal.getState().logout();
-                window.location.href = '/login';
+                console.log('Redirigiendo al login...');
+                window.location.href = '/inicio-sesion';
                 return Promise.reject(refreshError);
             }
         }
         
         // Si es error 401
         if (error.response && error.response.status === 401) {
+            console.log('Token inválido - redirigiendo al login');
             const { useAutenticacionGlobal } = await import('../estado-global/autenticacionGlobal');
             useAutenticacionGlobal.getState().logout();
             window.location.href = '/inicio-sesion';
