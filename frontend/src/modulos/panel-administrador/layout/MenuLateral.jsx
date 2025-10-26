@@ -101,7 +101,6 @@ const MenuLateral = () => {
     (path) => location.pathname === path,
     [location.pathname]
   );
- console.log("menus filtrados", menuItemsFiltrados)
   useEffect(() => {
     let submenuMatched = false;
     menuItemsFiltrados.forEach((nav, index) => {

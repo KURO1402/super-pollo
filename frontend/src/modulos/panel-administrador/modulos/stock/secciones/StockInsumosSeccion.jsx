@@ -89,6 +89,15 @@ const StockInsumosSeccion = () => {
     setInsumoSeleccionado(null);
   };
 
+  const handleMovimientoCreado = async () => {
+    // Dar tiempo al backend para procesar
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // Recargar la lista completa desde el backend
+    await obtenerInsumos();
+    // Cerrar modal
+    modalMovimientoStock.cerrar();
+  };
+
   const solicitarConfirmacionEliminar = (insumo) => {
   setInsumoAEliminar(insumo);
   
@@ -107,10 +116,10 @@ const StockInsumosSeccion = () => {
   );
 };
 
-  const cancelarEliminacion = () => {
-    setInsumoAEliminar(null);
-    confirmacionEliminar.ocultarConfirmacion();
-  };
+const cancelarEliminacion = () => {
+  setInsumoAEliminar(null);
+  confirmacionEliminar.ocultarConfirmacion();
+};
 
 const handleEliminarInsumo = async (idInsumo) => {
   
@@ -223,7 +232,7 @@ const handleEliminarInsumo = async (idInsumo) => {
       >
         <ModalMovimientoStock 
           onClose={modalMovimientoStock.cerrar}
-          onGuardar={modalMovimientoStock.cerrar}
+          onGuardar={handleMovimientoCreado}
         />
       </Modal>
       {/* Modal para editar stock */}
@@ -249,23 +258,19 @@ const handleEliminarInsumo = async (idInsumo) => {
           />
         )}
       </Modal>
-      return (
-  <div className="p-2">
-    {/* ... todo el contenido actual ... */}
-    
-    {/* ✅ MODAL DE CONFIRMACIÓN (agregar esto) */}
-    <ModalConfirmacion
-      visible={confirmacionEliminar.confirmacionVisible}
-      onCerrar={cancelarEliminacion}
-      onConfirmar={confirmacionEliminar.confirmarAccion}
-      titulo={confirmacionEliminar.tituloConfirmacion}
-      mensaje={confirmacionEliminar.mensajeConfirmacion}
-      tipo={confirmacionEliminar.tipoConfirmacion}
-      textoConfirmar={confirmacionEliminar.textoConfirmar}
-      textoCancelar={confirmacionEliminar.textoCancelar}
-    />
-  </div>
-);
+      <div className="p-2">
+        {/*  modal de confirmación*/}
+        <ModalConfirmacion
+          visible={confirmacionEliminar.confirmacionVisible}
+          onCerrar={cancelarEliminacion}
+          onConfirmar={confirmacionEliminar.confirmarAccion}
+          titulo={confirmacionEliminar.tituloConfirmacion}
+          mensaje={confirmacionEliminar.mensajeConfirmacion}
+          tipo={confirmacionEliminar.tipoConfirmacion}
+          textoConfirmar={confirmacionEliminar.textoConfirmar}
+          textoCancelar={confirmacionEliminar.textoCancelar}
+        />
+      </div>
     </div>
   );
 };

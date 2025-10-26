@@ -1,22 +1,30 @@
 import axios from 'axios';
-import { useAutenticacionGlobal } from '../estado-global/autenticacionGlobal'; // Importamos el estado global de autenticación
 
-// Crear la instancia de Axios con la configuración básica
 const API = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_URL,  // URL base del backend
-    withCredentials: true,  // Permite que las cookies sean enviadas con las solicitudes
+    baseURL: import.meta.env.VITE_BACKEND_URL,
+    withCredentials: true,
     headers: {
-        'Content-Type': 'application/json',  // Establece el Content-Type globalmente
+        'Content-Type': 'application/json',
     },
 });
 
-// Interceptor para agregar el accessToken a las solicitudes
+// Interceptor para requests
 API.interceptors.request.use(
     (config) => {
-        // Obtener el accessToken desde el estado global
-        const accessToken = useAutenticacionGlobal.getState().accessToken;
+        const authStorage = localStorage.getItem('auth-storage');
+        let accessToken = null;
+        
+        if (authStorage) {
+            try {
+                const parsed = JSON.parse(authStorage);
+                accessToken = parsed.state.accessToken;
+                console.log('Token usado en request:', accessToken?.substring(0, 20) + '...');
+            } catch (error) {
+                console.error('Error parsing auth storage:', error);
+            }
+        }
+        
         if (accessToken) {
-            // si existe un accessToken, lo añadimos al header 'Authorization'
             config.headers['Authorization'] = `Bearer ${accessToken}`;
         }
         return config;
@@ -26,41 +34,74 @@ API.interceptors.request.use(
     }
 );
 
-// Interceptor para manejar la renovación del accessToken si expira (status 403)
+// Interceptor para responses - CON LOGS DE REFRESCO
 API.interceptors.response.use(
-    (response) => response,  // Si la respuesta es exitosa, simplemente la pasamos
+    (response) => response,
     async (error) => {
-        const originalRequest = error.config;  // Guardamos la solicitud original
+        const originalRequest = error.config;
+        
+        console.log('Error en response:', {
+            status: error.response?.status,
+            url: originalRequest.url,
+            mensaje: error.response?.data?.mensaje
+        });
+
+        // Verificar si es error 403 (token expirado)
         if (error.response && error.response.status === 403 && !originalRequest._retry) {
-            originalRequest._retry = true;  // Marcamos la solicitud para que no entre en un bucle infinito de reintentos
+            originalRequest._retry = true;
+            
             try {
-                // Definir correctamente la URL base del backend
-                const urlAPI = import.meta.env.VITE_BACKEND_URL;
+                console.log('Intentando renovar token...');
                 
-                // Llamamos a la API para renovar el accessToken
-                const refreshResponse = await axios.post(`${urlAPI}/usuarios/token`); // Ruta para renovar el token
+                const refreshResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/autenticacion/token`);
                 const nuevoAccessToken = refreshResponse.data.accessToken;
 
                 if (nuevoAccessToken) {
-                    // Actualizamos el token en el estado global de Zustand
+                    console.log('Token renovado exitosamente:', nuevoAccessToken.substring(0, 20) + '...');
+                    
+                    // Actualizar el token en el estado global
+                    const { useAutenticacionGlobal } = await import('../estado-global/autenticacionGlobal');
                     useAutenticacionGlobal.getState().setAccessToken(nuevoAccessToken);
+                    
+                    // Actualizar localStorage
+                    const currentStorage = localStorage.getItem('auth-storage');
+                    if (currentStorage) {
+                        const parsed = JSON.parse(currentStorage);
+                        const oldToken = parsed.state.accessToken;
+                        parsed.state.accessToken = nuevoAccessToken;
+                        localStorage.setItem('auth-storage', JSON.stringify(parsed));
+                        console.log('Token actualizado en localStorage');
+                        console.log('Cambio de token:', oldToken?.substring(0, 20) + '... → ' + nuevoAccessToken.substring(0, 20) + '...');
+                    }
 
-                    // Agregamos el nuevo accessToken a la solicitud original y la reintentamos
+                    // Actualizar header y reintentar
                     originalRequest.headers['Authorization'] = `Bearer ${nuevoAccessToken}`;
-
-                    return API(originalRequest);  // Reintenta la solicitud original con el nuevo token
+                    console.log('Reintentando request original...');
+                    
+                    return API(originalRequest);
                 } else {
                     throw new Error('No se pudo renovar el token.');
                 }
             } catch (refreshError) {
-                console.error('Error al renovar el token:', refreshError);
-                // Si no podemos renovar el token, cerramos sesión y redirigimos al login
+                console.error('Error al renovar token:', refreshError);
+                
+                const { useAutenticacionGlobal } = await import('../estado-global/autenticacionGlobal');
                 useAutenticacionGlobal.getState().logout();
-                window.location.href = '/login';  // O puedes mostrar un modal de error
+                console.log('Redirigiendo al login...');
+                window.location.href = '/inicio-sesion';
                 return Promise.reject(refreshError);
             }
         }
-        return Promise.reject(error);  // Si no es un error 403, lo rechazamos
+        
+        // Si es error 401
+        if (error.response && error.response.status === 401) {
+            console.log('Token inválido - redirigiendo al login');
+            const { useAutenticacionGlobal } = await import('../estado-global/autenticacionGlobal');
+            useAutenticacionGlobal.getState().logout();
+            window.location.href = '/inicio-sesion';
+        }
+        
+        return Promise.reject(error);
     }
 );
 
