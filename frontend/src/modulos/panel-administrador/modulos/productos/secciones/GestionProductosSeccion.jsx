@@ -13,16 +13,17 @@ import { useBusqueda } from "../../../hooks/useBusqueda";
 import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
+import { useProductos } from "../hooks/useProductos";
 // componentes de la seccion
 import { ModalReceta } from '../componentes/ModalReceta';
 import { ModalNuevoProducto } from '../componentes/ModalNuevoProducto'
 import { FilaProducto } from '../componentes/FilaProductos';
 import { ModalEditarProducto } from "../componentes/ModalEditarProducto";
 // datos temporales
-import { productos } from '../../stock/data-temporal/productos';
 
 const GestionProductosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
+  const { productos, cargando, error, refetch } = useProductos();
   const { filtro, setFiltro, aplicarFiltros } = useFiltro();
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(8);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
@@ -32,40 +33,88 @@ const GestionProductosSeccion = () => {
   const modalNuevoProducto = useModal(false);
   const modalEditarProducto = useModal(false);
 
-  // funcion que escucha el evente de ver receta
-  function handleVerReceta(producto) {
+  // funcion que escucha el evente de gestionar insumos
+  function handleGestionarInsumos(producto) {
     setProductoSeleccionado(producto);
     modalReceta.abrir();
   }
+
   // funcion para abrir modal nuevo producto
   function handleNuevoProducto() {
     modalNuevoProducto.abrir();
   }
+
   // función para abrir modal editar producto
   function handleEditarProducto(producto) {
     setProductoSeleccionado(producto);
     modalEditarProducto.abrir();
   }
-  // Aplicar búsqueda
-  let productosFiltrados = filtrarPorBusqueda(productos, [
-    "nombre",
-    "categoria"
-  ]);
 
-  // Aplicar filtros adicionales
-  productosFiltrados = aplicarFiltros(productosFiltrados, "categoria");
+  // función para eliminar producto
+  function handleEliminarProducto(producto) {
+    if (confirm(`¿Estás seguro de eliminar "${producto.nombreProducto}"?`)) {
+      console.log('Eliminar producto:', producto);
+      // Aquí llamarías al servicio de eliminar producto
+      // await eliminarProductoServicio(producto.idProducto);
+      // refetch(); // Recargar la lista después de eliminar
+    }
+  }
+
+  // función para recargar productos después de guardar
+  function handleGuardarProducto() {
+    refetch();
+    modalNuevoProducto.cerrar();
+    modalEditarProducto.cerrar();
+  }
+
+  // Aplicar búsqueda - CORREGIDO para usar las propiedades correctas
+  let productosFiltrados = filtrarPorBusqueda(productos, [
+    "nombreProducto", // Cambiado de "nombre" a "nombreProducto"
+    "descripcionProducto" // Agregado para buscar también en descripción
+  ]);
+  
+  // productosFiltrados = aplicarFiltros(productosFiltrados, "categoria");
 
   const { datosPaginados, totalPaginas } = paginar(productosFiltrados);
 
-  // Mapear los productos para las filas de la tabla
+  // Mapear los productos para las filas de la tabla - CORREGIDO
   const filasProductos = datosPaginados.map((producto) => (
     <FilaProducto 
-      key={producto.id} 
+      key={producto.idProducto} // Cambiado de id a idProducto
       producto={producto}
-      onVerReceta={handleVerReceta}
+      onGestionarInsumos={handleGestionarInsumos} // Cambiado de onVerReceta
       onEditarProducto={handleEditarProducto}
+      onEliminarProducto={handleEliminarProducto} // Agregado
     />
   ));
+
+  // Mostrar estado de carga
+  if (cargando) {
+    return (
+      <div className="p-2">
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar error
+  if (error) {
+    return (
+      <div className="p-2">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <p className="text-red-800 dark:text-red-300">Error al cargar productos: {error}</p>
+          <button
+            onClick={refetch}
+            className="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-2">
@@ -83,8 +132,9 @@ const GestionProductosSeccion = () => {
           <BarraBusqueda
             valor={terminoBusqueda}
             onChange={setTerminoBusqueda}
-            placeholder="Buscar por nombre o código..."
+            placeholder="Buscar por nombre o descripción..."
           />
+          {/* Filtro temporalmente comentado hasta que tengamos categorías
           <FiltroBusqueda
             valor={filtro}
             onChange={setFiltro}
@@ -96,6 +146,7 @@ const GestionProductosSeccion = () => {
               { value: "Postres", label: "Postres" },
             ]}
           />
+          */}
           <button 
             onClick={handleNuevoProducto}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer">
@@ -104,9 +155,9 @@ const GestionProductosSeccion = () => {
         </div>
       </div>
 
-      {/* Tabla de productos */}
+      {/* Tabla de productos - CORREGIDO encabezados */}
       <Tabla
-        encabezados={[ "PRODUCTO", "CATEGORÍA", "PRECIO", "ESTADO", "RECETA", "ACCIONES"]}
+        encabezados={["PRODUCTO", "PRECIO", "USA INSUMOS", "ESTADO", "GESTIÓN INSUMOS", "ACCIONES"]}
         registros={filasProductos}
       />
 
@@ -115,11 +166,12 @@ const GestionProductosSeccion = () => {
         totalPaginas={totalPaginas}
         alCambiarPagina={setPaginaActual}
       />
-      {/* Modal para ver la receta de un producto*/}
+
+      {/* Modal para gestionar insumos */}
       <Modal
         estaAbierto={modalReceta.estaAbierto}
         onCerrar={modalReceta.cerrar}
-        titulo={`Receta: ${productoSeleccionado?.nombre || ''}`}
+        titulo={`Insumos: ${productoSeleccionado?.nombreProducto || ''}`}
         tamaño="xl"
         mostrarHeader={true}
       >
@@ -127,9 +179,11 @@ const GestionProductosSeccion = () => {
           <ModalReceta 
             producto={productoSeleccionado}
             onClose={modalReceta.cerrar}
+            onGuardar={refetch} // Recargar después de guardar insumos
           />
         )}
       </Modal>
+
       {/* Modal para agregar un nuevo producto */}
       <Modal
         estaAbierto={modalNuevoProducto.estaAbierto}
@@ -141,15 +195,16 @@ const GestionProductosSeccion = () => {
       >
         <ModalNuevoProducto 
           onClose={modalNuevoProducto.cerrar}
-          onGuardar={modalNuevoProducto.cerrar}
+          onGuardar={handleGuardarProducto} // Cambiado para recargar productos
         />
       </Modal>
-      {/* Modal para agregar editar el producto */}
+
+      {/* Modal para editar producto */}
       <Modal
         estaAbierto={modalEditarProducto.estaAbierto}
         onCerrar={modalEditarProducto.cerrar}
-        titulo={`Editar Producto: ${productoSeleccionado?.nombre || ''}`}
-        tamaño="md"
+        titulo={`Editar Producto: ${productoSeleccionado?.nombreProducto || ''}`}
+        tamaño="lg"
         mostrarHeader={true}
         mostrarFooter={false}
       >
@@ -157,7 +212,7 @@ const GestionProductosSeccion = () => {
           <ModalEditarProducto 
             producto={productoSeleccionado}
             onClose={modalEditarProducto.cerrar}
-            onGuardar={modalEditarProducto.cerrar}
+            onGuardar={handleGuardarProducto} // Cambiado para recargar productos
           />
         )}
       </Modal>

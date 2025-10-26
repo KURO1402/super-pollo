@@ -12,7 +12,22 @@ export const crearProductoServicio = async (formData) => {
     }
   } catch (error) {
     console.error('Error en crearProductoServicio:', error);
-    console.error('Response data:', error.response?.data);
     throw error; // Lanza el error para que lo maneje el componente
+  }
+};
+
+// funcion para traer los productos de la base de datos
+export const obtenerProductosServicio = async () => {
+  try {
+    const respuesta = await API.get('/productos/');
+    
+    if (respuesta.data && respuesta.data.ok) {
+      return respuesta.data;
+    } else {
+      throw new Error(respuesta.data?.mensaje || "Error al obtener los productos");
+    }
+  } catch (error) {
+    console.error('Error en obtenerProductosServicio:', error);
+    throw error;
   }
 };
