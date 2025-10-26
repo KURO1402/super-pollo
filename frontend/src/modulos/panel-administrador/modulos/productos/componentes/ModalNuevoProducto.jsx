@@ -7,7 +7,7 @@ import { listarInsumoServicio } from '../../stock/servicios/insumosServicios';
 import { crearProductoServicio } from '../servicios/productoServicios';
 
 // utilidades
-import { alertasCRUD } from '../../../../../utilidades/toastUtilidades';
+import mostrarAlerta from '../../../../../utilidades/toastUtilidades';
 
 export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
   const [insumosDisponibles, setInsumosDisponibles] = useState([]);
@@ -62,14 +62,14 @@ const handleImagenChange = (e) => {
     // Validar formato de imagen
     const formatosPermitidos = ['image/png', 'image/jpeg'];
     if (!formatosPermitidos.includes(file.type)) {
-      alert('Formato de imagen no válido. Solo se permiten PNG o JPEG');
+      mostrarAlerta.advertencia('Formato de imagen no válido. Solo se permiten PNG o JPEG');
       e.target.value = ''; // Limpiar el input
       return;
     }
     
     // Validar tamaño (máximo 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('La imagen es demasiado grande. Máximo 5MB permitido');
+      mostrarAlerta.advertencia('La imagen es demasiado grande. Máximo 5MB permitido');
       e.target.value = '';
       return;
     }
@@ -121,27 +121,27 @@ const onSubmit = async (data) => {
   try {
     // Validaciones basicas
     if (!data.nombreProducto || !data.precio) {
-      alert('Nombre y precio son requeridos');
+      mostrarAlerta.advertencia('Nombre y precio son requeridos');
       return;
     }
 
     // Validar que haya imagen
     if (!data.imagen) {
-      alert('La imagen del producto es requerida');
+      mostrarAlerta.advertencia('La imagen del producto es requerida');
       return;
     }
 
     // Validar formato de imagen
     const formatosPermitidos = ['image/png', 'image/jpeg'];
     if (!formatosPermitidos.includes(data.imagen.type)) {
-      alert('Formato de imagen no válido. Solo se permiten PNG o JPEG');
+      mostrarAlerta.advertencia('Formato de imagen no válido. Solo se permiten PNG o JPEG');
       return;
     }
 
     // Validar insumos si usaInsumo está activado
     if (data.usaInsumo) {
       if (insumosSeleccionados.length === 0) {
-        alert('Debe agregar al menos un insumo cuando activa "usa sistema de insumos"');
+        mostrarAlerta.advertencia('Debe agregar al menos un insumo cuando activa "usa sistema de insumos"');
         return;
       }
       
@@ -151,7 +151,7 @@ const onSubmit = async (data) => {
       );
       
       if (insumosInvalidos) {
-        alert('Todos los insumos deben tener un producto seleccionado y una cantidad válida mayor a 0');
+        mostrarAlerta.advertencia('Todos los insumos deben tener un producto seleccionado y una cantidad válida mayor a 0');
         return;
       }
     }
@@ -172,13 +172,13 @@ const onSubmit = async (data) => {
         .filter(insumo => insumo.idInsumo && insumo.cantidad)
         .map(insumo => ({
           idInsumo: parseInt(insumo.idInsumo),
-          cantidaUso: parseFloat(insumo.cantidad)
+          cantidadUso: parseFloat(insumo.cantidad)
         })) : []
     };
 
     // Validacion final de insumos
     if (data.usaInsumo && datosProducto.insumos.length === 0) {
-      alert('Debe agregar al menos un insumo válido cuando activa "usa sistema de insumos"');
+      mostrarAlerta.advertencia('Debe agregar al menos un insumo válido cuando activa "usa sistema de insumos"');
       return;
     }
     
@@ -197,7 +197,7 @@ const onSubmit = async (data) => {
     await crearProductoServicio(formData);
     
     // Mostrar éxito y limpiar
-    alert('Producto creado exitosamente');
+    mostrarAlerta.exito('Producto creado exitosamente');
     onGuardar();
     reset();
     setInsumosSeleccionados([]);
@@ -205,7 +205,7 @@ const onSubmit = async (data) => {
   } catch (error) {
     console.error('Error al crear producto:', error);
     const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || error.message || 'Error al crear el producto';
-    alert(`Error: ${mensajeError}`);
+    mostrarAlerta.error(`A ocurrido un error inesperado`);
   }
 };
 
@@ -301,7 +301,7 @@ const onSubmit = async (data) => {
                 type="button"
                 onClick={agregarInsumo}
                 disabled={cargandoInsumos}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center cursor-pointer gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FiPlus size={16} />
                 Agregar Insumo
@@ -430,14 +430,14 @@ const onSubmit = async (data) => {
             type="button"
             onClick={handleCancelar}
             disabled={isSubmitting}
-            className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 cursor-pointer text-gray-700 bg-gray-200 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded-lg transition-colors disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50"
+            className="px-4 py-2 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50"
           >
             {isSubmitting ? 'Guardando...' : 'Guardar Producto'}
           </button>
