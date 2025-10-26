@@ -241,6 +241,55 @@ const eliminarProductoModel = async (idProducto) => {
     }
 };
 
+// Modelo para obtener todos los productos
+const obtenerProductosModel = async (limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL obtenerProductos(?, ?)", [limit, offset]);
+        return result[0];
+    } catch (err) {
+        console.error("Error en obtenerProductosModel:", err.message);
+        throw Object.assign(
+            new Error("Error al obtener los productos de la base de datos"),
+            { status: 500 }
+        );
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+//Modelo para buscar un producto por nombre
+const buscarProductosPorNombreModel = async (nombre) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL buscarProductosPorNombre(?)", [nombre]);
+        // Devuelve todos los productos que coincidan con el nombre
+        return result[0];
+    } catch (err) {
+        console.error("Error en buscarProductosPorNombreModel:", err.message);
+        throw new Error("Error al buscar productos por nombre en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para obtener los insumos y su cantidad de un producto
+const obtenerInsumosPorProductoModel = async (idProducto) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL obtenerInsumosPorProducto(?)", [idProducto]);
+        return result[0]; // Devuelve el array de insumos con su cantidad
+    } catch (err) {
+        console.error("Error en obtenerInsumosPorProductoModel:", err.message);
+        throw new Error("Error al obtener los insumos del producto en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 // EXPORTAR MODELOS
 module.exports = {
     obtenerProductoPorIdModel,
@@ -256,5 +305,8 @@ module.exports = {
     actualizarCantidadUsoInsumoProductoModel,
     actualizarUsaInsumosProductoModel,
     eliminarCantidadInsumoProductoModel,
-    eliminarProductoModel
+    eliminarProductoModel,
+    obtenerProductosModel,
+    buscarProductosPorNombreModel,
+    obtenerInsumosPorProductoModel 
 };

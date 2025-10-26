@@ -134,9 +134,9 @@ const seleccionarUsuarioService = async (datos) => {
   if(!datos || typeof datos !== "object"){
     throw Object.assign(new Error("Se necesita correo y contraseña para iniciar sesion"), { status: 400 });
   }
-  const { correo, clave } = datos;
+  const { email, clave } = datos;
   //Array de campos obligatorios igual que el de registra usuario
-  const camposObligatorios = [correo, clave];
+  const camposObligatorios = [email, clave];
 
   //Verificar los campos con some igual que en la de registrar usuario
   if (camposObligatorios.some(campo => !campo)) {
@@ -144,7 +144,7 @@ const seleccionarUsuarioService = async (datos) => {
     throw Object.assign(new Error("Se necesita correo y contraseña para iniciar sesion"), { status: 400 });
   }
   //Llamamos al modelo que interactua con la BD para traer al usuario
-  const resultado = await seleccionarUsuarioCorreoModel(correo);
+  const resultado = await seleccionarUsuarioCorreoModel(email);
 
   //Verificamos que el modelo nos ha devuelto un usuario
   if (resultado.length == 0) {

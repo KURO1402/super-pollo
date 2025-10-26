@@ -6,7 +6,11 @@ const {
     actualizarImagenProductoService,
     actualizarCantidadUsoInsumoProductoService,
     eliminarCantidadInsumoProductoService,
-    insertarCantidadInsumoProductoService
+    insertarCantidadInsumoProductoService,
+    obtenerProductosService,
+    obtenerProductoPorIdService,
+    buscarProductosPorNombreService,
+    obtenerInsumosPorProductoService
 } = require("../servicio/productoServicio");
 
 // ✅ Insertar un nuevo producto
@@ -146,6 +150,87 @@ const insertarCantidadInsumoProductoController = async (req, res) => {
     }
 };
 
+const obtenerProductosController = async (req, res) => {
+    try {
+        const { limit, offset } = req.query; // Se obtienen desde la URL
+
+        const productos = await obtenerProductosService(limit, offset);
+
+        return res.status(200).json({
+            ok: true,
+            productos: productos
+        });
+    } catch (err) {
+        console.error("Error en obtenerProductosController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
+const obtenerProductoPorIdController = async (req, res) => {
+    try {
+        const { idProducto } = req.params;
+        const producto = await obtenerProductoPorIdService(idProducto);
+        return res.status(200).json({
+            ok:true, 
+            producto: producto
+        });
+    } catch (err) {
+        console.error("Error en obtenerProductoPorIdController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
+const buscarProductosPorNombreController = async (req, res) => {
+    try {
+        const { nombre } = req.query; // se busca con ?nombre=valor
+        const productos = await buscarProductosPorNombreService(nombre);
+        return res.status(200).json({
+            ok:true, 
+            productos: productos
+        });
+    } catch (err) {
+        console.error("Error en buscarProductosPorNombreController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
+//
+const obtenerInsumosPorProductoControlller = async (req, res) => {
+    try {
+        const { idProducto } = req.params;
+
+        const insumos = await obtenerInsumosPorProductoService(idProducto);
+
+        res.status(200).json({
+            ok: true,
+            insumos: insumos
+        });
+    } catch (err) {
+        console.error("Error en buscarProductosPorNombreController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
 module.exports = {
     insertarProductoController,
     actualizarProductoController,
@@ -153,5 +238,9 @@ module.exports = {
     actualizarImagenProductoController,
     actualizarCantidadUsoInsumoProductoController,
     eliminarCantidadInsumoProductoController,
-    insertarCantidadInsumoProductoController
+    insertarCantidadInsumoProductoController,
+    obtenerProductosController,
+    obtenerProductoPorIdController,
+    buscarProductosPorNombreController,
+    obtenerInsumosPorProductoControlller
 };

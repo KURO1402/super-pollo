@@ -15,28 +15,11 @@ DROP PROCEDURE IF EXISTS contarInsumosPorProducto;
 DROP PROCEDURE IF EXISTS obtenerPublicIDPorProducto;
 DROP PROCEDURE IF EXISTS eliminarCantidadInsumoProducto;
 DROP PROCEDURE IF EXISTS eliminarProducto;
+DROP PROCEDURE IF EXISTS obtenerProductos;
+DROP PROCEDURE IF EXISTS buscarProductosPorNombre;
+DROP PROCEDURE IF EXISTS obtenerInsumosPorProducto;
 
 DELIMITER //
-
--- =============================================
--- PROCEDIMIENTOS QUE DEVUELVEN DATOS (SELECT)
--- =============================================
-
-CREATE PROCEDURE obtenerProductoPorId(
-    IN p_idProducto INT
-)
-BEGIN
-    SELECT 
-        idProducto,
-        nombreProducto,
-        descripcionProducto,
-        precio,
-        usaInsumos,
-        estadoProducto
-    FROM productos
-    WHERE idProducto = p_idProducto
-    AND estadoProducto = 1;
-END //
 
 CREATE PROCEDURE validarProductoPorNombre(
     IN p_nombreProducto VARCHAR(50)
@@ -244,6 +227,81 @@ BEGIN
     COMMIT;
 
     SELECT 'Producto eliminado correctamente' AS mensaje;
+END //
+
+-- Procedimientos para obtener productos 
+CREATE PROCEDURE obtenerProductos(
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    SELECT 
+        p.idProducto,
+        p.nombreProducto,
+        p.descripcionProducto,
+        p.precio,
+        p.usaInsumos,
+        p.estadoProducto,
+        i.urlImagen
+    FROM productos p
+    LEFT JOIN imagenesProductos i 
+        ON p.idProducto = i.idProducto
+    WHERE p.estadoProducto = 1
+    ORDER BY p.idProducto DESC
+    LIMIT p_limit OFFSET p_offset;
+END //
+
+CREATE PROCEDURE obtenerProductoPorId(
+    IN p_idProducto INT
+)
+BEGIN
+    SELECT 
+        p.idProducto,
+        p.nombreProducto,
+        p.descripcionProducto,
+        p.precio,
+        p.usaInsumos,
+        p.estadoProducto,
+        i.urlImagen
+    FROM productos p
+    LEFT JOIN imagenesProductos i 
+        ON p.idProducto = i.idProducto
+    WHERE p.idProducto = p_idProducto
+      AND p.estadoProducto = 1;
+END //
+
+CREATE PROCEDURE buscarProductosPorNombre(
+    IN p_nombre VARCHAR(100)
+)
+BEGIN
+    SELECT 
+        p.idProducto,
+        p.nombreProducto,
+        p.descripcionProducto,
+        p.precio,
+        p.usaInsumos,
+        p.estadoProducto,
+        i.urlImagen
+    FROM productos p
+    LEFT JOIN imagenesProductos i 
+        ON p.idProducto = i.idProducto
+    WHERE p.nombreProducto LIKE CONCAT('%', p_nombre, '%')
+      AND p.estadoProducto = 1;
+END //
+
+-- Procedimiento para obtener el insumo y su cantidad de un producto
+CREATE PROCEDURE obtenerInsumosPorProducto(
+    IN p_idProducto INT
+)
+BEGIN
+    SELECT 
+        i.idInsumo,
+        i.nombreInsumo,
+        cip.cantidadUso
+    FROM cantidadInsumoProducto cip
+    INNER JOIN insumos i 
+        ON cip.idInsumo = i.idInsumo
+    WHERE cip.idProducto = p_idProducto;
 END //
 
 DELIMITER ;
