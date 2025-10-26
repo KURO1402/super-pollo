@@ -1,4 +1,3 @@
-// hooks/useProductos.js
 import { useState, useEffect } from 'react';
 import { obtenerProductosServicio } from '../servicios/productoServicios';
 

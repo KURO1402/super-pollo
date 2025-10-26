@@ -1,52 +1,231 @@
-// components/ModalReceta.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { FiTrash2, FiEdit, FiX } from 'react-icons/fi';
+import { FiPlusCircle } from "react-icons/fi";
+import { listarInsumoServicio } from '../../stock/servicios/insumosServicios';
+import { agregarInsumoProductoServicio, eliminarInsumoProductoServicio, modificarCantidadInsumoServicio, obtenerInsumosProductoServicio } from '../servicios/productoServicios';
+import mostrarAlerta from '../../../../../utilidades/toastUtilidades';
+import { useConfirmacion } from '../../../hooks/useConfirmacion';
+import { ModalConfirmacion } from '../../../componentes/modal/ModalConfirmacion';
 
-// Data temporal para ingredientes
-const ingredientesEjemplo = [
-  { id: 1, nombre: "Pollo entero", cantidad: 0.4, unidad: "kg", costo: 3.40 },
-  { id: 2, nombre: "Papas", cantidad: 0.25, unidad: "kg", costo: 0.63 },
-  { id: 3, nombre: "Lechuga", cantidad: 0.05, unidad: "kg", costo: 0.15 },
-  { id: 4, nombre: "Envase mediano", cantidad: 1, unidad: "unidades", costo: 0.50 },
-  { id: 5, nombre: "Tomate", cantidad: 45, unidad: "kg", costo: 6.00 }
-];
-
-export const ModalReceta = ({ producto, onClose }) => {
-  const [ingredientes, setIngredientes] = useState(ingredientesEjemplo); // estado para los ingredientes de la receta
-  const [nuevoIngrediente, setNuevoIngrediente] = useState({ // estado para el nuevo ingrediente a agregar
-    insumo: "",
-    cantidad: 0
+export const ModalReceta = ({ producto, onClose, onGuardar }) => {
+  const [insumosProducto, setInsumosProducto] = useState([]);
+  const [insumosDisponibles, setInsumosDisponibles] = useState([]);
+  const [nuevoInsumo, setNuevoInsumo] = useState({
+    idInsumo: "",
+    cantidadUso: ""
   });
-  // calcular el costo total de los ingredientes    
-  const costoTotal = ingredientes.reduce((total, ing) => total + ing.costo, 0);
-  // funciones para agregar y eliminar ingredientes
-  const handleAgregarIngrediente = () => {
-    if (nuevoIngrediente.insumo && nuevoIngrediente.cantidad > 0) {
-      const nuevo = {
-        id: Date.now(),
-        nombre: nuevoIngrediente.insumo,
-        cantidad: nuevoIngrediente.cantidad,
-        unidad: "kg",
-        costo: nuevoIngrediente.cantidad * 10
-      };
-      setIngredientes([...ingredientes, nuevo]);
-      setNuevoIngrediente({ insumo: "", cantidad: 0 });
+  const [editandoInsumo, setEditandoInsumo] = useState(null);
+  const [nuevaCantidad, setNuevaCantidad] = useState(0);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
+  const [insumoAEliminar, setInsumoAEliminar] = useState(null);
+
+  // Hook de confirmación
+  const confirmacionEliminar = useConfirmacion();
+
+  // Cargar insumos del producto y insumos disponibles
+  useEffect(() => {
+    cargarDatos();
+  }, [producto.idProducto]);
+
+  const cargarDatos = async () => {
+    try {
+      setCargando(true);
+      setError(null);
+      
+      // Cargar insumos del producto
+      const respuestaInsumosProducto = await obtenerInsumosProductoServicio(producto.idProducto);
+      setInsumosProducto(respuestaInsumosProducto.insumos || []);
+      
+      // Cargar todos los insumos disponibles
+      const respuestaInsumosDisponibles = await listarInsumoServicio();
+      setInsumosDisponibles(respuestaInsumosDisponibles.data || []);
+      
+    } catch (err) {
+      console.error('Error cargando datos:', err);
+      setError(err.message);
+    } finally {
+      setCargando(false);
     }
   };
-  // funcion para eliminar ingrediente
-  const handleEliminarIngrediente = (id) => {
-    setIngredientes(ingredientes.filter(ing => ing.id !== id));
+
+  // Agregar nuevo insumo al producto
+  const handleAgregarInsumo = async () => {
+
+    const cantidad = parseFloat(nuevoInsumo.cantidadUso);
+
+    if (!nuevoInsumo.idInsumo || !cantidad || cantidad <= 0) {
+      mostrarAlerta.advertencia('Seleccione un insumo y ingrese una cantidad válida');
+      return;
+    }
+
+    try {
+      const datos = {
+        idProducto: producto.idProducto,
+        idInsumo: parseInt(nuevoInsumo.idInsumo),
+        cantidadUso: cantidad
+      };
+
+      await agregarInsumoProductoServicio(datos);
+      
+      // Recargar los insumos del producto
+      await cargarDatos();
+      
+      // Limpiar formulario
+      setNuevoInsumo({ idInsumo: "", cantidadUso: "" });
+      
+      mostrarAlerta.exito('Insumo agregado correctamente');
+      
+    } catch (error) {
+      console.error('Error al agregar insumo:', error);
+      const mensajeError = error.response?.data?.mensaje || error.message || 'Error al agregar insumo';
+      mostrarAlerta.error(mensajeError);
+    }
   };
+
+  // Iniciar edición de cantidad
+  const iniciarEdicion = (insumo) => {
+    setEditandoInsumo(insumo.idInsumo);
+    setNuevaCantidad(insumo.cantidaUso || insumo.cantidadUso);
+  };
+
+  // Guardar cantidad editada
+  const guardarCantidad = async (idInsumo) => {
+    if (nuevaCantidad <= 0) {
+      mostrarAlerta.advertencia('La cantidad debe ser mayor a 0');
+      return;
+    }
+
+    try {
+      const datos = {
+        idProducto: producto.idProducto,
+        idInsumo: idInsumo,
+        nuevaCantidad: parseFloat(nuevaCantidad)
+      };
+
+      await modificarCantidadInsumoServicio(datos);
+      
+      // Recargar los insumos del producto
+      await cargarDatos();
+      
+      // Salir del modo edición
+      setEditandoInsumo(null);
+      setNuevaCantidad(0);
+      
+      mostrarAlerta.exito('Cantidad actualizada correctamente');
+      
+    } catch (error) {
+      console.error('Error al modificar cantidad:', error);
+      const mensajeError = error.response?.data?.mensaje || error.message || 'Error al modificar cantidad';
+      mostrarAlerta.error(mensajeError);
+    }
+  };
+
+  // Cancelar edición
+  const cancelarEdicion = () => {
+    setEditandoInsumo(null);
+    setNuevaCantidad(0);
+  };
+
+  // Solicitar confirmación para eliminar insumo
+  const solicitarEliminarInsumo = (insumo) => {
+    const nombreInsumo = obtenerNombreInsumo(insumo.idInsumo);
+    setInsumoAEliminar(insumo);
+    
+    confirmacionEliminar.solicitarConfirmacion(
+      `¿Estás seguro de eliminar el insumo "${nombreInsumo}" de este producto? Esta acción no se puede deshacer.`,
+      () => {
+        // Esta función se ejecuta cuando el usuario confirma
+        handleEliminarInsumo(insumo.idInsumo);
+      },
+      {
+        titulo: "Eliminar Insumo del Producto",
+        tipo: "peligro",
+        textoConfirmar: "Sí, eliminar",
+        textoCancelar: "Cancelar"
+      }
+    );
+  };
+
+  // Cancelar eliminación
+  const cancelarEliminacion = () => {
+    setInsumoAEliminar(null);
+    confirmacionEliminar.ocultarConfirmacion();
+  };
+
+  // Eliminar insumo del producto 
+  const handleEliminarInsumo = async (idInsumo) => {
+    try {
+      const datos = {
+        idProducto: producto.idProducto,
+        idInsumo: idInsumo
+      };
+
+      await eliminarInsumoProductoServicio(datos);
+      
+      // Recargar los insumos del producto
+      await cargarDatos();
+      
+      mostrarAlerta.exito('Insumo eliminado correctamente');
+      
+    } catch (error) {
+      console.error('Error al eliminar insumo:', error);
+      const mensajeError = error.response?.data?.mensaje || error.message || 'Error al eliminar insumo';
+      mostrarAlerta.error(mensajeError);
+    } finally {
+      // Limpiar el estado
+      setInsumoAEliminar(null);
+    }
+  };
+
+  // Obtener nombre del insumo por ID
+  const obtenerNombreInsumo = (idInsumo) => {
+    const insumo = insumosDisponibles.find(ins => ins.idInsumo === idInsumo);
+    return insumo ? insumo.nombreInsumo : 'Insumo no encontrado';
+  };
+
+  // Obtener unidad de medida del insumo por ID
+  const obtenerUnidadInsumo = (idInsumo) => {
+    const insumo = insumosDisponibles.find(ins => ins.idInsumo === idInsumo);
+    return insumo ? insumo.unidadMedida : 'N/A';
+  };
+
+  if (cargando) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <p className="text-red-800 dark:text-red-300">Error: {error}</p>
+          <button
+            onClick={cargarDatos}
+            className="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg cursor-pointer"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <p className="text-gray-600 dark:text-gray-400">
-        Define los ingredientes y cantidades necesarias para preparar este producto
+        Gestiona los insumos necesarios para preparar "{producto.nombreProducto}"
       </p>
 
-      {/* Sección para agregar ingrediente */}
+      {/* Sección para agregar insumo */}
       <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Agregar Ingrediente
+        <h3 className="cursor-pointer text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Agregar Insumo
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -55,110 +234,159 @@ export const ModalReceta = ({ producto, onClose }) => {
               Seleccionar insumo
             </label>
             <select
-              value={nuevoIngrediente.insumo}
-              onChange={(e) => setNuevoIngrediente({...nuevoIngrediente, insumo: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={nuevoInsumo.idInsumo}
+              onChange={(e) => setNuevoInsumo({...nuevoInsumo, idInsumo: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Seleccione un insumo</option>
-              <option value="Pollo entero">Pollo entero</option>
-              <option value="Papas">Papas</option>
-              <option value="Lechuga">Lechuga</option>
-              <option value="Tomate">Tomate</option>
+              {insumosDisponibles.map(insumo => (
+                <option key={insumo.idInsumo} value={insumo.idInsumo}>
+                  {insumo.nombreInsumo} ({insumo.unidadMedida})
+                </option>
+              ))}
             </select>
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Cantidad
+              Cantidad de uso
             </label>
             <input
               type="number"
               step="0.01"
-              value={nuevoIngrediente.cantidad}
-              onChange={(e) => setNuevoIngrediente({...nuevoIngrediente, cantidad: parseFloat(e.target.value) || 0})}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              min="0.01"
+              value={nuevoInsumo.cantidadUso}
+              onChange={(e) => setNuevoInsumo({...nuevoInsumo, cantidadUso: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="0.00"
             />
           </div>
           
           <div className="flex items-end">
             <button
-              onClick={handleAgregarIngrediente}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              onClick={handleAgregarInsumo}
+              className="w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
+              <FiPlusCircle size={16} />
               Agregar
             </button>
           </div>
         </div>
       </div>
 
-      {/* Tabla de ingredientes */}
+      {/* Tabla de insumos del producto */}
       <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
         <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4">
-          Ingredientes de la receta ({ingredientes.length})
+          Insumos del Producto ({insumosProducto.length})
         </h4>
         
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">INGREDIENTE</th>
-                <th className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">CANTIDAD</th>
-                <th className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">UNIDAD</th>
-                <th className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">COSTO</th>
-                <th className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">ACCIÓN</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {ingredientes.map((ingrediente) => (
-                <tr key={ingrediente.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-4 py-3 text-gray-900 dark:text-white">{ingrediente.nombre}</td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{ingrediente.cantidad}</td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{ingrediente.unidad}</td>
-                  <td className="px-4 py-3 font-medium text-green-600 dark:text-green-400">
-                    S/{ingrediente.costo.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <button 
-                      onClick={() => handleEliminarIngrediente(ingrediente.id)}
-                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </td>
+        {insumosProducto.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <p>No hay insumos agregados a este producto</p>
+            <p className="text-sm">Agrega insumos usando el formulario superior</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                  <th className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">INSUMO</th>
+                  <th className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">CANTIDAD</th>
+                  <th className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">UNIDAD</th>
+                  <th className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">ACCIONES</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Costo total */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-        <div className="flex justify-between items-center">
-          <span className="font-semibold text-gray-900 dark:text-white">
-            Costo Total de Producción:
-          </span>
-          <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-            S/{costoTotal.toFixed(2)}
-          </span>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {insumosProducto.map((insumo) => (
+                  <tr key={insumo.idInsumo} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-3 text-gray-900 dark:text-white">
+                      {obtenerNombreInsumo(insumo.idInsumo)}
+                    </td>
+                    
+                    <td className="px-4 py-3">
+                      {editandoInsumo === insumo.idInsumo ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            value={nuevaCantidad}
+                            onChange={(e) => setNuevaCantidad((e.target.value) || 0)}
+                            className="w-24 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded dark:text-gray-100 text-sm"
+                          />
+                          <button
+                            onClick={() => guardarCantidad(insumo.idInsumo)}
+                            className="text-green-600 hover:text-green-800 cursor-pointer"
+                            title="Guardar"
+                          >
+                            <FiPlusCircle size={20} />
+                          </button>
+                          <button
+                            onClick={cancelarEdicion}
+                            className="text-red-600 hover:text-red-800 cursor-pointer"
+                            title="Cancelar"
+                          >
+                            <FiX size={20} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-600 dark:text-gray-400">
+                            {insumo.cantidaUso || insumo.cantidadUso}
+                          </span>
+                          <button
+                            onClick={() => iniciarEdicion(insumo)}
+                            className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                            title="Editar cantidad"
+                          >
+                            <FiEdit size={18} />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                    
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                      {obtenerUnidadInsumo(insumo.idInsumo)}
+                    </td>
+                    
+                    <td className="px-4 py-3">
+                      <button 
+                        onClick={() => solicitarEliminarInsumo(insumo)}
+                        className="cursor-pointer text-red-600 hover:text-red-800 dark:text-red-600 dark:hover:text-red-500 transition-colors"
+                        title="Eliminar insumo"
+                      >
+                        <FiTrash2 size={20} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Botones de acción */}
       <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
         <button
           onClick={onClose}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
         >
-          Cancelar
-        </button>
-        <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-          Guardar Receta
+          Cerrar
         </button>
       </div>
+
+      {/* Modal de confirmación para eliminar insumo */}
+      <ModalConfirmacion
+        visible={confirmacionEliminar.confirmacionVisible}
+        onCerrar={cancelarEliminacion}
+        onConfirmar={confirmacionEliminar.confirmarAccion}
+        titulo={confirmacionEliminar.tituloConfirmacion}
+        mensaje={confirmacionEliminar.mensajeConfirmacion}
+        tipo={confirmacionEliminar.tipoConfirmacion}
+        textoConfirmar={confirmacionEliminar.textoConfirmar}
+        textoCancelar={confirmacionEliminar.textoCancelar}
+      />
     </div>
   );
 };

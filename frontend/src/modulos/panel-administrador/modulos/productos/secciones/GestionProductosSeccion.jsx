@@ -201,7 +201,7 @@ const GestionProductosSeccion = () => {
           <ModalReceta 
             producto={productoSeleccionado}
             onClose={modalReceta.cerrar}
-            onGuardar={refetch} // Recargar después de guardar insumos
+            onGuardar={refetch} 
           />
         )}
       </Modal>
