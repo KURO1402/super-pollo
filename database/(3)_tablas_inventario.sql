@@ -15,7 +15,7 @@ CREATE TABLE insumos(
     nombreInsumo VARCHAR(50) NOT NULL,
     stockInsumo DECIMAL(10,2) NOT NULL,
     unidadMedida VARCHAR(20) NOT NULL,
-    categoriaProducto ENUM('insumo','bebida') NOT NULL,
+    categoriaInsumo ENUM('insumo','producto') NOT NULL,
     estadoInsumo TINYINT(1) NOT NULL DEFAULT 1
 );
 

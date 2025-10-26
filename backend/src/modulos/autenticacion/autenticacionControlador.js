@@ -1,7 +1,7 @@
 const { registrarUsuarioService, seleccionarUsuarioService, renovarAccessTokenService, insertarVerificacionCorreoService, validarCodigoVerificacionCorreoService } = require("./autenticacionServicio.js");
 
 //CONTROLADOR PAR INSERTAR USUARIO
-const insertarUsuarioController = async (req, res) => {
+const registrarUsuarioController = async (req, res) => {
   try {
     //Registrar usuario mediante el servicio y despues el modelo
     const { usuario, accessToken, refreshToken } = await registrarUsuarioService(req.body);
@@ -31,6 +31,48 @@ const insertarUsuarioController = async (req, res) => {
     // Determinar código de estado (usar 500 por defecto si no está especificado)
     const statusCode = err.status || 500;
 
+    return res.status(statusCode).json({
+      ok: false,
+      mensaje: err.message || "Error interno del servidor",
+    });
+  }
+};
+
+// Controlador para registrar un codigo de verificaión de un correo
+const insertarVerificacionCorreoController = async (req, res) => {
+  try {
+
+    const resultado = await insertarVerificacionCorreoService(req.body);
+    return res.status(200).json(resultado);
+
+  } catch (err) {
+    //Aqui manejamos los errores del servicio y segun eso enviamos respuesta al cliente
+    console.error("Error en insertarVerificacionCorreoController:", err.message);
+
+    //Capturamos el status del error
+    const statusCode = err.status || 500;
+
+    //Enviamos una respuesta al cliente
+    return res.status(statusCode).json({
+      ok: false,
+      mensaje: err.message || "Error interno del servidor",
+    });
+  }
+};
+
+// Controlador para validar el codigo de verificacion del correo
+const validarCodigoVerificacionCorreoController = async (req, res) => {
+  try {
+    const resultado = await validarCodigoVerificacionCorreoService(req.body);
+    return res.status(200).json(resultado);
+  } catch (err) {
+    //Aqui manejamos los errores del servicio y segun eso enviamos respuesta al cliente
+    console.error("Error en insertarVerificacionCorreoController:", err.message);
+
+    //Capturamos el status del error
+    const statusCode = err.status || 500;
+
+    //Enviamos una respuesta al cliente
     return res.status(statusCode).json({
       ok: false,
       mensaje: err.message || "Error interno del servidor",
@@ -104,51 +146,9 @@ const renovarAccessTokenController = async (req, res) => {
   }
 };
 
-// Controlador para registrar un codigo de verificaión de un correo
-const insertarVerificacionCorreoController = async (req, res) => {
-  try {
-
-    const resultado = await insertarVerificacionCorreoService(req.body.correo);
-    return res.status(200).json(resultado);
-
-  } catch (err) {
-    //Aqui manejamos los errores del servicio y segun eso enviamos respuesta al cliente
-    console.error("Error en insertarVerificacionCorreoController:", err.message);
-
-    //Capturamos el status del error
-    const statusCode = err.status || 500;
-
-    //Enviamos una respuesta al cliente
-    return res.status(statusCode).json({
-      ok: false,
-      mensaje: err.message || "Error interno del servidor",
-    });
-  }
-}
-
-// Controlador para validar el codigo de verificacion del correo
-const validarCodigoVerificacionCorreoController = async (req, res) => {
-  try {
-    const resultado = await validarCodigoVerificacionCorreoService(req.body);
-    return res.status(200).json(resultado);
-  } catch (err) {
-    //Aqui manejamos los errores del servicio y segun eso enviamos respuesta al cliente
-    console.error("Error en insertarVerificacionCorreoController:", err.message);
-
-    //Capturamos el status del error
-    const statusCode = err.status || 500;
-
-    //Enviamos una respuesta al cliente
-    return res.status(statusCode).json({
-      ok: false,
-      mensaje: err.message || "Error interno del servidor",
-    });
-  }
-}
-
 //Exportamos modulo
 module.exports = {
-  insertarUsuarioController,
+  registrarUsuarioController,
   seleccionarUsuarioController,
   renovarAccessTokenController,
   insertarVerificacionCorreoController,

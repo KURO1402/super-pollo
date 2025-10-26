@@ -2,7 +2,7 @@ require('dotenv').config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { registrarUsuarioValidacion } = require("./autenticacionValidaciones");
-const { insertarUsuarioModel, seleccionarUsuarioModel, insertarVerificacionCorreoModel, validarCodigoVerificacionCorreoModel } = require("./autenticacionModelo.js");
+const { registrarUsuarioModel, seleccionarUsuarioCorreoModel, obtenerEstadoVerificacionCorreoModel, insertarVerificacionCorreoModel, validarCodigoVerificacionCorreoModel, actualizarVerificacionCorreoModel } = require("./autenticacionModelo.js");
 const { validarCorreo } = require('../../utilidades/validaciones.js');
 const enviarCorreoVerificacion = require("../../helpers/enviarCorreo")
 
@@ -11,11 +11,28 @@ const registrarUsuarioService = async (datos) => {
   //Validaciones
   await registrarUsuarioValidacion(datos);
 
+  // Validar duplicado de correo
+  const usuarioExistente = await seleccionarUsuarioCorreoModel(datos.correoUsuario);
+  if (usuarioExistente.length > 0) {
+    throw Object.assign(new Error("Ya existe un usuario registrado con el correo ingresado."), { status: 409 });
+  }
+
+  // Verificación de correo
+  const estado = await obtenerEstadoVerificacionCorreoModel(datos.correoUsuario);
+
+  if (!estado) {
+    throw Object.assign(new Error("No se ha generado un código de verificación para este correo."), { status: 400 });
+  }
+
+  if (estado.verificado === 0) {
+    throw Object.assign(new Error("El correo aún no ha sido validado. Por favor verifica tu correo."), { status: 400 });
+  }
+
   //Encriptar la contraseña - costo de hashing configurado según rendimiento/seguridad(en este caso 10)
   const claveEncriptada = await bcrypt.hash(datos.clave, 10);
 
   //Insertar usuario en la BD mediante el modelo creado
-  const nuevoUsuario = await insertarUsuarioModel(datos, claveEncriptada);
+  const nuevoUsuario = await registrarUsuarioModel(datos, claveEncriptada);
 
   //Generación de tokens con los datos del usuario y tiempos especificos para cada token
   //Token para realizar modificaciones que se envia al frontend
@@ -40,11 +57,86 @@ const registrarUsuarioService = async (datos) => {
   };
 };
 
+// Servicio para registrar un codigo de verificaión de un correo
+const insertarVerificacionCorreoService = async (datos) => {
+  if(!datos || typeof datos !== "object"){
+    throw Object.assign(new Error("Se necesita el correo"), { status: 400 });
+  } 
+  const { correo } = datos;
+
+  if (!correo || typeof correo !== "string" || correo.trim().length === 0) {
+    throw Object.assign(new Error("Se necesita el correo"), { status: 400 });
+  };
+
+  validarCorreo(correo);
+
+  //Generamos un coodigo de 6 digitos aleatorios
+  const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+  const resultado = await insertarVerificacionCorreoModel(correo, codigo);
+
+  if (resultado.affectedRows === 0) {
+    throw Object.assign(new Error("No se pudo verificar el correo"), { status: 500 });
+  }
+  await enviarCorreoVerificacion(correo, codigo)
+  return {
+    ok: true,
+    mensaje: "Código de verificación enviado correctamente."
+  };
+};
+
+// Servicio para validar el codigo de verificacion del correo
+const validarCodigoVerificacionCorreoService = async (datos) => {
+  if(!datos || typeof datos !== "object"){
+    throw Object.assign(new Error("Se necesita el correo y codigo de verificación"));
+  }
+  const { correo, codigo } = datos;
+
+  if (!codigo || typeof codigo !== "string" || codigo.trim().length === 0) {
+    throw Object.assign(new Error("Se necesita el codigo de verificación"));
+  };
+
+  if (codigo.length !== 6) {
+    throw Object.assign(new Error("El codigo debe tener 6 digitos"));
+  }
+
+  if (!correo || typeof correo !== "string" || correo.trim().length === 0) {
+    throw Object.assign(new Error("Se necesita el correo"));
+  };
+
+  validarCorreo(correo);
+
+  const registro = await validarCodigoVerificacionCorreoModel(correo, codigo);
+
+  // Validaciones en servidor
+  if (!registro) {
+    throw Object.assign(new Error('Código incorrecto'), { status: 400 });
+  }
+
+  if (registro.verificado === 1) {
+    throw Object.assign(new Error('El correo ya fue validado'), { status: 400 });
+  }
+
+  const expiracion = new Date(registro.expiracionVerificacion);
+
+  if (expiracion < new Date()) {
+    throw Object.assign(new Error('El código ha expirado, genere uno nuevo'), { status: 400 });
+  }
+
+  const respuesta = await actualizarVerificacionCorreoModel(correo, codigo);
+
+  return respuesta;
+
+};
+
 //FUNCION PARA INICIAR SESION
 const seleccionarUsuarioService = async (datos) => {
-  const { email, clave } = datos;
+  if(!datos || typeof datos !== "object"){
+    throw Object.assign(new Error("Se necesita correo y contraseña para iniciar sesion"), { status: 400 });
+  }
+  const { correo, clave } = datos;
   //Array de campos obligatorios igual que el de registra usuario
-  const camposObligatorios = [email, clave];
+  const camposObligatorios = [correo, clave];
 
   //Verificar los campos con some igual que en la de registrar usuario
   if (camposObligatorios.some(campo => !campo)) {
@@ -52,7 +144,7 @@ const seleccionarUsuarioService = async (datos) => {
     throw Object.assign(new Error("Se necesita correo y contraseña para iniciar sesion"), { status: 400 });
   }
   //Llamamos al modelo que interactua con la BD para traer al usuario
-  const resultado = await seleccionarUsuarioModel(email);
+  const resultado = await seleccionarUsuarioCorreoModel(correo);
 
   //Verificamos que el modelo nos ha devuelto un usuario
   if (resultado.length == 0) {
@@ -85,7 +177,7 @@ const seleccionarUsuarioService = async (datos) => {
   const accessToken = jwt.sign(
     payload,
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_ACCESS_EXPIRATION || "20m" }
+    { expiresIn: process.env.JWT_ACCESS_EXPIRATION || "15m" }
   );
 
   //Creamos el refreshToken
@@ -124,40 +216,6 @@ const renovarAccessTokenService = async (refreshToken) => {
   //Devolvemos el nuevo accestoken para el controlador
   return nuevoAccessToken;
 };
-
-// Servicio para registrar un codigo de verificaión de un correo
-const insertarVerificacionCorreoService = async (correo) => {
-
-  validarCorreo(correo);
-
-  //Generamos un coodigo de 6 digitos aleatorios
-  const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-
-  const resultado = await insertarVerificacionCorreoModel(correo, codigo);
-
-  if (resultado.affectedRows === 0) {
-    throw Object.assign(new Error("No se pudo verificar el correo"), { status: 500 });
-  }
-  await enviarCorreoVerificacion(correo, codigo)
-  return { 
-    ok: true, 
-    mensaje: "Código de verificación enviado correctamente." 
-  };
-};
-
-// Servicio para validar el codigo de verificacion del correo
-const validarCodigoVerificacionCorreoService = async (datos) => {
-  const { correo, codigo } = datos;
-  if(!codigo || typeof codigo !== "string"){
-    throw Object.assign(new Error("Se necesita el codigo de verificación"));
-  };
-  if(codigo.length !== 6){
-    throw Object.assign(new Error("El codigo debe tener 6 digitos"));
-  }
-  validarCorreo(correo);
-  const resultado = await validarCodigoVerificacionCorreoModel(correo, codigo);
-  return resultado;
-}
 
 //Exportamos modulo
 module.exports = {
