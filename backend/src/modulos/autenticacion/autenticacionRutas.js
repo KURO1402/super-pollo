@@ -1,7 +1,7 @@
 //importamos librerias y el controlador
 const express = require("express");
 const { 
-    insertarUsuarioController, 
+    registrarUsuarioController, 
     seleccionarUsuarioController, 
     renovarAccessTokenController,
     insertarVerificacionCorreoController,
@@ -12,18 +12,16 @@ const {
 const router = express.Router();
 
 //ruta para registrar usuarios
-router.post("/registrar", insertarUsuarioController);
+router.post("/registrar", registrarUsuarioController);
+//Ruta para verificar un correo sea existente
+router.post("/generar-codigo", insertarVerificacionCorreoController);
+//Ruta para validar el codgo de verificaion de correo
+router.post("/validar-codigo", validarCodigoVerificacionCorreoController);
 //ruta para iniciar sesion
 router.post("/login", seleccionarUsuarioController );
 
 //ruta para renovar accesToken
-router.post("/token", renovarAccessTokenController);
-
-//Ruta para verificar un correo sea existente
-router.post("/generar-codigo", insertarVerificacionCorreoController);
-
-//Ruta para validar el codgo de verificaion de correo
-router.post("/validar-codigo", validarCodigoVerificacionCorreoController);
+router.post("/renovar-token", renovarAccessTokenController);
 
 
 module.exports = router;

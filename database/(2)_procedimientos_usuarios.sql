@@ -1,124 +1,100 @@
 USE super_pollo;
 
-/* ELIMINAR PROCEDIMIENTOS SI YA EXISTEN */
+-- Eliminar procedimientos existentes
 DROP PROCEDURE IF EXISTS insertarRol;
 DROP PROCEDURE IF EXISTS listarRoles;
 DROP PROCEDURE IF EXISTS actualizarRol;
 DROP PROCEDURE IF EXISTS eliminarRol;
 DROP PROCEDURE IF EXISTS listarTipoDocumento;
-DROP PROCEDURE IF EXISTS insertarUsuario;
 DROP PROCEDURE IF EXISTS listarUsuarios;
 DROP PROCEDURE IF EXISTS actualizarUsuario;
 DROP PROCEDURE IF EXISTS actualizarClave;
 DROP PROCEDURE IF EXISTS eliminarUsuario;
-DROP PROCEDURE IF EXISTS seleccionarUsuarioCorreo;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioId;
-DROP PROCEDURE IF EXISTS registrarCodigoVerificacion;
-DROP PROCEDURE IF EXISTS obtenerVerificacionCorreo;
-DROP PROCEDURE IF EXISTS actualizarVerificacionCorreo;
-DROP PROCEDURE IF EXISTS obtenerEstadoVerificacionCorreo;
 
 DELIMITER //
 
-/* PROCEDIMIENTO ALMACENADO insertarRol */
+-- SECCIÓN 1: ROLES
+
 CREATE PROCEDURE insertarRol(
     IN p_nombreRol VARCHAR(50)
 )
 BEGIN
-    INSERT INTO rolUsuarios(nombreRol) 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al insertar el rol.';
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO rolUsuarios(nombreRol)
     VALUES (p_nombreRol);
+
+    COMMIT;
 END //
 
-/* PROCEDIMIENTO ALMACENADO listarRoles */
 CREATE PROCEDURE listarRoles()
 BEGIN
     SELECT idRol, nombreRol 
     FROM rolUsuarios;
 END //
 
-/* PROCEDIMIENTO ALMACENADO actualizarRol */
 CREATE PROCEDURE actualizarRol(
     IN p_idRol INT,
     IN p_nombreRol VARCHAR(50)
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar el rol.';
+    END;
+
+    START TRANSACTION;
+
     UPDATE rolUsuarios
     SET nombreRol = p_nombreRol
     WHERE idRol = p_idRol;
+
+    COMMIT;
 END //
 
-/* PROCEDIMIENTO ALMACENADO eliminarRol */
 CREATE PROCEDURE eliminarRol(
     IN p_idRol INT
 )
 BEGIN
-    DELETE FROM rolUsuarios 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al eliminar el rol.';
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM rolUsuarios
     WHERE idRol = p_idRol;
+
+    COMMIT;
 END //
 
-/* PROCEDIMIENTO ALMACENADO listarTipoDocumento */
+/* ============================================================
+   📁 SECCIÓN 2: TIPO DE DOCUMENTO
+   ============================================================ */
+
 CREATE PROCEDURE listarTipoDocumento()
 BEGIN
     SELECT idTipoDocumento, nombreTipoDocumento
-    FROM tipoDocumento;    
+    FROM tipoDocumento;
 END //
 
-/* PROCEDIMIENTO ALMACENADO insertarUsuario */
-CREATE PROCEDURE insertarUsuario (
-    IN p_nombresUsuario VARCHAR(50),
-    IN p_apellidosUsuario VARCHAR(50),
-    IN p_correoUsuario VARCHAR(50),
-    IN p_clave CHAR(60),
-    IN p_numeroDocumentoUsuario VARCHAR(12),
-    IN p_telefonoUsuario VARCHAR(15),
-    IN p_idTipoDocumento INT
-)
-BEGIN 
-    INSERT INTO usuarios(
-        nombresUsuario, 
-        apellidosUsuario, 
-        correoUsuario, 
-        clave, 
-        numeroDocumentoUsuario, 
-        telefonoUsuario, 
-        idTipoDocumento
-    )
-    VALUES (
-        p_nombresUsuario, 
-        p_apellidosUsuario, 
-        p_correoUsuario, 
-        p_clave, 
-        p_numeroDocumentoUsuario, 
-        p_telefonoUsuario, 
-        p_idTipoDocumento
-    );
+/* ============================================================
+   📁 SECCIÓN 3: USUARIOS
+   ============================================================ */
 
-    /* TRAER EL ULTIMO USUARIO INSERTADO */
-    SELECT 
-        u.idUsuario,
-        u.nombresUsuario,
-        u.apellidosUsuario,
-        u.idRol
-    FROM usuarios u
-    WHERE u.idUsuario = LAST_INSERT_ID();
-END //
-
-/* PROCEDIMIENTO ALMACENADO listarUsuarios */
-CREATE PROCEDURE listarUsuarios()
-BEGIN 
-    SELECT
-          nombresUsuario,
-          apellidosUsuario,
-          correoUsuario,
-          numeroDocumentoUsuario,
-          telefonoUsuario,
-          estadoUsuario,
-          idRol,
-          idTipoDocumento
-    FROM usuarios;
-END //
-
-/* PROCEDIMIENTO ALMACENADO actualizarUsuario */
 CREATE PROCEDURE actualizarUsuario(
     IN p_idUsuario INT,
     IN p_nombresUsuario VARCHAR(50),
@@ -129,55 +105,69 @@ CREATE PROCEDURE actualizarUsuario(
     IN p_idRol INT,
     IN p_idTipoDocumento INT
 )
-BEGIN 
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar el usuario.';
+    END;
+
+    START TRANSACTION;
+
     UPDATE usuarios
-    SET nombresUsuario = p_nombresUsuario, 
+    SET nombresUsuario = p_nombresUsuario,
         apellidosUsuario = p_apellidosUsuario,
         correoUsuario = p_correoUsuario,
-        numeroDocumentoUsuario = p_numeroDocumentoUsuario, 
-        telefonoUsuario = p_telefonoUsuario, 
-        idRol = p_idRol, 
+        numeroDocumentoUsuario = p_numeroDocumentoUsuario,
+        telefonoUsuario = p_telefonoUsuario,
+        idRol = p_idRol,
         idTipoDocumento = p_idTipoDocumento
-   WHERE idUsuario = p_idUsuario;
+    WHERE idUsuario = p_idUsuario;
+
+    COMMIT;
 END //
 
-/* PROCEDIMIENTO ALMACENADO actualizarClave */  
 CREATE PROCEDURE actualizarClave(
     IN p_idUsuario INT,
     IN p_clave CHAR(60)
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar la clave.';
+    END;
+
+    START TRANSACTION;
+
     UPDATE usuarios
     SET clave = p_clave
     WHERE idUsuario = p_idUsuario;
+
+    COMMIT;
 END //
-    
-/* PROCEDIMIENTO ALMACENADO eliminarUsuario */   
+
 CREATE PROCEDURE eliminarUsuario(
     IN p_idUsuario INT
-) 
-BEGIN
-    DELETE FROM usuarios
-    WHERE idUsuario = p_idUsuario;
-END //
-
--- Procedimiento para seleccionar usuario por correo
-CREATE PROCEDURE seleccionarUsuarioCorreo(
-    IN p_correoUsuario VARCHAR(100)
 )
 BEGIN
-    SELECT 
-        u.idUsuario,
-        u.nombresUsuario,
-        u.apellidosUsuario,
-        u.correoUsuario,
-        u.clave,
-        u.idRol
-    FROM usuarios u
-    WHERE u.correoUsuario = p_correoUsuario;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al eliminar el usuario.';
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM usuarios
+    WHERE idUsuario = p_idUsuario;
+
+    COMMIT;
 END //
 
-/* PROCEDIMIENTO ALMACENADO seleccionarUsuario por id */ 
 CREATE PROCEDURE seleccionarUsuarioId(
     IN p_idUsuario INT
 )
@@ -191,106 +181,6 @@ BEGIN
         u.idRol
     FROM usuarios u
     WHERE u.idUsuario = p_idUsuario;
-END //
-
--- Procedimiento que registra codigos de verificaion del correo
-CREATE PROCEDURE registrarCodigoVerificacion(
-    IN p_correo VARCHAR(100),
-    IN p_codigo VARCHAR(6)
-)
-BEGIN
-    DECLARE v_existente INT DEFAULT 0;
-
-    -- Manejador de errores
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al registrar o actualizar el código de verificación.';
-    END;
-
-    START TRANSACTION;
-
-    -- Verificamos si ya existe un registro no verificado para este correo
-    SELECT COUNT(*) INTO v_existente
-    FROM verificacionCorreos
-    WHERE correoVerificacion = p_correo AND verificado = 0;
-
-    IF v_existente > 0 THEN
-        -- Si existe, actualizamos el código y la expiración
-        UPDATE verificacionCorreos
-        SET 
-            codigoVerificacion = p_codigo,
-            expiracionVerificacion = DATE_ADD(NOW(), INTERVAL 5 MINUTE),
-            registroVerificacion = NOW()
-        WHERE correoVerificacion = p_correo AND verificado = 0;
-    ELSE
-        -- Si no existe, insertamos un nuevo registro
-        INSERT INTO verificacionCorreos (
-            correoVerificacion,
-            codigoVerificacion,
-            expiracionVerificacion
-        )
-        VALUES (
-            p_correo,
-            p_codigo,
-            DATE_ADD(NOW(), INTERVAL 5 MINUTE)
-        );
-    END IF;
-
-    COMMIT;
-END //
-
--- Procedimiento almacenado para verificar un codigo de correo
-CREATE PROCEDURE obtenerVerificacionCorreo(
-    IN p_correo VARCHAR(100),
-    IN p_codigo VARCHAR(6)
-)
-BEGIN
-    SELECT 
-        idVerificacion,
-        expiracionVerificacion,
-        verificado
-    FROM verificacionCorreos
-    WHERE correoVerificacion = p_correo
-      AND codigoVerificacion = p_codigo
-    LIMIT 1;
-END //
-
--- Procedimiento para actualizar el estado de verificacion de un correo
-CREATE PROCEDURE actualizarVerificacionCorreo(
-    IN p_correo VARCHAR(100),
-    IN p_codigo VARCHAR(6)
-)
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-    BEGIN
-        -- Si ocurre algún error, revertimos la transacción
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al actualizar la verificación del correo.';
-    END;
-
-    START TRANSACTION;
-
-    UPDATE verificacionCorreos
-    SET verificado = 1
-    WHERE correoVerificacion = p_correo
-      AND codigoVerificacion = p_codigo;
-
-    COMMIT;
-END //
-
--- Procedimiento para obtener la verificaion de correo
-CREATE PROCEDURE obtenerEstadoVerificacionCorreo(
-    IN p_correo VARCHAR(100)
-)
-BEGIN
-    SELECT verificado
-    FROM verificacionCorreos
-    WHERE correoVerificacion = p_correo
-    ORDER BY registroVerificacion DESC
-    LIMIT 1;
 END //
 
 DELIMITER ;
