@@ -1,38 +1,40 @@
-import { FiShoppingCart, FiTrash, FiPlus, FiMinus } from "react-icons/fi";
+import { FiShoppingCart, FiTrash, FiPlus, FiMinus, FiLoader } from "react-icons/fi";
 import { FaUtensils } from "react-icons/fa";
 import { reservaEstadoGlobal } from "../../estado-global/reservaEstadoGlobal";
+import { useProductos } from "../../../panel-administrador/modulos/productos/hooks/useProductos";
+import { useEffect } from "react";
 
 const Paso2Productos = () => {
-  const { 
-    productosMenu, 
+  const {
     datos, 
     agregarProducto, 
     quitarProducto, 
     actualizarCantidad,
     getSubtotal,
-    getTotal 
+    getTotal,
+    setProductosMenu
   } = reservaEstadoGlobal();
+
+  const { productos, cargando, error} = useProductos();
 
   const subtotal = getSubtotal();
   const total = getTotal();
 
-  // Agrupar productos por categoría para mejor organización
-  const productosPorCategoria = productosMenu.reduce((acc, producto) => {
-    if (!acc[producto.categoria]) {
-      acc[producto.categoria] = [];
+  // Sincronizar productos del hook con el estado global
+  useEffect(() => {
+    if (productos.length > 0) {
+      setProductosMenu(productos);
     }
-    acc[producto.categoria].push(producto);
-    return acc;
-  }, {});
+  }, [productos, setProductosMenu]);
 
   // Verificar si un producto ya está en el carrito
   const productoEnCarrito = (productoId) => {
-    return datos.productos.some(p => p.id === productoId);
+    return datos.productos.some(p => p.idProducto === productoId);
   };
 
   // Obtener cantidad de un producto en el carrito
   const getCantidadEnCarrito = (productoId) => {
-    const producto = datos.productos.find(p => p.id === productoId);
+    const producto = datos.productos.find(p => p.idProducto === productoId);
     return producto ? producto.cantidad : 0;
   };
 
@@ -57,57 +59,68 @@ const Paso2Productos = () => {
             <h3 className="text-xl font-semibold text-white">Nuestro Menú</h3>
           </div>
 
-          <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
-            {Object.entries(productosPorCategoria).map(([categoria, productos]) => (
-              <div key={categoria} className="space-y-3">
-                <h4 className="text-lg font-semibold text-gray-300 border-b border-gray-600 pb-2">
-                  {categoria}
-                </h4>
-                {productos.map(producto => {
-                  const enCarrito = productoEnCarrito(producto.id);
-                  const cantidad = getCantidadEnCarrito(producto.id);
-                  
-                  return (
-                    <div 
-                      key={producto.id} 
-                      className={`flex justify-between items-center p-4 border rounded-xl transition-all ${
-                        enCarrito 
-                          ? "border-green-500 bg-green-500/5" 
-                          : "border-gray-600 hover:border-blue-500 hover:bg-gray-700/50"
+          {cargando ? (
+            <div className="text-center py-12">
+              <FiLoader className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
+              <p className="text-gray-400">Cargando menú...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 bg-red-500/10 rounded-lg">
+              <p className="text-red-500">Error al cargar el menú: {error}</p>
+            </div>
+          ) : productos.length === 0 ? (
+            <div className="text-center py-12">
+              <FaUtensils className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">No hay productos disponibles</p>
+            </div>
+          ) : (
+            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+              {productos.map(producto => {
+                const enCarrito = productoEnCarrito(producto.idProducto);
+                const cantidad = getCantidadEnCarrito(producto.idProducto);
+                
+                return (
+                  <div 
+                    key={producto.idProducto} 
+                    className={`flex justify-between items-center p-4 border rounded-xl transition-all ${
+                      enCarrito 
+                        ? "border-green-500 bg-green-500/5" 
+                        : "border-gray-600 hover:border-blue-500 hover:bg-gray-700/50"
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-white text-lg">{producto.nombreProducto }</h4>
+                      {producto.descripcion && (
+                        <p className="text-sm text-gray-400 mt-1">{producto.descripcion}</p>
+                      )}
+                      <p className="text-lg font-bold text-red-600 mt-2">S/ {producto.precio}</p>
+                      {enCarrito && (
+                        <p className="text-sm text-green-500 mt-1">
+                          ✓ En carrito: {cantidad} {cantidad === 1 ? 'unidad' : 'unidades'}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => agregarProducto(producto)}
+                      disabled={enCarrito && cantidad >= 10}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                        enCarrito && cantidad >= 10
+                          ? "bg-gray-500 text-gray-300 cursor-not-allowed"
+                          : enCarrito
+                          ? "bg-green-600 hover:bg-green-700 text-white"
+                          : "bg-red-600 hover:bg-red-700 text-white"
                       }`}
                     >
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-white">{producto.nombre}</h4>
-                        <p className="text-sm text-gray-400">{producto.categoria}</p>
-                        <p className="text-lg font-bold text-red-600 mt-1">S/ {producto.precio}</p>
-                        {enCarrito && (
-                          <p className="text-sm text-green-500 mt-1">
-                            ✓ En carrito: {cantidad} {cantidad === 1 ? 'unidad' : 'unidades'}
-                          </p>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => agregarProducto(producto)}
-                        disabled={enCarrito && cantidad >= 10} // Límite de 10 por producto
-                        className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                          enCarrito && cantidad >= 10
-                            ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                            : enCarrito
-                            ? "bg-green-600 hover:bg-green-700 text-white"
-                            : "bg-red-600 hover:bg-red-700 text-white"
-                        }`}
-                      >
-                        {enCarrito && cantidad >= 10 ? "Límite" : "Agregar"}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
+                      {enCarrito && cantidad >= 10 ? "Límite" : "Agregar"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Carrito de Productos */}
+        {/* Carrito de Productos (se mantiene igual) */}
         <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-green-600/10 rounded-xl flex items-center justify-center">
@@ -134,12 +147,12 @@ const Paso2Productos = () => {
               <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                 {datos.productos.map(producto => (
                   <div 
-                    key={producto.id} 
+                    key={producto.idProducto} 
                     className="flex justify-between items-center p-4 border border-gray-600 rounded-xl bg-gray-700/30"
                   >
                     <div className="flex-1">
                       <h4 className="font-semibold text-white text-sm leading-tight">
-                        {producto.nombre}
+                        {producto.nombreProducto}
                       </h4>
                       <p className="text-red-600 font-bold text-sm">
                         S/ {producto.precio} c/u
@@ -151,7 +164,7 @@ const Paso2Productos = () => {
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2 bg-gray-600 rounded-lg p-1">
                         <button
-                          onClick={() => actualizarCantidad(producto.id, producto.cantidad - 1)}
+                          onClick={() => actualizarCantidad(producto.idProducto, producto.cantidad - 1)}
                           disabled={producto.cantidad <= 1}
                           className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
                             producto.cantidad <= 1
@@ -165,7 +178,7 @@ const Paso2Productos = () => {
                           {producto.cantidad}
                         </span>
                         <button
-                          onClick={() => actualizarCantidad(producto.id, producto.cantidad + 1)}
+                          onClick={() => actualizarCantidad(producto.idProducto, producto.cantidad + 1)}
                           disabled={producto.cantidad >= 10}
                           className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
                             producto.cantidad >= 10
@@ -177,7 +190,7 @@ const Paso2Productos = () => {
                         </button>
                       </div>
                       <button
-                        onClick={() => quitarProducto(producto.id)}
+                        onClick={() => quitarProducto(producto.idProducto)}
                         className="text-red-500 hover:text-red-700 transition-colors p-1"
                         title="Eliminar producto"
                       >

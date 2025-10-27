@@ -1,17 +1,6 @@
 import { create } from 'zustand'
 import { obtenerMesasDisponiblesServicio } from '../servicios/reservacionesServicio';
 
-// Datos temporales para desarrollo
-const productosMenu = [
-  { id: 1, nombre: "Pollo a la Brasa Familiar", precio: 45, categoria: "Platos Principales" },
-  { id: 2, nombre: "Pollo a la Brasa Mediano", precio: 30, categoria: "Platos Principales" },
-  { id: 3, nombre: "Papas Fritas Familiar", precio: 12, categoria: "Acompañamientos" },
-  { id: 4, nombre: "Ensalada César", precio: 8, categoria: "Ensaladas" },
-  { id: 5, nombre: "Gaseosa 1L", precio: 5, categoria: "Bebidas" },
-  { id: 6, nombre: "Cerveza Artesanal", precio: 8, categoria: "Bebidas" },
-  { id: 7, nombre: "Postre de Lucuma", precio: 6, categoria: "Postres" }
-]
-
 export const reservaEstadoGlobal = create((set, get) => ({
   // Estado
   pasoActual: 1,
@@ -21,11 +10,9 @@ export const reservaEstadoGlobal = create((set, get) => ({
     personas: 2,
     mesa: '',
     productos: [],
-    notas: ''
   },
   
-  // Datos temporales
-  productosMenu,
+  productosMenu: [],
   mesasDisponibles: [],
   cargandoMesas: false,
   errorMesas: null,
@@ -34,6 +21,8 @@ export const reservaEstadoGlobal = create((set, get) => ({
   setPaso: (paso) => set({ 
     pasoActual: Math.max(1, Math.min(3, paso)) // Limitar entre 1-3
   }),
+  // accion para cargar productos desde lo que manda el backend
+  setProductosMenu: (producto) => set({ productoMenu : producto}),
   
   updateDatos: (nuevosDatos) => set((state) => ({ 
     datos: { 
@@ -89,14 +78,14 @@ export const reservaEstadoGlobal = create((set, get) => ({
   }),
 
   agregarProducto: (producto) => set((state) => {
-    const existe = state.datos.productos.find(p => p.id === producto.id);
+    const existe = state.datos.productos.find(p => p.idProducto === producto.idProducto);
     
     if (existe) {
       return {
         datos: {
           ...state.datos,
           productos: state.datos.productos.map(p =>
-            p.id === producto.id 
+            p.idProducto === producto.idProducto 
               ? { ...p, cantidad: (p.cantidad || 0) + 1 } 
               : p
           )
@@ -118,7 +107,7 @@ export const reservaEstadoGlobal = create((set, get) => ({
   quitarProducto: (productoId) => set((state) => ({
     datos: {
       ...state.datos,
-      productos: state.datos.productos.filter(p => p.id !== productoId)
+      productos: state.datos.productos.filter(p => p.idProducto !== productoId)
     }
   })),
 
@@ -130,7 +119,7 @@ export const reservaEstadoGlobal = create((set, get) => ({
       return {
         datos: {
           ...state.datos,
-          productos: state.datos.productos.filter(p => p.id !== productoId)
+          productos: state.datos.productos.filter(p => p.idProducto !== productoId)
         }
       };
     } else {
@@ -138,7 +127,7 @@ export const reservaEstadoGlobal = create((set, get) => ({
         datos: {
           ...state.datos,
           productos: state.datos.productos.map(p =>
-            p.id === productoId ? { ...p, cantidad } : p
+            p.idProducto === productoId ? { ...p, cantidad } : p
           )
         }
       };
@@ -185,7 +174,6 @@ export const reservaEstadoGlobal = create((set, get) => ({
       personas: 2,
       mesa: '',
       productos: [],
-      notas: ''
     }
   })
 }));
