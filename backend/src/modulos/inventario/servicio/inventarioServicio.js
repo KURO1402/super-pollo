@@ -3,6 +3,7 @@ const {
     insertarInsumoModel,
     obtenerInsumosModel,
     obtenerInsumoIDModel,
+    obtenerConteoInsumosPorNombreModel,
     actualizarInsumoModel,
     eliminarInsumoModel
 } = require("../modelo/inventarioModelo");
@@ -12,11 +13,10 @@ const { validarInsertarInsumo, validarDatosInsumo } = require("../validaciones/i
 
 // Crear un nuevo insumo
 const insertarInsumoService = async (datos) => {
-
     validarInsertarInsumo(datos);
-    const { nombreInsumo, stockIncial, unidadMedida } = datos;
+    const { nombreInsumo, cantidadInicial, unidadMedida } = datos;
 
-    const resultado = await insertarInsumoModel(nombreInsumo, stockIncial, unidadMedida);
+    const resultado = await insertarInsumoModel(nombreInsumo, cantidadInicial, unidadMedida);
 
     return {
         ok: true,
@@ -56,20 +56,46 @@ const obtenerInsumoService = async (id) => {
 };
 
 // Actualizar un insumo
-const actualizarInsumoService = async (id, datos) => {
-    // Validamos que venga el ID
-    if (!id) {
-        const error = new Error("Falta el ID del insumo a actualizar");
-        error.status = 400;
-        throw error;
+const actualizarInsumoService = async (idInsumo, datos) => {0.
+    if (!idInsumo || isNaN(Number(idInsumo))) {
+        throw Object.assign(
+            new Error("Se necesita un ID de insumo."),
+            { status: 400 }
+        );
+    }
+    if(!datos || typeof datos !== "object"){
+        throw Object.assign(new Error("Se necesitan los nuevos datos del insumo"), { status: 400 });
+    }
+    const { nombreInsumo, unidadMedida } = datos;
+    if(!nombreInsumo || typeof nombreInsumo !== "string" || !nombreInsumo.trim()){
+        throw Object.assign(new Error("Se necesita el nuevo nombre el insumo"), { status: 400 });
+    }
+    if(!unidadMedida || typeof unidadMedida !== "string" || !unidadMedida.trim()){
+        throw Object.assign(new Error("Se necesita la nueva unidad de medida"), { status: 400 });
+    }
+    const insumo = await obtenerInsumoIDModel(Number(idInsumo));
+
+    if(!insumo || insumo.length === 0){
+        throw Object.assign(
+            new Error("El insumo especificado no existe."),
+            { status: 404 }
+        );
+    };
+
+    const coincidenciasNombre = await obtenerConteoInsumosPorNombreModel(nombreInsumo);
+    if (coincidenciasNombre > 0) {  // Si ya existe un insumo con el mismo nombre
+        throw Object.assign(
+            new Error("El nombre del insumo ya está en uso."),
+            { status: 409 }
+        );
     }
 
     // Actualizamos en la BD
-    const actualizado = await actualizarInsumoModel(id, datos);
+    const respuesta = await actualizarInsumoModel(idInsumo, nombreInsumo, unidadMedida);
 
     return {
-        mensaje: "Insumo actualizado correctamente",
-        data: actualizado
+        ok: true,
+        mensaje: respuesta
     };
 };
 

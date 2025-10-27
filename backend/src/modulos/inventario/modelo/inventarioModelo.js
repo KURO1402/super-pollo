@@ -6,8 +6,8 @@ const insertarInsumoModel = async (nombreInsumo, stockIncial, unidadMedida) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
+        console.log(nombreInsumo, stockIncial, unidadMedida);
         const [result] = await pool.query("CALL insertarInsumo(?, ?, ?)", [nombreInsumo, stockIncial, unidadMedida]);
-
         return result[0][0]?.mensaje;
         
     } catch (err) {
@@ -39,13 +39,39 @@ const obtenerInsumoIDModel = async (id) => {
     }
 };
 
+const obtenerConteoInsumosPorNombreModel = async (nombreInsumo) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection(); // Obtener conexión
+        const [rows] = await conexion.execute("CALL obtenerConteoInsumosPorNombre(?)", [nombreInsumo]);
+        
+        // Devuelve el conteo que está en la primera fila del primer resultado
+        return rows[0][0].cantidadInsumos; 
+    } catch (err) {
+        console.error("Error en obtenerConteoInsumosPorNombreModel: ", err.message);
+        throw new Error("Error al obtener el conteo de insumos");
+    } finally {
+        if (conexion) conexion.release(); // Liberar conexión
+    }
+};
+
 // Actualizar insumo
-const actualizarInsumoModel = async (id, datos) => {
-    await pool.query(
-        "CALL actualizarInsumo(?, ?, ?, ?, ?)",
-        [id, datos.nombreInsumo, datos.stockInsumo, datos.unidadMedida, datos.categoriaProducto]
+const actualizarInsumoModel = async (idInsumo, nombreInsumo, unidadMedida) => {
+    let conexion;
+    console.log(nombreInsumo);
+    try {
+    const [result] = await pool.query(
+        "CALL actualizarInsumo(?, ?, ?)",
+        [idInsumo, nombreInsumo, unidadMedida]
     );
-    return { idInsumo: id, ...datos };
+    return result[0][0]?.mensaje;
+
+    } catch (err) {
+        console.error("Error en actualizarInsumoModel: ", err.message);
+        throw new Error("Error al actualizar el insumo");
+    } finally {
+        if(conexion) conexion.release();
+    }
 };
 
 // Eliminar insumo
@@ -66,6 +92,7 @@ module.exports = {
     insertarInsumoModel,
     obtenerInsumosModel,
     obtenerInsumoIDModel,
+    obtenerConteoInsumosPorNombreModel,
     actualizarInsumoModel,
     eliminarInsumoModel,
     obtenerStockActualModel

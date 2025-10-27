@@ -19,7 +19,7 @@ router.get("/", listarInsumosController);
 router.get("/:id", obtenerInsumoController);
 
 // Ruta para actualizar un insumo 
-router.put("/:id", actualizarInsumoController);
+router.put("/actualizar/:idInsumo", actualizarInsumoController);
 
 // Ruta para eliminar un insumo
 router.delete("/:id", eliminarInsumoController);

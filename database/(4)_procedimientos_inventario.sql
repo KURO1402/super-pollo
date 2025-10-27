@@ -11,6 +11,7 @@ DROP PROCEDURE IF EXISTS listarMovimientos;
 DROP PROCEDURE IF EXISTS obtenerMovimientosPorInsumo;
 DROP PROCEDURE IF EXISTS obtenerStockActual;
 DROP PROCEDURE IF EXISTS eliminarMovimientoStock;
+DROP PROCEDURE IF EXISTS obtenerConteoInsumosPorNombre;
 
 DELIMITER //
 -- =============================================
@@ -26,7 +27,8 @@ BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
-        SELECT 'Error al insertar el insumo.' AS mensaje;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al insertar insumo.';
     END;
 
     START TRANSACTION;
@@ -57,31 +59,50 @@ BEGIN
         nombreInsumo,
         stockInsumo,
         unidadMedida,
-        categoriaInsumo,
         estadoInsumo
     FROM insumos
     WHERE idInsumo = p_idInsumo 
       AND estadoInsumo = 1;
 END //
 
-CREATE PROCEDURE actualizarInsumo(
-    IN p_idInsumo INT,
-    IN p_nombreInsumo VARCHAR(50),
-    IN p_stockInsumo DECIMAL(10,2),
-    IN p_unidadMedida VARCHAR(20),
-    IN p_categoriaInsumo ENUM('insumo','bebida')
+CREATE PROCEDURE obtenerConteoInsumosPorNombre(
+    IN p_nombreInsumo VARCHAR(100)
 )
 BEGIN
+    DECLARE v_count INT;
+
+    SELECT COUNT(*) INTO v_count
+    FROM insumos
+    WHERE nombreInsumo = p_nombreInsumo;
+
+    SELECT v_count AS cantidadInsumos;
+
+END //
+
+CREATE PROCEDURE actualizarInsumo(
+    IN p_idInsumo INT,
+    IN p_nombreInsumo VARCHAR(100),
+    IN p_unidadMedida VARCHAR(30)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar insumo.';
+    END;
+    
+    START TRANSACTION;
+
     UPDATE insumos
     SET nombreInsumo = p_nombreInsumo,
-        stockInsumo = p_stockInsumo,
-        unidadMedida = p_unidadMedida,
-        categoriaInsumo = p_categoriaInsumo,
-        estadoInsumo = CASE 
-                    WHEN p_stockInsumo <= 0 THEN '0'
-                    ELSE '1'
-                 END
+        unidadMedida = p_unidadMedida
     WHERE idInsumo = p_idInsumo;
+
+    COMMIT;
+
+    SELECT 'Insumo actualizado correctamente' AS mensaje;
+
 END //
 
 CREATE PROCEDURE eliminarInsumo(

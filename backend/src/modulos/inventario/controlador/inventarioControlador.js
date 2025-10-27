@@ -14,7 +14,7 @@ const insertarInsumoController = async (req, res) => {
         const respuesta = await insertarInsumoService(req.body);
         // Respondemos con mensaje y datos del insumo
         res.status(201).json(respuesta);
-    } catch (error) {
+    } catch (err) {
         console.error("Error en insertarInsumoController:", err.message);
         const statusCode = err.status || 500;
 
@@ -48,10 +48,18 @@ const obtenerInsumoController = async (req, res) => {
 // Actualizar un insumo
 const actualizarInsumoController = async (req, res) => {
     try {
-        const insumoActualizado = await actualizarInsumoService(req.params.id, req.body);
-        res.json({ ok: true, mensaje: "Insumo actualizado", data: insumoActualizado });
-    } catch (error) {
-        res.status(error.status || 500).json({ ok: false, mensaje: error.message });
+        const {idInsumo} = req.params;
+
+        const respuesta = await actualizarInsumoService(idInsumo, req.body);
+        res.json(respuesta);
+    } catch (err) {
+        console.error("Error en actualizarInsumoController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
     }
 };
 
