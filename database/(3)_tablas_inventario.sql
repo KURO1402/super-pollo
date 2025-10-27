@@ -12,10 +12,9 @@ DROP TABLE IF EXISTS imagenesProductos;
 -- Tabla de insumos
 CREATE TABLE insumos(
     idInsumo INT PRIMARY KEY AUTO_INCREMENT,
-    nombreInsumo VARCHAR(50) NOT NULL,
+    nombreInsumo VARCHAR(100) NOT NULL,
     stockInsumo DECIMAL(10,2) NOT NULL,
-    unidadMedida VARCHAR(20) NOT NULL,
-    categoriaInsumo ENUM('insumo','producto') NOT NULL,
+    unidadMedida VARCHAR(30) NOT NULL,
     estadoInsumo TINYINT(1) NOT NULL DEFAULT 1
 );
 

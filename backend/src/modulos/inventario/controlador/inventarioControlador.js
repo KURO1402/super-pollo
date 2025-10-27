@@ -1,6 +1,6 @@
 // Importamos los servicios de insumos
 const {
-    crearInsumoService,
+    insertarInsumoService,
     listarInsumosService,
     obtenerInsumoService,
     actualizarInsumoService,
@@ -8,19 +8,20 @@ const {
 } = require("../servicio/inventarioServicio");
 
 // Crear un nuevo insumo
-const crearInsumoController = async (req, res) => {
+const insertarInsumoController = async (req, res) => {
     try {
         // Llamamos al servicio con los datos del body
-        const nuevoInsumo = await crearInsumoService(req.body);
+        const respuesta = await insertarInsumoService(req.body);
         // Respondemos con mensaje y datos del insumo
-        res.status(201).json({
-            ok: true,
-            mensaje: "Insumo creado con éxito",
-            data: nuevoInsumo
-        });
+        res.status(201).json(respuesta);
     } catch (error) {
-        // Enviamos error con su código HTTP o 500 por defecto
-        res.status(error.status || 500).json({ ok: false, mensaje: error.message });
+        console.error("Error en insertarInsumoController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
     }
 };
 
@@ -66,7 +67,7 @@ const eliminarInsumoController = async (req, res) => {
 
 // Exportamos todos los controladores
 module.exports = {
-    crearInsumoController,
+    insertarInsumoController,
     listarInsumosController,
     obtenerInsumoController,
     actualizarInsumoController,

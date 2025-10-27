@@ -8,19 +8,19 @@ const {
 } = require("../modelo/inventarioModelo");
 
 // Crear un nuevo insumo
-const { validarDatosInsumo } = require("../validaciones/inventarioValidaciones");//validaciones
+const { validarInsertarInsumo, validarDatosInsumo } = require("../validaciones/inventarioValidaciones");//validaciones
 
 // Crear un nuevo insumo
-const crearInsumoService = async (datos) => {
-    // Validar y sanitizar datos con la función del validador
-    const datosValidados = await validarDatosInsumo(datos);
+const insertarInsumoService = async (datos) => {
 
-    // Insertar en la base de datos
-    const nuevoInsumo = await insertarInsumoModel(datosValidados);
+    validarInsertarInsumo(datos);
+    const { nombreInsumo, stockIncial, unidadMedida } = datos;
+
+    const resultado = await insertarInsumoModel(nombreInsumo, stockIncial, unidadMedida);
 
     return {
-        mensaje: "Insumo registrado con éxito",
-        insumoId: nuevoInsumo.insertId || nuevoInsumo.idInsumo,
+        ok: true,
+        mensaje: resultado
     };
 };
 
@@ -88,7 +88,7 @@ const eliminarInsumoService = async (id) => {
 
 // Exportamos los servicios
 module.exports = {
-    crearInsumoService,
+    insertarInsumoService,
     listarInsumosService,
     obtenerInsumoService,
     actualizarInsumoService,

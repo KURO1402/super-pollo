@@ -18,15 +18,29 @@ DELIMITER //
 -- =============================================
 
 CREATE PROCEDURE insertarInsumo(
-    IN p_nombreInsumo VARCHAR(50),
+    IN p_nombreInsumo VARCHAR(100),
     IN p_stockInsumo DECIMAL(10,2),
-    IN p_unidadMedida VARCHAR(20),
-    IN p_categoriaInsumo ENUM('insumo','bebida')
+    IN p_unidadMedida VARCHAR(30)
 )
 BEGIN
-    INSERT INTO insumos (nombreInsumo, stockInsumo, unidadMedida, categoriaInsumo, estadoInsumo)
-    VALUES (p_nombreInsumo, p_stockInsumo, p_unidadMedida, p_categoriaInsumo,
-            CASE WHEN p_stockInsumo <= 0 THEN '0' ELSE '1' END);
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error al insertar el insumo.' AS mensaje;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO insumos (nombreInsumo, stockInsumo, unidadMedida)
+    VALUES (
+        p_nombreInsumo,
+        p_stockInsumo,
+        p_unidadMedida
+    );
+
+    COMMIT;
+
+    SELECT 'Insumo insertado correctamente.' AS mensaje;
 END //
 
 CREATE PROCEDURE obtenerInsumos()

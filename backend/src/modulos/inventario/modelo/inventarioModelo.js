@@ -1,19 +1,26 @@
 // Importamos la conexión a la base de datos
-const db = require("../../../config/conexionDB");
+const pool = require("../../../config/conexionDB");
 
 // Insertar nuevo insumo usando procedimiento
-const insertarInsumoModel = async (datos) => {
-    await db.query(
-        "CALL insertarInsumo(?, ?, ?, ?)",
-        [datos.nombreInsumo, datos.stockInsumo, datos.unidadMedida, datos.categoriaProducto]
-    );
+const insertarInsumoModel = async (nombreInsumo, stockIncial, unidadMedida) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await pool.query("CALL insertarInsumo(?, ?, ?)", [nombreInsumo, stockIncial, unidadMedida]);
 
-    return { mensaje: "Insumo insertado correctamente" };
+        return result[0][0]?.mensaje;
+        
+    } catch (err) {
+        console.error("Error en obtenerInsumoIDModel: ", err.message);
+        throw new Error("Error al insertar insumo");
+    } finally {
+        if (conexion) conexion.release();
+    }
 };
 
 // Obtener todos los insumos
 const obtenerInsumosModel = async () => {
-    const [rows] = await db.query("CALL obtenerInsumos()");
+    const [rows] = await pool.query("CALL obtenerInsumos()");
     return rows[0]; // El resultado viene como un array anidado
 };
 
@@ -21,8 +28,8 @@ const obtenerInsumosModel = async () => {
 const obtenerInsumoIDModel = async (id) => {
     let conexion;
     try {
-        conexion = await db.getConnection();
-    const [rows] = await db.execute("CALL obtenerInsumoPorID(?)", [id]);
+        conexion = await pool.getConnection();
+    const [rows] = await pool.execute("CALL obtenerInsumoPorID(?)", [id]);
     return rows[0][0]; // Devuelve la primera fila del primer resultado
     } catch (err) {
         console.error("Error en obtenerInsumoIDModel: ", err.message);
@@ -34,7 +41,7 @@ const obtenerInsumoIDModel = async (id) => {
 
 // Actualizar insumo
 const actualizarInsumoModel = async (id, datos) => {
-    await db.query(
+    await pool.query(
         "CALL actualizarInsumo(?, ?, ?, ?, ?)",
         [id, datos.nombreInsumo, datos.stockInsumo, datos.unidadMedida, datos.categoriaProducto]
     );
@@ -43,11 +50,11 @@ const actualizarInsumoModel = async (id, datos) => {
 
 // Eliminar insumo
 const eliminarInsumoModel = async (id) => {
-    await db.query("CALL eliminarInsumo(?)", [id]);
+    await pool.query("CALL eliminarInsumo(?)", [id]);
 };
 
 const obtenerStockActualModel = async (idInsumo) => {
-    const [rows] = await db.query('CALL obtenerStockActual(?)', [idInsumo]);
+    const [rows] = await pool.query('CALL obtenerStockActual(?)', [idInsumo]);
     const stockActual = rows[0][0].stockActual;
     return stockActual;
 };

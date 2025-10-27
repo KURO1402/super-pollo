@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const {
-    crearInsumoController,
+    insertarInsumoController,
     listarInsumosController,
     obtenerInsumoController,
     actualizarInsumoController,
@@ -10,7 +10,7 @@ const {
 } = require("../controlador/inventarioControlador");
 
 // Ruta para crear un nuevo insumo
-router.post("/crear", crearInsumoController);
+router.post("/insertar-insumo", insertarInsumoController);
 
 // Ruta para listar todos los insumos
 router.get("/", listarInsumosController);
