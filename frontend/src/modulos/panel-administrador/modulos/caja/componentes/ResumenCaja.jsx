@@ -1,6 +1,6 @@
 import { FiDollarSign, FiTrendingUp, FiTrendingDown, FiCheckCircle, FiXCircle } from "react-icons/fi";
 
-const ResumenCaja = ({ caja, formatCurrency, onAbrirCaja, onCerrarCaja }) => {
+const ResumenCaja = ({ caja, formatCurrency, onAbrirCaja, onCerrarCaja, loading }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
@@ -22,6 +22,7 @@ const ResumenCaja = ({ caja, formatCurrency, onAbrirCaja, onCerrarCaja }) => {
           {caja.estado === "abierta" ? (
             <button
               onClick={onCerrarCaja}
+              disabled = {loading}
               className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 shadow-sm cursor-pointer"
             >
               <FiXCircle className="w-4 h-4" />

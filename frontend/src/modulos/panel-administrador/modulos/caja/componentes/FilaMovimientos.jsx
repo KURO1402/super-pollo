@@ -1,14 +1,15 @@
-import { FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import { FiTrendingUp, FiTrendingDown, FiUser } from "react-icons/fi";
 
 const FilaMovimientos = ({ movimiento, formatCurrency }) => {
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  // Mostrar fecha y hora separados
+  const mostrarFecha = () => {
+    //validar la fecha
+    return movimiento.fecha || "Fecha no disponible";
+  };
+
+  const mostrarHora = () => {
+    // VAlidar la hora
+    return movimiento.hora || "Hora no disponible";
   };
 
   return (
@@ -37,11 +38,23 @@ const FilaMovimientos = ({ movimiento, formatCurrency }) => {
       }`}>
         {movimiento.tipo === "ingreso" ? "+" : "-"}{formatCurrency(movimiento.monto)}
       </td>
-      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-        {formatDate(movimiento.fecha)}
+      <td className="px-6 py-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-sm text-gray-900 dark:text-white">
+            {mostrarFecha()}
+          </span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            {mostrarHora()}
+          </span>
+        </div>
       </td>
-      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-        {movimiento.usuario}
+      <td className="px-6 py-5">
+        <div className="flex items-center gap-2">
+          <FiUser className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {movimiento.usuario}
+          </span>
+        </div>
       </td>
     </tr>
   );
