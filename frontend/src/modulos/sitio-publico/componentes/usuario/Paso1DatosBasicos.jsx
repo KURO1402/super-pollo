@@ -1,17 +1,29 @@
 import { useFormContext } from "react-hook-form";
-import { FiCalendar, FiUsers } from "react-icons/fi";
+import { FiCalendar, FiLoader, FiUsers } from "react-icons/fi";
+import { TiArrowSortedDown, TiArrowSortedUp  } from "react-icons/ti";
 import { MdOutlineTableBar } from "react-icons/md";
 import { reservaEstadoGlobal } from "../../estado-global/reservaEstadoGlobal";
 import { useEffect } from "react";
 
 const Paso1DatosBasicos = () => {
   const { register, formState: { errors }, watch, setValue, trigger } = useFormContext();
-  const { mesasDisponibles, updateDatos, datos } = reservaEstadoGlobal();
+  const { mesasDisponibles, updateDatos, datos, buscarMesasDisponibles, cargandoMesas, errorMesas, limpiarMesas } = reservaEstadoGlobal();
   
+  const fechaForm = watch('fecha');
+  const horaForm = watch('hora');
   const personas = watch('personas') || datos.personas;
   const mesaForm = watch('mesa'); // Observar el valor del formulario para la mesa
 
-  // Sincronizar el estado del formulario con el estado global
+  // Buscar mesas cuando cambia fecha u hora
+  useEffect(() => {
+    if (fechaForm && horaForm) {
+      buscarMesasDisponibles(fechaForm, horaForm);
+    } else {
+      limpiarMesas();
+    }
+  }, [fechaForm, horaForm]);
+
+  // Suncronizar forumlario con estado global
   useEffect(() => {
     if (datos.mesa && datos.mesa !== mesaForm) {
       setValue('mesa', datos.mesa, { shouldValidate: true });
@@ -26,11 +38,6 @@ const Paso1DatosBasicos = () => {
   };
 
   const hoy = new Date().toISOString().split("T")[0];
-
-  // Filtrar mesas disponibles basado en el número de personas
-  const mesasFiltradas = mesasDisponibles.filter(mesa => 
-    mesa.capacidad >= personas
-  );
 
   return (
     <div className="space-y-8">
@@ -55,7 +62,7 @@ const Paso1DatosBasicos = () => {
             </div>
             
             <div className="space-y-4">
-              <div>
+              <div className="scheme-dark">
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Fecha
                 </label>
@@ -73,7 +80,7 @@ const Paso1DatosBasicos = () => {
                       }
                     }
                   })}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                 />
                 {errors.fecha && (
                   <p className="text-red-500 text-sm mt-1">{errors.fecha.message}</p>
@@ -86,7 +93,7 @@ const Paso1DatosBasicos = () => {
                 </label>
                 <select
                   {...register("hora", { required: "La hora es requerida" })}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                 >
                   <option value="">Seleccionar hora</option>
                   <option value="12:00">12:00 PM</option>
@@ -105,45 +112,70 @@ const Paso1DatosBasicos = () => {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Número de Personas
                 </label>
-                <select
-                  {...register("personas", { 
-                    required: "El número de personas es requerido",
-                    min: { value: 1, message: "Mínimo 1 persona" }
-                  })}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                >
-                  {[1,2,3,4,5,6,7,8].map(num => (
-                    <option key={num} value={num}>
-                      {num} {num === 1 ? 'persona' : 'personas'}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="2"
+                    max="20"
+                    {...register("personas", { 
+                      required: "El número de personas es requerido",
+                      min: { 
+                        value: 2, 
+                        message: "Mínimo 2 personas" 
+                      },
+                      max: { 
+                        value: 20, 
+                        message: "Máximo 20 personas" 
+                      },
+                      valueAsNumber: true
+                    })}
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    placeholder="Ej: 4"
+                  />
+                  {/* Controles personalizados de incremento/decremento */}
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentValue = parseInt(watch("personas") || 2);
+                        if (currentValue < 20) {
+                          setValue("personas", currentValue + 1, { shouldValidate: true });
+                        }
+                      }}
+                      className="w-6 h-6 flex items-center justify-center cursor-pointer hover:bg-gray-500 rounded text-white text-sm transition-colors"
+                    >
+                      <TiArrowSortedUp />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentValue = parseInt(watch("personas") || 2);
+                        if (currentValue > 2) {
+                          setValue("personas", currentValue - 1, { shouldValidate: true });
+                        }
+                      }}
+                      className="w-6 h-6 flex items-center justify-center cursor-pointer hover:bg-gray-500 rounded text-white text-sm transition-colors"
+                    >
+                      <TiArrowSortedDown />
+                    </button>
+                  </div>
+                </div>
                 {errors.personas && (
                   <p className="text-red-500 text-sm mt-1">{errors.personas.message}</p>
                 )}
               </div>
 
-              {/* Campo oculto para la mesa en el formulario */}
               <input
                 type="hidden"
                 {...register("mesa", { 
-                  required: "Debes seleccionar una mesa",
-                  validate: {
-                    mesaValida: (value) => {
-                      const mesaExiste = mesasDisponibles.some(mesa => mesa.numero === value);
-                      if (!mesaExiste) {
-                        return "Mesa no válida";
-                      }
-                      return true;
-                    }
-                  }
+                  required: "Debes seleccionar una mesa"
                 })}
               />
             </div>
           </div>
         </div>
 
-        {/* Selección de Mesa */}
+        {/* Selección de Mesa - SIMPLIFICADO */}
         <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-red-600/10 rounded-xl flex items-center justify-center">
@@ -152,55 +184,68 @@ const Paso1DatosBasicos = () => {
             <h3 className="text-xl font-semibold text-white">Seleccionar Mesa</h3>
           </div>
 
-          {mesasFiltradas.length === 0 ? (
+          {cargandoMesas && (
+            <div className="text-center py-8">
+              <FiLoader className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-2" />
+              <p className="text-gray-400">Buscando mesas disponibles...</p>
+            </div>
+          )}
+
+          {errorMesas && !cargandoMesas && (
+            <div className="text-center py-4 bg-red-500/10 rounded-lg">
+              <p className="text-red-500">{errorMesas}</p>
+            </div>
+          )}
+
+          {!cargandoMesas && !errorMesas && mesasDisponibles.length === 0 && fechaForm && horaForm && (
             <div className="text-center py-8">
               <p className="text-yellow-500 font-semibold">
-                No hay mesas disponibles para {personas} {personas === 1 ? 'persona' : 'personas'}
+                No hay mesas disponibles para esta fecha y hora
               </p>
               <p className="text-gray-400 text-sm mt-2">
-                Reduce el número de personas o contacta con el restaurante
+                Intenta con otra fecha u horario
               </p>
             </div>
-          ) : (
+          )}
+
+          {!cargandoMesas && !errorMesas && mesasDisponibles.length > 0 && (
             <>
               <div className="mb-4">
                 <p className="text-gray-400 text-sm">
-                  Mesas disponibles para {personas} {personas === 1 ? 'persona' : 'personas'}
+                  {mesasDisponibles.length} mesa{mesasDisponibles.length !== 1 ? 's' : ''} disponible{mesasDisponibles.length !== 1 ? 's' : ''}
                 </p>
               </div>
 
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {mesasFiltradas.map(mesa => (
+              <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                {mesasDisponibles.map(mesa => (
                   <div
                     key={mesa.id}
                     onClick={() => handleSeleccionarMesa(mesa)}
-                    className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                    className={`p-4 border-2 rounded-xl cursor-pointer transition-all text-center ${
                       datos.mesa === mesa.numero
                         ? "border-red-600 bg-red-600/10"
                         : "border-gray-600 hover:border-blue-600 hover:bg-gray-700/50"
                     }`}
                   >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h4 className="font-semibold text-white">{mesa.numero}</h4>
-                        <p className="text-sm text-gray-400">{mesa.ubicacion}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-1 text-sm text-gray-400">
-                          <FiUsers className="w-4 h-4" />
-                          <span>Hasta {mesa.capacidad} personas</span>
-                        </div>
-                        <span className={`text-sm font-medium ${
-                          datos.mesa === mesa.numero ? "text-red-600" : "text-green-600"
-                        }`}>
-                          {datos.mesa === mesa.numero ? "Seleccionada" : "Disponible"}
-                        </span>
-                      </div>
-                    </div>
+                    <h4 className="font-semibold text-white text-lg mb-1">{mesa.numero}</h4>
+                    <p className="text-sm text-gray-400">Capacidad: {mesa.capacidad} personas</p>
+                    <span className={`text-sm font-medium mt-2 block ${
+                      datos.mesa === mesa.numero ? "text-red-600" : "text-green-600"
+                    }`}>
+                      {datos.mesa === mesa.numero ? "Seleccionada" : "Disponible"}
+                    </span>
                   </div>
                 ))}
               </div>
             </>
+          )}
+
+          {(!fechaForm || !horaForm) && !cargandoMesas && (
+            <div className="text-center py-8">
+              <p className="text-gray-400">
+                Selecciona fecha y hora para ver las mesas disponibles
+              </p>
+            </div>
           )}
           
           {errors.mesa && (

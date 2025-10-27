@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { obtenerMesasDisponiblesServicio } from '../servicios/reservacionesServicio';
 
 // Datos temporales para desarrollo
 const productosMenu = [
@@ -9,14 +10,6 @@ const productosMenu = [
   { id: 5, nombre: "Gaseosa 1L", precio: 5, categoria: "Bebidas" },
   { id: 6, nombre: "Cerveza Artesanal", precio: 8, categoria: "Bebidas" },
   { id: 7, nombre: "Postre de Lucuma", precio: 6, categoria: "Postres" }
-]
-
-const mesasDisponibles = [
-  { id: 1, numero: "Mesa 1", capacidad: 4, ubicacion: "Terraza" },
-  { id: 2, numero: "Mesa 2", capacidad: 2, ubicacion: "Interior" },
-  { id: 3, numero: "Mesa 3", capacidad: 6, ubicacion: "Jardín" },
-  { id: 4, numero: "Mesa 4", capacidad: 4, ubicacion: "Interior" },
-  { id: 5, numero: "Mesa 5", capacidad: 8, ubicacion: "Sala Privada" }
 ]
 
 export const reservaEstadoGlobal = create((set, get) => ({
@@ -33,9 +26,11 @@ export const reservaEstadoGlobal = create((set, get) => ({
   
   // Datos temporales
   productosMenu,
-  mesasDisponibles,
+  mesasDisponibles: [],
+  cargandoMesas: false,
+  errorMesas: null,
 
-  // Actions
+  // funciones que almacena el estado global
   setPaso: (paso) => set({ 
     pasoActual: Math.max(1, Math.min(3, paso)) // Limitar entre 1-3
   }),
@@ -48,6 +43,50 @@ export const reservaEstadoGlobal = create((set, get) => ({
       productos: nuevosDatos.productos !== undefined ? nuevosDatos.productos : state.datos.productos
     } 
   })),
+
+  // Buscar mesas disponibles
+  buscarMesasDisponibles: async (fecha, hora) => {
+    if (!fecha || !hora) {
+      set({ 
+        mesasDisponibles: [],
+        errorMesas: 'Fecha y hora son requeridas'
+      });
+      return;
+    }
+
+    set({ cargandoMesas: true, errorMesas: null });
+    
+    try {
+      const respuesta = await obtenerMesasDisponiblesServicio(fecha, hora);
+      
+      // Transformar la respuesta - todas tienen capacidad 4
+      const mesasTransformadas = respuesta.mesas.map(mesa => ({
+        id: mesa.idMesa,
+        numero: `Mesa ${mesa.numeroMesa}`,
+        capacidad: mesa.capacidad
+      }));
+
+      set({ 
+        mesasDisponibles: mesasTransformadas,
+        cargandoMesas: false,
+        errorMesas: null
+      });
+
+    } catch (error) {
+      console.error('Error al buscar mesas:', error);
+      set({ 
+        mesasDisponibles: [],
+        cargandoMesas: false,
+        errorMesas: error.message || 'Error al cargar mesas disponibles'
+      });
+    }
+  },
+
+  // Limpiar mesas
+  limpiarMesas: () => set({ 
+    mesasDisponibles: [],
+    datos: { ...get().datos, mesa: '' }
+  }),
 
   agregarProducto: (producto) => set((state) => {
     const existe = state.datos.productos.find(p => p.id === producto.id);
