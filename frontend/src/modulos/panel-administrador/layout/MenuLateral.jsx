@@ -13,6 +13,8 @@ import {
   FiMoreHorizontal,
 } from "react-icons/fi";
 import { FaCashRegister } from "react-icons/fa";
+import { IoFastFoodOutline } from "react-icons/io5";
+
 import { useSidebar } from "../context/SidebarContext";
 // estado global
 import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacionGlobal";
@@ -37,6 +39,15 @@ const navItems = [
     ],
   },
   {
+    icon: <IoFastFoodOutline size={22} />,
+    name: "Productos",
+    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN], // Ambos
+    subItems: [
+      { name: "Gestión Productos", path: "/admin/gestion-productos" },
+      { name: "Gestión Imagenes", path: "/admin/gestion-imagenes" },
+    ],
+  },
+  {
     icon: <FiArchive size={20} />,
     name: "Stock",
     rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN], // Ambos
@@ -44,7 +55,6 @@ const navItems = [
       { name: "Stock Insumos", path: "/admin/stock-insumos" },
       { name: "Historial Entradas", path: "/admin/historial-entradas" },
       { name: "Historial Salidas", path: "/admin/historial-salidas" },
-      { name: "Gestión Productos", path: "/admin/gestion-productos" },
     ]
   },
   {
