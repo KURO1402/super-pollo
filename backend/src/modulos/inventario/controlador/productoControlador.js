@@ -8,6 +8,7 @@ const {
     eliminarCantidadInsumoProductoService,
     insertarCantidadInsumoProductoService,
     obtenerProductosService,
+    obtenerProductosPaginacionService,
     obtenerProductoPorIdService,
     buscarProductosPorNombreService,
     obtenerInsumosPorProductoService
@@ -152,14 +153,28 @@ const insertarCantidadInsumoProductoController = async (req, res) => {
 
 const obtenerProductosController = async (req, res) => {
     try {
+
+        const resultado = await obtenerProductosPaginacionService();
+
+        return res.status(200).json(resultado);
+    } catch (err) {
+        console.error("Error en obtenerProductosController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
+const obtenerProductosPaginacionController = async (req, res) => {
+    try {
         const { limit, offset } = req.query; // Se obtienen desde la URL
 
-        const productos = await obtenerProductosService(limit, offset);
+        const resultado = await obtenerProductosPaginacionService(limit, offset);
 
-        return res.status(200).json({
-            ok: true,
-            productos: productos
-        });
+        return res.status(200).json(resultado);
     } catch (err) {
         console.error("Error en obtenerProductosController:", err.message);
         const statusCode = err.status || 500;
@@ -174,11 +189,8 @@ const obtenerProductosController = async (req, res) => {
 const obtenerProductoPorIdController = async (req, res) => {
     try {
         const { idProducto } = req.params;
-        const producto = await obtenerProductoPorIdService(idProducto);
-        return res.status(200).json({
-            ok:true, 
-            producto: producto
-        });
+        const resultado = await obtenerProductoPorIdService(idProducto);
+        return res.status(200).json(resultado);
     } catch (err) {
         console.error("Error en obtenerProductoPorIdController:", err.message);
         const statusCode = err.status || 500;
@@ -193,11 +205,8 @@ const obtenerProductoPorIdController = async (req, res) => {
 const buscarProductosPorNombreController = async (req, res) => {
     try {
         const { nombre } = req.query; // se busca con ?nombre=valor
-        const productos = await buscarProductosPorNombreService(nombre);
-        return res.status(200).json({
-            ok:true, 
-            productos: productos
-        });
+        const resultado = await buscarProductosPorNombreService(nombre);
+        return res.status(200).json(resultado);
     } catch (err) {
         console.error("Error en buscarProductosPorNombreController:", err.message);
         const statusCode = err.status || 500;
@@ -214,12 +223,9 @@ const obtenerInsumosPorProductoControlller = async (req, res) => {
     try {
         const { idProducto } = req.params;
 
-        const insumos = await obtenerInsumosPorProductoService(idProducto);
+        const resultado = await obtenerInsumosPorProductoService(idProducto);
 
-        res.status(200).json({
-            ok: true,
-            insumos: insumos
-        });
+        res.status(200).json(resultado);
     } catch (err) {
         console.error("Error en buscarProductosPorNombreController:", err.message);
         const statusCode = err.status || 500;
@@ -240,6 +246,7 @@ module.exports = {
     eliminarCantidadInsumoProductoController,
     insertarCantidadInsumoProductoController,
     obtenerProductosController,
+    obtenerProductosPaginacionController,
     obtenerProductoPorIdController,
     buscarProductosPorNombreController,
     obtenerInsumosPorProductoControlller

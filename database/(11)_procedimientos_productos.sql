@@ -16,6 +16,7 @@ DROP PROCEDURE IF EXISTS obtenerPublicIDPorProducto;
 DROP PROCEDURE IF EXISTS eliminarCantidadInsumoProducto;
 DROP PROCEDURE IF EXISTS eliminarProducto;
 DROP PROCEDURE IF EXISTS obtenerProductos;
+DROP PROCEDURE IF EXISTS obtenerProductosPaginacion;
 DROP PROCEDURE IF EXISTS buscarProductosPorNombre;
 DROP PROCEDURE IF EXISTS obtenerInsumosPorProducto;
 
@@ -229,8 +230,25 @@ BEGIN
     SELECT 'Producto eliminado correctamente' AS mensaje;
 END //
 
+CREATE PROCEDURE obtenerProductos()
+BEGIN
+    SELECT 
+        p.idProducto,
+        p.nombreProducto,
+        p.descripcionProducto,
+        p.precio,
+        p.usaInsumos,
+        p.estadoProducto,
+        i.urlImagen
+    FROM productos p
+    LEFT JOIN imagenesProductos i 
+        ON p.idProducto = i.idProducto
+    WHERE p.estadoProducto = 1
+    ORDER BY p.idProducto DESC;
+END //
+
 -- Procedimientos para obtener productos 
-CREATE PROCEDURE obtenerProductos(
+CREATE PROCEDURE obtenerProductosPaginacion(
     IN p_limit INT,
     IN p_offset INT
 )

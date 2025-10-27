@@ -241,12 +241,30 @@ const eliminarProductoModel = async (idProducto) => {
     }
 };
 
-// Modelo para obtener todos los productos
-const obtenerProductosModel = async (limit, offset) => {
+//Modelo para obtener todos los productos
+const obtenerProductosModel = async () => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [result] = await conexion.execute("CALL obtenerProductos(?, ?)", [limit, offset]);
+        const [result] = await conexion.execute("CALL obtenerProductos()");
+        return result[0];
+    } catch (err) {
+        console.error("Error en obtenerProductosModel:", err.message);
+        throw Object.assign(
+            new Error("Error al obtener los productos de la base de datos"),
+            { status: 500 }
+        );
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Modelo para obtener productos por paginacion
+const obtenerProductosPaginacionModel = async (limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL obtenerProductosPaginacion(?, ?)", [limit, offset]);
         return result[0];
     } catch (err) {
         console.error("Error en obtenerProductosModel:", err.message);
@@ -307,6 +325,7 @@ module.exports = {
     eliminarCantidadInsumoProductoModel,
     eliminarProductoModel,
     obtenerProductosModel,
+    obtenerProductosPaginacionModel,
     buscarProductosPorNombreModel,
     obtenerInsumosPorProductoModel 
 };

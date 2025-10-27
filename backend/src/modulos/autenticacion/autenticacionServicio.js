@@ -164,7 +164,7 @@ const seleccionarUsuarioService = async (datos) => {
     throw Object.assign(new Error("Credenciales de acceso invalidas"), { status: 401 });
   }
 
-  // Creamos un objeto con los datos necesarios del usuario para el token y enviar al forntend
+  // Creamos un objeto con los datos necesarios del usuario para el token y enviar al frontend
   const payload = {
     idUsuario: usuario.idUsuario,
     nombresUsuario: usuario.nombresUsuario,
