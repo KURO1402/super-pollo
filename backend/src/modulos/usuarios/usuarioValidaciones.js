@@ -1,4 +1,4 @@
-const { validarTelefono, validarDocumento} = require("../../utilidades/validaciones");
+const { validarTelefono, validarDocumento, validarCorreo} = require("../../utilidades/validaciones");
 
 const validarActualizarUsuario = (datos, idUsuario) => {
     if (!datos || typeof datos !== "object") {
@@ -62,6 +62,40 @@ const validarActualizarUsuario = (datos, idUsuario) => {
     validarTelefono(telefonoUsuario);
 };
 
+const validarActualizarCorreoUsuario = (datos, idUsuario) => {
+    if (!idUsuario || isNaN(Number(idUsuario))) {
+        throw Object.assign(
+            new Error("Se necesita un ID de usuario válido."),
+            { status: 400 }
+        );
+    }
+
+    if (!datos || typeof datos !== "object") {
+        throw Object.assign(
+            new Error("Se necesita el nuevo correo y la clave."),
+            { status: 400 }
+        );
+    }
+
+    const { nuevoCorreo, clave } = datos;
+
+    if (!nuevoCorreo || typeof nuevoCorreo !== "string" || !nuevoCorreo.trim()) {
+        throw Object.assign(
+            new Error("El nuevo correo es obligatorio y debe ser una cadena de texto."),
+            { status: 400 }
+        );
+    }
+
+    if (!clave || typeof clave !== "string" || !clave.trim()) {
+        throw Object.assign(
+            new Error("La clave es obligatoria y debe ser una cadena de texto."),
+            { status: 400 }
+        );
+    }
+    validarCorreo(nuevoCorreo);
+};
+
 module.exports = {
-    validarActualizarUsuario
+    validarActualizarUsuario,
+    validarActualizarCorreoUsuario
 }

@@ -50,7 +50,63 @@ const actualizarUsuarioModel = async (datos, idUsuario) => {
     }
 };
 
+// Modelo para actualizar correo de usuario
+const actualizarCorreoUsuarioModel = async (idUsuario, nuevoCorreo) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+
+        const [result] = await conexion.query(
+            "CALL actualizarCorreoUsuario(?, ?)",
+            [idUsuario, nuevoCorreo]
+        );
+
+        return result[0][0]?.mensaje;
+    } catch (err) {
+        console.error("Error en actualizarCorreoUsuarioModel:", err.message);
+        throw new Error("Error al actualizar el correo en la base de datos.");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const actualizarClaveUsuarioModel = async (idUsuario, clave) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+
+        const [result] = await conexion.query(
+            "CALL actualizarClaveUsuario(?, ?)",
+            [idUsuario, clave]
+        );
+
+        return result[0][0]?.mensaje || "No se pudo actualizar la contraseña.";
+    } catch (err) {
+        console.error("Error en actualizarClaveUsuarioModel:", err.message);
+        throw new Error("Error al actualizar la contraseña en la base de datos.");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const consultarClaveUsuarioModel = async (idUsuario) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.query("CALL obtenerClaveUsuario(?)", [idUsuario]);
+        return rows[0]; // Devuelve solo la clave
+    } catch (err) {
+        console.error("Error en consultarClaveUsuarioModel: ", err.message);
+        throw new Error("Error al consultar la clave del usuario en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 module.exports = { 
     consultarUsuarioPorIdModel,
-    actualizarUsuarioModel 
+    actualizarUsuarioModel,
+    actualizarCorreoUsuarioModel,
+    actualizarClaveUsuarioModel,
+    consultarClaveUsuarioModel
 }

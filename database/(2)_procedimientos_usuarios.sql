@@ -8,9 +8,11 @@ DROP PROCEDURE IF EXISTS eliminarRol;
 DROP PROCEDURE IF EXISTS listarTipoDocumento;
 DROP PROCEDURE IF EXISTS listarUsuarios;
 DROP PROCEDURE IF EXISTS actualizarUsuario;
-DROP PROCEDURE IF EXISTS actualizarClave;
+DROP PROCEDURE IF EXISTS actualizarClaveUsuario;
+DROP PROCEDURE IF EXISTS actualizarCorreoUsuario;
 DROP PROCEDURE IF EXISTS eliminarUsuario;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioId;
+DROP PROCEDURE IF EXISTS obtenerClaveUsuario;
 
 DELIMITER //
 
@@ -131,26 +133,58 @@ BEGIN
     SELECT 'Usuario actualizado correctamente' AS mensaje;
 END //
 
-CREATE PROCEDURE actualizarClave(
+CREATE PROCEDURE actualizarCorreoUsuario(
     IN p_idUsuario INT,
-    IN p_clave CHAR(60)
+    IN p_correoUsuario VARCHAR(50)
 )
 BEGIN
+    -- 🔹 Manejador de errores SQL
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al actualizar la clave.';
+        SET MESSAGE_TEXT = 'Error al actualizar el correo del usuario.';
     END;
 
     START TRANSACTION;
 
+    -- 🔸 Actualizar solo el correo
+    UPDATE usuarios
+    SET correoUsuario = p_correoUsuario
+    WHERE idUsuario = p_idUsuario;
+
+    COMMIT;
+
+    -- 🔹 Retornar mensaje de éxito
+    SELECT 'Correo actualizado correctamente' AS mensaje;
+END //
+
+CREATE PROCEDURE actualizarClaveUsuario(
+    IN p_idUsuario INT,
+    IN p_clave CHAR(60)
+)
+BEGIN
+    -- 🔹 Manejador de errores SQL
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar la contraseña del usuario.';
+    END;
+
+    START TRANSACTION;
+
+    -- 🔸 Actualizar solo la contraseña
     UPDATE usuarios
     SET clave = p_clave
     WHERE idUsuario = p_idUsuario;
 
     COMMIT;
+
+    -- 🔹 Retornar mensaje de éxito
+    SELECT 'Contraseña actualizada correctamente' AS mensaje;
 END //
+
 
 CREATE PROCEDURE eliminarUsuario(
     IN p_idUsuario INT
@@ -170,6 +204,16 @@ BEGIN
 
     COMMIT;
 END //
+
+CREATE PROCEDURE obtenerClaveUsuario (
+    IN p_idUsuario INT
+)
+BEGIN
+    SELECT clave
+    FROM usuarios
+    WHERE idUsuario = p_idUsuario;
+END //
+
 
 CREATE PROCEDURE seleccionarUsuarioId(
     IN p_idUsuario INT
