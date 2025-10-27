@@ -219,7 +219,7 @@ const Paso1DatosBasicos = () => {
               <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                 {mesasDisponibles.map(mesa => (
                   <div
-                    key={mesa.id}
+                    key={mesa.idMesa}
                     onClick={() => handleSeleccionarMesa(mesa)}
                     className={`p-4 border-2 rounded-xl cursor-pointer transition-all text-center ${
                       datos.mesa === mesa.numero

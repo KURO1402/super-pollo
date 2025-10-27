@@ -103,7 +103,7 @@ const Paso2Productos = () => {
                     <button
                       onClick={() => agregarProducto(producto)}
                       disabled={enCarrito && cantidad >= 10}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                      className={`px-4 py-2 rounded-lg font-semibold transition-colors cursor-pointer ${
                         enCarrito && cantidad >= 10
                           ? "bg-gray-500 text-gray-300 cursor-not-allowed"
                           : enCarrito
@@ -169,7 +169,7 @@ const Paso2Productos = () => {
                           className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
                             producto.cantidad <= 1
                               ? "bg-gray-500 text-gray-400 cursor-not-allowed"
-                              : "bg-gray-500 hover:bg-gray-400 text-white"
+                              : "bg-gray-500 hover:bg-gray-400 text-white cursor-pointer"
                           }`}
                         >
                           <FiMinus className="w-3 h-3" />
@@ -183,7 +183,7 @@ const Paso2Productos = () => {
                           className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
                             producto.cantidad >= 10
                               ? "bg-gray-500 text-gray-400 cursor-not-allowed"
-                              : "bg-gray-500 hover:bg-gray-400 text-white"
+                              : "bg-gray-500 hover:bg-gray-400 text-white cursor-pointer"
                           }`}
                         >
                           <FiPlus className="w-3 h-3" />
@@ -191,7 +191,7 @@ const Paso2Productos = () => {
                       </div>
                       <button
                         onClick={() => quitarProducto(producto.idProducto)}
-                        className="text-red-500 hover:text-red-700 transition-colors p-1"
+                        className="text-red-500 hover:text-red-700 transition-colors p-1 cursor-pointer"
                         title="Eliminar producto"
                       >
                         <FiTrash className="w-4 h-4" />
