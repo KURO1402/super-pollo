@@ -138,8 +138,30 @@ export const obtenerInsumosProductoServicio = async (idProducto) => {
         insumos: []
       };
     }
+    throw error;
+  }
+};
+
+// En productoServicios.js
+export const actualizarImagenProductoServicio = async (idProducto, formData) => {
+  try {
     
-    console.error('Error en obtenerInsumosProductoServicio:', error);
+    // Verificar qué contiene el FormData
+    for (let [key, value] of formData.entries()) {
+      if (key === 'image') {
+        console.log(`${key}:`, value.name, value.type, value.size);
+      }
+    }
+    
+    const respuesta = await API.put(`/productos/actualizar-imagen/${idProducto}`, formData);
+
+    if (respuesta.data && respuesta.data.ok) {
+      return respuesta.data;
+    } else {
+      throw new Error(respuesta.data?.mensaje || "Error al actualizar la imagen");
+    }
+  } catch (error) {
+    console.error('Error en actualizarImagenProductoServicio:', error);
     console.error('Response data:', error.response?.data);
     throw error;
   }

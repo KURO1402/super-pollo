@@ -44,6 +44,7 @@ const navItems = [
     rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN], // Ambos
     subItems: [
       { name: "Gestión Productos", path: "/admin/gestion-productos" },
+      { name: "Gestión Imagenes", path: "/admin/gestion-imagenes" },
     ],
   },
   {

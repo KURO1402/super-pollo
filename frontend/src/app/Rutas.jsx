@@ -30,6 +30,7 @@ import RegistroVentasSeccion from "../modulos/panel-administrador/modulos/ventas
 
 // seccion de productos
 import GestionProductosSeccion from "../modulos/panel-administrador/modulos/productos/secciones/GestionProductosSeccion";
+import GestionImagenesSeccion from "../modulos/panel-administrador/modulos/productos/secciones/GestionImagenesSeccion";
 
 // secciones de stock
 import StockInsumosSeccion from "../modulos/panel-administrador/modulos/stock/secciones/StockInsumosSeccion";
@@ -103,7 +104,9 @@ const AppRutas = () => {
                     { path: 'stock-insumos', element: <StockInsumosSeccion/> },
                     { path: 'historial-entradas', element: <HistorialEntradasSeccion/> },
                     { path: 'historial-salidas', element: <HistorialSalidasSeccion/> },
+                    // Productos - Seuperadmin y Admin
                     { path: 'gestion-productos', element: <GestionProductosSeccion/> },
+                    { path: 'gestion-imagenes', element: <GestionImagenesSeccion/> },
                     // Reservas - SuperAdmin y Admin
                     { path: 'calendario-reservas', element: <CalendarioReservasSeccion/> },
                     { path: 'historial-reservas', element: <HistorialReservasSeccion/> },
