@@ -1,4 +1,9 @@
-const { actualizarUsuarioService, actualizarCorreoUsuarioService, actualizarClaveUsuarioService } = require("./usuarioServicio");
+const { 
+    actualizarUsuarioService, 
+    actualizarCorreoUsuarioService, 
+    actualizarClaveUsuarioService,
+    eliminarUsuarioService 
+} = require("./usuarioServicio");
 
 const actualizarUsuarioController = async (req, res) => {
     try {
@@ -50,8 +55,26 @@ const actualizarClaveUsuarioController = async (req, res) => {
     }
 };
 
+const eliminarUsuarioController = async (req, res) => {
+    try {
+        const { idUsuario } = req.params; // id del usuario en la URL
+        const respuesta = await eliminarUsuarioService(idUsuario);
+
+        return res.status(200).json(respuesta);
+    } catch (err) {
+        console.error("Error en eliminarUsuarioController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+}
+
 module.exports = {
     actualizarUsuarioController,
     actualizarCorreoUsuarioController,
-    actualizarClaveUsuarioController
+    actualizarClaveUsuarioController,
+    eliminarUsuarioController
 }

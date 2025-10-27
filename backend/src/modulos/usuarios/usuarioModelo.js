@@ -4,7 +4,7 @@ const  consultarUsuarioPorIdModel = async (id) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [rows] = await conexion.query("CALL seleccionarUsuarioId(?)", [id]);
+        const [rows] = await conexion.execute("CALL seleccionarUsuarioId(?)", [id]);
         return rows[0];
     } catch (err) {
         console.error("Error en consultarUsuarioPorIdModel: ", err.message);
@@ -28,7 +28,7 @@ const actualizarUsuarioModel = async (datos, idUsuario) => {
             idTipoDocumento
         } = datos;
 
-        const [rows] = await conexion.query(
+        const [rows] = await conexion.execute(
             "CALL actualizarUsuario(?, ?, ?, ?, ?, ?)",
             [
                 idUsuario,
@@ -56,7 +56,7 @@ const actualizarCorreoUsuarioModel = async (idUsuario, nuevoCorreo) => {
     try {
         conexion = await pool.getConnection();
 
-        const [result] = await conexion.query(
+        const [result] = await conexion.execute(
             "CALL actualizarCorreoUsuario(?, ?)",
             [idUsuario, nuevoCorreo]
         );
@@ -75,7 +75,7 @@ const actualizarClaveUsuarioModel = async (idUsuario, clave) => {
     try {
         conexion = await pool.getConnection();
 
-        const [result] = await conexion.query(
+        const [result] = await conexion.execute(
             "CALL actualizarClaveUsuario(?, ?)",
             [idUsuario, clave]
         );
@@ -93,7 +93,7 @@ const consultarClaveUsuarioModel = async (idUsuario) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [rows] = await conexion.query("CALL obtenerClaveUsuario(?)", [idUsuario]);
+        const [rows] = await conexion.execute("CALL obtenerClaveUsuario(?)", [idUsuario]);
         return rows[0]; // Devuelve solo la clave
     } catch (err) {
         console.error("Error en consultarClaveUsuarioModel: ", err.message);
@@ -103,10 +103,43 @@ const consultarClaveUsuarioModel = async (idUsuario) => {
     }
 };
 
+//Modelo para eliminar un usuario
+const eliminarUsuarioModel = async (idUsuario, estado) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL actualizarEstadoUsuario(?, ?)", [idUsuario, estado]);
+
+        return result[0][0]?.mensaje;
+        
+    } catch (error) {
+        
+    } finally {
+        if (conexion) conexion.release
+    }
+};
+
+const recuperarUsuarioModel = async (idUsuario, estado) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL actualizarEstadoUsuario(?, ?)", [idUsuario, estado]);
+
+        return result[0][0]?.mensaje;
+        
+    } catch (error) {
+        
+    } finally {
+        if (conexion) conexion.release
+    }
+}
+
 module.exports = { 
     consultarUsuarioPorIdModel,
     actualizarUsuarioModel,
     actualizarCorreoUsuarioModel,
     actualizarClaveUsuarioModel,
-    consultarClaveUsuarioModel
+    consultarClaveUsuarioModel,
+    eliminarUsuarioModel,
+    recuperarUsuarioModel
 }

@@ -7,7 +7,8 @@ const {
     actualizarUsuarioModel,
     actualizarCorreoUsuarioModel,
     actualizarClaveUsuarioModel,
-    consultarClaveUsuarioModel
+    consultarClaveUsuarioModel,
+    eliminarUsuarioModel
 } = require("./usuarioModelo")
 
 const { validarActualizarUsuario, validarActualizarCorreoUsuario } = require("./usuarioValidaciones")
@@ -146,8 +147,36 @@ const actualizarClaveUsuarioService = async (datos, idUsuario) => {
     };
 };
 
+const eliminarUsuarioService = async (idUsuario) => {
+    if (!idUsuario || isNaN(Number(idUsuario))) {
+        throw Object.assign(
+            new Error("Se necesita un ID de usuario válido."),
+            { status: 400 }
+        );
+    }
+
+    const idUsuarioNumerico = Number(idUsuario);
+
+    const usuario = await consultarUsuarioPorIdModel(idUsuarioNumerico);
+
+    if (usuario.length === 0) {
+        throw Object.assign(
+            new Error("El usuario especificado no existe"),
+            { status: 404 }
+        );
+    }
+
+    const respuesta = await eliminarUsuarioModel(idUsuarioNumerico, 0);
+    console.log(respuesta);
+    return {
+        ok: true,
+        mensaje: respuesta
+    }
+}
+
 module.exports = {
     actualizarUsuarioService,
     actualizarCorreoUsuarioService,
-    actualizarClaveUsuarioService
+    actualizarClaveUsuarioService,
+    eliminarUsuarioService
 }

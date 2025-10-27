@@ -10,7 +10,7 @@ DROP PROCEDURE IF EXISTS listarUsuarios;
 DROP PROCEDURE IF EXISTS actualizarUsuario;
 DROP PROCEDURE IF EXISTS actualizarClaveUsuario;
 DROP PROCEDURE IF EXISTS actualizarCorreoUsuario;
-DROP PROCEDURE IF EXISTS eliminarUsuario;
+DROP PROCEDURE IF EXISTS actualizarEstadoUsuario;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioId;
 DROP PROCEDURE IF EXISTS obtenerClaveUsuario;
 
@@ -185,24 +185,39 @@ BEGIN
     SELECT 'Contraseña actualizada correctamente' AS mensaje;
 END //
 
-
-CREATE PROCEDURE eliminarUsuario(
-    IN p_idUsuario INT
+CREATE PROCEDURE actualizarEstadoUsuario(
+    IN p_idUsuario INT,
+    IN p_nuevoEstado TINYINT(1)
 )
 BEGIN
+    DECLARE v_mensaje VARCHAR(100);
+
+    -- Manejador de errores: si ocurre un error SQL, revierte la transacción
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al eliminar el usuario.';
+        SET MESSAGE_TEXT = 'Error al actualizar el estado del usuario.';
     END;
 
     START TRANSACTION;
 
-    DELETE FROM usuarios
+    -- Actualizar el estado del usuario
+    UPDATE usuarios
+    SET estadoUsuario = p_nuevoEstado
     WHERE idUsuario = p_idUsuario;
 
+    -- Definir mensaje según el nuevo estado
+    IF p_nuevoEstado = 0 THEN
+        SET v_mensaje = 'Usuario eliminado correctamente.';
+    ELSEIF p_nuevoEstado = 1 THEN
+        SET v_mensaje = 'Usuario recuperado correctamente.';
+    ELSE
+        SET v_mensaje = 'Estado del usuario actualizado correctamente.';
+    END IF;
+
     COMMIT;
+    SELECT v_mensaje AS mensaje;
 END //
 
 CREATE PROCEDURE obtenerClaveUsuario (
