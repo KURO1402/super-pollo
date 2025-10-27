@@ -1,19 +1,25 @@
-// importamos librerias externas
-import { useForm } from "react-hook-form";
-import { FiPlus, FiMinus, FiFilter,FiDollarSign,FiTrendingUp,FiTrendingDown,FiClock,FiCheckCircle,FiXCircle,FiLock} from "react-icons/fi";
-// hooks de react
-import { useState } from "react";
-// componentes reutilizables que creamos
-import { Tabla } from "../../../componentes/tabla/Tabla";
-import Modal from "../../../componentes/modal/Modal";
-import { Paginacion } from "../../../componentes/tabla/Paginacion";
-// custom hooks que creamos
-import { useModal } from "../../../hooks/useModal";
+import { useState, useEffect } from "react";
 import { usePaginacion } from "../../../hooks/usePaginacion";
-// los componentes propios de este módulo 
-import FilaMovimientos from "../componentes/FilaMovimientos";
-import { abrirCajaServicio, cerrarCajaServicio } from "../servicios/gestionCajaServicio";
+import { useModal } from "../../../hooks/useModal";
 import { useAutenticacionGlobal } from "../../../../../app/estado-global/autenticacionGlobal";
+
+// Componentes modulares
+import ResumenCaja from "../componentes/ResumenCaja";
+import AccionesCaja from "../componentes/AccionesCaja";
+import TablaMovimientos from "../componentes/TablaMovimientos";
+import ModalAbrirCaja from "../componentes/ModalAbrirCaja";
+import ModalIngreso from "../componentes/ModalIngreso";
+import ModalEgreso from "../componentes/ModalEgreso";
+import ModalArqueo from "../componentes/ModalArqueo";
+
+// Servicios
+import { 
+  abrirCajaServicio, 
+  cerrarCajaServicio,
+  registrarIngresoServicio,
+  registrarEgresoServicio,
+  registrarArqueoServicio
+} from "../servicios/gestionCajaServicio";
 
 const CajaActualSeccion = () => {
   const { accessToken } = useAutenticacionGlobal();
@@ -23,76 +29,17 @@ const CajaActualSeccion = () => {
     saldoActual: 0,
     ingresos: "-",
     egresos: "-",
-    movimientos: [
-      {
-        id: 1,
-        tipo: "ingreso",
-        monto: 250.00,
-        descripcion: "Venta contado - Mesa living",
-        fecha: "2024-01-15T10:30:00",
-        usuario: "María González"
-      },
-      {
-        id: 2,
-        tipo: "egreso",
-        monto: 120.50,
-        descripcion: "Compra materiales",
-        fecha: "2024-01-15T11:15:00",
-        usuario: "Carlos López"
-      },
-      {
-        id: 3,
-        tipo: "ingreso",
-        monto: 600.75,
-        descripcion: "Pago cliente corporativo",
-        fecha: "2024-01-15T14:20:00",
-        usuario: "Ana Martínez"
-      },
-      {
-        id: 4,
-        tipo: "egreso",
-        monto: 199.75,
-        descripcion: "Pago servicios",
-        fecha: "2024-01-15T16:45:00",
-        usuario: "Pedro Sánchez"
-      },
-      {
-        id: 5,
-        tipo: "ingreso",
-        monto: 350.00,
-        descripcion: "Venta mostrador",
-        fecha: "2024-01-15T17:30:00",
-        usuario: "Laura Ramírez"
-      }
-    ]
+    movimientos: []
   });
 
-  const { paginaActual, setPaginaActual, paginar } = usePaginacion(5); // para el hook de paginación
-  // para poder utilizar el modal de registrar un nuevo ingreso
-  const { 
-    estaAbierto: modalIngresoAbierto, 
-    abrir: abrirIngreso, 
-    cerrar: cerrarIngreso 
-  } = useModal();
-  // lo mismo para los egresos
-  const { 
-    estaAbierto: modalEgresoAbierto, 
-    abrir: abrirEgreso, 
-    cerrar: cerrarEgreso 
-  } = useModal();
-  // para poder utilizar el modal de registrar un nuevo ingreso
-  const { 
-    estaAbierto: modalAbrirNuevaCaja, 
-    abrir: abrirNuevaCaja, 
-    cerrar: cerrarNuevaCaja
-  } = useModal();
-  
-  // utilizar react-hook-form con las funciones que hicimos para simplificar y llevar un mejor control de ambos formularios
-  const { register: registerIngreso, handleSubmit: handleSubmitIngreso, reset: resetIngreso } = useForm();
-  const { register: registerEgreso, handleSubmit: handleSubmitEgreso, reset: resetEgreso } = useForm();
-  const { register: registerNuevaCaja, handleSubmit: handleSubmitNuevaCaja, reset: resetNuevaCaja } = useForm();
+  // Hooks
+  const { paginaActual, setPaginaActual, paginar } = usePaginacion(5);
+  const modalAbrirCaja = useModal();
+  const modalIngreso = useModal();
+  const modalEgreso = useModal();
+  const modalArqueo = useModal();
 
-  // Función para formatear moneda
+  // Funciones de utilidad
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-PE', {
       style: 'currency',
@@ -100,443 +47,108 @@ const CajaActualSeccion = () => {
     }).format(amount);
   };
 
-  // Paginar movimientos
+  // Funciones principales
+  const handleAbrirCaja = async (data) => {
+    try {
+      await abrirCajaServicio({ montoInicial: Number(data.montoInicial) }, accessToken);
+      setCaja(prev => ({ ...prev, estado: "abierta", saldoInicial: Number(data.montoInicial) }));
+      modalAbrirCaja.cerrar();
+    } catch (error) {
+      console.error("Error al abrir caja:", error);
+    }
+  };
+
+  const handleCerrarCaja = async () => {
+    try {
+      await cerrarCajaServicio(accessToken);
+      setCaja(prev => ({ ...prev, estado: "cerrada" }));
+    } catch (error) {
+      console.error("Error al cerrar caja:", error);
+    }
+  };
+
+  const handleRegistrarIngreso = async (data) => {
+    try {
+      await registrarIngresoServicio(data, accessToken);
+      // Actualizar estado local o recargar datos
+      modalIngreso.cerrar();
+    } catch (error) {
+      console.error("Error al registrar ingreso:", error);
+    }
+  };
+
+  const handleRegistrarEgreso = async (data) => {
+    try {
+      await registrarEgresoServicio(data, accessToken);
+      // Actualizar estado local o recargar datos
+      modalEgreso.cerrar();
+    } catch (error) {
+      console.error("Error al registrar egreso:", error);
+    }
+  };
+
+  const handleRegistrarArqueo = async (data) => {
+    try {
+      await registrarArqueoServicio(data, accessToken);
+      modalArqueo.cerrar();
+    } catch (error) {
+      console.error("Error al registrar arqueo:", error);
+    }
+  };
+
+  // Paginación
   const { datosPaginados: movimientosPaginados, totalPaginas } = paginar(caja.movimientos);
-
-  // Encabezados para la tabla
-  const encabezados = ["Tipo", "Descripción", "Monto", "Fecha", "Usuario"];
-
-  // Renderizar filas de movimientos
-  const registros = movimientosPaginados.map((movimiento) => (
-    <FilaMovimientos 
-      key={movimiento.id}
-      movimiento={movimiento} 
-      formatCurrency={formatCurrency}
-    />
-  ));
-
-  const onSubmitIngreso = (data) => {
-    const nuevoMovimiento = {
-      id: Date.now(),
-      tipo: "ingreso",
-      monto: parseFloat(data.monto),
-      descripcion: data.descripcion,
-      fecha: new Date().toISOString(),
-      usuario: "Usuario Actual"
-    };
-
-    setCaja(prev => ({
-      ...prev,
-      ingresos: prev.ingresos + nuevoMovimiento.monto,
-      movimientos: [nuevoMovimiento, ...prev.movimientos]
-    }));
-
-    resetIngreso();
-    cerrarIngreso();
-    setPaginaActual(1); // Volver a la primera página al agregar nuevo movimiento
-  };
-
-  const onSubmitEgreso = (data) => {
-    const nuevoMovimiento = {
-      id: Date.now(),
-      tipo: "egreso",
-      monto: parseFloat(data.monto),
-      descripcion: data.descripcion,
-      fecha: new Date().toISOString(),
-      usuario: "Usuario Actual"
-    };
-
-    setCaja(prev => ({
-      ...prev,
-      egresos: prev.egresos + nuevoMovimiento.monto,
-      movimientos: [nuevoMovimiento, ...prev.movimientos]
-    }));
-
-    resetEgreso();
-    cerrarEgreso();
-    setPaginaActual(1); // Volver a la primera página al agregar nuevo movimiento
-  };
-
-  // funcion para abrir una caja llamando al backend
-  const onSubmitNuevaCaja = async(data) => {
-    try {
-      const datos = {
-        montoInicial : Number(data.monto)
-      };
-      await abrirCajaServicio(datos, accessToken); // esperamos que la llamada a la API de acomplete
-      registerNuevaCaja();
-      resetNuevaCaja();
-      handleAbrirCaja(); // cambiar el estado de la la caja
-      cerrarNuevaCaja(); // cerramos el modal 
-    } catch (error) {
-      console.error("Error al abrir la caja:", error); 
-    }
-  };
-  
-  const onSubmitCerrarCaja = async() =>{
-    try {
-      await cerrarCajaServicio(accessToken); // esperamos que se complete
-      handleCerrarCaja(); // solo se ejecuta si no hay error
-    } catch (error) {
-      console.error("Error al cerrar la caja: ", error.message); // monstrar el error 
-    }
-  }
-
-  const handleAbrirCaja = () => {
-    setCaja(prev => ({
-      ...prev,
-      estado: "abierta" 
-    }))
-  };
-
-  const handleCerrarCaja = () => {
-    setCaja(prev => ({
-      ...prev,
-      estado: "cerrada"
-    }));
-  };
 
   return (
     <div className="w-full mx-auto p-2 space-y-6">
-      {/* Cabecera de Resumen */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Caja Actual
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">
-              Control y gestión de movimientos financieros
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-              caja.estado === "abierta" 
-                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
-                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-            }`}>
-              {caja.estado === "abierta" ? (
-                <FiCheckCircle className="w-5 h-5" />
-              ) : (
-                <FiXCircle className="w-5 h-5" />
-              )}
-              <span className="font-medium capitalize">{caja.estado}</span>
-            </div>
+      {/* Componentes modulares */}
+      <ResumenCaja
+        caja={caja}
+        formatCurrency={formatCurrency}
+        onAbrirCaja={modalAbrirCaja.abrir}
+        onCerrarCaja={handleCerrarCaja}
+      />
 
-            {caja.estado === "abierta" ? (
-              <button
-                type="onsubmit"
-                onClick={onSubmitCerrarCaja}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 shadow-sm cursor-pointer"
-              >
-                <FiLock className="w-4 h-4" />
-                Cerrar Caja
-              </button>
-            ) : (
-              <button
-                onClick={abrirNuevaCaja}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm cursor-pointer"
-              >
-                <FiLock className="w-4 h-4" />
-                Abrir Caja
-              </button>
-            )}
-          </div>
-        </div>
+      <AccionesCaja
+        cajaAbierta={caja.estado === "abierta"}
+        onIngreso={modalIngreso.abrir}
+        onEgreso={modalEgreso.abrir}
+        onArqueo={modalArqueo.abrir}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Saldo Inicial */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <FiDollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Saldo Inicial</p>
-                <p className="text-xl font-bold text-gray-900 dark:text-white">
-                  {(caja.saldoInicial)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Ingresos */}
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                <FiTrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Total Ingresos</p>
-                <p className="text-xl font-bold text-green-700 dark:text-green-400">
-                  {(caja.ingresos)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Egresos */}
-          <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
-                <FiTrendingDown className="w-6 h-6 text-red-600 dark:text-red-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Total Egresos</p>
-                <p className="text-xl font-bold text-red-700 dark:text-red-400">
-                  {(caja.egresos)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Saldo Actual */}
-          <div className={`rounded-lg p-4 ${
-            caja.saldoActual >= 0 
-              ? "bg-emerald-50 dark:bg-emerald-900/20" 
-              : "bg-red-50 dark:bg-red-900/20"
-          }`}>
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                caja.saldoActual >= 0 
-                  ? "bg-emerald-100 dark:bg-emerald-900/30" 
-                  : "bg-red-100 dark:bg-red-900/30"
-              }`}>
-                <FiDollarSign className={`w-6 h-6 ${
-                  caja.saldoActual >= 0 
-                    ? "text-emerald-600 dark:text-emerald-400" 
-                    : "text-red-600 dark:text-red-400"
-                }`} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Saldo Actual</p>
-                <p className={`text-xl font-bold ${
-                  caja.saldoActual >= 0 
-                    ? "text-emerald-700 dark:text-emerald-400" 
-                    : "text-red-700 dark:text-red-400"
-                }`}>
-                  {formatCurrency(caja.saldoActual)}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Solo Botones de Acción (sin filtros) */}
-      <div className="flex justify-end">
-        <div className="flex gap-3">
-          <button
-            onClick={abrirIngreso}
-            disabled={caja.estado === "cerrada"}
-            className="flex items-center gap-2 px-4 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
-          >
-            <FiPlus className="w-4 h-4" />
-            Registrar Ingreso
-          </button>
-          <button
-            onClick={abrirEgreso}
-            disabled={caja.estado === "cerrada"}
-            className="flex items-center gap-2 px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
-          >
-            <FiMinus className="w-4 h-4" />
-            Registrar Egreso
-          </button>
-        </div>
-      </div>
-
-      {/* Tabla de Movimientos con Componente Reutilizable */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2">
-            <FiClock className="w-5 h-5 text-gray-400" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Movimientos Recientes
-            </h2>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              ({caja.movimientos.length} movimientos)
-            </span>
-          </div>
-        </div>
-        {caja.movimientos.length > 0 ? (
-          <>
-            <Tabla
-              encabezados={encabezados}
-              registros={registros}
-            />
-            {totalPaginas > 1 && (
-              <Paginacion
-                paginaActual={paginaActual}
-                totalPaginas={totalPaginas}
-                alCambiarPagina={setPaginaActual}
-              />
-            )}
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <FiFilter className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400">No se encontraron movimientos</p>
-          </div>
-        )}
-      </div>
+      <TablaMovimientos
+        movimientos={movimientosPaginados}
+        formatCurrency={formatCurrency}
+        paginaActual={paginaActual}
+        totalPaginas={totalPaginas}
+        onCambiarPagina={setPaginaActual}
+      />
 
       {/* Modales */}
-      <Modal
-        estaAbierto={modalIngresoAbierto}
-        onCerrar={cerrarIngreso}
-        titulo="Registrar Ingreso"
-        tamaño="md"
-        mostrarHeader
-        mostrarFooter={false}
-      >
-        <form onSubmit={handleSubmitIngreso(onSubmitIngreso)} className="p-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Monto *
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                {...registerIngreso("monto", { 
-                  required: "El monto es requerido",
-                  min: { value: 0.01, message: "El monto debe ser mayor a 0" }
-                })}
-                className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors duration-200"
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Descripción *
-              </label>
-              <textarea
-                {...registerIngreso("descripcion", { required: "La descripción es requerida" })}
-                rows={3}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors duration-200"
-                placeholder="Describe el origen de este ingreso..."
-              />
-            </div>
-          </div>
+      <ModalAbrirCaja
+        estaAbierto={modalAbrirCaja.estaAbierto}
+        onCerrar={modalAbrirCaja.cerrar}
+        onAbrirCaja={handleAbrirCaja}
+      />
 
-          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={cerrarIngreso}
-              className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2.5 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors duration-200"
-            >
-              Registrar Ingreso
-            </button>
-          </div>
-        </form>
-      </Modal>
+      <ModalIngreso
+        estaAbierto={modalIngreso.estaAbierto}
+        onCerrar={modalIngreso.cerrar}
+        onRegistrarIngreso={handleRegistrarIngreso}
+      />
 
-      <Modal
-        estaAbierto={modalEgresoAbierto}
-        onCerrar={cerrarEgreso}
-        titulo="Registrar Egreso"
-        tamaño="md"
-        mostrarHeader
-        mostrarFooter={false}
-      >
-        <form onSubmit={handleSubmitEgreso(onSubmitEgreso)} className="p-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Monto *
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                {...registerEgreso("monto", { 
-                  required: "El monto es requerido",
-                  min: { value: 0.01, message: "El monto debe ser mayor a 0" }
-                })}
-                className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200"
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Descripción *
-              </label>
-              <textarea
-                {...registerEgreso("descripcion", { required: "La descripción es requerida" })}
-                rows={3}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200"
-                placeholder="Describe el destino de este egreso..."
-              />
-            </div>
-          </div>
+      <ModalEgreso
+        estaAbierto={modalEgreso.estaAbierto}
+        onCerrar={modalEgreso.cerrar}
+        onRegistrarEgreso={handleRegistrarEgreso}
+      />
 
-          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={cerrarEgreso}
-              className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-200"
-            >
-              Registrar Egreso
-            </button>
-          </div>
-        </form>
-      </Modal>
-      <Modal
-        estaAbierto={modalAbrirNuevaCaja}
-        onCerrar={cerrarNuevaCaja}
-        titulo="Abrir Nueva Caja"
-        tamaño="md"
-        mostrarHeader
-        mostrarFooter={false}
-      >
-        <form onSubmit={handleSubmitNuevaCaja(onSubmitNuevaCaja)} className="p-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Saldo Inicial
-              </label>
-              <input
-                type="number"
-                {...registerNuevaCaja("monto", { 
-                  required: "El monto es requerido",
-                  min: { value: 0.01, message: "El monto debe ser mayor a 0" }
-                })}
-                className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={cerrarEgreso}
-              className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-200"
-            >
-              Abrir Caja
-            </button>
-          </div>
-        </form>
-      </Modal>
-      
+      <ModalArqueo
+        estaAbierto={modalArqueo.estaAbierto}
+        onCerrar={modalArqueo.cerrar}
+        onRegistrarArqueo={handleRegistrarArqueo}
+        saldoActual={caja.saldoActual}
+      />
     </div>
   );
 };
