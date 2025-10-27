@@ -30,6 +30,8 @@ BEGIN
         p_fechaReservacion, p_horaReservacion, p_cantidadPersonas,
         'pendiente', NOW(), p_idUsuario, p_idMesa
     );
+    -- Devolvemos el ID recién generado
+    SELECT LAST_INSERT_ID() AS idReservacion;
 END //
 
 /* PROCEDIMIENTO ALMACENADO listarReservaciones (20 en 20) */

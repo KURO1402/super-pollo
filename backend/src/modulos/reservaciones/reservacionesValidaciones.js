@@ -16,7 +16,7 @@ const validarDatosReservacion = async (datos) => {
     throw Object.assign(new Error("Cantidad de personas inválida"), { status: 400 });
   }
 
-  // ✅ Límite máximo de personas
+  // Límite máximo de personas
   if (cantidadPersonas > 10) {
     throw Object.assign(new Error("No se permiten más de 10 personas por reservación"), { status: 400 });
   }
@@ -46,17 +46,17 @@ const validarDatosReservacion = async (datos) => {
   const unaHoraDespues = new Date(ahora.getTime() + 60 * 60 * 1000); // +1 hora
   const max7Dias = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 días
 
-  // ✅ Debe reservar con al menos 1 hora de anticipación
+  // Debe reservar con al menos 1 hora de anticipación
   if (fechaHoraISO < unaHoraDespues) {
     throw Object.assign(new Error("Debe reservar con al menos 1 hora de anticipación"), { status: 400 });
   }
 
-  // ✅ No puede reservar más de 7 días adelante
+  // No puede reservar más de 7 días adelante
   if (fechaHoraISO > max7Dias) {
     throw Object.assign(new Error("No puede reservar con más de 7 días de anticipación"), { status: 400 });
   }
 
-  // ✅ Horario permitido: 11:00 a 22:00
+  // Horario permitido: 11:00 a 22:00
   const hora = fechaHoraISO.getHours();
   if (hora < 11 || hora >= 22) {
     throw Object.assign(new Error("Solo se pueden hacer reservaciones entre las 11:00 y 22:00"), { status: 400 });
@@ -82,12 +82,8 @@ const validarDetalleReservacion = async (detalle) => {
   for (const d of detalles) {
     const { cantidadProductoReservacion, precioUnitario, idReservacion, idProducto } = d;
 
-    if (!idReservacion || !idProducto || cantidadProductoReservacion == null || precioUnitario == null) {
+    if (!idProducto || cantidadProductoReservacion == null || precioUnitario == null) {
       throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
-    }
-
-    if (typeof idReservacion !== "number" || idReservacion <= 0) {
-      throw Object.assign(new Error("idReservacion inválido"), { status: 400 });
     }
 
     if (typeof idProducto !== "number" || idProducto <= 0) {
@@ -98,7 +94,7 @@ const validarDetalleReservacion = async (detalle) => {
       throw Object.assign(new Error("La cantidad del producto debe ser un número mayor a 0"), { status: 400 });
     }
 
-    // ✅ Límite máximo por producto (10)
+    // Límite máximo por producto (10)
     if (cantidadProductoReservacion > 10) {
       throw Object.assign(new Error("No puede ordenar más de 10 unidades de un mismo producto"), { status: 400 });
     }

@@ -1,131 +1,138 @@
-// importamos la conexion a la base de datos
+// importamos la conexión a la base de datos
 const pool = require("../../config/conexionDB.js");
 
-// modelo para insertar una reservacion
-const insertarReservacionModel = async (datos) => {
-    // desectructuramos el objeto (datos)
-    const { fechaReservacion, horaReservacion, cantidadPersonas, idUsuario, idMesa } = datos;
-    let conexion; // declaramos la variable conexion
-    try {  
-      conexion = await pool.getConnection(); // pedimos una conexion del pool
-      await conexion.beginTransaction(); // iniciamos una transaccion 
-      // ejecutamos el llamado al procedimiento almacenado
-      await conexion.execute("CALL insertarReservacion(?, ?, ?, ?, ?)", [
-        fechaReservacion, horaReservacion, cantidadPersonas, idUsuario, idMesa  
+// MODELO: registrar reservación completa (reservación + detalles + actualización de mesa)
+const registrarReservacionModel = async (datos) => {
+  const { fechaReservacion, horaReservacion, cantidadPersonas, idUsuario, idMesa, detalles } = datos;
+  let conexion;
+
+  try {
+    conexion = await pool.getConnection();
+    await conexion.beginTransaction();
+
+    // Insertar la reservación
+    const [resultado] = await conexion.query("CALL insertarReservacion(?, ?, ?, ?, ?)", [
+      fechaReservacion,
+      horaReservacion,
+      cantidadPersonas,
+      idUsuario,
+      idMesa,
+    ]);
+
+    // Obtenemos el id de la reservación recién creada
+    const idReservacion = resultado[0][0].idReservacion;
+
+    // Insertar los detalles de la reservación
+    for (const detalle of detalles) {
+      const { cantidadProductoReservacion, precioUnitario, idProducto } = detalle;
+      await conexion.query("CALL insertarDetalleReservacion(?, ?, ?, ?)", [
+        cantidadProductoReservacion,
+        precioUnitario,
+        idReservacion,
+        idProducto,
       ]);
-      // actualizamos el estado de la mesa a 'reservada'
-      await conexion.query("UPDATE mesas SET estadoMesa = 'reservada' WHERE idMesa = ?", [idMesa]);
-      // confirmamos que la transaccion fue exitosa
-      await conexion.commit();
-      return { mensaje: "Reservación registrada exitosamente" };
-    } catch (err) { // capturar cualquier error del try
-      // si ya se habia abierto la conexion, deshacemos la transaccion
-      if (conexion) await conexion.rollback(); 
-      // mostramos el error en la consola
-      console.error("Error en insertarReservacionModel:", err.message);
-      // enviamos el error personalizado al controlador
-      throw new Error("Error al registrar reservacion");
-      // liberamos la conexion
-    } finally {
-      if (conexion) conexion.release();
     }
+
+    // Actualizar el estado de la mesa a "reservada"
+    await conexion.query("UPDATE mesas SET estadoMesa = 'reservada' WHERE idMesa = ?", [idMesa]);
+
+    // Confirmar la transacción
+    await conexion.commit();
+
+    return { mensaje: "Reservación registrada exitosamente", idReservacion };
+
+  } catch (err) {
+    if (conexion) await conexion.rollback();
+    console.error("Error en registrarReservacionModel:", err.message);
+    throw new Error("Error al registrar la reservación");
+  } finally {
+    if (conexion) conexion.release();
+  }
 };
 
-// modelo para listar reservaciones por pagina
+// modelo para listar reservaciones por página
 const listarReservacionesModel = async (pagina) => {
-    let conexion; // declaramos la variable conexion
-    try { 
-      conexion = await pool.getConnection(); // pedimos una conexion del pool
-      // ejecutamos el llamado al procedimiento almacenado y obtenemos los resultados
-      const [result] = await conexion.query("CALL listarReservaciones(?)", [pagina]);
-      return result[0]; // retornamos el primer nivel de resultados
-    } catch (err) { // capturar cualquier error del try
-      // mostramos el error en la consola
-      console.error("Error en listarReservacionesModel:", err.message);
-      // enviamos el error personalizado al controlador
-      throw new Error("Error al listar reservaciones");
-      // liberamos la conexion
-    } finally {
-      if (conexion) conexion.release();
-    }
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.query("CALL listarReservaciones(?)", [pagina]);
+    return result[0];
+  } catch (err) {
+    console.error("Error en listarReservacionesModel:", err.message);
+    throw new Error("Error al listar reservaciones");
+  } finally {
+    if (conexion) conexion.release();
+  }
 };
 
 // modelo para obtener una reservacion por id
 const obtenerReservacionModel = async (idReservacion) => {
-    let conexion; // declaramos la variable conexion
-    try {
-      conexion = await pool.getConnection(); // pedimos una conexion del pool
-      // ejecutamos el llamado al procedimiento almacenado y obtenemos los resultados
-      const [result] = await conexion.query("CALL obtenerReservacion(?)", [idReservacion]);
-      return result[0]; // retornamos el primer nivel de resultados
-    } catch (err) { // capturar cualquier error del try
-      // mostramos el error en la consola
-      console.error("Error en obtenerReservacionModel:", err.message);
-      // enviamos el error personalizado al controlador
-      throw new Error("Error al obtener reservacion");
-      // liberamos la conexion
-    } finally {
-      if (conexion) conexion.release();
-    }
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.query("CALL obtenerReservacion(?)", [idReservacion]);
+    return result[0];
+  } catch (err) {
+    console.error("Error en obtenerReservacionModel:", err.message);
+    throw new Error("Error al obtener reservacion");
+  } finally {
+    if (conexion) conexion.release();
+  }
 };
 
 // modelo para actualizar una reservacion
 const actualizarReservacionModel = async (datos) => {
-    // desectructuramos el objeto (datos)
-    const { idReservacion, fechaReservacion, horaReservacion, cantidadPersonas, estadoReservacion, idMesa } = datos;
-    let conexion; // declaramos la variable conexion
-    try { 
-      conexion = await pool.getConnection(); // pedimos una conexion del pool
-      await conexion.beginTransaction(); // iniciamos una transaccion 
-      // ejecutamos el llamado al procedimiento almacenado
-      await conexion.execute("CALL actualizarReservacion(?, ?, ?, ?, ?, ?)", [
-        idReservacion, fechaReservacion, horaReservacion, cantidadPersonas, estadoReservacion, idMesa  
-      ]);
-      // confirmamos que la transaccion fue exitosa
-      await conexion.commit();
-      return { mensaje: "Reservación actualizada exitosamente" };
-    } catch (err) { // capturar cualquier error del try
-      // si ya se habia abierto la conexion, deshacemos la transaccion
-      if (conexion) await conexion.rollback(); 
-      // mostramos el error en la consola
-      console.error("Error en actualizarReservacionModel:", err.message);
-      // enviamos el error personalizado al controlador
-      throw new Error("Error al actualizar reservación");
-      // liberamos la conexion
-    } finally {
-      if (conexion) conexion.release();
-    }
+  const { idReservacion, fechaReservacion, horaReservacion, cantidadPersonas, estadoReservacion, idMesa } = datos;
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    await conexion.beginTransaction();
+    await conexion.execute("CALL actualizarReservacion(?, ?, ?, ?, ?, ?)", [
+      idReservacion,
+      fechaReservacion,
+      horaReservacion,
+      cantidadPersonas,
+      estadoReservacion,
+      idMesa,
+    ]);
+    await conexion.commit();
+    return { mensaje: "Reservación actualizada exitosamente" };
+  } catch (err) {
+    if (conexion) await conexion.rollback();
+    console.error("Error en actualizarReservacionModel:", err.message);
+    throw new Error("Error al actualizar reservación");
+  } finally {
+    if (conexion) conexion.release();
+  }
 };
 
 // modelo para insertar pago
 const insertarPagoModel = async (datos) => {
-    // desectructuramos el objeto (datos)
-    const { montoTotal, montoPagado, porcentajePago, idTransaccion, estadoPago, idReservacion } = datos;
-    let conexion; // declaramos la variable conexion
-    try { 
-      conexion = await pool.getConnection(); // pedimos una conexion del pool
-      await conexion.beginTransaction(); // iniciamos una transaccion 
-      // ejecutamos el llamado al procedimiento almacenado
-      await conexion.execute("CALL insertarPago(?, ?, ?, ?, ?, ?)", [
-        montoTotal, montoPagado, porcentajePago, idTransaccion, estadoPago, idReservacion  
-      ]);
-      // confirmamos que la transaccion fue exitosa
-      await conexion.commit();
-      return { mensaje: "Pago registrado exitosamente" };
-    } catch (err) { // capturar cualquier error del try
-      // si ya se habia abierto la conexion, deshacemos la transaccion
-      if (conexion) await conexion.rollback(); 
-      // mostramos el error en la consola
-      console.error("Error en insertarPagoModel:", err.message);
-      // enviamos el error personalizado al controlador
-      throw new Error("Error al registrar pago");
-      // liberamos la conexion
-    } finally {
-      if (conexion) conexion.release();
-    }
+  const { montoTotal, montoPagado, porcentajePago, idTransaccion, estadoPago, idReservacion } = datos;
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    await conexion.beginTransaction();
+    await conexion.execute("CALL insertarPago(?, ?, ?, ?, ?, ?)", [
+      montoTotal,
+      montoPagado,
+      porcentajePago,
+      idTransaccion,
+      estadoPago,
+      idReservacion,
+    ]);
+    await conexion.commit();
+    return { mensaje: "Pago registrado exitosamente" };
+  } catch (err) {
+    if (conexion) await conexion.rollback();
+    console.error("Error en insertarPagoModel:", err.message);
+    throw new Error("Error al registrar pago");
+  } finally {
+    if (conexion) conexion.release();
+  }
 };
 
-// modelo para actualizar estado del pago (por idTransaccion)
+// modelo para actualizar estado del pago
 const actualizarPagoModel = async (datos) => {
   const { idTransaccion, estadoPago } = datos;
   let conexion;
@@ -146,68 +153,32 @@ const actualizarPagoModel = async (datos) => {
 
 // modelo para obtener pago por id de reservacion
 const obtenerPagoModel = async (idReservacion) => {
-    let conexion; // declaramos la variable conexion
-    try { 
-      conexion = await pool.getConnection(); // pedimos una conexion del pool
-      // ejecutamos el llamado al procedimiento almacenado y obtenemos los resultados
-      const [result] = await conexion.query("CALL obtenerPago(?)", [idReservacion]);
-      return result[0]; // retornamos el primer nivel de resultados
-    } catch (err) { // capturar cualquier error del try
-      // mostramos el error en la consola
-      console.error("Error en obtenerPagoModel:", err.message);
-      // enviamos el error personalizado al controlador
-      throw new Error("Error al obtener pago");
-      // liberamos la conexion
-    } finally {
-      if (conexion) conexion.release();
-    }
-};
-
-// modelo para insertar un detalle de reservacion
-const insertarDetalleReservacionModel = async (datos) => {
-    // desectructuramos el objeto (datos)
-    const { cantidadProductoReservacion, precioUnitario, idReservacion, idProducto } = datos;
-    let conexion; // declaramos la variable conexion
-    try { 
-      conexion = await pool.getConnection(); // pedimos una conexion del pool
-      await conexion.beginTransaction(); // iniciamos una transaccion 
-      // ejecutamos el llamado al procedimiento almacenado
-      await conexion.execute("CALL insertarDetalleReservacion(?, ?, ?, ?)", [
-        cantidadProductoReservacion, precioUnitario, idReservacion, idProducto  
-      ]);
-      // confirmamos que la transaccion fue exitosa
-      await conexion.commit();
-      return { mensaje: "Detalle de reservación registrado exitosamente" };
-    } catch (err) { // capturar cualquier error del try
-      // si ya se habia abierto la conexion, deshacemos la transaccion
-      if (conexion) await conexion.rollback(); 
-      // mostramos el error en la consola
-      console.error("Error en insertarDetalleReservacionModel:", err.message);
-      // enviamos el error personalizado al controlador
-      throw new Error("Error al registrar detalle de reservacion");
-      // liberamos la conexion
-    } finally {
-      if (conexion) conexion.release();
-    }
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.query("CALL obtenerPago(?)", [idReservacion]);
+    return result[0];
+  } catch (err) {
+    console.error("Error en obtenerPagoModel:", err.message);
+    throw new Error("Error al obtener pago");
+  } finally {
+    if (conexion) conexion.release();
+  }
 };
 
 // modelo para obtener detalle de reservacion por id
 const obtenerDetalleReservacionModel = async (idReservacion) => {
-    let conexion; // declaramos la variable conexion
-    try { 
-      conexion = await pool.getConnection(); // pedimos una conexion del pool
-      // ejecutamos el llamado al procedimiento almacenado y obtenemos los resultados
-      const [result] = await conexion.query("CALL obtenerDetalleReservacion(?)", [idReservacion]);
-      return result[0]; // retornamos el primer nivel de resultados
-    } catch (err) { // capturar cualquier error del try
-      // mostramos el error en la consola
-      console.error("Error en obtenerDetalleReservacionModel:", err.message);
-      // enviamos el error personalizado al controlador
-      throw new Error("Error al obtener detalle de reservacion");
-      // liberamos la conexion
-    } finally {
-      if (conexion) conexion.release();
-    }
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.query("CALL obtenerDetalleReservacion(?)", [idReservacion]);
+    return result[0];
+  } catch (err) {
+    console.error("Error en obtenerDetalleReservacionModel:", err.message);
+    throw new Error("Error al obtener detalle de reservacion");
+  } finally {
+    if (conexion) conexion.release();
+  }
 };
 
 // modelo para mostrar mesas disponibles por fecha y hora
@@ -227,14 +198,13 @@ const listarMesasDisponiblesModel = async (fechaReservacion, horaReservacion) =>
 
 // exportamos los modulos
 module.exports = {
-  insertarReservacionModel,
+  registrarReservacionModel, 
   listarReservacionesModel,
   obtenerReservacionModel,
   actualizarReservacionModel,
   insertarPagoModel,
   actualizarPagoModel,
   obtenerPagoModel,
-  insertarDetalleReservacionModel,
   obtenerDetalleReservacionModel,
-  listarMesasDisponiblesModel
+  listarMesasDisponiblesModel,
 };

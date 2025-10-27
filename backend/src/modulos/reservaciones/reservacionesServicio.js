@@ -1,142 +1,12 @@
-/*// importamos los modelos
-const {
-  insertarReservacionModel,
-  listarReservacionesModel,
-  obtenerReservacionModel,
-  actualizarReservacionModel,
-  insertarPagoModel,
-  actualizarPagoModel,
-  obtenerPagoModel,
-  insertarDetalleReservacionModel,
-  obtenerDetalleReservacionModel,
-  listarMesasDisponiblesModel
-} = require("./reservacionesModelo.js");
-
-// servicio para insertar reservacion
-const insertarReservacionService = async (datos) => {
-  // validacion de que no falten datos
-  if (!datos.fechaReservacion || !datos.horaReservacion || !datos.cantidadPersonas || !datos.idUsuario || !datos.idMesa) {
-    // si falta algun dato se lanza el error
-    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
-  }
-  // si todo esta bien se llama al modelo para ejecutar el procedimiento
-  return await insertarReservacionModel(datos);
-}
-
-// servicio para listar reservaciones
-const listarReservacionesService = async (pagina) => { // se recibe el numero de pagina
-  // si no se recibe numero de pagina, devuelve la pagina 1 
-  return await listarReservacionesModel(pagina || 1);  
-}
-
-// servicio para obtener una reservacion por id
-const obtenerReservacionService = async (idReservacion) => {
-  // validacion de que el idReservacion es obligatorio
-  if (!idReservacion)
-    // si falta algun dato se lanza el error
-    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
-    // si todo esta bien se llama al modelo para ejecutar el procedimiento
-    return await obtenerReservacionModel(idReservacion);
-}
-
-//servicio para actualizar una reservacion
-const actualizarReservacionService = async (datos) => {
-  // validacion de que el idReservacion es obligatorio
-  if(!datos.idReservacion)
-    // si falta algun dato se lanza el error
-    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
-    // si todo esta bien se llama al modelo para ejecutar el procedimiento
-    return await actualizarReservacionModel(datos);
-}
-
-//servicio para insertar el pago de una reservacion
-const insertarPagoService = async (datos) => {
-  // validacion de que el idReservacion es obligatorio
-  if(!datos.idReservacion)
-    // si falta algun dato se lanza el error
-    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
-    // si todo esta bien se llama al modelo para ejecutar el procedimiento
-    return await insertarPagoModel(datos);
-}    
-//servicio para actualizar el pago de una reservacion
-const actualizarPagoService = async ({ idTransaccion, estadoPago }) => {
-  if (!idTransaccion || !estadoPago)
-    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
-  return await actualizarPagoModel({ idTransaccion, estadoPago });
-};
-
-//servicio para obtener pago por id de reservacion
-const obtenerPagoService = async (idReservacion) => {
-  // validacion de que el idReservacion es obligatorio
-  if(!idReservacion)
-    // si falta algun dato se lanza el error
-    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
-    // si todo esta bien se llama al modelo para ejecutar el procedimiento
-    return await obtenerPagoModel(idReservacion);
-}    
-
-//servicio para insertar detalle de reservacion
-const insertarDetalleReservacionService = async (data) => {
-  if (Array.isArray(data.productos)) {
-    // Caso: se envía una lista de productos
-    for (const producto of data.productos) {
-      await insertarDetalleReservacionModel({
-        cantidadProductoReservacion: producto.cantidadProductoReservacion,
-        precioUnitario: producto.precioUnitario,
-        idReservacion: data.idReservacion,
-        idProducto: producto.idProducto
-      });
-    }
-    return { mensaje: "Detalles de reservación registrados correctamente" };
-  } else {
-    // Caso: se envía un solo producto 
-    await insertarDetalleReservacionModel(data);
-    return { mensaje: "Detalle de reservación registrado correctamente" };
-  }
-};
-
-//servicio para obtener detalle de reservacion por id
-const obtenerDetalleReservacionService = async (idReservacion) => {
-  // validacion de que no falten datos
-  if(!idReservacion)
-    // si falta algun dato se lanza el error
-    throw Object.assign(new Error("Faltan datos obligatorios"), { status: 400 });
-    // si todo esta bien se llama al modelo para ejecutar el procedimiento
-    return await obtenerDetalleReservacionModel(idReservacion);
-}    
-
-// servicio para mostrar mesas disponibles por fecha y hora
-const listarMesasDisponiblesService = async (fechaReservacion, horaReservacion) => {
-  if (!fechaReservacion || !horaReservacion)
-    throw Object.assign(new Error("Falta la fecha o hora de reservación"), { status: 400 });
-
-  return await listarMesasDisponiblesModel(fechaReservacion, horaReservacion);
-}; 
-
-// exportamos los modulos
-module.exports = {
-  insertarReservacionService,
-  listarReservacionesService,
-  obtenerReservacionService,
-  actualizarReservacionService,
-  insertarPagoService,
-  actualizarPagoService,
-  obtenerPagoService,
-  insertarDetalleReservacionService,
-  obtenerDetalleReservacionService,
-  listarMesasDisponiblesService
-}*/
-
 // Importar modelos y validaciones
 const {
-  insertarReservacionModel,
+  registrarReservacionModel,
   listarReservacionesModel,
   obtenerReservacionModel,
   actualizarReservacionModel,
   insertarPagoModel,
   actualizarPagoModel,
   obtenerPagoModel,
-  insertarDetalleReservacionModel,
   obtenerDetalleReservacionModel,
   listarMesasDisponiblesModel
 } = require("./reservacionesModelo.js");
@@ -148,20 +18,32 @@ const {
   validarConsultaMesasDisponibles
 } = require("./reservacionesValidaciones.js");
 
-// Servicios de Reservaciones
-
-// Crear una nueva reservación
-const insertarReservacionService = async (datos) => {
+// Crear una nueva reservación (reservación + detalles + actualización de mesa)
+const registrarReservacionService = async (datos) => {
+  // Validar los datos generales de la reservación
   await validarDatosReservacion(datos);
-  const resultado = await insertarReservacionModel(datos);
 
-  if (!resultado || resultado.affectedRows === 0) {
-    throw Object.assign(new Error("No se pudo registrar la reservación"), { status: 500 });
+  // Validar los detalles de la reservación
+  if (!datos.detalles || !Array.isArray(datos.detalles) || datos.detalles.length === 0) {
+    throw Object.assign(new Error("Debe incluir al menos un detalle de reservación"), { status: 400 });
+  }
+
+  // Validar cada detalle individualmente
+  for (const detalle of datos.detalles) {
+    await validarDetalleReservacion(detalle);
+  }
+
+  // Registrar todo
+  const resultado = await registrarReservacionModel(datos);
+
+  if (!resultado || !resultado.idReservacion) {
+    throw Object.assign(new Error("No se pudo registrar la reservación completa"), { status: 500 });
   }
 
   return {
     ok: true,
     mensaje: "Reservación registrada correctamente",
+    idReservacion: resultado.idReservacion
   };
 };
 
@@ -205,8 +87,6 @@ const actualizarReservacionService = async (datos) => {
   };
 };
 
-// Servicios de Pago
-
 // Insertar pago de una reservación
 const insertarPagoService = async (datos) => {
   if (!datos.idReservacion) {
@@ -224,7 +104,7 @@ const insertarPagoService = async (datos) => {
   };
 };
 
-// Actualizar el estado del pago (por ejemplo, pagado, rechazado, etc.)
+// Actualizar el estado del pago
 const actualizarPagoService = async (datos) => {
   await validarActualizacionPago(datos);
 
@@ -251,28 +131,6 @@ const obtenerPagoService = async (idReservacion) => {
   }
 
   return pago;
-};
-
-// Servicios de Detalle de Reservación
-
-// Insertar uno o varios productos asociados a una reservación
-const insertarDetalleReservacionService = async (data) => {
-  await validarDetalleReservacion(data.productos || data);
-
-  if (Array.isArray(data.productos)) {
-    for (const producto of data.productos) {
-      await insertarDetalleReservacionModel({
-        cantidadProductoReservacion: producto.cantidadProductoReservacion,
-        precioUnitario: producto.precioUnitario,
-        idReservacion: data.idReservacion,
-        idProducto: producto.idProducto
-      });
-    }
-    return { ok: true, mensaje: "Detalles de reservación registrados correctamente" };
-  } else {
-    await insertarDetalleReservacionModel(data);
-    return { ok: true, mensaje: "Detalle de reservación registrado correctamente" };
-  }
 };
 
 // Obtener los detalles de una reservación específica
@@ -303,14 +161,13 @@ const listarMesasDisponiblesService = async (fechaReservacion, horaReservacion) 
 
 // Exportar servicios
 module.exports = {
-  insertarReservacionService,
+  registrarReservacionService,
   listarReservacionesService,
   obtenerReservacionService,
   actualizarReservacionService,
   insertarPagoService,
   actualizarPagoService,
   obtenerPagoService,
-  insertarDetalleReservacionService,
   obtenerDetalleReservacionService,
   listarMesasDisponiblesService
 };
