@@ -1,5 +1,6 @@
 import { FiFileText, FiDollarSign, FiCalendar, FiUsers, FiMapPin } from "react-icons/fi";
-import { FaRegCreditCard, FaUtensils } from "react-icons/fa";
+import { FaUtensils } from "react-icons/fa";
+import { SiMercadopago } from "react-icons/si";
 import { reservaEstadoGlobal } from "../../estado-global/reservaEstadoGlobal";
 
 const Paso3Confirmacion = () => {
@@ -190,13 +191,13 @@ const Paso3Confirmacion = () => {
           <button 
             onClick={handleConfirmarReserva}
             disabled={datos.productos.length === 0 || !datos.mesa}
-            className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 mb-4 ${
+            className={`w-full p-1 rounded-xl font-extrabold text-lg transition-all duration-300 flex items-center justify-center gap-3 mb-4 ${
               datos.productos.length === 0 || !datos.mesa
                 ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white transform hover:scale-105 shadow-lg"
+                : "bg-yellow-400 text-black transform hover:scale-105 shadow-lg cursor-pointer"
             }`}
           >
-            <FaRegCreditCard className="w-6 h-6" />
+            <SiMercadopago className="w-15 h-16 text-blue-800" />
             {datos.productos.length === 0 || !datos.mesa 
               ? "Datos incompletos" 
               : "Pagar con Mercado Pago"
@@ -205,7 +206,7 @@ const Paso3Confirmacion = () => {
 
           <button 
             onClick={handleCancelarReserva}
-            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold transition-colors border border-gray-500"
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold transition-colors border border-gray-500 cursor-pointer"
           >
             Cancelar Reservación
           </button>
