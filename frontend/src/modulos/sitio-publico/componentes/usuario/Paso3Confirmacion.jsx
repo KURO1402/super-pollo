@@ -2,13 +2,59 @@ import { FiFileText, FiDollarSign, FiCalendar, FiUsers, FiMapPin } from "react-i
 import { FaUtensils } from "react-icons/fa";
 import { SiMercadopago } from "react-icons/si";
 import { reservaEstadoGlobal } from "../../estado-global/reservaEstadoGlobal";
+import MercadoPagoButton from "./MercadoPagoButton";
+import { useState } from "react";
 
 const Paso3Confirmacion = () => {
   const { datos, getSubtotal, getAnticipo, getTotal, resetReserva } = reservaEstadoGlobal();
-  
+  const [ procesandoPago, setProcesandoPago ] = useState(false);
+
   const subtotal = getSubtotal();
   const anticipo = getAnticipo();
   const total = getTotal();
+
+  const handlePaymentSuccess = async (paymentData) => {
+    setProcesandoPago(true);
+    try {
+      console.log("Pago exitoso:", paymentData);
+      
+      // Aquí enviamos los datos de la reserva al backend
+      const reservaData = {
+        fechaReservacion: datos.fecha,
+        horaReservacion: datos.hora + ':00',
+        cantidadPersonas: datos.personas,
+        idMesa: obtenerIdMesa(datos.mesa),
+        productos: datos.productos,
+        pagoId: paymentData.id,
+        montoAnticipo: anticipo
+      };
+
+      // await crearReservaCompleta(reservaData);
+      
+      // Simular envío al backend
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      resetReserva();
+      alert("¡Reserva confirmada exitosamente!");
+      
+    } catch (error) {
+      console.error("Error al guardar reserva:", error);
+      alert("Error al guardar la reserva. Contacta con soporte.");
+    } finally {
+      setProcesandoPago(false);
+    }
+  };
+
+  const handlePaymentError = (error) => {
+    console.error("Error en el pago:", error);
+    alert("Error en el proceso de pago. Intenta nuevamente.");
+  };
+
+  // extraer id de la mesa
+  const obtenerIdMesa = (mesaTexto) => {
+    const match = mesaTexto?.match(/Mesa (\d+)/);
+    return match ? parseInt(match[1]) : null;
+  };
 
   // Formatear fecha para mejor visualización
   const formatearFecha = (fecha) => {
@@ -32,9 +78,6 @@ const Paso3Confirmacion = () => {
         total: formatearMoneda(total)
       });
 
-      // Aquí irá la integración real con Mercado Pago
-      // const response = await procesarPagoMercadoPago({ ...datos, anticipo });
-      
       // Simular delay de procesamiento
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -46,7 +89,7 @@ const Paso3Confirmacion = () => {
       
     } catch (error) {
       console.error("Error al procesar la reserva:", error);
-      alert("❌ Error al procesar la reserva. Por favor, intenta nuevamente.");
+      alert("Error al procesar la reserva. Por favor, intenta nuevamente.");
     }
   };
 
@@ -187,28 +230,27 @@ const Paso3Confirmacion = () => {
             </div>
           </div>
 
-          {/* Botón de Mercado Pago */}
-          <button 
-            onClick={handleConfirmarReserva}
-            disabled={datos.productos.length === 0 || !datos.mesa}
-            className={`w-full p-1 rounded-xl font-extrabold text-lg transition-all duration-300 flex items-center justify-center gap-3 mb-4 ${
-              datos.productos.length === 0 || !datos.mesa
-                ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                : "bg-yellow-400 text-black transform hover:scale-105 shadow-lg cursor-pointer"
-            }`}
-          >
-            <SiMercadopago className="w-15 h-16 text-blue-800" />
-            {datos.productos.length === 0 || !datos.mesa 
-              ? "Datos incompletos" 
-              : "Pagar con Mercado Pago"
-            }
-          </button>
+          <div className="mb-4">
+            <MercadoPagoButton 
+              monto={anticipo}
+              datosReserva={datos}
+              onPaymentSuccess={handlePaymentSuccess}
+              onPaymentError={handlePaymentError}
+              disabled={datos.productos.length === 0 || !datos.mesa || procesandoPago}
+            />
+          </div>
+            {procesandoPago && (
+            <div className="text-center py-2">
+              <p className="text-blue-500 text-sm">Procesando reserva...</p>
+            </div>
+          )}
 
           <button 
             onClick={handleCancelarReserva}
-            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold transition-colors border border-gray-500 cursor-pointer"
+            disabled={procesandoPago}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold transition-colors border border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Cancelar Reservación
+            {procesandoPago ? "Procesando..." : "Cancelar Reservación"}
           </button>
 
           <div className="mt-4 p-3 bg-gray-700/30 rounded-lg border border-gray-600">
