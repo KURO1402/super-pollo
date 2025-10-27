@@ -132,7 +132,64 @@ const recuperarUsuarioModel = async (idUsuario, estado) => {
     } finally {
         if (conexion) conexion.release
     }
-}
+};
+
+//Modelo para obtener todos los usuarios
+const listarUsuariosModel = async () => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL listarUsuarios()");
+        return result[0]; // Devuelve el arreglo de usuarios
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+//Modelo para listar usuarios con paginación.
+const listarUsuariosPaginacionModel = async (limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL listarUsuariosPaginacion(?, ?)", [limit, offset]);
+        return result[0]; // Devuelve el arreglo de usuarios
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+ //Modelo para buscar usuarios por un valor (nombre, apellido, correo o teléfono).
+const buscarUsuariosPorValorModel = async (valor) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL buscarUsuariosPorValor(?)", [valor]);
+        return result[0]; // Devuelve un arreglo de usuarios que coincidan
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+
+//Modelo para contar los usuarios activos.
+const contarUsuariosActivosModel = async () => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL contarUsuariosActivos()");
+        return result[0][0]?.totalUsuariosActivos; // Devuelve el número de usuarios activos
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
 
 module.exports = { 
     consultarUsuarioPorIdModel,
@@ -141,5 +198,9 @@ module.exports = {
     actualizarClaveUsuarioModel,
     consultarClaveUsuarioModel,
     eliminarUsuarioModel,
-    recuperarUsuarioModel
+    recuperarUsuarioModel,
+    listarUsuariosModel,
+    listarUsuariosPaginacionModel,
+    buscarUsuariosPorValorModel,
+    contarUsuariosActivosModel
 }

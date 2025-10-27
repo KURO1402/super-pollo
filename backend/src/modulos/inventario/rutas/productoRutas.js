@@ -12,6 +12,7 @@ const {
     eliminarCantidadInsumoProductoController,
     insertarCantidadInsumoProductoController,
     obtenerProductosController,
+    obtenerProductosPaginacionController,
     obtenerProductoPorIdController,
     buscarProductosPorNombreController,
     obtenerInsumosPorProductoControlller
@@ -30,9 +31,9 @@ router.patch("/modificar-cantidad", autenticacionToken, actualizarCantidadUsoIns
 router.delete("/eliminar-cantidad", autenticacionToken, eliminarCantidadInsumoProductoController);
 router.post("/agregar-cantidad", autenticacionToken, insertarCantidadInsumoProductoController);
 
-
-router.get("/busqueda", buscarProductosPorNombreController);
 router.get("/", obtenerProductosController);
+router.get("/paginacion", obtenerProductosPaginacionController)
+router.get("/busqueda", buscarProductosPorNombreController);
 router.get("/:idProducto", obtenerProductoPorIdController);
 router.get("/insumos-cantidad/:idProducto", obtenerInsumosPorProductoControlller);
 

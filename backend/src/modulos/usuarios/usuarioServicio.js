@@ -8,7 +8,11 @@ const {
     actualizarCorreoUsuarioModel,
     actualizarClaveUsuarioModel,
     consultarClaveUsuarioModel,
-    eliminarUsuarioModel
+    eliminarUsuarioModel,
+    listarUsuariosModel,
+    listarUsuariosPaginacionModel,
+    buscarUsuariosPorValorModel,
+    contarUsuariosActivosModel
 } = require("./usuarioModelo")
 
 const { validarActualizarUsuario, validarActualizarCorreoUsuario } = require("./usuarioValidaciones")
@@ -172,11 +176,112 @@ const eliminarUsuarioService = async (idUsuario) => {
         ok: true,
         mensaje: respuesta
     }
-}
+};
+
+// Servicio para obtener todos los usuarios
+const obtenerUsuariosService = async () => {
+    const usuarios = await listarUsuariosModel();
+    if (!usuarios || usuarios.length === 0) {
+        throw Object.assign(
+            new Error("No existen usuarios."),
+            { status: 404 }
+        );
+    }
+    return {
+        ok: true, 
+        usuarios:usuarios
+    };
+};
+
+// Servicio para obtener usuarios con paginación
+const obtenerUsuariosPaginacionService = async (limit, offset) => {
+    const limite = parseInt(limit) || 10;
+    const desplazamiento = parseInt(offset) || 0;
+
+    const usuarios = await listarUsuariosPaginacionModel(limite, desplazamiento);
+    if (!usuarios || usuarios.length === 0) {
+        throw Object.assign(
+            new Error("No existen usuarios."),
+            { status: 404 }
+        );
+    }
+    return {
+        ok: true, 
+        usuarios:usuarios
+    };
+};
+
+// Servicio para consultar un usuario por su ID
+const consultarUsuarioPorIdService = async (id) => {
+    // Validar que se envíe un ID numérico válido
+    if (!id || isNaN(Number(id))) {
+        throw Object.assign(
+            new Error("Se requiere un ID de usuario válido."),
+            { status: 400 }
+        );
+    }
+
+    const usuario = await consultarUsuarioPorIdModel(Number(id));
+
+    if (!usuario || usuario.length === 0) {
+        throw Object.assign(
+            new Error("No se encontro el usuario."),
+            { status: 404 }
+        );
+    }
+
+    return {
+        ok: true, 
+        usuario: usuario[0]
+    }; 
+};
+
+
+// Servicio para buscar usuarios por un valor (nombre, apellido, correo o teléfono)
+const buscarUsuariosPorValorService = async (valor) => {
+    if (!valor || typeof valor !== "string") {
+        throw Object.assign(
+            new Error("Se requiere un valor válido para buscar."),
+            { status: 400 }
+        );
+    }
+
+    const usuarios = await buscarUsuariosPorValorModel(valor);
+    if (!usuarios || usuarios.length === 0) {
+        throw Object.assign(
+            new Error("No se encontraron usuarios que coincidan."),
+            { status: 404 }
+        );
+    }
+    return {
+        ok: true, 
+        usuarios:usuarios
+    };
+};
+
+// Servicio para contar usuarios activos
+const contarUsuariosActivosService = async () => {
+    const total = await contarUsuariosActivosModel();
+    if (total === undefined || total === null) {
+        throw Object.assign(
+            new Error("No se pudo obtener el total de usuarios activos."),
+            { status: 500 }
+        );
+    }
+    return {
+        ok: true, 
+        total:total
+    };
+};
 
 module.exports = {
     actualizarUsuarioService,
     actualizarCorreoUsuarioService,
     actualizarClaveUsuarioService,
-    eliminarUsuarioService
+    eliminarUsuarioService,
+    obtenerUsuariosService,
+    obtenerUsuariosPaginacionService,
+    consultarUsuarioPorIdService,
+    buscarUsuariosPorValorService,
+    contarUsuariosActivosService
 }

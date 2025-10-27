@@ -6,13 +6,16 @@ DROP PROCEDURE IF EXISTS listarRoles;
 DROP PROCEDURE IF EXISTS actualizarRol;
 DROP PROCEDURE IF EXISTS eliminarRol;
 DROP PROCEDURE IF EXISTS listarTipoDocumento;
-DROP PROCEDURE IF EXISTS listarUsuarios;
+DROP PROCEDURE IF EXISTS listarUsuariosPaginacion;
 DROP PROCEDURE IF EXISTS actualizarUsuario;
 DROP PROCEDURE IF EXISTS actualizarClaveUsuario;
 DROP PROCEDURE IF EXISTS actualizarCorreoUsuario;
 DROP PROCEDURE IF EXISTS actualizarEstadoUsuario;
 DROP PROCEDURE IF EXISTS seleccionarUsuarioId;
 DROP PROCEDURE IF EXISTS obtenerClaveUsuario;
+DROP PROCEDURE IF EXISTS listarUsuarios;
+DROP PROCEDURE IF EXISTS buscarUsuariosPorValor;
+DROP PROCEDURE IF EXISTS contarUsuariosActivos;
 
 DELIMITER //
 
@@ -229,6 +232,49 @@ BEGIN
     WHERE idUsuario = p_idUsuario;
 END //
 
+CREATE PROCEDURE listarUsuarios()
+BEGIN
+    SELECT 
+        u.idUsuario,
+        u.nombresUsuario,
+        u.apellidosUsuario,
+        u.correoUsuario,
+        u.numeroDocumentoUsuario,
+        u.telefonoUsuario,
+        u.idRol,
+        r.nombreRol,
+        u.idTipoDocumento,
+        td.nombreTipoDocumento
+    FROM usuarios u
+    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
+    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
+    WHERE u.estadoUsuario = 1
+    ORDER BY u.idUsuario DESC;
+END //
+
+CREATE PROCEDURE listarUsuariosPaginacion(
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    SELECT 
+        u.idUsuario,
+        u.nombresUsuario,
+        u.apellidosUsuario,
+        u.correoUsuario,
+        u.numeroDocumentoUsuario,
+        u.telefonoUsuario,
+        u.idRol,
+        r.nombreRol,
+        u.idTipoDocumento,
+        td.nombreTipoDocumento
+    FROM usuarios u
+    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
+    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
+    WHERE u.estadoUsuario = 1
+    ORDER BY u.idUsuario DESC
+    LIMIT p_limit OFFSET p_offset;
+END //
 
 CREATE PROCEDURE seleccionarUsuarioId(
     IN p_idUsuario INT
@@ -239,11 +285,51 @@ BEGIN
         u.nombresUsuario,
         u.apellidosUsuario,
         u.correoUsuario,
-        u.clave,
-        u.idRol
+        u.numeroDocumentoUsuario,
+        u.telefonoUsuario,
+        u.idRol,
+        r.nombreRol,
+        u.idTipoDocumento,
+        td.nombreTipoDocumento
     FROM usuarios u
-    WHERE u.idUsuario = p_idUsuario
-    AND u.estadoUsuario = 1;
+    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
+    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
+    WHERE u.estadoUsuario = 1
+      AND u.idUsuario = p_idUsuario;
+END //
+
+CREATE PROCEDURE buscarUsuariosPorValor(
+    IN p_valor VARCHAR(100)
+)
+BEGIN
+    SELECT 
+        u.idUsuario,
+        u.nombresUsuario,
+        u.apellidosUsuario,
+        u.correoUsuario,
+        u.numeroDocumentoUsuario,
+        u.telefonoUsuario,
+        u.idRol,
+        r.nombreRol,
+        u.idTipoDocumento,
+        td.nombreTipoDocumento
+    FROM usuarios u
+    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
+    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
+    WHERE u.estadoUsuario = 1
+      AND (
+            u.nombresUsuario LIKE CONCAT('%', p_valor, '%') OR
+            u.apellidosUsuario LIKE CONCAT('%', p_valor, '%') OR
+            u.correoUsuario LIKE CONCAT('%', p_valor, '%') OR
+            u.telefonoUsuario LIKE CONCAT('%', p_valor, '%')
+          );
+END //
+
+CREATE PROCEDURE contarUsuariosActivos()
+BEGIN
+    SELECT COUNT(*) AS totalUsuariosActivos
+    FROM usuarios
+    WHERE estadoUsuario = 1;
 END //
 
 DELIMITER ;
