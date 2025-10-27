@@ -81,19 +81,47 @@ export const registrarArqueoServicio = async (data) => {
   }
 };
 
-// Servicio para obtener movimientos de caja (paginados)
-export const obtenerMovimientosCajaServicio = async (limit = 10, offset = 0) => {
+// Servicio para obtener movimientos de caja - CORREGIDO
+export const obtenerMovimientosCajaServicio = async () => {
   try {
-    const respuesta = await API.get(`/caja/movimientos-caja?limit=${limit}&offset=${offset}`);
+    const respuesta = await API.get('/caja/movimientos-caja');
     
-    if (!respuesta.data.ok) {
-      throw new Error(respuesta.data.mensaje || "Error al obtener movimientos");
+    const movimientosData = respuesta.data;
+    
+    // Validar que sea un array
+    if (Array.isArray(movimientosData)) {
+      // Mapear a la estructura que espera tu frontend si es necesario
+      const movimientosFormateados = movimientosData.map(mov => ({
+        id: mov.id || Date.now() + Math.random(), // generamos un id temporal ya que no viene del backend
+        tipo: mov.tipoMovimiento?.toLowerCase() || 'ingreso',
+        descripcion: mov.descripcionMovCaja,
+        monto: parseFloat(mov.montoMovimiento) || 0,
+        fecha: mov.fecha,
+        hora: mov.hora,
+        usuario: mov.nombreUsuario
+      }));
+      
+      return {
+        ok: true,
+        data: movimientosFormateados
+      };
+    } else {
+      console.warn('La respuesta no es un array:', movimientosData);
+      return {
+        ok: true,
+        data: []
+      };
     }
     
-    return respuesta.data;
   } catch (error) {
-    console.error('Error al obtener movimientos:', error);
-    throw error;
+    console.error('Error en obtenerMovimientosCajaServicio:', error);
+    
+    const errorMessage = error.response?.data?.message || 
+                        error.response?.data?.mensaje ||
+                        error.message || 
+                        'Error al obtener movimientos';
+    
+    throw new Error(errorMessage);
   }
 };
 

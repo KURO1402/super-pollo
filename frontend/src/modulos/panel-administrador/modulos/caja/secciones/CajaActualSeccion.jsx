@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
-import { useAutenticacionGlobal } from "../../../../../app/estado-global/autenticacionGlobal";
+import { useCaja } from "../hooks/useCaja";
 
 // Componentes modulares
 import ResumenCaja from "../componentes/ResumenCaja";
@@ -12,25 +12,21 @@ import ModalIngreso from "../componentes/ModalIngreso";
 import ModalEgreso from "../componentes/ModalEgreso";
 import ModalArqueo from "../componentes/ModalArqueo";
 
-// Servicios
-import { 
-  abrirCajaServicio, 
-  cerrarCajaServicio,
-  registrarIngresoServicio,
-  registrarEgresoServicio,
-  registrarArqueoServicio
-} from "../servicios/gestionCajaServicio";
 
 const CajaActualSeccion = () => {
-  const { accessToken } = useAutenticacionGlobal();
-  const [caja, setCaja] = useState({
-    estado: "cerrada",
-    saldoInicial: "-",
-    saldoActual: 0,
-    ingresos: "-",
-    egresos: "-",
-    movimientos: []
-  });
+  const {
+    caja,
+    loading,
+    error,
+    cargarDatosCaja,
+    handleAbrirCaja,
+    handleCerrarCaja,
+    handleRegistrarIngreso,
+    handleRegistrarEgreso,
+    handleRegistrarArqueo,
+    limpiarError,
+    cajaAbierta
+  } = useCaja();
 
   // Hooks
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(5);
@@ -38,6 +34,11 @@ const CajaActualSeccion = () => {
   const modalIngreso = useModal();
   const modalEgreso = useModal();
   const modalArqueo = useModal();
+
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    cargarDatosCaja();
+  }, []);
 
   // Funciones de utilidad
   const formatCurrency = (amount) => {
@@ -48,48 +49,44 @@ const CajaActualSeccion = () => {
   };
 
   // Funciones principales
-  const handleAbrirCaja = async (data) => {
+  const onAbrirCaja = async (data) => {
     try {
-      await abrirCajaServicio({ montoInicial: Number(data.montoInicial) }, accessToken);
-      setCaja(prev => ({ ...prev, estado: "abierta", saldoInicial: Number(data.montoInicial) }));
+      await handleAbrirCaja(data.montoInicial);
       modalAbrirCaja.cerrar();
     } catch (error) {
       console.error("Error al abrir caja:", error);
     }
   };
 
-  const handleCerrarCaja = async () => {
+  const onCerrarCaja = async () => {
     try {
-      await cerrarCajaServicio(accessToken);
-      setCaja(prev => ({ ...prev, estado: "cerrada" }));
+      await handleCerrarCaja();
     } catch (error) {
       console.error("Error al cerrar caja:", error);
     }
   };
 
-  const handleRegistrarIngreso = async (data) => {
+  const onRegistrarIngreso = async (data) => {
     try {
-      await registrarIngresoServicio(data, accessToken);
-      // Actualizar estado local o recargar datos
+      await handleRegistrarIngreso(data);
       modalIngreso.cerrar();
     } catch (error) {
       console.error("Error al registrar ingreso:", error);
     }
   };
 
-  const handleRegistrarEgreso = async (data) => {
+  const onRegistrarEgreso = async (data) => {
     try {
-      await registrarEgresoServicio(data, accessToken);
-      // Actualizar estado local o recargar datos
+      await handleRegistrarEgreso(data);
       modalEgreso.cerrar();
     } catch (error) {
       console.error("Error al registrar egreso:", error);
     }
   };
 
-  const handleRegistrarArqueo = async (data) => {
+  const onRegistrarArqueo = async (data) => {
     try {
-      await registrarArqueoServicio(data, accessToken);
+      await handleRegistrarArqueo(data);
       modalArqueo.cerrar();
     } catch (error) {
       console.error("Error al registrar arqueo:", error);
@@ -101,19 +98,22 @@ const CajaActualSeccion = () => {
 
   return (
     <div className="w-full mx-auto p-2 space-y-6">
+
       {/* Componentes modulares */}
       <ResumenCaja
         caja={caja}
         formatCurrency={formatCurrency}
         onAbrirCaja={modalAbrirCaja.abrir}
-        onCerrarCaja={handleCerrarCaja}
+        onCerrarCaja={onCerrarCaja}
+        loading={loading}
       />
 
       <AccionesCaja
-        cajaAbierta={caja.estado === "abierta"}
+        cajaAbierta={cajaAbierta}
         onIngreso={modalIngreso.abrir}
         onEgreso={modalEgreso.abrir}
         onArqueo={modalArqueo.abrir}
+        loading={loading}
       />
 
       <TablaMovimientos
@@ -122,32 +122,37 @@ const CajaActualSeccion = () => {
         paginaActual={paginaActual}
         totalPaginas={totalPaginas}
         onCambiarPagina={setPaginaActual}
+        loading={loading}
       />
 
       {/* Modales */}
       <ModalAbrirCaja
         estaAbierto={modalAbrirCaja.estaAbierto}
         onCerrar={modalAbrirCaja.cerrar}
-        onAbrirCaja={handleAbrirCaja}
+        onAbrirCaja={onAbrirCaja}
+        loading={loading}
       />
 
       <ModalIngreso
         estaAbierto={modalIngreso.estaAbierto}
         onCerrar={modalIngreso.cerrar}
-        onRegistrarIngreso={handleRegistrarIngreso}
+        onRegistrarIngreso={onRegistrarIngreso}
+        loading={loading}
       />
 
       <ModalEgreso
         estaAbierto={modalEgreso.estaAbierto}
         onCerrar={modalEgreso.cerrar}
-        onRegistrarEgreso={handleRegistrarEgreso}
+        onRegistrarEgreso={onRegistrarEgreso}
+        loading={loading}
       />
 
       <ModalArqueo
         estaAbierto={modalArqueo.estaAbierto}
         onCerrar={modalArqueo.cerrar}
-        onRegistrarArqueo={handleRegistrarArqueo}
+        onRegistrarArqueo={onRegistrarArqueo}
         saldoActual={caja.saldoActual}
+        loading={loading}
       />
     </div>
   );

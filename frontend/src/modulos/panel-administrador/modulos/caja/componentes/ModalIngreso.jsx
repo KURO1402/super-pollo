@@ -1,12 +1,14 @@
 import { useForm } from "react-hook-form";
 import { FiPlus } from "react-icons/fi";
 import Modal from "../../../componentes/modal/Modal";
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
 const ModalIngreso = ({ estaAbierto, onCerrar, onRegistrarIngreso }) => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   const onSubmit = (data) => {
     onRegistrarIngreso(data);
+    mostrarAlerta.exito('Egreso registrado exitosamente');
     reset();
   };
 
@@ -72,13 +74,13 @@ const ModalIngreso = ({ estaAbierto, onCerrar, onRegistrarIngreso }) => {
           <button
             type="button"
             onClick={handleCancelar}
-            className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+            className="px-6 py-2.5 border cursor-pointer border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-2.5 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors duration-200"
+            className="flex items-center cursor-pointer gap-2 px-6 py-2.5 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors duration-200"
           >
             <FiPlus className="w-4 h-4" />
             Registrar Ingreso
