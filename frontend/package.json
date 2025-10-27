@@ -16,6 +16,7 @@
     "@fullcalendar/react": "^6.1.19",
     "@fullcalendar/timegrid": "^6.1.19",
     "@hookform/resolvers": "^5.2.1",
+    "@mercadopago/sdk-react": "^1.0.6",
     "@tailwindcss/vite": "^4.1.12",
     "axios": "^1.11.0",
     "react": "^19.1.1",
