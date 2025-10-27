@@ -33,5 +33,130 @@ export const cerrarCajaServicio = async () => {
   }
 };
 
+// Servicio para registrar ingreso
+export const registrarIngresoServicio = async (data) => {
+  try {
+    const respuesta = await API.post('/caja/ingreso-caja', data);
+    
+    if (!respuesta.data.ok) {
+      throw new Error(respuesta.data.mensaje || "Error al registrar ingreso");
+    }
+    
+    return respuesta.data;
+  } catch (error) {
+    console.error('Error al registrar ingreso:', error);
+    throw error;
+  }
+};
 
+// Servicio para registrar egreso
+export const registrarEgresoServicio = async (data) => {
+  try {
+    const respuesta = await API.post('/caja/egreso-caja', data);
+    
+    if (!respuesta.data.ok) {
+      throw new Error(respuesta.data.mensaje || "Error al registrar egreso");
+    }
+    
+    return respuesta.data;
+  } catch (error) {
+    console.error('Error al registrar egreso:', error);
+    throw error;
+  }
+};
 
+// Servicio para registrar arqueo
+export const registrarArqueoServicio = async (data) => {
+  try {
+    const respuesta = await API.post('/caja/arqueo-caja', data);
+    
+    if (!respuesta.data.ok) {
+      throw new Error(respuesta.data.mensaje || "Error al registrar arqueo");
+    }
+    
+    return respuesta.data;
+  } catch (error) {
+    console.error('Error al registrar arqueo:', error);
+    throw error;
+  }
+};
+
+// Servicio para obtener movimientos de caja (paginados)
+export const obtenerMovimientosCajaServicio = async (limit = 10, offset = 0) => {
+  try {
+    const respuesta = await API.get(`/caja/movimientos-caja?limit=${limit}&offset=${offset}`);
+    
+    if (!respuesta.data.ok) {
+      throw new Error(respuesta.data.mensaje || "Error al obtener movimientos");
+    }
+    
+    return respuesta.data;
+  } catch (error) {
+    console.error('Error al obtener movimientos:', error);
+    throw error;
+  }
+};
+
+// Servicio para obtener movimientos de una caja específica
+export const obtenerMovimientosPorCajaServicio = async (idCaja) => {
+  try {
+    const respuesta = await API.get(`/caja/movimientos-caja/${idCaja}`);
+    
+    if (!respuesta.data.ok) {
+      throw new Error(respuesta.data.mensaje || "Error al obtener movimientos de la caja");
+    }
+    
+    return respuesta.data;
+  } catch (error) {
+    console.error('Error al obtener movimientos por caja:', error);
+    throw error;
+  }
+};
+
+// Servicio para obtener cajas cerradas
+export const obtenerCajasCerradasServicio = async (limit = 10, offset = 0) => {
+  try {
+    const respuesta = await API.get(`/caja/registros-caja?limit=${limit}&offset=${offset}`);
+    
+    if (!respuesta.data.ok) {
+      throw new Error(respuesta.data.mensaje || "Error al obtener cajas cerradas");
+    }
+    
+    return respuesta.data;
+  } catch (error) {
+    console.error('Error al obtener cajas cerradas:', error);
+    throw error;
+  }
+};
+
+// Servicio para obtener arqueos de caja (paginados)
+export const obtenerArqueosCajaServicio = async (limit = 10, offset = 0) => {
+  try {
+    const respuesta = await API.get(`/caja/arqueos-caja?limit=${limit}&offset=${offset}`);
+    
+    if (!respuesta.data.ok) {
+      throw new Error(respuesta.data.mensaje || "Error al obtener arqueos");
+    }
+    
+    return respuesta.data;
+  } catch (error) {
+    console.error('Error al obtener arqueos:', error);
+    throw error;
+  }
+};
+
+// Servicio para obtener arqueos de una caja específica
+export const obtenerArqueosPorCajaServicio = async (idCaja) => {
+  try {
+    const respuesta = await API.get(`/caja/arqueos-caja/${idCaja}`);
+    
+    if (!respuesta.data.ok) {
+      throw new Error(respuesta.data.mensaje || "Error al obtener arqueos de la caja");
+    }
+    
+    return respuesta.data;
+  } catch (error) {
+    console.error('Error al obtener arqueos por caja:', error);
+    throw error;
+  }
+};
