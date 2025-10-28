@@ -31,7 +31,7 @@ API.interceptors.request.use(
     }
 );
 
-// Interceptor para responses - CON LOGS DE REFRESCO
+// Interceptor para responses
 API.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -43,14 +43,23 @@ API.interceptors.response.use(
             mensaje: error.response?.data?.mensaje
         });
 
-        // Verificar si es error 403 (token expirado)
-        if (error.response && error.response.status === 403 && !originalRequest._retry) {
+        // Verificar si es error 403 o cuando el token esta expirado y no es ya una solicitud de refresh
+        if (error.response && error.response.status === 403 && 
+            !originalRequest._retry && 
+            !originalRequest.url.includes('/renovar-token')) {
+            
             originalRequest._retry = true;
             
             try {
                 console.log('Intentando renovar token...');
                 
-                const refreshResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/autenticacion/token`);
+                // Usar la ruta correcta y mantener withCredentials
+                const refreshResponse = await axios.post(
+                    `${import.meta.env.VITE_BACKEND_URL}/autenticacion/renovar-token`,
+                    {}, // cuerpo vacío
+                    { withCredentials: true } // mantenemos las cookies
+                );
+                
                 const nuevoAccessToken = refreshResponse.data.accessToken;
 
                 if (nuevoAccessToken) {
@@ -82,6 +91,11 @@ API.interceptors.response.use(
             } catch (refreshError) {
                 console.error('Error al renovar token:', refreshError);
                 
+                // Manejar específicamente cuando el refresh token también expiró
+                if (refreshError.response?.status === 403) {
+                    console.log('Refresh token expirado - redirigiendo al login');
+                }
+                
                 const { useAutenticacionGlobal } = await import('../estado-global/autenticacionGlobal');
                 useAutenticacionGlobal.getState().logout();
                 console.log('Redirigiendo al login...');
@@ -90,7 +104,7 @@ API.interceptors.response.use(
             }
         }
         
-        // Si es error 401
+        // Si es error 401 o no  autorizado
         if (error.response && error.response.status === 401) {
             console.log('Token inválido - redirigiendo al login');
             const { useAutenticacionGlobal } = await import('../estado-global/autenticacionGlobal');

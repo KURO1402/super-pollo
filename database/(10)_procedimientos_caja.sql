@@ -53,6 +53,8 @@ BEGIN
 
     -- Confirmar cambios
     COMMIT;
+
+    SELECT v_idCaja AS idCaja;
 END //
 
 -- Procedimiento de cierre de caja con evento de cierre

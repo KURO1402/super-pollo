@@ -7,6 +7,7 @@ export const cajaEstadoGlobal = create(
     (set, get) => ({
       // Estado inicial
       caja: {
+        idCaja: null,
         estado: "cerrada",
         saldoInicial: 0,
         saldoActual: 0,
@@ -47,7 +48,7 @@ export const cajaEstadoGlobal = create(
           ingresos,
           egresos,
           saldoActual: (cajaData.saldoInicial || 0) + ingresos - egresos
-        };
+        }; 
 
         set({ 
           caja: cajaCompleta,
@@ -97,14 +98,14 @@ export const cajaEstadoGlobal = create(
           error: null
         });
       },
-
-      abrirCaja: (montoInicial) => set({
+      // accion para cerrar caja y resetear los estados
+      abrirCaja: (cajaData) => set({ 
         caja: {
-          ...get().caja,
+          idCaja: cajaData.idCaja,      
           estado: "abierta",
-          saldoInicial: parseFloat(montoInicial) || 0,
-          saldoActual: parseFloat(montoInicial) || 0,
-          ingresos: 0,
+          saldoInicial: parseFloat(cajaData.saldoInicial) || 0,
+          saldoActual: parseFloat(cajaData.saldoActual) || 0,
+          ingresos: 0,  
           egresos: 0,
           movimientos: []
         }
@@ -112,6 +113,7 @@ export const cajaEstadoGlobal = create(
 
       cerrarCaja: () => set({
         caja: {
+          idCaja: null, // eliminar el id
           estado: "cerrada",
           saldoInicial: 0,
           saldoActual: 0,
