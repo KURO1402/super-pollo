@@ -74,7 +74,6 @@ const insertarVerificacionCorreoService = async (datos) => {
   const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
   const resultado = await insertarVerificacionCorreoModel(correo, codigo);
-
   if (resultado.affectedRows === 0) {
     throw Object.assign(new Error("No se pudo verificar el correo"), { status: 500 });
   }

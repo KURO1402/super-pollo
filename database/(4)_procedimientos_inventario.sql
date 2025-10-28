@@ -8,11 +8,15 @@ DROP PROCEDURE IF EXISTS obtenerInsumoPorID;
 DROP PROCEDURE IF EXISTS actualizarInsumo;
 DROP PROCEDURE IF EXISTS eliminarInsumo;
 DROP PROCEDURE IF EXISTS registrarMovimientoStock;
-DROP PROCEDURE IF EXISTS listarMovimientos;
+DROP PROCEDURE IF EXISTS obtenerMovimientos;
 DROP PROCEDURE IF EXISTS obtenerMovimientosPorInsumo;
 DROP PROCEDURE IF EXISTS obtenerStockActual;
 DROP PROCEDURE IF EXISTS eliminarMovimientoStock;
 DROP PROCEDURE IF EXISTS obtenerConteoInsumosPorNombre;
+DROP PROCEDURE IF EXISTS buscarMovimientosPorInsumo;
+DROP PROCEDURE IF EXISTS buscarMovimientosPorUsuario;
+DROP PROCEDURE IF EXISTS buscarMovimientosPorFecha;
+DROP PROCEDURE IF EXISTS buscarMovimientosPorTipo;
 
 DELIMITER //
 -- =============================================
@@ -166,6 +170,13 @@ CREATE PROCEDURE registrarMovimientoStock(
 BEGIN
     DECLARE v_stockActual DECIMAL(10,2);
 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al insertar movimiento de insumos.';
+    END;
+
     -- Iniciar transacción
     START TRANSACTION;
 
@@ -189,65 +200,129 @@ BEGIN
         UPDATE insumos
         SET stockInsumo = stockInsumo + p_cantidad
         WHERE idInsumo = p_idInsumo;
-    ELSE
+    ELSEIF p_tipoMovimiento = 'salida' THEN
         UPDATE insumos
         SET stockInsumo = stockInsumo - p_cantidad
         WHERE idInsumo = p_idInsumo;
+    ELSE
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Tipo movimiento no valido.';
     END IF;
 
     COMMIT;
     SELECT CONCAT(p_tipoMovimiento, ' registrado exitosamente') AS mensaje;
 END //
 
-CREATE PROCEDURE listarMovimientos()
-BEGIN
-    SELECT m.idMovimientoStock, i.nombreInsumo, m.tipoMovimiento, 
-           m.cantidadMovimiento, m.fechaMovimiento, m.idUsuario
-    FROM movimientosstock m
-    JOIN insumos i ON m.idInsumo = i.idInsumo
-    ORDER BY m.fechaMovimiento DESC;
-END //
-
-CREATE PROCEDURE obtenerMovimientosPorInsumo(
-    IN p_idInsumo INT
-)
-BEGIN
-    SELECT * FROM movimientosstock WHERE idInsumo = p_idInsumo ORDER BY fechaMovimiento DESC;
-END //
-
-CREATE PROCEDURE obtenerStockActual(
-    IN p_idInsumo INT
+CREATE PROCEDURE obtenerMovimientos(
+    IN p_limit INT,
+    IN p_offset INT
 )
 BEGIN
     SELECT 
-        i.idInsumo,
+        m.tipoMovimiento AS nombreMovimiento,
         i.nombreInsumo,
-        i.stockInsumo
-            + IFNULL((
-                SELECT SUM(
-                    CASE 
-                        WHEN m.tipoMovimiento = 'entrada' THEN m.cantidadMovimiento
-                        ELSE -m.cantidadMovimiento
-                    END
-                )
-                FROM movimientosStock AS m
-                WHERE m.idInsumo = i.idInsumo
-            ), 0) AS stockActual
-    FROM insumos AS i
-    WHERE i.idInsumo = p_idInsumo;
+        m.cantidadMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%d-%m-%Y') AS fechaMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
+        m.detallesMovimiento,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM movimientosStock m
+    INNER JOIN insumos i ON m.idInsumo = i.idInsumo
+    INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
+    ORDER BY m.fechaMovimiento DESC
+    LIMIT p_limit OFFSET p_offset;
 END //
 
-CREATE PROCEDURE eliminarMovimientoStock(
-    IN p_idMovimiento INT
+
+CREATE PROCEDURE buscarMovimientosPorInsumo(
+    IN p_nombreInsumo VARCHAR(100),
+    IN p_limit INT,
+    IN p_offset INT
 )
 BEGIN
-    IF EXISTS (SELECT 1 FROM movimientosStock WHERE idMovimientoStock = p_idMovimiento) THEN
-        DELETE FROM movimientosStock 
-        WHERE idMovimientoStock = p_idMovimiento;
-    ELSE
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'Movimiento no encontrado';
-    END IF;
+    SELECT 
+        m.tipoMovimiento AS nombreMovimiento,
+        i.nombreInsumo,
+        m.cantidadMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%d-%m-%Y') AS fechaMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
+        m.detallesMovimiento,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM movimientosStock m
+    INNER JOIN insumos i ON m.idInsumo = i.idInsumo
+    INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
+    WHERE i.nombreInsumo LIKE CONCAT('%', p_nombreInsumo, '%')
+    ORDER BY m.fechaMovimiento DESC
+    LIMIT p_limit OFFSET p_offset;
+END //
+
+CREATE PROCEDURE buscarMovimientosPorUsuario(
+    IN p_nombreApellido VARCHAR(50),
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    SELECT 
+        m.tipoMovimiento AS nombreMovimiento,
+        i.nombreInsumo,
+        m.cantidadMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%d-%m-%Y') AS fechaMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
+        m.detallesMovimiento,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM movimientosStock m
+    INNER JOIN insumos i ON m.idInsumo = i.idInsumo
+    INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
+    WHERE u.nombresUsuario LIKE CONCAT('%', p_nombreApellido, '%')
+       OR u.apellidosUsuario LIKE CONCAT('%', p_nombreApellido, '%')
+    ORDER BY m.fechaMovimiento DESC
+    LIMIT p_limit OFFSET p_offset;
+END // 
+
+CREATE PROCEDURE buscarMovimientosPorFecha(
+    IN p_fechaInicio DATE,
+    IN p_fechaFin DATE,
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    SELECT 
+        m.tipoMovimiento AS nombreMovimiento,
+        i.nombreInsumo,
+        m.cantidadMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%d-%m-%Y') AS fechaMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
+        m.detallesMovimiento,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM movimientosStock m
+    INNER JOIN insumos i ON m.idInsumo = i.idInsumo
+    INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
+    WHERE DATE(m.fechaMovimiento) BETWEEN p_fechaInicio AND p_fechaFin
+    ORDER BY m.fechaMovimiento DESC
+    LIMIT p_limit OFFSET p_offset;
+END //
+
+CREATE PROCEDURE buscarMovimientosPorTipo(
+    IN p_tipoMovimiento ENUM('entrada','salida'),
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    SELECT 
+        m.tipoMovimiento AS nombreMovimiento,
+        i.nombreInsumo,
+        m.cantidadMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%d-%m-%Y') AS fechaMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
+        m.detallesMovimiento,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM movimientosStock m
+    INNER JOIN insumos i ON m.idInsumo = i.idInsumo
+    INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
+    WHERE m.tipoMovimiento = p_tipoMovimiento
+    ORDER BY m.fechaMovimiento DESC
+    LIMIT p_limit OFFSET p_offset;
 END //
 
 DELIMITER ;

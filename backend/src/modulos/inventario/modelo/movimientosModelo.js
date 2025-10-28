@@ -23,26 +23,94 @@ const registrarMovimientoStockModel = async (idInsumo, cantidad, tipoMovimiento,
 };
 
 // Listar todos los movimientos usando procedimiento almacenado
-const listarMovimientosModel = async () => {
-    const [rows] = await pool.query("CALL listarMovimientos()");
-    return rows[0]; // El resultado viene como array anidado
+const obtenerMovimientosPaginacionModel = async (limit, offset) => {
+    let conexion;
+    try {
+        // Obtiene la conexión del pool
+        conexion = await pool.getConnection();
+
+        // Llama al procedimiento almacenado con los parámetros limit y offset
+        const [result] = await conexion.execute("CALL obtenerMovimientos(?, ?)", [limit, offset]);
+
+        // En MySQL, los resultados de CALL vienen en un array dentro de otro array
+        return result[0]; // Devuelve el arreglo de movimientos
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
 };
 
-// Obtener movimientos por ID de insumo
-const obtenerMovimientosPorInsumoModel = async (idInsumo) => {
-    const [rows] = await pool.query("CALL obtenerMovimientosPorInsumo(?)", [idInsumo]);
-    return rows[0];
+const buscarMovimientosPorInsumoModel = async (nombreInsumo, limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute(
+            "CALL buscarMovimientosPorInsumo(?, ?, ?)",
+            [nombreInsumo, limit, offset]
+        );
+        return result[0];
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
 };
 
-//Eliminar movimiento 
-const eliminarMovimientoModel = async(id) => {
-    await pool.query("CALL eliminarMovimientoStock(?)", [id])
+const buscarMovimientosPorUsuarioModel = async (nombreApellido, limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute(
+            "CALL buscarMovimientosPorUsuario(?, ?, ?)",
+            [nombreApellido, limit, offset]
+        );
+        return result[0];
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const buscarMovimientosPorFechaModel = async (fechaInicio, fechaFin, limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute(
+            "CALL buscarMovimientosPorFecha(?, ?, ?, ?)",
+            [fechaInicio, fechaFin, limit, offset]
+        );
+        return result[0];
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const buscarMovimientosPorTipoModel = async (tipoMovimiento, limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute(
+            "CALL buscarMovimientosPorTipo(?, ?, ?)",
+            [tipoMovimiento, limit, offset]
+        );
+        return result[0];
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
 };
 
 // Exportamos las funciones del modelo
 module.exports = {
     registrarMovimientoStockModel,
-    listarMovimientosModel,
-    obtenerMovimientosPorInsumoModel,
-    eliminarMovimientoModel
+    obtenerMovimientosPaginacionModel,
+    buscarMovimientosPorInsumoModel,
+    buscarMovimientosPorUsuarioModel,
+    buscarMovimientosPorFechaModel,
+    buscarMovimientosPorTipoModel
 };

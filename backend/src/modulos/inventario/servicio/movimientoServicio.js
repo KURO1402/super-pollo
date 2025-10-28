@@ -2,9 +2,11 @@
 const jwt = require("jsonwebtoken");
 const {
   registrarMovimientoStockModel,
-  listarMovimientosModel,
-  obtenerMovimientosPorInsumoModel,
-  eliminarMovimientoModel
+  obtenerMovimientosPaginacionModel,
+  buscarMovimientosPorFechaModel,
+  buscarMovimientosPorInsumoModel,
+  buscarMovimientosPorUsuarioModel,
+  buscarMovimientosPorTipoModel
 } = require("../modelo/movimientosModelo");
 const { obtenerInsumoIDModel } = require("../modelo/insumoModelo")
 
@@ -50,48 +52,109 @@ const registrarMovimientoStockService = async (datos, token) => {
   };
 };
 
-// Listar todos los movimientos
-const listarMovimientosService = async () => {
-  const movimientos = await listarMovimientosModel();
-  return movimientos;
-};
+const obtenerMovimientosPaginacionService = async (limit, offset) => {
+  const limite = parseInt(limit) || 10;
+  const desplazamiento = parseInt(offset) || 0;
 
-// Obtener movimientos de un insumo específico
-const obtenerMovimientosPorInsumoService = async (idInsumo) => {
-  if (!idInsumo) {
-    const error = new Error("Debe especificar un ID de insumo");
-    error.status = 400;
-    throw error;
+  const movimientos = await obtenerMovimientosPaginacionModel(limite, desplazamiento);
+
+  if (!movimientos || movimientos.length === 0) {
+    throw Object.assign(
+      new Error("No existen movimientos."),
+      { status: 404 }
+    );
   }
 
-  const movimientos = await obtenerMovimientosPorInsumoModel(idInsumo);
-  return movimientos;
+  return {
+    ok: true,
+    movimientos: movimientos
+  };
 };
 
-// Eliminar un movimiento de stock
-const eliminarMovimientoService = async (id) => {
-  if (!id) {
-    const error = new Error("Debe especificar un ID de movimiento");
-    error.status = 400;
-    throw error;
+const buscarMovimientosPorInsumoService = async (nombreInsumo, limit, offset) => {
+  const limite = parseInt(limit) || 10;
+  const desplazamiento = parseInt(offset) || 0;
+
+  const movimientos = await buscarMovimientosPorInsumoModel(nombreInsumo, limite, desplazamiento);
+
+  if (!movimientos || movimientos.length === 0) {
+    throw Object.assign(
+      new Error("No existen movimientos para el insumo especificado."),
+      { status: 404 }
+    );
   }
 
-  try {
-    await eliminarMovimientoModel(id);
-    return { mensaje: "Movimiento eliminado correctamente" };
-  } catch (error) {
-    // Captura errores del procedimiento almacenado
-    throw {
-      status: 400,
-      mensaje: error.sqlMessage || error.message || "Error al eliminar movimiento"
-    };
-  }
+  return {
+    ok: true,
+    movimientos
+  };
 };
+
+const buscarMovimientosPorUsuarioService = async (nombreApellido, limit, offset) => {
+  const limite = parseInt(limit) || 10;
+  const desplazamiento = parseInt(offset) || 0;
+
+  const movimientos = await buscarMovimientosPorUsuarioModel(nombreApellido, limite, desplazamiento);
+
+  if (!movimientos || movimientos.length === 0) {
+    throw Object.assign(
+      new Error("No existen movimientos para el usuario especificado."),
+      { status: 404 }
+    );
+  }
+
+  return {
+    ok: true,
+    movimientos
+  };
+};
+
+const buscarMovimientosPorFechaService = async (fechaInicio, fechaFin, limit, offset) => {
+  const limite = parseInt(limit) || 10;
+  const desplazamiento = parseInt(offset) || 0;
+
+  const movimientos = await buscarMovimientosPorFechaModel(fechaInicio, fechaFin, limite, desplazamiento);
+
+  if (!movimientos || movimientos.length === 0) {
+    throw Object.assign(
+      new Error("No existen movimientos en el rango de fechas especificado."),
+      { status: 404 }
+    );
+  }
+
+  return {
+    ok: true,
+    movimientos
+  };
+};
+
+const buscarMovimientosPorTipoService = async (tipoMovimiento, limit, offset) => {
+  const limite = parseInt(limit) || 10;
+  const desplazamiento = parseInt(offset) || 0;
+
+  const movimientos = await buscarMovimientosPorTipoModel(tipoMovimiento, limite, desplazamiento);
+
+  if (!movimientos || movimientos.length === 0) {
+    throw Object.assign(
+      new Error("No existen movimientos para el tipo de movimiento especificado."),
+      { status: 404 }
+    );
+  }
+
+  return {
+    ok: true,
+    movimientos
+  };
+};
+
+
 
 
 module.exports = {
   registrarMovimientoStockService,
-  listarMovimientosService,
-  obtenerMovimientosPorInsumoService,
-  eliminarMovimientoService
+  obtenerMovimientosPaginacionService,
+  buscarMovimientosPorInsumoService,
+  buscarMovimientosPorUsuarioService,
+  buscarMovimientosPorFechaService,
+  buscarMovimientosPorTipoService
 };

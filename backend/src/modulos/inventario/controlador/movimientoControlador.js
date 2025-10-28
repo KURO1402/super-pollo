@@ -1,9 +1,12 @@
 //importamos los servicios
+const { buscarMovimientosPorFechaModel } = require("../modelo/movimientosModelo");
 const {
   registrarMovimientoStockService,
-  listarMovimientosService,
-  obtenerMovimientosPorInsumoService,
-  eliminarMovimientoService
+  obtenerMovimientosPaginacionService,
+  buscarMovimientosPorInsumoService,
+  buscarMovimientosPorUsuarioService,
+  buscarMovimientosPorFechaService,
+  buscarMovimientosPorTipoService
 } = require("../servicio/movimientoServicio");
 
 // registrar movimiento
@@ -12,7 +15,7 @@ const registrarMovimientoStockController = async (req, res) => {
   try {
     // Pasamos body y token al servicio
     const respuesta = await registrarMovimientoStockService(req.body, token);
-    
+
     return res.status(201).json(respuesta);
 
   } catch (err) {
@@ -26,41 +29,106 @@ const registrarMovimientoStockController = async (req, res) => {
   }
 };
 
-
-// Listar todos los movimientos
-const listarMovimientosController = async (req, res) => {
+const obtenerMovimientosPaginacionController = async (req, res) => {
   try {
-    const movimientos = await listarMovimientosService();
-    return res.json({ ok: true, total: movimientos.length, data: movimientos });
-  } catch (error) {
-    return res.status(error.status || 500).json({ ok: false, mensaje: error.mensaje || error.message || "Error desconocido" });
+    const { limit, offset } = req.query;
+
+    const movimientos = await obtenerMovimientosPaginacionService(limit, offset);
+
+    return res.status(200).json(movimientos);
+
+  } catch (err) {
+    console.error("Error en obtenerMovimientosPaginacionController:", err.message);
+    const statusCode = err.status || 500;
+
+    return res.status(statusCode).json({
+      ok: false,
+      mensaje: err.message || "Error interno del servidor"
+    });
   }
 };
 
-// Obtener movimientos por insumo
-const obtenerMovimientosPorInsumoController = async (req, res) => {
+const buscarMovimientosPorInsumoController = async (req, res) => {
   try {
-    const idInsumo = req.params.id;
-    const movimientos = await obtenerMovimientosPorInsumoService(idInsumo);
-    return res.json({ ok: true, data: movimientos });
-  } catch (error) {
-    return res.status(error.status || 500).json({ ok: false, mensaje: error.mensaje || error.message || "Error desconocido" });
+    const { insumo, limit, offset } = req.query;
+
+    const movimientos = await buscarMovimientosPorInsumoService(insumo, limit, offset);
+
+    return res.status(200).json(movimientos);
+
+  } catch (err) {
+    console.error("Error en buscarMovimientosPorInsumoController:", err.message);
+    const statusCode = err.status || 500;
+
+    return res.status(statusCode).json({
+      ok: false,
+      mensaje: err.message || "Error interno del servidor"
+    });
   }
 };
 
-//Eliminar movimientos
-const eliminarMovimientoController = async (req, res) => {
+const buscarMovimientosPorUsuarioController = async (req, res) => {
   try {
-    await eliminarMovimientoService(req.params.id);
-    res.json({ ok: true, mensaje: "Movimiento eliminado con exito" });
-  } catch (error) {
-    res.status(error.status || 500).json({ ok: false, mensaje: error.message })
+    const { usuario, limit, offset } = req.query;
+
+    const movimientos = await buscarMovimientosPorUsuarioService(usuario, limit, offset);
+
+    return res.status(200).json(movimientos);
+
+  } catch (err) {
+    console.error("Error en buscarMovimientosPorUsuarioController:", err.message);
+    const statusCode = err.status || 500;
+
+    return res.status(statusCode).json({
+      ok: false,
+      mensaje: err.message || "Error interno del servidor"
+    });
+  }
+};
+
+const buscarMovimientosPorFechaController = async (req, res) => {
+  try {
+    const { fechaInicio, fechaFin, limit, offset } = req.query;
+
+    const movimientos = await buscarMovimientosPorFechaService(fechaInicio, fechaFin, limit, offset);
+
+    return res.status(200).json(movimientos);
+
+  } catch (err) {
+    console.error("Error en buscarMovimientosPorFechaController:", err.message);
+    const statusCode = err.status || 500;
+
+    return res.status(statusCode).json({
+      ok: false,
+      mensaje: err.message || "Error interno del servidor"
+    });
+  }
+};
+
+const buscarMovimientosPorTipoController = async (req, res) => {
+  try {
+    const { tipo, limit, offset } = req.query;
+
+    const movimientos = await buscarMovimientosPorTipoService(tipo, limit, offset);
+
+    return res.status(200).json(movimientos);
+
+  } catch (err) {
+    console.error("Error en buscarMovimientosPorTipoController:", err.message);
+    const statusCode = err.status || 500;
+
+    return res.status(statusCode).json({
+      ok: false,
+      mensaje: err.message || "Error interno del servidor"
+    });
   }
 };
 
 module.exports = {
   registrarMovimientoStockController,
-  listarMovimientosController,
-  obtenerMovimientosPorInsumoController,
-  eliminarMovimientoController
+  obtenerMovimientosPaginacionController,
+  buscarMovimientosPorInsumoController,
+  buscarMovimientosPorUsuarioController,
+  buscarMovimientosPorFechaController,
+  buscarMovimientosPorTipoController
 };

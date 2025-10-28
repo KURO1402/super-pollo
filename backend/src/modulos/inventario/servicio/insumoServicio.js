@@ -85,7 +85,7 @@ const obtenerInsumoIDService = async (idInsumo) => {
 
     // Si no existe, lanzamos error 404
     if (!insumo || insumo.length === 0) {
-        const error = new Error("Insumo no encontrado");
+        const error = new Error("Este insumo no existe.");
         error.status = 404;
         throw error;
     }
@@ -156,6 +156,13 @@ const eliminarInsumoService = async (idInsumo) => {
         throw Object.assign(
             new Error("El insumo no existe"),
             { status: 404 } // Not Found
+        );
+    }
+
+    if(insumo.stockInsumo > 0){
+        throw Object.assign(
+            new Error("No se puede eliminar un insumo con un stock mayor a 0, vacie el stock primero."),
+            { status: 409 } // Not Found
         );
     }
 

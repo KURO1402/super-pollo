@@ -13,7 +13,7 @@ const {
 // Ruta para crear un nuevo insumo
 router.post("/insertar", insertarInsumoController);
 // Ruta para listar todos los insumos
-router.get("/obtener", obtenerInsumosController);
+router.get("/", obtenerInsumosController);
 router.get("/paginacion", obtenerInsumosPaginacionController);
 // Ruta para actualizar un insumo 
 router.put("/actualizar/:idInsumo", actualizarInsumoController);

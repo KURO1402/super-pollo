@@ -12,7 +12,7 @@ const validarRegistrarMovimientoStock = (datos) => {
         );
     }
 
-    const { idInsumo, cantidadMovimiento, tipoMovimiento, detallesMovimiento } = datos;
+    const { idInsumo, cantidadMovimiento, tipoMovimiento } = datos;
 
     // Validar ID del Insumo
     if (!idInsumo || typeof idInsumo !== "number") {

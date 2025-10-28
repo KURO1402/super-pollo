@@ -4,22 +4,41 @@ const router = express.Router();
 //Importamos lso controladores
 const {
   registrarMovimientoStockController,
-  listarMovimientosController,
-  obtenerMovimientosPorInsumoController,
-  eliminarMovimientoController
+  obtenerMovimientosPaginacionController,
+  buscarMovimientosPorInsumoController,
+  buscarMovimientosPorUsuarioController,
+  buscarMovimientosPorFechaController,
+  buscarMovimientosPorTipoController
+
 } = require("../controlador/movimientoControlador");
 
 //ruta para registrar un movimiento
 router.post("/movimiento", registrarMovimientoStockController);
 
-//Ruta para listar todos los movimientos
-router.get("/", listarMovimientosController);
+router.get("/movimientos", async (req, res, next) => {
+  try {
+    const { insumo, usuario, fechaInicio, fechaFin, tipo } = req.query;
 
-//ruta para obtener movimiento especifico
-router.get("/:id", obtenerMovimientosPorInsumoController);
+    if (insumo) {
+      return buscarMovimientosPorInsumoController(req, res);
+    } 
+    if (usuario) {
+      return buscarMovimientosPorUsuarioController(req, res);
+    } 
+    if (fechaInicio && fechaFin) {
+      return buscarMovimientosPorFechaController(req, res);
+    } 
+    if (tipo) {
+      return buscarMovimientosPorTipoController(req, res);
+    }
 
-// Ruta para eliminar un movimiento
-router.delete("/:id", eliminarMovimientoController);
+    // Si no hay filtros, devuelve todos los movimientos paginados
+    return obtenerMovimientosPaginacionController(req, res);
+
+  } catch (err) {
+    next(err);
+  }
+});
 
 //importamos las rutas
 module.exports = router;
