@@ -81,7 +81,7 @@ export const registrarArqueoServicio = async (data) => {
   }
 };
 
-// Servicio para obtener movimientos de caja - CORREGIDO
+// Servicio para obtener movimientos de caja
 export const obtenerMovimientosCajaServicio = async () => {
   try {
     const respuesta = await API.get('/caja/movimientos-caja');
@@ -90,7 +90,7 @@ export const obtenerMovimientosCajaServicio = async () => {
     
     // Validar que sea un array
     if (Array.isArray(movimientosData)) {
-      // Mapear a la estructura que espera tu frontend si es necesario
+      // Mapear a la estructura
       const movimientosFormateados = movimientosData.map(mov => ({
         id: mov.id || Date.now() + Math.random(), // generamos un id temporal ya que no viene del backend
         tipo: mov.tipoMovimiento?.toLowerCase() || 'ingreso',

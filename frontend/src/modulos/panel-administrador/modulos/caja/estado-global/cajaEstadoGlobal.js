@@ -16,21 +16,59 @@ export const cajaEstadoGlobal = create(
       },
       loading: false,
       error: null,
+      // función para calcular totales de los movimientos
+      calcularTotales: (movimientos) => {
+        let ingresos = 0;
+        let egresos = 0;
+        
+        movimientos.forEach(movimiento => {
+          if (movimiento.tipo === 'ingreso') {
+            ingresos += parseFloat(movimiento.monto) || 0;
+          } else if (movimiento.tipo === 'egreso') {
+            egresos += parseFloat(movimiento.monto) || 0;
+          }
+        });
 
-      // Actiones
+        return { ingresos, egresos };
+      },
+
+      // acciones para setear la caja, manejar los diferentes servicios
       setCaja: (cajaData) => set({ 
         caja: { ...get().caja, ...cajaData },
         error: null 
       }),
 
-      setCajaCompleta: (cajaData) => set({ 
-        caja: cajaData,
-        error: null 
-      }),
+      setCajaCompleta: (cajaData) => {
+        // Calcular totales desde los movimientos
+        const { ingresos, egresos } = get().calcularTotales(cajaData.movimientos || []);
+        
+        const cajaCompleta = {
+          ...cajaData,
+          ingresos,
+          egresos,
+          saldoActual: (cajaData.saldoInicial || 0) + ingresos - egresos
+        };
 
-      setMovimientos: (movimientos) => set({
-        caja: { ...get().caja, movimientos }
-      }),
+        set({ 
+          caja: cajaCompleta,
+          error: null 
+        });
+      },
+
+      setMovimientos: (movimientos) => {
+        const state = get();
+        const { ingresos, egresos } = get().calcularTotales(movimientos);
+        
+        set({
+          caja: { 
+            ...state.caja, 
+            movimientos,
+            ingresos,
+            egresos,
+            saldoActual: (state.caja.saldoInicial || 0) + ingresos - egresos
+          }
+        });
+      },
 
       agregarMovimiento: (nuevoMovimiento) => {
         const state = get();
@@ -39,15 +77,14 @@ export const cajaEstadoGlobal = create(
         // Calcular nuevos totales
         let nuevosIngresos = state.caja.ingresos;
         let nuevosEgresos = state.caja.egresos;
-        let nuevoSaldoActual = state.caja.saldoActual;
 
         if (nuevoMovimiento.tipo === 'ingreso') {
-          nuevosIngresos += nuevoMovimiento.monto;
-          nuevoSaldoActual += nuevoMovimiento.monto;
+          nuevosIngresos += parseFloat(nuevoMovimiento.monto) || 0;
         } else if (nuevoMovimiento.tipo === 'egreso') {
-          nuevosEgresos += nuevoMovimiento.monto;
-          nuevoSaldoActual -= nuevoMovimiento.monto;
+          nuevosEgresos += parseFloat(nuevoMovimiento.monto) || 0;
         }
+
+        const nuevoSaldoActual = state.caja.saldoInicial + nuevosIngresos - nuevosEgresos;
 
         set({
           caja: {
@@ -65,8 +102,8 @@ export const cajaEstadoGlobal = create(
         caja: {
           ...get().caja,
           estado: "abierta",
-          saldoInicial: montoInicial,
-          saldoActual: montoInicial,
+          saldoInicial: parseFloat(montoInicial) || 0,
+          saldoActual: parseFloat(montoInicial) || 0,
           ingresos: 0,
           egresos: 0,
           movimientos: []
@@ -91,7 +128,11 @@ export const cajaEstadoGlobal = create(
       limpiarError: () => set({ error: null }),
 
       // Para visualizar el estado si hay algun problema 
-      getEstado: () => get()
+      getEstado: () => {
+        const state = get();
+        console.log('Estado actual de caja:', state.caja);
+        return state;
+      }
     }),
     {
       name: 'caja-storage',

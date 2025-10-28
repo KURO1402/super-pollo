@@ -1,4 +1,5 @@
 // hooks/useCaja.js
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 import { cajaEstadoGlobal } from "../estado-global/cajaEstadoGlobal";
 import { 
   abrirCajaServicio,
@@ -27,7 +28,6 @@ export const useCaja = () => {
 
   // Cargar datos iniciales de caja
   const cargarDatosCaja = async () => {
-    console.log('estado: ', setEstado)
     try {
       setLoading(true);   
       limpiarError();
@@ -37,7 +37,7 @@ export const useCaja = () => {
         const movimientosResponse = await obtenerMovimientosCajaServicio();
         
         // Manejar diferentes estructuras de respuesta
-        if (movimientosResponse.success || movimientosResponse.ok) {
+        if (movimientosResponse.ok) {
           const movimientosData = movimientosResponse.data || 
                                  movimientosResponse.movimientos || 
                                  movimientosResponse;
@@ -94,7 +94,7 @@ export const useCaja = () => {
       }
 
     } catch (error) {
-      setError(error.message || 'Error al cerrar caja');
+      mostrarAlerta.error('Arqueo requerido antes de cerrar');
       throw error;
     } finally {
       setLoading(false);
