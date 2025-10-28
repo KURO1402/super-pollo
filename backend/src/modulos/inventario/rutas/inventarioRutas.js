@@ -19,10 +19,10 @@ router.get("/", listarInsumosController);
 router.get("/:id", obtenerInsumoController);
 
 // Ruta para actualizar un insumo 
-router.put("/actualizar/:idInsumo", actualizarInsumoController);
+router.put("/actualizar-insumo/:idInsumo", actualizarInsumoController);
 
 // Ruta para eliminar un insumo
-router.delete("/:id", eliminarInsumoController);
+router.delete("/eliminar-insumo/:idInsumo", eliminarInsumoController);
 
 // Exportamos las rutas del módulo
 module.exports = router;

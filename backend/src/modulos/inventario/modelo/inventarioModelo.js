@@ -75,8 +75,20 @@ const actualizarInsumoModel = async (idInsumo, nombreInsumo, unidadMedida) => {
 };
 
 // Eliminar insumo
-const eliminarInsumoModel = async (id) => {
-    await pool.query("CALL eliminarInsumo(?)", [id]);
+const eliminarInsumoModel = async (idInsumo) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+
+        const [result] = await conexion.execute("CALL eliminarInsumo(?)", [idInsumo]);
+
+        return result[0][0]?.mensaje;
+    } catch (err) {
+        console.error("Error en eliminarInsumoModel: ", err.message);
+        throw new Error("Error al eliminar el insumo");
+    } finally {
+        if(conexion) conexion.release();
+    } 
 };
 
 const obtenerStockActualModel = async (idInsumo) => {

@@ -100,16 +100,32 @@ const actualizarInsumoService = async (idInsumo, datos) => {0.
 };
 
 // Eliminar un insumo
-const eliminarInsumoService = async (id) => {
-    if (!id) {
-        const error = new Error("Se requiere un ID para eliminar el insumo");
-        error.status = 400;
-        throw error;
+const eliminarInsumoService = async (idInsumo) => {
+    // Validar el parámetro recibido
+    if (!idInsumo || isNaN(Number(idInsumo))) {
+        throw Object.assign(
+            new Error("El ID del insumo proporcionado no es válido."),
+            { status: 400 } // Bad Request
+        );
     }
 
-    await eliminarInsumoModel(id);
+    // Verificar si el insumo existe
+    const insumo = await obtenerInsumoIDModel(idInsumo);
+    if (!insumo || insumo.length === 0) {
+        throw Object.assign(
+            new Error("El insumo no existe"),
+            { status: 404 } // Not Found
+        );
+    }
 
-    return { mensaje: "Insumo eliminado" };
+    // Ejecutar la eliminación (actualización lógica)
+    const resultado = await eliminarInsumoModel(idInsumo);
+
+    // Retornar respuesta exitosa
+    return { 
+        ok: true,
+        mensaje: resultado
+    };
 };
 
 // Exportamos los servicios

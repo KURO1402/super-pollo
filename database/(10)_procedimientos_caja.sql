@@ -24,7 +24,7 @@ CREATE PROCEDURE crearCajaConEvento(
 BEGIN
     DECLARE v_idCaja INT;
 
-     -- Manejo de errores: rollback automático si algo falla
+    -- Manejo de errores: rollback automático si algo falla
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -53,6 +53,9 @@ BEGIN
 
     -- Confirmar cambios
     COMMIT;
+
+    -- Devolver el id generado
+    SELECT v_idCaja AS idCaja;
 END //
 
 -- Procedimiento de cierre de caja con evento de cierre

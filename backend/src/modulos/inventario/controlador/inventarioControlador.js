@@ -66,8 +66,11 @@ const actualizarInsumoController = async (req, res) => {
 // Eliminar un insumo
 const eliminarInsumoController = async (req, res) => {
     try {
-        await eliminarInsumoService(req.params.id);
-        res.json({ ok: true, mensaje: "Insumo eliminado correctamente" });
+        const { idInsumo } = req.params;
+
+        const respuesta = await eliminarInsumoService(idInsumo);
+
+        res.status(200).json(respuesta);
     } catch (error) {
         res.status(error.status || 500).json({ ok: false, mensaje: error.message });
     }

@@ -109,7 +109,23 @@ CREATE PROCEDURE eliminarInsumo(
     IN p_idInsumo INT
 )
 BEGIN
-    UPDATE insumos SET estadoInsumo = '0' WHERE idInsumo = p_idInsumo;
+    -- Manejador de errores SQL
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al eliminar el insumo.';
+    END;
+
+    START TRANSACTION;
+
+    -- Actualizar el estado del insumo a inactivo (0)
+    UPDATE insumos
+    SET estadoInsumo = 0
+    WHERE idInsumo = p_idInsumo;
+
+    COMMIT;
+    SELECT 'Insumo eliminado correctamente' as mensaje;
 END //
 
 -- =============================================
