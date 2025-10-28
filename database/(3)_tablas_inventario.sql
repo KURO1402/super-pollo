@@ -23,7 +23,7 @@ CREATE TABLE movimientosStock(
     idMovimientoStock INT PRIMARY KEY AUTO_INCREMENT,
     cantidadMovimiento DECIMAL(10,2) NOT NULL,
     tipoMovimiento ENUM('salida','entrada') NOT NULL,
-    fechaMovimiento DATETIME NOT NULL,
+    fechaMovimiento DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     detallesMovimiento TEXT,
     idInsumo INT,
     idUsuario INT,

@@ -1,4 +1,4 @@
-const { obtenerInsumoIDModel } = require("../../inventario/modelo/inventarioModelo");
+const { obtenerInsumoIDModel } = require("../../inventario/modelo/insumoModelo");
 
 // 🟢 Validar datos para insertar un producto
 const validarInsertarProducto = async (datos) => {

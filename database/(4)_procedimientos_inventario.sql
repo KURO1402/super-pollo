@@ -3,6 +3,7 @@ USE super_pollo;
 -- Eliminar procedimientos de insumos
 DROP PROCEDURE IF EXISTS insertarInsumo;
 DROP PROCEDURE IF EXISTS obtenerInsumos;
+DROP PROCEDURE IF EXISTS obtenerInsumosPaginacion;
 DROP PROCEDURE IF EXISTS obtenerInsumoPorID;
 DROP PROCEDURE IF EXISTS actualizarInsumo;
 DROP PROCEDURE IF EXISTS eliminarInsumo;
@@ -47,7 +48,30 @@ END //
 
 CREATE PROCEDURE obtenerInsumos()
 BEGIN
-    SELECT * FROM insumos ORDER BY idInsumo DESC;
+    SELECT 
+        idInsumo,
+        nombreInsumo,
+        stockInsumo,
+        unidadMedida
+    FROM insumos
+    WHERE estadoInsumo = 1 
+    ORDER BY idInsumo DESC;
+END //
+
+CREATE PROCEDURE obtenerInsumosPaginacion(
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    SELECT 
+        idInsumo,
+        nombreInsumo,
+        stockInsumo,
+        unidadMedida
+    FROM insumos
+    WHERE estadoInsumo = 1
+    ORDER BY idInsumo DESC
+    LIMIT p_limit OFFSET p_offset;
 END //
 
 CREATE PROCEDURE obtenerInsumoPorId(
@@ -58,8 +82,7 @@ BEGIN
         idInsumo,
         nombreInsumo,
         stockInsumo,
-        unidadMedida,
-        estadoInsumo
+        unidadMedida
     FROM insumos
     WHERE idInsumo = p_idInsumo 
       AND estadoInsumo = 1;
@@ -73,7 +96,8 @@ BEGIN
 
     SELECT COUNT(*) INTO v_count
     FROM insumos
-    WHERE nombreInsumo = p_nombreInsumo;
+    WHERE nombreInsumo = p_nombreInsumo
+    AND estadoInsumo = 1;
 
     SELECT v_count AS cantidadInsumos;
 
@@ -134,31 +158,45 @@ END //
 
 CREATE PROCEDURE registrarMovimientoStock(
     IN p_idInsumo INT,
-    IN p_tipoMovimiento ENUM('entrada', 'salida'),
-    IN p_cantidadMovimiento DECIMAL(10,2),
+    IN p_cantidad DECIMAL(10,2),
+    IN p_tipoMovimiento ENUM('entrada','salida'),
+    IN P_detallesMovimiento TEXT,
     IN p_idUsuario INT
 )
 BEGIN
     DECLARE v_stockActual DECIMAL(10,2);
 
-    SELECT stockInsumo INTO v_stockActual FROM insumos WHERE idInsumo = p_idInsumo;
+    -- Iniciar transacción
+    START TRANSACTION;
 
-    IF p_tipoMovimiento = 'salida' AND v_stockActual < p_cantidadMovimiento THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No hay suficiente stock para realizar la salida.';
-    END IF;
+    -- Registrar movimiento con usuario
+    INSERT INTO movimientosStock (
+        idInsumo,
+        cantidadMovimiento,
+        tipoMovimiento,
+        detallesMovimiento,
+        idUsuario
+    ) VALUES (
+        p_idInsumo,
+        p_cantidad,
+        p_tipoMovimiento,
+        P_detallesMovimiento,
+        p_idUsuario
+    );
 
-    INSERT INTO movimientosstock (idInsumo, tipoMovimiento, cantidadMovimiento, fechaMovimiento, idUsuario)
-    VALUES (p_idInsumo, p_tipoMovimiento, p_cantidadMovimiento, NOW(), p_idUsuario);
-
+    -- Actualizar stock del insumo
     IF p_tipoMovimiento = 'entrada' THEN
-        UPDATE insumos SET stockInsumo = stockInsumo + p_cantidadMovimiento WHERE idInsumo = p_idInsumo;
+        UPDATE insumos
+        SET stockInsumo = stockInsumo + p_cantidad
+        WHERE idInsumo = p_idInsumo;
     ELSE
-        UPDATE insumos SET stockInsumo = stockInsumo - p_cantidadMovimiento WHERE idInsumo = p_idInsumo;
+        UPDATE insumos
+        SET stockInsumo = stockInsumo - p_cantidad
+        WHERE idInsumo = p_idInsumo;
     END IF;
 
-    UPDATE insumos
-    SET estadoInsumo = CASE WHEN stockInsumo <= 0 THEN '0' ELSE '1' END
-    WHERE idInsumo = p_idInsumo;
+    COMMIT;
+    SELECT CONCAT(p_tipoMovimiento, ' registrado exitosamente') AS mensaje;
 END //
 
 CREATE PROCEDURE listarMovimientos()

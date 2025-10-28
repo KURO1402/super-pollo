@@ -2,19 +2,28 @@
 const {
     insertarInsumoModel,
     obtenerInsumosModel,
+    obtenerInsumosPaginacionModel,
     obtenerInsumoIDModel,
     obtenerConteoInsumosPorNombreModel,
     actualizarInsumoModel,
     eliminarInsumoModel
-} = require("../modelo/inventarioModelo");
+} = require("../modelo/insumoModelo");
 
 // Crear un nuevo insumo
-const { validarInsertarInsumo, validarDatosInsumo } = require("../validaciones/inventarioValidaciones");//validaciones
+const { validarInsertarInsumo, validarDatosInsumo } = require("../validaciones/insumoValidaciones");//validaciones
 
 // Crear un nuevo insumo
 const insertarInsumoService = async (datos) => {
     validarInsertarInsumo(datos);
     const { nombreInsumo, cantidadInicial, unidadMedida } = datos;
+    
+    const coincidenciasNombre = await obtenerConteoInsumosPorNombreModel(nombreInsumo);
+    if (coincidenciasNombre > 0) {  // Si ya existe un insumo con el mismo nombre
+        throw Object.assign(
+            new Error("El nombre del insumo ya está en uso."),
+            { status: 409 }
+        );
+    }
 
     const resultado = await insertarInsumoModel(nombreInsumo, cantidadInicial, unidadMedida);
 
@@ -24,42 +33,74 @@ const insertarInsumoService = async (datos) => {
     };
 };
 
-
-
 // Listar todos los insumos
-const listarInsumosService = async () => {
-    // Obtenemos los registros desde el modelo
+const obtenerInsumosService = async () => {
     const insumos = await obtenerInsumosModel();
-    return insumos;
+
+    if (!insumos || insumos.length === 0) {
+        throw Object.assign(
+            new Error("No existen insumos registrados."),
+            { status: 404 }
+        );
+    }
+
+    return {
+        ok: true,
+        insumos: insumos
+    };
+};
+
+//Listar insumos por paginacion
+const obtenerInsumosPaginacionService = async (limit, offset) => {
+    const limite = parseInt(limit) || 10;
+    const desplazamiento = parseInt(offset) || 0;
+
+    const insumos = await obtenerInsumosPaginacionModel(limite, desplazamiento);
+
+    if (!insumos || insumos.length === 0) {
+        throw Object.assign(
+            new Error("No existen insumos en esta página."),
+            { status: 404 }
+        );
+    }
+
+    return {
+        ok: true,
+        insumos: insumos
+    };
 };
 
 // Obtener un insumo por ID
-const obtenerInsumoService = async (id) => {
+const obtenerInsumoIDService = async (idInsumo) => {
     // Validamos que se reciba el ID
-    if (!id) {
-        const error = new Error("Se requiere un ID de insumo");
-        error.status = 400;
-        throw error;
+    if (!idInsumo || isNaN(Number(idInsumo))) {
+        throw Object.assign(
+            new Error("Se necesita un ID de insumo valido."),
+            { status: 400 }
+        );
     }
 
     // Consultamos en la BD
-    const insumo = await obtenerInsumoIDModel(id);
+    const insumo = await obtenerInsumoIDModel(Number(idInsumo));
 
     // Si no existe, lanzamos error 404
-    if (!insumo) {
+    if (!insumo || insumo.length === 0) {
         const error = new Error("Insumo no encontrado");
         error.status = 404;
         throw error;
     }
 
-    return insumo;
+    return {
+        ok: true, 
+        insumo: insumo
+    };
 };
 
 // Actualizar un insumo
 const actualizarInsumoService = async (idInsumo, datos) => {0.
     if (!idInsumo || isNaN(Number(idInsumo))) {
         throw Object.assign(
-            new Error("Se necesita un ID de insumo."),
+            new Error("Se necesita un ID de insumo valido."),
             { status: 400 }
         );
     }
@@ -131,8 +172,9 @@ const eliminarInsumoService = async (idInsumo) => {
 // Exportamos los servicios
 module.exports = {
     insertarInsumoService,
-    listarInsumosService,
-    obtenerInsumoService,
+    obtenerInsumosService,
+    obtenerInsumosPaginacionService,
+    obtenerInsumoIDService,
     actualizarInsumoService,
     eliminarInsumoService
 };

@@ -20,8 +20,39 @@ const insertarInsumoModel = async (nombreInsumo, stockIncial, unidadMedida) => {
 
 // Obtener todos los insumos
 const obtenerInsumosModel = async () => {
-    const [rows] = await pool.query("CALL obtenerInsumos()");
-    return rows[0]; // El resultado viene como un array anidado
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        
+        const [rows] = await conexion.execute("CALL obtenerInsumos()");
+        
+        return rows[0]; // Primer resultado del SELECT
+    } catch (err) {
+        console.error("Error en obtenerInsumosModel:", err.message);
+        throw new Error("Error al obtener los insumos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+// Obtener insumos por paginacion
+const obtenerInsumosPaginacionModel = async (limit, offset) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+
+        const [rows] = await conexion.execute(
+            "CALL obtenerInsumosPaginacion(?, ?)",
+            [limit, offset]
+        );
+
+        return rows[0]; // Devuelve el listado paginado
+    } catch (err) {
+        console.error("Error en obtenerInsumosPaginacionModel:", err.message);
+        throw new Error("Error al obtener insumos con paginación");
+    } finally {
+        if (conexion) conexion.release();
+    }
 };
 
 // Obtener insumo por ID
@@ -103,6 +134,7 @@ const obtenerStockActualModel = async (idInsumo) => {
 module.exports = {
     insertarInsumoModel,
     obtenerInsumosModel,
+    obtenerInsumosPaginacionModel,
     obtenerInsumoIDModel,
     obtenerConteoInsumosPorNombreModel,
     actualizarInsumoModel,

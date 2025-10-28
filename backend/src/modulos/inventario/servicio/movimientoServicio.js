@@ -1,40 +1,53 @@
 //Importamos el modelo
 const jwt = require("jsonwebtoken");
 const {
-    registrarMovimientoModel,
-    listarMovimientosModel,
-    obtenerMovimientosPorInsumoModel,
-    eliminarMovimientoModel
+  registrarMovimientoStockModel,
+  listarMovimientosModel,
+  obtenerMovimientosPorInsumoModel,
+  eliminarMovimientoModel
 } = require("../modelo/movimientosModelo");
+const { obtenerInsumoIDModel } = require("../modelo/insumoModelo")
 
+const { validarRegistrarMovimientoStock } = require("../validaciones/inventarioValidaciones")
 //validaciones
-const {validarDatosMovimiento} =require("../validaciones/movimientoValidaciones")
+const registrarMovimientoStockService = async (datos, token) => {
+  validarRegistrarMovimientoStock(datos);
 
-const registrarMovimientoService = async (datos, token) => {
-  if (!token) {
-    throw { status: 401, mensaje: "Token no proporcionado" };
+  const { idInsumo, cantidadMovimiento, tipoMovimiento, detallesMovimiento } = datos;
+
+  const insumo = await obtenerInsumoIDModel(idInsumo);
+  if (!insumo || insumo.length === 0) {
+    throw Object.assign(
+      new Error("El insumo ingresado es incorrecto."),
+      { status: 404 }
+    );
+  }
+  if (tipoMovimiento === "salida" && insumo.stockInsumo < cantidadMovimiento) {
+    throw Object.assign(
+      new Error("No hay suficiente stock disponible para realizar la salida."),
+      { status: 400 }
+    );
   }
 
-  // Decodificar token para obtener idUsuario
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (err) {
-    throw { status: 401, mensaje: "Token inválido" };
+  let detalle;
+
+  if (typeof detallesMovimiento !== "string" || !detallesMovimiento || !detallesMovimiento.trim()) {
+    detalle = "-";
+  } else {
+    detalle = detallesMovimiento
   }
 
-  // Añadir idUsuario a los datos del movimiento
-  const datosMovimiento = { ...datos, idUsuario: decodedToken.idUsuario };
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  const idUsuario = decodedToken.idUsuario;
 
-  // Validar datos
-  const errores = await validarDatosMovimiento(datosMovimiento);
-  if (errores.length > 0) {
-    throw { status: 400, mensaje: errores.join(", ") };
-  }
 
-  // Registrar movimiento
-  const resultado = await registrarMovimientoModel(datosMovimiento);
-  return resultado;
+  // Ejecutar modelo
+  const resultado = await registrarMovimientoStockModel(idInsumo, cantidadMovimiento, tipoMovimiento, detalle, idUsuario);
+
+  return {
+    ok: true,
+    mensaje: resultado
+  };
 };
 
 // Listar todos los movimientos
@@ -77,8 +90,8 @@ const eliminarMovimientoService = async (id) => {
 
 
 module.exports = {
-    registrarMovimientoService,
-    listarMovimientosService,
-    obtenerMovimientosPorInsumoService,
-    eliminarMovimientoService
+  registrarMovimientoStockService,
+  listarMovimientosService,
+  obtenerMovimientosPorInsumoService,
+  eliminarMovimientoService
 };

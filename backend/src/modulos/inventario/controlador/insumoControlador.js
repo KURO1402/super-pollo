@@ -1,11 +1,12 @@
 // Importamos los servicios de insumos
 const {
     insertarInsumoService,
-    listarInsumosService,
-    obtenerInsumoService,
+    obtenerInsumosService,
+    obtenerInsumosPaginacionService,
+    obtenerInsumoIDService,
     actualizarInsumoService,
     eliminarInsumoService
-} = require("../servicio/inventarioServicio");
+} = require("../servicio/insumoServicio");
 
 // Crear un nuevo insumo
 const insertarInsumoController = async (req, res) => {
@@ -26,20 +27,48 @@ const insertarInsumoController = async (req, res) => {
 };
 
 // Listar todos los insumos
-const listarInsumosController = async (req, res) => {
+const obtenerInsumosController = async (req, res) => {
     try {
-        const insumos = await listarInsumosService();
-        res.json({ ok: true, total: insumos.length, data: insumos });
-    } catch (error) {
-        res.status(error.status || 500).json({ ok: false, mensaje: error.message });
+        const insumos = await obtenerInsumosService();
+
+        return res.status(200).json(insumos);
+    } catch (err) {
+        console.error("Error en listarInsumosController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
+//Obtener insumos por paginacion
+const obtenerInsumosPaginacionController = async (req, res) => {
+    try {
+        const { limit, offset } = req.query;
+
+        const insumos = await obtenerInsumosPaginacionService(limit, offset);
+
+        return res.status(200).json(insumos);
+    } catch (err) {
+        console.error("Error en obtenerInsumosPaginacionController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
     }
 };
 
 // Obtener un insumo por su ID
-const obtenerInsumoController = async (req, res) => {
+const obtenerInsumoIDController = async (req, res) => {
     try {
-        const insumo = await obtenerInsumoService(req.params.id);
-        res.json({ ok: true, data: insumo });
+        const { idInsumo } = req.params;
+
+        const respuesta = await obtenerInsumoIDService(idInsumo);
+        res.json(respuesta);
     } catch (error) {
         res.status(error.status || 500).json({ ok: false, mensaje: error.message });
     }
@@ -79,8 +108,9 @@ const eliminarInsumoController = async (req, res) => {
 // Exportamos todos los controladores
 module.exports = {
     insertarInsumoController,
-    listarInsumosController,
-    obtenerInsumoController,
+    obtenerInsumosController,
+    obtenerInsumosPaginacionController,
+    obtenerInsumoIDController,
     actualizarInsumoController,
     eliminarInsumoController
 };
