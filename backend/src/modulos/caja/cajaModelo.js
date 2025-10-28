@@ -7,7 +7,7 @@ const crearCajaModel = async (montoInicial, usuarioId) => {
     try {
         conexion = await pool.getConnection();
         const [result] = await conexion.query("CALL crearCajaConEvento(?, ?)", [montoInicial, usuarioId]);
-        return result;
+        return result[0][0]?.idCaja;
     } catch (err) {
         console.error("Error en crearCajaModel: ", err.message);
         throw new Error("Error al crear la caja en la base de datos");
