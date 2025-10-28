@@ -1,12 +1,14 @@
 import { useForm } from "react-hook-form";
 import { FiBarChart2, FiDollarSign, FiCreditCard, FiSmartphone, FiPackage } from "react-icons/fi";
 import Modal from "../../../componentes/modal/Modal";
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
 const ModalArqueo = ({ estaAbierto, onCerrar, onRegistrarArqueo, saldoActual }) => {
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
 
   const onSubmit = (data) => {
     onRegistrarArqueo(data);
+    mostrarAlerta.exito('¡Cuadre de caja completado!')
     reset();
   };
 
@@ -49,7 +51,8 @@ const ModalArqueo = ({ estaAbierto, onCerrar, onRegistrarArqueo, saldoActual }) 
                 min="0"
                 {...register("montoFisico", { 
                   required: "El monto en efectivo es requerido",
-                  min: { value: 0, message: "El monto no puede ser negativo" }
+                  min: { value: 0, message: "El monto no puede ser negativo" },
+                  valueAsNumber: true
                 })}
                 className="w-full h-11 pl-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="0.00"
@@ -73,7 +76,8 @@ const ModalArqueo = ({ estaAbierto, onCerrar, onRegistrarArqueo, saldoActual }) 
                 min="0"
                 {...register("montoTarjeta", { 
                   required: "El monto en tarjetas es requerido",
-                  min: { value: 0, message: "El monto no puede ser negativo" }
+                  min: { value: 0, message: "El monto no puede ser negativo" },
+                  valueAsNumber: true
                 })}
                 className="w-full h-11 pl-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="0.00"
@@ -97,7 +101,8 @@ const ModalArqueo = ({ estaAbierto, onCerrar, onRegistrarArqueo, saldoActual }) 
                 min="0"
                 {...register("montoBilleteraDigital", { 
                   required: "El monto en billetera digital es requerido",
-                  min: { value: 0, message: "El monto no puede ser negativo" }
+                  min: { value: 0, message: "El monto no puede ser negativo" },
+                  valueAsNumber: true
                 })}
                 className="w-full h-11 pl-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="0.00"
@@ -121,7 +126,8 @@ const ModalArqueo = ({ estaAbierto, onCerrar, onRegistrarArqueo, saldoActual }) 
                 min="0"
                 {...register("otros", { 
                   required: "El monto en otros medios es requerido",
-                  min: { value: 0, message: "El monto no puede ser negativo" }
+                  min: { value: 0, message: "El monto no puede ser negativo" },
+                  valueAsNumber: true
                 })}
                 className="w-full h-11 pl-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="0.00"
