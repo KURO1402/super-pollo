@@ -11,7 +11,7 @@ import ModalAbrirCaja from "../componentes/ModalAbrirCaja";
 import ModalIngreso from "../componentes/ModalIngreso";
 import ModalEgreso from "../componentes/ModalEgreso";
 import ModalArqueo from "../componentes/ModalArqueo";
-
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
 const CajaActualSeccion = () => {
   const {
@@ -35,10 +35,12 @@ const CajaActualSeccion = () => {
   const modalEgreso = useModal();
   const modalArqueo = useModal();
 
-  // Cargar datos al montar el componente
   useEffect(() => {
-    cargarDatosCaja();
-  }, []);
+    if (cajaAbierta && caja.idCaja) {
+      console.log("Caja abierta detectada, cargando movimientos...");
+      cargarDatosCaja();
+    }
+  }, [cajaAbierta, caja.idCaja]);
 
   // Funciones de utilidad
   const formatCurrency = (amount) => {
@@ -61,6 +63,7 @@ const CajaActualSeccion = () => {
   const onCerrarCaja = async () => {
     try {
       await handleCerrarCaja();
+      mostrarAlerta.exito("Caja cerrada con éxito")
     } catch (error) {
       console.error("Error al cerrar caja:", error);
     }

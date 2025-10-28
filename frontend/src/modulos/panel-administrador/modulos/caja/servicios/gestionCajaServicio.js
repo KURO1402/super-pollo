@@ -36,7 +36,14 @@ export const cerrarCajaServicio = async () => {
 // Servicio para registrar ingreso
 export const registrarIngresoServicio = async (data) => {
   try {
-    const respuesta = await API.post('/caja/ingreso-caja', data);
+    const datosParaBackend = {
+      monto: data.monto,
+      descripcion: data.descripcion,
+      tipoMovimiento: "Ingreso",
+      descripcionMovCaja: data.descripcion
+    };
+    
+    const respuesta = await API.post('/caja/ingreso-caja', datosParaBackend);
     
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al registrar ingreso");
@@ -52,7 +59,14 @@ export const registrarIngresoServicio = async (data) => {
 // Servicio para registrar egreso
 export const registrarEgresoServicio = async (data) => {
   try {
-    const respuesta = await API.post('/caja/egreso-caja', data);
+    const datosParaBackend = {
+      monto: data.monto,
+      descripcion: data.descripcion,
+      tipoMovimiento: "Egreso", 
+      descripcionMovCaja: data.descripcion
+    };
+    
+    const respuesta = await API.post('/caja/egreso-caja', datosParaBackend);
     
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al registrar egreso");
@@ -125,19 +139,49 @@ export const obtenerMovimientosCajaServicio = async () => {
   }
 };
 
-// Servicio para obtener movimientos de una caja específica
 export const obtenerMovimientosPorCajaServicio = async (idCaja) => {
   try {
     const respuesta = await API.get(`/caja/movimientos-caja/${idCaja}`);
     
-    if (!respuesta.data.ok) {
-      throw new Error(respuesta.data.mensaje || "Error al obtener movimientos de la caja");
+    if (Array.isArray(respuesta.data)) {
+      const movimientosFormateados = respuesta.data.map((mov, index) => ({
+        id: `mov-${idCaja}-${index}-${Date.now()}`, // ID único temporal
+        tipo: mov.tipoMovimiento?.toLowerCase() || 'ingreso',
+        descripcion: mov.descripcionMovCaja || '',
+        monto: parseFloat(mov.montoMovimiento) || 0,
+        fecha: mov.fecha,
+        hora: mov.hora,
+        usuario: mov.nombreUsuario || 'Usuario'
+      }));
+      
+      return {
+        ok: true,
+        data: movimientosFormateados,
+        mensaje: `Se obtuvieron ${movimientosFormateados.length} movimientos`
+      };
+    } else {
+      return {
+        ok: false,
+        mensaje: respuesta.data?.mensaje || "Error desconocido del servidor",
+        data: []
+      };
     }
     
-    return respuesta.data;
   } catch (error) {
-    console.error('Error al obtener movimientos por caja:', error);
-    throw error;
+    console.error('Error en obtenerMovimientosPorCajaServicio:', error);
+    
+    if (error.code === 'NETWORK_ERROR' || !error.response) {
+      throw new Error('No se pudo conectar con el servidor');
+    }
+    
+    const status = error.response?.status;
+    if (status === 404) {
+      throw new Error('No se encontraron movimientos para esta caja');
+    } else if (status === 401) {
+      throw new Error('No autorizado para ver estos movimientos');
+    } else {
+      throw new Error(`Error del servidor: ${status}`);
+    }
   }
 };
 

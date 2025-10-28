@@ -7,7 +7,8 @@ import {
   registrarIngresoServicio,
   registrarEgresoServicio,
   registrarArqueoServicio,
-  obtenerMovimientosCajaServicio
+  obtenerMovimientosCajaServicio,
+  obtenerMovimientosPorCajaServicio
 } from '../servicios/gestionCajaServicio';
 
 export const useCaja = () => {
@@ -26,39 +27,36 @@ export const useCaja = () => {
     setEstado
   } = cajaEstadoGlobal();
 
-  // Cargar datos iniciales de caja
   const cargarDatosCaja = async () => {
     try {
       setLoading(true);   
       limpiarError();
 
-      // Cargar movimientos
-      try {
-        const movimientosResponse = await obtenerMovimientosCajaServicio();
+      // solo cargar movimientos si tenemos idCaja y la caja está abierta
+      if (caja.idCaja && caja.estado === "abierta") {
         
-        // Manejar diferentes estructuras de respuesta
+        const movimientosResponse = await obtenerMovimientosPorCajaServicio(caja.idCaja);
+        
         if (movimientosResponse.ok) {
-          const movimientosData = movimientosResponse.data || 
-                                 movimientosResponse.movimientos || 
-                                 movimientosResponse;
+          // Ahora usamos movimientosResponse.data que contiene el array
+          const movimientosData = movimientosResponse.data || [];
           setMovimientos(Array.isArray(movimientosData) ? movimientosData : []);
         } else {
           console.warn('Movimientos no disponibles:', movimientosResponse.message);
           setMovimientos([]);
         }
-      } catch (movimientosError) {
-        console.error('Error cargando movimientos:', movimientosError);
-        setError('Error al cargar movimientos: ' + movimientosError.message);
-        setMovimientos([]); // Usar array vacío como fallback
+      } else {
+        setMovimientos([]);
       }
 
     } catch (error) {
-      console.error('Error general en cargarDatosCaja:', error);
-      setError('Error al cargar datos de caja: ' + error.message);
+      console.error('Error en cargarDatosCaja:', error);
+      setError('Error al cargar movimientos: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
+
   // Función para abrir caja
   const handleAbrirCaja = async (montoInicial) => {
     try {
@@ -68,8 +66,28 @@ export const useCaja = () => {
       const response = await abrirCajaServicio({ montoInicial: Number(montoInicial) });
       
       if (response.ok) {
-        abrirCaja(Number(montoInicial));
+        // guardamos el id de la caja
+        const idCaja = response.idCaja; 
+        
+        if (!idCaja) {
+          throw new Error("No se recibió el ID de la caja al abrir");
+        }
+
+        console.log("Caja abierta con ID:", idCaja);
+
+        // Actualizar el estado con el idCaja real
+        abrirCaja({
+          idCaja: idCaja, // guardamos el id que nos devuelve el backend 
+          saldoInicial: Number(montoInicial),
+          saldoActual: Number(montoInicial)
+        });
+
+        // Cargar movimientos
+        await cargarDatosCaja();
+        
         return response;
+      } else {
+        throw new Error(response.mensaje || "Error al abrir caja");
       }
 
     } catch (error) {

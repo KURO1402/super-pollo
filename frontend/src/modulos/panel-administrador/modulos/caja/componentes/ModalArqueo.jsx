@@ -8,7 +8,7 @@ const ModalArqueo = ({ estaAbierto, onCerrar, onRegistrarArqueo, saldoActual }) 
 
   const onSubmit = (data) => {
     onRegistrarArqueo(data);
-    mostrarAlerta.exito('¡Cuadre de caja completado!')
+    mostrarAlerta.exito('Arqueo de caja completado!')
     reset();
   };
 
@@ -187,7 +187,7 @@ const ModalArqueo = ({ estaAbierto, onCerrar, onRegistrarArqueo, saldoActual }) 
           </button>
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-2.5 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 transition-colors duration-200"
+            className="flex items-center cursor-pointer gap-2 px-6 py-2.5 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 transition-colors duration-200"
           >
             <FiBarChart2 className="w-4 h-4" />
             Registrar Arqueo

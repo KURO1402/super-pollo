@@ -1,17 +1,7 @@
-import { FiTrendingUp, FiTrendingDown, FiUser } from "react-icons/fi";
+import { FiTrendingDown, FiTrendingUp, FiUser } from "react-icons/fi";
 
 const FilaMovimientos = ({ movimiento, formatCurrency }) => {
-  // Mostrar fecha y hora separados
-  const mostrarFecha = () => {
-    //validar la fecha
-    return movimiento.fecha || "Fecha no disponible";
-  };
-
-  const mostrarHora = () => {
-    // VAlidar la hora
-    return movimiento.hora || "Hora no disponible";
-  };
-
+  console.log("movimientos en fila:", movimiento)
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
       <td className="px-6 py-4">
@@ -41,10 +31,10 @@ const FilaMovimientos = ({ movimiento, formatCurrency }) => {
       <td className="px-6 py-4">
         <div className="flex flex-col gap-1">
           <span className="text-sm text-gray-900 dark:text-white">
-            {mostrarFecha()}
+            {movimiento.fecha || "Fecha no disponible"}
           </span>
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {mostrarHora()}
+            {movimiento.hora || "Hora no disponible"}
           </span>
         </div>
       </td>
@@ -52,7 +42,7 @@ const FilaMovimientos = ({ movimiento, formatCurrency }) => {
         <div className="flex items-center gap-2">
           <FiUser className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {movimiento.usuario}
+            {movimiento.usuario || "Usuario"} {/* ← Este debería funcionar ahora */}
           </span>
         </div>
       </td>
