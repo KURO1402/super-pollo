@@ -30,9 +30,9 @@ const crearPreferencia = async (idReservacion) => {
         body: {
             items,
             back_urls: {
-                success: "https://www.google.com/success", /*http://localhost:5173/pago-exitoso",*/
-                failure: "https://www.google.com/failure", /*http://localhost:5173/pago-fallido",*/
-                pending: "https://www.google.com/pending"  /*http://localhost:5173/pago-pendiente"*/
+                success: "https://superpollohyo.com/usuario/pago-exitoso", 
+                failure: "https://superpollohyo.com/usuario/pago-fallido", 
+                pending: "https://superpollohyo.com/usuario/pago-pendiente"  
             },
             notification_url: "http://localhost:3001/mercadopago/webhook",
             auto_return: "approved",
