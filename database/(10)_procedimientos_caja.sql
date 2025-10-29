@@ -353,7 +353,7 @@ BEGIN
         DATE_FORMAT(c.fechaCaja, '%d/%m/%Y') AS fecha,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario,
         c.montoActual,
-        ac.montoContado,
+        ac.montoFisico,
         ac.diferencia,
         ac.estadoCaja
     FROM caja c

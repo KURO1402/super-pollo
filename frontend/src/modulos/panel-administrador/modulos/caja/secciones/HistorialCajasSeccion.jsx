@@ -9,6 +9,8 @@ import Modal from "../../../componentes/modal/Modal";
 // Nuestros hooks 
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
+import { useHistorialCajas } from "../hooks/useHistorialCaja";
+import TablasCajasCerradas from "../componentes/TablaCajasCerradas";
 
 const HistorialCajasSeccion = () => {
   const [filtros, setFiltros] = useState({
@@ -17,96 +19,25 @@ const HistorialCajasSeccion = () => {
     empleado: "",
     estado: ""
   }); // estado para los filtros
+  const { 
+    cajasCerradas,
+    loadingCajas,
+    errorCajas,
+    arqueosPorCaja,
+    loadingArqueos,
+    errorArqueos,
+    cargarArqueos,
+    formatDate,
+    formatCurrency
+  } = useHistorialCajas();
   const [cajaSeleccionada, setCajaSeleccionada] = useState(null); // estado para saber que caja a sido seleccionada
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(10); // para la paginación
   const { estaAbierto: modalDetalleAbierto, abrir: abrirDetalle, cerrar: cerrarDetalle } = useModal(); // uso del modal
 
-  // Datos de ejemplo para el historial
-  const [historial, setHistorial] = useState([
-    {
-      id: 1,
-      fecha: "2024-01-15",
-      cajero: "María González",
-      saldoEsperado: 2030.25,
-      saldoContado: 2030.25,
-      diferencia: 0,
-      estado: "cuadrada",
-      ventas: [
-        { tipo: "Efectivo", monto: 1200.00 },
-        { tipo: "Tarjeta", monto: 600.25 },
-        { tipo: "Transferencia", monto: 230.00 }
-      ],
-      movimientos: [
-        { tipo: "ingreso", descripcion: "Apertura de caja", monto: 1500.00 },
-        { tipo: "egreso", descripcion: "Compra materiales", monto: 120.50 },
-        { tipo: "ingreso", descripcion: "Venta mostrador", monto: 350.00 }
-      ]
-    },
-    {
-      id: 2,
-      fecha: "2024-01-14",
-      cajero: "Carlos López",
-      saldoEsperado: 1850.75,
-      saldoContado: 1900.75,
-      diferencia: 50.00,
-      estado: "sobrante",
-      ventas: [
-        { tipo: "Efectivo", monto: 1100.00 },
-        { tipo: "Tarjeta", monto: 500.75 },
-        { tipo: "Transferencia", monto: 250.00 }
-      ],
-      movimientos: [
-        { tipo: "ingreso", descripcion: "Apertura de caja", monto: 1500.00 },
-        { tipo: "egreso", descripcion: "Gastos operativos", monto: 199.25 }
-      ]
-    },
-    {
-      id: 3,
-      fecha: "2024-01-13",
-      cajero: "Ana Martínez",
-      saldoEsperado: 2200.50,
-      saldoContado: 2150.50,
-      diferencia: -50.00,
-      estado: "faltante",
-      ventas: [
-        { tipo: "Efectivo", monto: 1400.00 },
-        { tipo: "Tarjeta", monto: 600.50 },
-        { tipo: "Transferencia", monto: 200.00 }
-      ],
-      movimientos: [
-        { tipo: "ingreso", descripcion: "Apertura de caja", monto: 1500.00 },
-        { tipo: "ingreso", descripcion: "Venta especial", monto: 700.50 }
-      ]
-    },
-    {
-      id: 4,
-      fecha: "2024-01-12",
-      cajero: "Pedro Sánchez",
-      saldoEsperado: 1950.00,
-      saldoContado: 1950.00,
-      diferencia: 0,
-      estado: "cuadrada",
-      ventas: [
-        { tipo: "Efectivo", monto: 1000.00 },
-        { tipo: "Tarjeta", monto: 750.00 },
-        { tipo: "Transferencia", monto: 200.00 }
-      ],
-      movimientos: [
-        { tipo: "ingreso", descripcion: "Apertura de caja", monto: 1500.00 },
-        { tipo: "egreso", descripcion: "Pago servicios", monto: 300.00 }
-      ]
-    }
-  ]);
-
-  const [empleados] = useState([
-    "María González",
-    "Carlos López", 
-    "Ana Martínez",
-    "Pedro Sánchez"
-  ]);
+  console.log("cajasCerradas:", cajasCerradas);
 
   // Aplicar filtros
-  const historialFiltrado = historial.filter(caja => {
+  const historialFiltrado = cajasCerradas.filter(caja => {
     if (filtros.fechaInicio && caja.fecha < filtros.fechaInicio) return false;
     if (filtros.fechaFin && caja.fecha > filtros.fechaFin) return false;
     if (filtros.empleado && caja.cajero !== filtros.empleado) return false;
@@ -116,86 +47,6 @@ const HistorialCajasSeccion = () => {
 
   // Paginar resultados filtrados
   const { datosPaginados: cajasPaginadas, totalPaginas } = paginar(historialFiltrado);
-
-  // Encabezados para la tabla
-  const encabezados = ["Fecha", "Cajero", "Saldo Esperado", "Saldo Contado", "Diferencia", "Estado", "Acciones"];
-
-  // Función para formatear moneda
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN'
-    }).format(amount);
-  };
-
-  // Función para formatear fecha
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
-
-  // Renderizar filas de la tabla
-  const registros = cajasPaginadas.map((caja) => (
-    <tr key={caja.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
-      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
-        {formatDate(caja.fecha)}
-      </td>
-      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
-        {caja.cajero}
-      </td>
-      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-medium">
-        {formatCurrency(caja.saldoEsperado)}
-      </td>
-      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-medium">
-        {formatCurrency(caja.saldoContado)}
-      </td>
-      <td className={`px-6 py-4 text-sm font-medium ${
-        caja.diferencia > 0 
-          ? "text-green-700 dark:text-green-400" 
-          : caja.diferencia < 0 
-          ? "text-red-700 dark:text-red-400" 
-          : "text-gray-700 dark:text-gray-400"
-      }`}>
-        {caja.diferencia > 0 ? `+${formatCurrency(caja.diferencia)}` : 
-         caja.diferencia < 0 ? `${formatCurrency(caja.diferencia)}` : 
-         formatCurrency(caja.diferencia)}
-      </td>
-      <td className="px-6 py-4">
-        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-          caja.estado === "cuadrada" 
-            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
-            : caja.estado === "sobrante"
-            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-        }`}>
-          {caja.estado === "cuadrada" ? (
-            <FiCheckCircle className="w-3 h-3" />
-          ) : caja.estado === "sobrante" ? (
-            <FiAlertTriangle className="w-3 h-3" />
-          ) : (
-            <FiXCircle className="w-3 h-3" />
-          )}
-          {caja.estado === "cuadrada" ? "Cuadrada" : 
-           caja.estado === "sobrante" ? "Sobrante" : "Faltante"}
-        </div>
-      </td>
-      <td className="px-6 py-4">
-        <button
-          onClick={() => {
-            setCajaSeleccionada(caja);
-            abrirDetalle();
-          }}
-          className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200"
-        >
-          <FiEye className="w-4 h-4" />
-          Ver Detalle
-        </button>
-      </td>
-    </tr>
-  ));
 
   // Manejar cambio de filtros
   const handleFiltroChange = (campo, valor) => {
@@ -253,13 +104,6 @@ const HistorialCajasSeccion = () => {
     setPaginaActual(1);
   };
 
-  // Exportar datos
-  const handleExportar = () => {
-    // Simulación de exportación
-    console.log("Exportando datos:", historialFiltrado);
-    alert("Datos exportados correctamente");
-  };
-
   // Imprimir reporte
   const handleImprimir = () => {
     window.print();
@@ -278,13 +122,6 @@ const HistorialCajasSeccion = () => {
               Auditoría y análisis de flujos de efectivo pasados
             </p>
           </div>
-          <button
-            onClick={handleExportar}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-sm"
-          >
-            <FiDownload className="w-4 h-4" />
-            Exportar
-          </button>
         </div>
 
         {/* Filtros Avanzados */}
@@ -332,25 +169,6 @@ const HistorialCajasSeccion = () => {
               className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
             />
           </div>
-
-          {/* Filtro por Empleado */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Cajero/Empleado
-            </label>
-            <select
-              value={filtros.empleado}
-              onChange={(e) => handleFiltroChange("empleado", e.target.value)}
-              className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-            >
-              <option value="">Todos los cajeros</option>
-              {empleados.map(empleado => (
-                <option key={empleado} value={empleado}>
-                  {empleado}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         {/* Filtros Adicionales */}
@@ -375,40 +193,15 @@ const HistorialCajasSeccion = () => {
       </div>
 
       {/* Tabla de Historial */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2">
-            <FiFilter className="w-5 h-5 text-gray-400" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Resumen de Cajas Cerradas
-            </h2>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              ({historialFiltrado.length} registros)
-            </span>
-          </div>
-        </div>
-
-        {historialFiltrado.length > 0 ? (
-          <>
-            <Tabla
-              encabezados={encabezados}
-              registros={registros}
-            />
-            {totalPaginas > 1 && (
-              <Paginacion
-                paginaActual={paginaActual}
-                totalPaginas={totalPaginas}
-                alCambiarPagina={setPaginaActual}
-              />
-            )}
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <FiSearch className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400">No se encontraron registros</p>
-          </div>
-        )}
-      </div>
+      <TablasCajasCerradas
+        cajasCerradas={cajasPaginadas}
+        formatCurrency={formatCurrency}
+        formatDate={formatDate}
+        paginaActual={paginaActual}
+        totalPaginas={totalPaginas}
+        onCambiarPagina={setPaginaActual}
+        loading={loadingCajas}
+      />
 
       {/* Modal de Detalle */}
       <Modal

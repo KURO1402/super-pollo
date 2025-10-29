@@ -23,10 +23,10 @@ export const cajaEstadoGlobal = create(
         let egresos = 0;
         
         movimientos.forEach(movimiento => {
-          if (movimiento.tipo === 'ingreso') {
-            ingresos += parseFloat(movimiento.monto) || 0;
-          } else if (movimiento.tipo === 'egreso') {
-            egresos += parseFloat(movimiento.monto) || 0;
+          if (movimiento.tipoMovimiento === 'Ingreso') {
+            ingresos += parseFloat(movimiento.montoMovimiento) || 0;
+          } else if (movimiento.tipoMovimiento === 'Egreso') {
+            egresos += parseFloat(movimiento.montoMovimiento) || 0;
           }
         });
 
@@ -79,9 +79,9 @@ export const cajaEstadoGlobal = create(
         let nuevosIngresos = state.caja.ingresos;
         let nuevosEgresos = state.caja.egresos;
 
-        if (nuevoMovimiento.tipo === 'ingreso') {
+        if (nuevoMovimiento.tipoMovimiento === 'ingreso') {
           nuevosIngresos += parseFloat(nuevoMovimiento.monto) || 0;
-        } else if (nuevoMovimiento.tipo === 'egreso') {
+        } else if (nuevoMovimiento.tipoMovimiento === 'egreso') {
           nuevosEgresos += parseFloat(nuevoMovimiento.monto) || 0;
         }
 
