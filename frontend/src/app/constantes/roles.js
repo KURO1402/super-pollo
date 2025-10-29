@@ -98,7 +98,7 @@ export const PERMISOS = {
   },
 };
 
-// RUTAS DE REDIRECCIÓN DESPUÉS DEL LOGIN
+// rutas despues de redireccion del usario
 
 export const RUTAS_REDIRECCION = {
   [ROLES.SUPERADMIN]: '/admin',

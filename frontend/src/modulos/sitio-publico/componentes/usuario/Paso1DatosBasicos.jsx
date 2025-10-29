@@ -8,7 +8,7 @@ import { useEffect } from "react";
 const Paso1DatosBasicos = () => {
   const { register, formState: { errors }, watch, setValue, trigger } = useFormContext();
   const { mesasDisponibles, updateDatos, datos, buscarMesasDisponibles, cargandoMesas, errorMesas, limpiarMesas } = reservaEstadoGlobal();
-  
+
   const fechaForm = watch('fecha');
   const horaForm = watch('hora');
   const personas = watch('personas') || datos.personas;
@@ -219,7 +219,7 @@ const Paso1DatosBasicos = () => {
               <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                 {mesasDisponibles.map(mesa => (
                   <div
-                    key={mesa.idMesa}
+                    key={mesa.id}
                     onClick={() => handleSeleccionarMesa(mesa)}
                     className={`p-4 border-2 rounded-xl cursor-pointer transition-all text-center ${
                       datos.mesa === mesa.numero
