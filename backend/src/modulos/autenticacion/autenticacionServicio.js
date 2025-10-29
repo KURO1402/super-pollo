@@ -200,7 +200,7 @@ const renovarAccessTokenService = async (refreshToken) => {
   // Aquí usamos new Promise porque jwt.verify trabaja con callbacks, para poder decodificar el token con los datos del usuario
   const usuario = await new Promise((resolve, reject) => {
     // Verificamos si el refreshToken es válido y no ha expirado
-    jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, decoded) => {
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
       if (err) reject(err);// Si hay error (token inválido o expirado) rechazamos la promesa
       else resolve(decoded);// Si todo está bien, resolvemos la promesa con los datos decodificados del usuario
     });
@@ -208,8 +208,13 @@ const renovarAccessTokenService = async (refreshToken) => {
 
   // Generamos un nuevo accessToken válido por 15 minutos
   const nuevoAccessToken = jwt.sign(
-    { id: usuario.id, email: usuario.email },
-    process.env.ACCESS_SECRET,
+    {
+      idUsuario: usuario.idUsuario,
+      nombresUsuario: usuario.nombresUsuario,
+      apellidosUsuario: usuario.apellidosUsuario,
+      idRol: usuario.idRol
+    },
+    process.env.JWT_SECRET,
     { expiresIn: '15m' }
   );
 

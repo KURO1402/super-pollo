@@ -1,7 +1,6 @@
 import { FiTrendingDown, FiTrendingUp, FiUser } from "react-icons/fi";
 
 const FilaMovimientos = ({ movimiento, formatCurrency }) => {
-  console.log("movimientos en fila:", movimiento)
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
       <td className="px-6 py-4">
