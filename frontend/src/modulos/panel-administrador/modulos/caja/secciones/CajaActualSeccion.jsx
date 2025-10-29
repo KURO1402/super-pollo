@@ -37,7 +37,6 @@ const CajaActualSeccion = () => {
 
   useEffect(() => {
     if (cajaAbierta && caja.idCaja) {
-      console.log("Caja abierta detectada, cargando movimientos...");
       cargarDatosCaja();
     }
   }, [cajaAbierta, caja.idCaja]);
