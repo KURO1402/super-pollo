@@ -37,7 +37,7 @@ const ModalAbrirCaja = ({ estaAbierto, onCerrar, onAbrirCaja }) => {
               min="0"
               {...register("montoInicial", { 
                 required: "El monto inicial es requerido",
-                min: { value: 0.01, message: "El monto debe ser mayor a 0" }
+                min: { value: 0.1, message: "El monto debe ser mayor a 0" }
               })}
               className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
               placeholder="0.00"
@@ -54,13 +54,13 @@ const ModalAbrirCaja = ({ estaAbierto, onCerrar, onAbrirCaja }) => {
           <button
             type="button"
             onClick={handleCancelar}
-            className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+            className="px-6 py-2.5 border cursor-pointer border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="px-6 py-2.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-200"
+            className="px-6 py-2.5 cursor-pointer bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-200"
           >
             Abrir Caja
           </button>

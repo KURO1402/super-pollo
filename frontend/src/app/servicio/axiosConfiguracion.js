@@ -16,7 +16,6 @@ API.interceptors.request.use(
             try {
                 const parsed = JSON.parse(authStorage);
                 accessToken = parsed.state.accessToken;
-                console.log('Token usado en request:', accessToken);
             } catch (error) {
                 console.error('Error parsing auth storage:', error);
             }

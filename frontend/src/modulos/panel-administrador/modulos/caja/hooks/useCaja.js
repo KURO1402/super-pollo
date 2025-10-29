@@ -41,6 +41,11 @@ export const useCaja = () => {
           // Ahora usamos movimientosResponse.data que contiene el array
           const movimientosData = movimientosResponse.data || [];
           setMovimientos(Array.isArray(movimientosData) ? movimientosData : []);
+          if(Array.isArray(movimientosData) && movimientosData.length > 0){
+            setMovimientos(movimientosData);
+          }else{
+            setMovimientos([]);
+          }
         } else {
           console.warn('Movimientos no disponibles:', movimientosResponse.message);
           setMovimientos([]);
@@ -73,9 +78,7 @@ export const useCaja = () => {
           throw new Error("No se recibió el ID de la caja al abrir");
         }
 
-        console.log("Caja abierta con ID:", idCaja);
-
-        // Actualizar el estado con el idCaja real
+        // Actualizar el estado con el idCaja
         abrirCaja({
           idCaja: idCaja, // guardamos el id que nos devuelve el backend 
           saldoInicial: Number(montoInicial),

@@ -1,9 +1,13 @@
-import { FiClock, FiFilter } from "react-icons/fi";
+import { FiClock } from "react-icons/fi";
+import { FaArrowRightArrowLeft } from "react-icons/fa6";
+import { FaCashRegister } from "react-icons/fa";
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import FilaMovimientos from "./FilaMovimientos";
+import { cajaEstadoGlobal } from "../estado-global/cajaEstadoGlobal";
 
 const TablaMovimientos = ({ movimientos, formatCurrency, paginaActual, totalPaginas, onCambiarPagina }) => {
+  const {caja} = cajaEstadoGlobal();
   const encabezados = ["Tipo", "Descripción", "Monto", "Fecha", "Usuario"];
 
   const registros = movimientos.map((movimiento) => (
@@ -43,10 +47,15 @@ const TablaMovimientos = ({ movimientos, formatCurrency, paginaActual, totalPagi
             />
           )}
         </>
+      ) : caja.estado === "cerrada" ? (
+        <div className="text-center py-12">
+          <FaCashRegister className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400">¡Abre una nueva caja para comenzar!</p>
+        </div>
       ) : (
         <div className="text-center py-12">
-          <FiFilter className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400">No se encontraron movimientos</p>
+          <FaArrowRightArrowLeft className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400">Registra un movimiento para comenzar</p>
         </div>
       )}
     </div>

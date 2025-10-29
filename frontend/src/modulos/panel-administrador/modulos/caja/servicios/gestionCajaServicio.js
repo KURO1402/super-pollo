@@ -101,7 +101,7 @@ export const obtenerMovimientosCajaServicio = async () => {
     const respuesta = await API.get('/caja/movimientos-caja');
     
     const movimientosData = respuesta.data;
-    
+
     // Validar que sea un array
     if (Array.isArray(movimientosData)) {
       // Mapear a la estructura
@@ -139,49 +139,38 @@ export const obtenerMovimientosCajaServicio = async () => {
   }
 };
 
+// Obtener los movimientos de una por ID
 export const obtenerMovimientosPorCajaServicio = async (idCaja) => {
   try {
     const respuesta = await API.get(`/caja/movimientos-caja/${idCaja}`);
-    
-    if (Array.isArray(respuesta.data)) {
-      const movimientosFormateados = respuesta.data.map((mov, index) => ({
-        id: `mov-${idCaja}-${index}-${Date.now()}`, // ID único temporal
-        tipo: mov.tipoMovimiento?.toLowerCase() || 'ingreso',
-        descripcion: mov.descripcionMovCaja || '',
-        monto: parseFloat(mov.montoMovimiento) || 0,
-        fecha: mov.fecha,
-        hora: mov.hora,
-        usuario: mov.nombreUsuario || 'Usuario'
-      }));
-      
-      return {
-        ok: true,
-        data: movimientosFormateados,
-        mensaje: `Se obtuvieron ${movimientosFormateados.length} movimientos`
-      };
-    } else {
-      return {
-        ok: false,
-        mensaje: respuesta.data?.mensaje || "Error desconocido del servidor",
-        data: []
-      };
-    }
-    
+    const data = respuesta.data;
+
+    if (!Array.isArray(data)) throw new Error("Error desconocido del servidor");
+
+    return {
+      ok: true,
+      data: data.map((mov, index) => ({
+        ...mov,
+        id: `mov-${idCaja}-${index}-${Date.now()}`  // Genera un id único para hacer el map de los movimientos
+      })),
+      mensaje: `Se obtuvieron ${data.length} movimientos`
+    };
+
   } catch (error) {
     console.error('Error en obtenerMovimientosPorCajaServicio:', error);
-    
-    if (error.code === 'NETWORK_ERROR' || !error.response) {
-      throw new Error('No se pudo conectar con el servidor');
-    }
-    
-    const status = error.response?.status;
-    if (status === 404) {
-      throw new Error('No se encontraron movimientos para esta caja');
-    } else if (status === 401) {
-      throw new Error('No autorizado para ver estos movimientos');
-    } else {
-      throw new Error(`Error del servidor: ${status}`);
-    }
+  }
+};
+
+// Servicio para obtener arqueos de una caja específica
+export const obtenerArqueosPorCajaServicio = async (idCaja) => {
+  try {
+    const respuesta = await API.get(`/caja/arqueos-caja/${idCaja}`);
+    console.log('✅ Respuestas del arqueo de la caja', respuesta.data)
+    // retornamos ese mismo array
+    return respuesta.data;
+  } catch (error) {
+    console.error('Error al obtener arqueos por caja:', error);
+    return []; // devolvemos el array vacio
   }
 };
 
@@ -190,45 +179,19 @@ export const obtenerCajasCerradasServicio = async (limit = 10, offset = 0) => {
   try {
     const respuesta = await API.get(`/caja/registros-caja?limit=${limit}&offset=${offset}`);
     
-    if (!respuesta.data.ok) {
-      throw new Error(respuesta.data.mensaje || "Error al obtener cajas cerradas");
-    }
+    // el backend devuelve directamente el array
+    const cajasCerradas = respuesta.data;
     
-    return respuesta.data;
+    // Agregar ID único a cada caja y devolver directamente el array
+    const cajasConId = cajasCerradas.map((caja, index) => ({
+      ...caja,
+      id: `caja-${caja.idCaja || offset + index}-${Date.now()}`  // ID único para React
+    }));
+    
+    return cajasConId; // Devuelve directamente el array
+    
   } catch (error) {
     console.error('Error al obtener cajas cerradas:', error);
-    throw error;
-  }
-};
-
-// Servicio para obtener arqueos de caja (paginados)
-export const obtenerArqueosCajaServicio = async (limit = 10, offset = 0) => {
-  try {
-    const respuesta = await API.get(`/caja/arqueos-caja?limit=${limit}&offset=${offset}`);
-    
-    if (!respuesta.data.ok) {
-      throw new Error(respuesta.data.mensaje || "Error al obtener arqueos");
-    }
-    
-    return respuesta.data;
-  } catch (error) {
-    console.error('Error al obtener arqueos:', error);
-    throw error;
-  }
-};
-
-// Servicio para obtener arqueos de una caja específica
-export const obtenerArqueosPorCajaServicio = async (idCaja) => {
-  try {
-    const respuesta = await API.get(`/caja/arqueos-caja/${idCaja}`);
-    
-    if (!respuesta.data.ok) {
-      throw new Error(respuesta.data.mensaje || "Error al obtener arqueos de la caja");
-    }
-    
-    return respuesta.data;
-  } catch (error) {
-    console.error('Error al obtener arqueos por caja:', error);
-    throw error;
+    return []; // Devuelve array vacío en caso de error
   }
 };
