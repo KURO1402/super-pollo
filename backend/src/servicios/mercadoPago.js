@@ -12,7 +12,7 @@ const client = new MercadoPagoConfig({
 
 const crearPreferencia = async (idReservacion) => {
     const detalles = await obtenerDetalleReservacionService(idReservacion);
-    if (!detalles || detalles.length === 0) throw new Error("Rservación no encontrada");
+    if (!detalles || detalles.length === 0) throw new Error("Reservación no encontrada");
 
     // Calcular monto total
     const montoTotal = detalles.reduce((sum, d) => sum + (d.cantidadProductoReservacion * d.precioUnitario), 0);
