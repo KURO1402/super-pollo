@@ -10,7 +10,7 @@ const {
 } = require("../modelo/insumoModelo");
 
 // Crear un nuevo insumo
-const { validarInsertarInsumo, validarDatosInsumo } = require("../validaciones/insumoValidaciones");//validaciones
+const { validarInsertarInsumo } = require("../validaciones/insumoValidaciones");//validaciones
 
 // Crear un nuevo insumo
 const insertarInsumoService = async (datos) => {

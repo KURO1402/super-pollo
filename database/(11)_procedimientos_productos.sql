@@ -19,6 +19,10 @@ DROP PROCEDURE IF EXISTS obtenerProductos;
 DROP PROCEDURE IF EXISTS obtenerProductosPaginacion;
 DROP PROCEDURE IF EXISTS buscarProductosPorNombre;
 DROP PROCEDURE IF EXISTS obtenerInsumosPorProducto;
+DROP PROCEDURE IF EXISTS insertarCategoriaProducto;
+DROP PROCEDURE IF EXISTS actualizarCategoriaProducto;
+DROP PROCEDURE IF EXISTS obtenerCategoriaPorNombre;
+DROP PROCEDURE IF EXISTS obtenerCategoriaPorId;
 
 DELIMITER //
 
@@ -69,10 +73,18 @@ CREATE PROCEDURE registrarProducto(
     IN p_nombreProducto VARCHAR(50),
     IN p_descripcionProducto TEXT,
     IN p_precio DECIMAL(10,2),
-    IN p_usaInsumos TINYINT(1)
+    IN p_usaInsumos TINYINT(1),
+    in p_idCategoria INT
 )
 BEGIN
     DECLARE v_idProducto INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al registrar producto.';
+    END;
     
     START TRANSACTION;
     
@@ -80,12 +92,14 @@ BEGIN
         nombreProducto,
         descripcionProducto,
         precio,
-        usaInsumos
+        usaInsumos,
+        idCategoria
     ) VALUES (
         p_nombreProducto,
         p_descripcionProducto,
         p_precio,
-        p_usaInsumos
+        p_usaInsumos,
+        p_idCategoria
     );
 
     SET v_idProducto = LAST_INSERT_ID();
@@ -100,6 +114,12 @@ CREATE PROCEDURE registrarImagenProducto(
     IN p_idProducto INT
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al registar imagen.';
+    END;
     START TRANSACTION;
 
     INSERT INTO imagenesProductos (urlImagen, publicID, idProducto)
@@ -116,6 +136,12 @@ CREATE PROCEDURE registrarCantidadInsumoProducto(
     IN p_cantidadUso DECIMAL(10,2)
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al registrar cantidades de insumos del producto.';
+    END;
     START TRANSACTION;
 
     INSERT INTO cantidadInsumoProducto (idProducto, idInsumo, cantidadUso)
@@ -131,16 +157,24 @@ CREATE PROCEDURE actualizarProducto(
     IN p_idProducto INT,
     IN p_nombreProducto VARCHAR(50),
     IN p_descripcionProducto TEXT,
-    IN p_precio DECIMAL(10,2)
+    IN p_precio DECIMAL(10,2),
+    IN p_idCategoria INT
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar datos del producto.';
+    END;
     START TRANSACTION;
 
     UPDATE productos
     SET 
         nombreProducto = p_nombreProducto,
         descripcionProducto = p_descripcionProducto,
-        precio = p_precio
+        precio = p_precio,
+        idCategoria = p_idCategoria
     WHERE idProducto = p_idProducto;
 
     COMMIT;
@@ -154,6 +188,12 @@ CREATE PROCEDURE actualizarImagenProducto(
     IN p_nuevoPublicID VARCHAR(100)
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar imagen.';
+    END;
     START TRANSACTION;
 
     UPDATE imagenesProductos
@@ -173,6 +213,12 @@ CREATE PROCEDURE actualizarCantidadUsoInsumoProducto(
     IN p_nuevaCantidad DECIMAL(10,2)
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar cantidades de insumos del producto.';
+    END;
     START TRANSACTION;
 
     UPDATE cantidadInsumoProducto
@@ -189,6 +235,12 @@ CREATE PROCEDURE actualizarUsaInsumosProducto(
     IN p_usaInsumo INT
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar si el producto usa insumos.';
+    END;
     START TRANSACTION;
 
     UPDATE productos
@@ -205,6 +257,12 @@ CREATE PROCEDURE eliminarCantidadInsumoProducto(
     IN p_idInsumo INT
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al elimar relacion de insumo al producto.';
+    END;
     START TRANSACTION;
 
     DELETE FROM cantidadInsumoProducto
@@ -219,6 +277,12 @@ CREATE PROCEDURE eliminarProducto(
     IN p_idProducto INT
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al eliminar producto.';
+    END;
     START TRANSACTION;
 
     UPDATE productos
@@ -320,6 +384,75 @@ BEGIN
     INNER JOIN insumos i 
         ON cip.idInsumo = i.idInsumo
     WHERE cip.idProducto = p_idProducto;
+END //
+
+-- PROCEDIMIENTOS PARA CATEGORIAS DE PRODUCTO
+
+CREATE PROCEDURE insertarCategoriaProducto(
+    IN p_nombreCategoria VARCHAR(100)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al insertar categoria de producto.';
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO categoriasProducto(nombreCategoria)
+    VALUES(p_nombreCategoria);
+
+    COMMIT;
+
+    SELECT 'Categoría registrada correctamente.' AS mensaje;
+END // 
+
+
+CREATE PROCEDURE actualizarCategoriaProducto(
+    IN p_idCategoria INT,
+    IN p_nombreCategoria VARCHAR(100)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar categoría de producto.';
+    END;
+
+    START TRANSACTION;
+
+    UPDATE categoriasProducto
+    SET nombreCategoria = p_nombreCategoria
+    WHERE idCategoria = p_idCategoria;
+
+    COMMIT;
+
+    SELECT 'Categoría actualizada correctamente.' AS mensaje;
+END //
+
+CREATE PROCEDURE obtenerCategoriaPorNombre(
+    IN p_nombreCategoria VARCHAR(100)
+)
+BEGIN
+    SELECT 
+        idCategoria,
+        nombreCategoria
+    FROM categoriasProducto
+    WHERE nombreCategoria = p_nombreCategoria;
+END //
+
+CREATE PROCEDURE obtenerCategoriaPorId(
+    IN p_idCategoria INT
+)
+BEGIN
+    SELECT 
+        idCategoria,
+        nombreCategoria
+    FROM categoriasProducto
+    WHERE idCategoria = p_idCategoria;
 END //
 
 DELIMITER ;

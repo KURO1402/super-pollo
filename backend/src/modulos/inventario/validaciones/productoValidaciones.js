@@ -6,7 +6,7 @@ const validarInsertarProducto = async (datos) => {
         throw Object.assign(new Error("Se necesitan los datos del producto para registrarlo"), { status: 400 });
     }
 
-    const { nombreProducto, descripcionProducto, precio, usaInsumo, insumos } = datos;
+    const { nombreProducto, descripcionProducto, precio, usaInsumo, insumos, idCategoria } = datos;
 
     // 🔸 Nombre
     if (!nombreProducto || typeof nombreProducto !== "string" || !nombreProducto.trim()) {
@@ -40,6 +40,10 @@ const validarInsertarProducto = async (datos) => {
     }
     if (usaInsumo === 1 && insumos.length === 0) {
         throw Object.assign(new Error("Debe especificar al menos un insumo y su cantidad"), { status: 422 });
+    }
+
+    if(!idCategoria || typeof idCategoria !== "number"){
+        throw Object.assign(new Error("Se necesita la categoria del producto."), { status: 400 });
     }
 
     // 🔍 Validar existencia de insumos en la base de datos
@@ -78,16 +82,13 @@ const validarInsertarProducto = async (datos) => {
 
 
 // 🟢 Validar datos para actualizar un producto
-const validarActualizarProducto = (idProducto, datos) => {
-    if (!idProducto || typeof idProducto !== "number") {
-        throw Object.assign(new Error("Se necesita un ID de producto válido para actualizarlo"), { status: 400 });
-    }
+const validarActualizarProducto = (datos) => {
 
     if (!datos || typeof datos !== 'object') {
         throw Object.assign(new Error("Se necesitan los datos del producto a actualizar"), { status: 400 });
     }
 
-    const { nombreProducto, descripcionProducto, precio } = datos;
+    const { nombreProducto, descripcionProducto, precio, idCategoria } = datos;
 
     if (!nombreProducto || typeof nombreProducto !== "string" || !nombreProducto.trim()) {
         throw Object.assign(new Error("El nombre del producto es obligatorio y debe ser texto"), { status: 400 });
@@ -102,6 +103,10 @@ const validarActualizarProducto = (idProducto, datos) => {
     }
     if (precio <= 0) {
         throw Object.assign(new Error("El precio debe ser mayor a 0"), { status: 422 });
+    }
+
+    if(!idCategoria || typeof idCategoria !== "number"){
+        throw Object.assign(new Error("Se necesita la categoria del producto."), { status: 400 });
     }
 };
 

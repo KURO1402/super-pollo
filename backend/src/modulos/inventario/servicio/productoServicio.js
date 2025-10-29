@@ -18,7 +18,12 @@ const {
     obtenerProductosModel,
     obtenerProductosPaginacionModel,
     buscarProductosPorNombreModel,
-    obtenerInsumosPorProductoModel
+    obtenerProductosPorCategoriaModel,
+    obtenerInsumosPorProductoModel,
+    insertarCategoriaProductoModel,
+    actualizarCategoriaProductoModel,
+    obtenerCategoriaPorNombreModel,
+    obtenerCategoriaPorIdModel
 } = require("../modelo/productoModelo");
 
 const {
@@ -33,14 +38,22 @@ const {
 const insertarProductoService = async (datos, file) => {
     await validarInsertarProducto(datos);
 
-    const { nombreProducto, descripcionProducto, precio, usaInsumo, insumos } = datos;
+    const { nombreProducto, descripcionProducto, precio, usaInsumo, insumos, idCategoria } = datos;
 
     const existeProducto = await validarProductoPorNombreModel(nombreProducto);
     if (existeProducto.length > 0) {
         throw Object.assign(new Error("El producto ya existe"), { status: 400 });
     }
 
-    const productoId = await insertarProductoModel(nombreProducto, descripcionProducto, precio, usaInsumo);
+    const categoria = await obtenerCategoriaPorIdModel(idCategoria);
+    if (categoria.length === 0) {
+        throw Object.assign(
+            new Error("Categoria seleccionada no valida."),
+            { status: 404 }
+        );
+    }
+
+    const productoId = await insertarProductoModel(nombreProducto, descripcionProducto, precio, usaInsumo, idCategoria);
     if (!productoId) {
         throw Object.assign(new Error("Error al insertar producto"), { status: 500 });
     }
@@ -81,10 +94,17 @@ const insertarProductoService = async (datos, file) => {
 
 // 🟢 Actualizar producto
 const actualizarProductoService = async (idProducto, datos) => {
-    validarActualizarProducto(Number(idProducto), datos);
+    if (!idProducto || isNaN(Number(idProducto))) {
+        throw Object.assign(
+            new Error("Se requiere un ID de usuario válido."),
+            { status: 400 }
+        );
+    }
 
-    const { nombreProducto, descripcionProducto, precio } = datos;
-    const producto = await obtenerProductoPorIdModel(idProducto);
+    validarActualizarProducto(datos);
+
+    const { nombreProducto, descripcionProducto, precio, idCategoria } = datos;
+    const producto = await obtenerProductoPorIdModel(Number(idProducto));
     
     if (producto.length === 0) {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
@@ -94,8 +114,15 @@ const actualizarProductoService = async (idProducto, datos) => {
     if (existeProducto.length > 0) {
         throw Object.assign(new Error("El nombre del producto ya está en uso"), { status: 400 });
     }
-
-    const respuesta = await actualizarProductoModel(idProducto, nombreProducto, descripcionProducto, precio);
+    
+    const categoria = await obtenerCategoriaPorIdModel(idCategoria);
+    if (categoria.length === 0) {
+        throw Object.assign(
+            new Error("Categoria seleccionada no valida."),
+            { status: 404 }
+        );
+    }
+    const respuesta = await actualizarProductoModel(Number(idProducto), nombreProducto, descripcionProducto, precio, idCategoria);
     if (!respuesta) {
         throw Object.assign(new Error("Error al actualizar producto"), { status: 500 });
     }
@@ -333,6 +360,29 @@ const buscarProductosPorNombreService = async (nombre) => {
     };
 };
 
+const obtenerProductosPorCategoriaService = async (idCategoria) => {
+    if (!idCategoria || isNaN(Number(idCategoria))) {
+        throw Object.assign(
+            new Error("Se requiere un ID de categoría válido."),
+            { status: 400 }
+        );
+    }
+
+    const productos = await obtenerProductosPorCategoriaModel(Number(idCategoria));
+
+    if (!productos || productos.length === 0) {
+        throw Object.assign(
+            new Error("No existen productos asociados a la categoría especificada."),
+            { status: 404 }
+        );
+    }
+
+    return {
+        ok: true,
+        productos: productos
+    };
+};
+
 // Servicio para obtener los insumos y su cantidad de un producto
 const obtenerInsumosPorProductoService = async (idProducto) => {
     if (!idProducto) {
@@ -357,6 +407,101 @@ const obtenerInsumosPorProductoService = async (idProducto) => {
     };
 };
 
+//Servicios para categorias
+const insertarCategoriaProductoService = async (datos) => {
+    if (!datos || typeof datos !== 'object') {
+        throw Object.assign(new Error("Se necesita datos como el nombre de categoria."), { status: 400 });
+    }
+    const { nombreCategoria } = datos
+    if (!nombreCategoria || typeof nombreCategoria !== "string" || !nombreCategoria.trim()) {
+        throw Object.assign(
+            new Error("Se necesita un nombre de categoría válido."),
+            { status: 400 }
+        );
+    }
+
+    // Puedes agregar una validación extra si quieres evitar duplicados
+    const categoriaExistente = await obtenerCategoriaPorNombreModel(nombreCategoria);
+    if (categoriaExistente.length > 0) {
+        throw Object.assign(
+            new Error("El nombre de categoria ya esta en uso."),
+            { status: 409 } // Conflicto
+        );
+    }
+
+    const resultado = await insertarCategoriaProductoModel(nombreCategoria);
+
+    return { 
+        ok: true, 
+        mensaje: resultado 
+    };
+};
+
+const actualizarCategoriaProductoService = async (idCategoria, datos) => {
+    if (!datos || typeof datos !== 'object') {
+        throw Object.assign(new Error("Se necesita datos como el nombre de categoria."), { status: 400 });
+    }
+    const { nombreCategoria } = datos;
+    if (!idCategoria || isNaN(Number(idCategoria))) {
+        throw Object.assign(
+            new Error("Se necesita una categoria valida"),
+            { status: 400 }
+        );
+    }
+
+    if (!nombreCategoria || typeof nombreCategoria !== "string" || !nombreCategoria.trim()) {
+        throw Object.assign(
+            new Error("Se necesita el nuevo nombre de la categoria."),
+            { status: 400 }
+        );
+    }
+
+    // Verificación de existencia
+    const categoria = await obtenerCategoriaPorIdModel(idCategoria);
+    if (categoria.length === 0) {
+        throw Object.assign(
+            new Error("Categoria seleccionada no valida."),
+            { status: 404 }
+        );
+    }
+
+    const categoriaExistente = await obtenerCategoriaPorNombreModel(nombreCategoria);
+    if (categoriaExistente.length > 0) {
+        throw Object.assign(
+            new Error("El nombre de categoria ya esta en uso."),
+            { status: 409 } // Conflicto
+        );
+    }
+
+    // Ejecutar actualización
+    const mensaje = await actualizarCategoriaProductoModel(idCategoria, nombreCategoria);
+
+    return { ok: true, mensaje: mensaje };
+};
+
+const obtenerCategoriaPorIdService = async (idCategoria) => {
+    if (!idCategoria || isNaN(Number(idCategoria))) {
+        throw Object.assign(
+            new Error("Se requiere un ID de categoría válido."),
+            { status: 400 }
+        );
+    }
+
+    const categoria = await obtenerCategoriaPorIdModel(Number(idCategoria));
+
+    if (!categoria || categoria.length === 0) {
+        throw Object.assign(
+            new Error("No existe una categoría con el ID especificado."),
+            { status: 404 }
+        );
+    }
+
+    return {
+        ok: true,
+        categoria: categoria[0]
+    };
+};
+
 
 module.exports = {
     insertarProductoService,
@@ -370,5 +515,9 @@ module.exports = {
     obtenerProductosPaginacionService,
     obtenerProductoPorIdService,
     buscarProductosPorNombreService,
-    obtenerInsumosPorProductoService
+    obtenerProductosPorCategoriaService,
+    obtenerInsumosPorProductoService,
+    insertarCategoriaProductoService,
+    actualizarCategoriaProductoService,
+    obtenerCategoriaPorIdService
 };

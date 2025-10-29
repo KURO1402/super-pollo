@@ -83,13 +83,13 @@ const obtenerPublicIdImagenModel = async (idProducto) => {
 // =============================================
 
 // Registrar producto
-const insertarProductoModel = async (nombreProducto, descProducto, precio, usaInsumo) => {
+const insertarProductoModel = async (nombreProducto, descProducto, precio, usaInsumo, idCategoria) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
         const [result] = await conexion.execute(
-            "CALL registrarProducto(?, ?, ?, ?)",
-            [nombreProducto, descProducto, precio, usaInsumo]
+            "CALL registrarProducto(?, ?, ?, ?, ?)",
+            [nombreProducto, descProducto, precio, usaInsumo, idCategoria]
         );
         return result[0][0]?.idGenerado; // { idGenerado }
     } catch (err) {
@@ -137,13 +137,13 @@ const insertarCantidadInsumoProductoModel = async (idProducto, idInsumo, cantida
 };
 
 // Actualizar producto
-const actualizarProductoModel = async (idProducto, nombreProducto, descProducto, precio) => {
+const actualizarProductoModel = async (idProducto, nombreProducto, descProducto, precio, idCategoria) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
         const [result] = await conexion.execute(
-            "CALL actualizarProducto(?, ?, ?, ?)",
-            [idProducto, nombreProducto, descProducto, precio]
+            "CALL actualizarProducto(?, ?, ?, ?, ?)",
+            [idProducto, nombreProducto, descProducto, precio, idCategoria]
         );
         return result[0][0].mensaje;
     } catch (err) {
@@ -267,7 +267,7 @@ const obtenerProductosPaginacionModel = async (limit, offset) => {
         const [result] = await conexion.execute("CALL obtenerProductosPaginacion(?, ?)", [limit, offset]);
         return result[0];
     } catch (err) {
-        console.error("Error en obtenerProductosModel:", err.message);
+        console.error("Error en obtenerProductosPaginacionModel:", err.message);
         throw Object.assign(
             new Error("Error al obtener los productos de la base de datos"),
             { status: 500 }
@@ -293,6 +293,20 @@ const buscarProductosPorNombreModel = async (nombre) => {
     }
 };
 
+const obtenerProductosPorCategoriaModel = async (idCategoria) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL obtenerProductosPorCategoria(?)", [idCategoria]);
+        return result[0]; // Devuelve los productos encontrados
+    } catch (err) {
+        console.error("Error en obtenerProductosPorCategoriaModel:", err.message);
+        throw new Error("Error al obtener productos por categoría en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 // Modelo para obtener los insumos y su cantidad de un producto
 const obtenerInsumosPorProductoModel = async (idProducto) => {
     let conexion;
@@ -303,6 +317,71 @@ const obtenerInsumosPorProductoModel = async (idProducto) => {
     } catch (err) {
         console.error("Error en obtenerInsumosPorProductoModel:", err.message);
         throw new Error("Error al obtener los insumos del producto en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+//Modelos para categorias
+const insertarCategoriaProductoModel = async (nombreCategoria) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute(
+            "CALL insertarCategoriaProducto(?)",
+            [nombreCategoria]
+        );
+
+        return result[0][0]?.mensaje;
+    } catch (err) {
+        console.error("Error en insertarCategoriaProductoModel:", err.message);
+        throw new Error("Error al registrar categoría en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const actualizarCategoriaProductoModel = async (idCategoria, nombreCategoria) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute(
+            "CALL actualizarCategoriaProducto(?, ?)",
+            [idCategoria, nombreCategoria]
+        );
+
+        return result?.[0]?.[0]?.mensaje; // "Categoría actualizada correctamente."
+    } catch (err) {
+        console.error("Error en actualizarCategoriaProductoModel:", err.message);
+        throw err;
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const obtenerCategoriaPorNombreModel = async (nombre) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL obtenerCategoriaPorNombre(?)", [nombre]);
+        return result[0]; // Devuelve la categoría encontrada
+    } catch (err) {
+        console.error("Error en obtenerCategoriaPorNombreModel:", err.message);
+        throw new Error("Error al obtener categoría por nombre en la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const obtenerCategoriaPorIdModel = async (idCategoria) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL obtenerCategoriaPorId(?)", [idCategoria]);
+        return result[0]; // Devuelve la categoría encontrada
+    } catch (err) {
+        console.error("Error en obtenerCategoriaPorIdModel:", err.message);
+        throw new Error("Error al obtener categoría por ID en la base de datos");
     } finally {
         if (conexion) conexion.release();
     }
@@ -327,5 +406,10 @@ module.exports = {
     obtenerProductosModel,
     obtenerProductosPaginacionModel,
     buscarProductosPorNombreModel,
-    obtenerInsumosPorProductoModel 
+    obtenerProductosPorCategoriaModel,
+    obtenerInsumosPorProductoModel,
+    insertarCategoriaProductoModel,
+    actualizarCategoriaProductoModel,
+    obtenerCategoriaPorNombreModel,
+    obtenerCategoriaPorIdModel 
 };

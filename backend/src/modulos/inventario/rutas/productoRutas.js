@@ -15,12 +15,16 @@ const {
     obtenerProductosPaginacionController,
     obtenerProductoPorIdController,
     buscarProductosPorNombreController,
-    obtenerInsumosPorProductoControlller
+    obtenerProductosPorCategoriaController,
+    obtenerInsumosPorProductoControlller,
+    insertarCategoriaProductoController,
+    actualizarCategoriaProductoController,
+    obtenerCategoriaPorIdController
 } = require("../controlador/productoControlador");
 
 // ✅ Rutas relacionadas a productos
 router.post("/agregar-producto", autenticacionToken, verificarImagen, insertarProductoController);
-router.put("/actualizar-producto/:idProducto", autenticacionToken, actualizarProductoController);
+router.put("/actualizar-producto/:idProducto",  actualizarProductoController);
 router.delete("/eliminar-producto/:idProducto", autenticacionToken, eliminarProductoController);
 
 // ✅ Rutas relacionadas a imágenes
@@ -36,5 +40,11 @@ router.get("/paginacion", obtenerProductosPaginacionController)
 router.get("/busqueda", buscarProductosPorNombreController);
 router.get("/:idProducto", obtenerProductoPorIdController);
 router.get("/insumos-cantidad/:idProducto", obtenerInsumosPorProductoControlller);
+router.get("/filtrar-categoria/:idCategoria", obtenerProductosPorCategoriaController);
+
+//Rutas para categorias
+router.post("/categorias/agregar", insertarCategoriaProductoController);
+router.put("/categorias/actualizar/:idCategoria", actualizarCategoriaProductoController);
+router.get("/categorias/:idCategoria", obtenerCategoriaPorIdController)
 
 module.exports = router;
