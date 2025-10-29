@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { actualizarPagoService } = require('../modulos/reservaciones/reservacionesServicio.js');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
+require('dotenv').config();
 
 // Middleware para parsear JSON
 router.use(express.json());
 
 // Configura el cliente Mercado Pago
 const client = new MercadoPagoConfig({
-  accessToken: 'APP_USR-412908639165268-101313-aaf1c24aeffd6d32165dc5dded689461-2923267294'
+  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN
 });
 
 // Ruta del webhook

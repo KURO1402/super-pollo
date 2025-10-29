@@ -1,11 +1,13 @@
 // SDK de Mercado Pago
 const { MercadoPagoConfig, Preference } = require('mercadopago');
+// Cargar variable de entorno
+require('dotenv').config();
 // Importamos las rutas de reservaciones
 const { obtenerDetalleReservacionService, insertarPagoService } = require('../modulos/reservaciones/reservacionesServicio.js')
 
 // Agrega credenciales
 const client = new MercadoPagoConfig({ 
-    accessToken: 'APP_USR-412908639165268-101313-aaf1c24aeffd6d32165dc5dded689461-2923267294' 
+    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN
 });
 
 const crearPreferencia = async (idReservacion) => {
@@ -59,6 +61,4 @@ const crearPreferencia = async (idReservacion) => {
 
 module.exports = { crearPreferencia };
 
-/* USUARIO DE PRUEBA PARA COMPRAR
-   USUARIO: TESTUSER5327885063936142262 
-   CONTRASEÑA: a1aIwpG1bk */
+
