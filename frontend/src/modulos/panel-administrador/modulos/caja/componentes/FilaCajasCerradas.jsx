@@ -1,9 +1,10 @@
 import { FiAlertTriangle, FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
 
-const FilaCajasCerradas = ({ cajaCerrada, formatCurrency }) => {
+const FilaCajasCerradas = ({ cajaCerrada, formatCurrency, abrirDetalle, setCajaSeleccionada  }) => {
+  console.log('caja en la fila: ', cajaCerrada)
   return (
     <tr
-      key={cajaCerrada.id}
+      key={cajaCerrada.idCaja}
       className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150"
     >
       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">

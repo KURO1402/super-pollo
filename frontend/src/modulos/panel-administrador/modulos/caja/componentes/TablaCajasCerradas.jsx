@@ -3,15 +3,18 @@ import { Tabla } from "../../../componentes/tabla/Tabla";
 import FilaCajasCerradas from "./FilaCajasCerradas";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 
-const TablasCajasCerradas = ({cajasCerradas, formatCurrency, paginaActual, totalPaginas, onCambiarPagina }) => {
+const TablasCajasCerradas = ({cajasCerradas, formatCurrency, paginaActual, totalPaginas, onCambiarPagina, abrirDetalle, setCajaSeleccionada }) => {
   // Encabezados para la tabla
   const encabezados = ["Fecha", "Cajero", "Saldo Esperado", "Saldo Contado", "Diferencia", "Estado", "Acciones"];
 
   const registros = cajasCerradas.map((cajaCerrada) => (
     <FilaCajasCerradas
-      key={cajaCerrada.id}
+      key={cajaCerrada.idCaja}
       cajaCerrada={cajaCerrada} 
       formatCurrency={formatCurrency}
+      abrirDetalle = {abrirDetalle}
+      handleCajaAbierta = {cajaCerrada}
+      setCajaSeleccionada = {setCajaSeleccionada}
     />
   )); 
 

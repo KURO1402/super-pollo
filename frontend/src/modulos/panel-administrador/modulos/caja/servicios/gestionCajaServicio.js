@@ -165,7 +165,7 @@ export const obtenerMovimientosPorCajaServicio = async (idCaja) => {
 export const obtenerArqueosPorCajaServicio = async (idCaja) => {
   try {
     const respuesta = await API.get(`/caja/arqueos-caja/${idCaja}`);
-    console.log('✅ Respuestas del arqueo de la caja', respuesta.data)
+    console.log('Respuestas del arqueo de la caja', respuesta.data)
     // retornamos ese mismo array
     return respuesta.data;
   } catch (error) {
@@ -178,17 +178,10 @@ export const obtenerArqueosPorCajaServicio = async (idCaja) => {
 export const obtenerCajasCerradasServicio = async (limit = 10, offset = 0) => {
   try {
     const respuesta = await API.get(`/caja/registros-caja?limit=${limit}&offset=${offset}`);
-    
     // el backend devuelve directamente el array
     const cajasCerradas = respuesta.data;
     
-    // Agregar ID único a cada caja y devolver directamente el array
-    const cajasConId = cajasCerradas.map((caja, index) => ({
-      ...caja,
-      id: `caja-${caja.idCaja || offset + index}-${Date.now()}`  // ID único para React
-    }));
-    
-    return cajasConId; // Devuelve directamente el array
+    return cajasCerradas; // Devuelve directamente el array
     
   } catch (error) {
     console.error('Error al obtener cajas cerradas:', error);

@@ -1,10 +1,8 @@
 // librerias externas
-import { FiSearch, FiDownload, FiPrinter, FiFilter, FiCheckCircle, FiAlertTriangle, FiXCircle, FiEye} from "react-icons/fi";
+import { FiPrinter } from "react-icons/fi";
 // hooks de react
 import { useState } from "react";
-// componentes reutilizables
-import { Tabla } from "../../../componentes/tabla/Tabla";
-import { Paginacion } from "../../../componentes/tabla/Paginacion";
+
 import Modal from "../../../componentes/modal/Modal";
 // Nuestros hooks 
 import { usePaginacion } from "../../../hooks/usePaginacion";
@@ -33,8 +31,7 @@ const HistorialCajasSeccion = () => {
   const [cajaSeleccionada, setCajaSeleccionada] = useState(null); // estado para saber que caja a sido seleccionada
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(10); // para la paginación
   const { estaAbierto: modalDetalleAbierto, abrir: abrirDetalle, cerrar: cerrarDetalle } = useModal(); // uso del modal
-
-  console.log("cajasCerradas:", cajasCerradas);
+  console.log("datos de la caja seleccionda:", cajaSeleccionada)
 
   // Aplicar filtros
   const historialFiltrado = cajasCerradas.filter(caja => {
@@ -201,6 +198,8 @@ const HistorialCajasSeccion = () => {
         totalPaginas={totalPaginas}
         onCambiarPagina={setPaginaActual}
         loading={loadingCajas}
+        abrirDetalle={abrirDetalle}
+        setCajaSeleccionada={setCajaSeleccionada}
       />
 
       {/* Modal de Detalle */}

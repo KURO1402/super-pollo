@@ -22,7 +22,6 @@ export const useHistorialCajas = () => {
     try {
       const offset = (pagina - 1) * limite;
       const cajasData = await obtenerCajasCerradasServicio(limite, offset);
-      console.log("Registro de cajas cerradas (hook): ", cajasData);
       
       // seteamos el estado
       setCajasCerradas(cajasData);
@@ -40,7 +39,6 @@ export const useHistorialCajas = () => {
     setErrorArqueos(null);
     try {
       const arqueosData = await obtenerArqueosPorCajaServicio(idCaja);
-      console.log("Registro de arqueos por caja (hook): ", arqueosData);
       
       // el backend solo devuelve el array
       setArqueosPorCaja(arqueosData);
