@@ -11,7 +11,12 @@ const {
     obtenerProductosPaginacionService,
     obtenerProductoPorIdService,
     buscarProductosPorNombreService,
-    obtenerInsumosPorProductoService
+    obtenerProductosPorCategoriaService,
+    obtenerInsumosPorProductoService,
+    insertarCategoriaProductoService,
+    actualizarCategoriaProductoService,
+    obtenerCategoriaPorIdService,
+    obtenerCategoriasProductoService
 } = require("../servicio/productoServicio");
 
 // ✅ Insertar un nuevo producto
@@ -154,7 +159,7 @@ const insertarCantidadInsumoProductoController = async (req, res) => {
 const obtenerProductosController = async (req, res) => {
     try {
 
-        const resultado = await obtenerProductosPaginacionService();
+        const resultado = await obtenerProductosService();
 
         return res.status(200).json(resultado);
     } catch (err) {
@@ -218,6 +223,22 @@ const buscarProductosPorNombreController = async (req, res) => {
     }
 };
 
+const obtenerProductosPorCategoriaController = async (req, res) => {
+    try {
+        const { idCategoria } = req.params;
+        const resultado = await obtenerProductosPorCategoriaService(idCategoria);
+        return res.status(200).json(resultado);
+    } catch (err) {
+        console.error("Error en obtenerProductosPorCategoriaController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
 //
 const obtenerInsumosPorProductoControlller = async (req, res) => {
     try {
@@ -237,6 +258,79 @@ const obtenerInsumosPorProductoControlller = async (req, res) => {
     }
 };
 
+// Controladores para categorias
+const insertarCategoriaProductoController = async (req, res) => {
+    try {
+        const respuesta = await insertarCategoriaProductoService(req.body);
+
+        return res.status(201).json(respuesta); // 201: recurso creado
+    } catch (err) {
+        console.error("Error en insertarCategoriaProductoController:", err.message);
+
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
+const actualizarCategoriaProductoController = async (req, res) => {
+    try {
+        const { idCategoria } = req.params;
+
+        const respuesta = await actualizarCategoriaProductoService(idCategoria, req.body);
+
+        return res.status(200).json(respuesta);
+    } catch (err) {
+        console.error("Error en actualizarCategoriaProductoController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
+const obtenerCategoriaPorIdController = async (req, res) => {
+    try {
+        const { idCategoria } = req.params;
+        const resultado = await obtenerCategoriaPorIdService(idCategoria);
+        return res.status(200).json(resultado);
+    } catch (err) {
+        console.error("Error en obtenerCategoriaPorIdController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
+const obtenerCategoriasProductoController = async (req, res) => {
+    try {
+        // Llamamos al servicio que obtiene las categorías
+        const resultado = await obtenerCategoriasProductoService();
+
+        // Respondemos con el resultado
+        res.status(200).json(resultado);
+    } catch (err) {
+        console.error("Error en obtenerCategoriasController:", err.message);
+
+        // Determinamos el código de estado del error (por defecto 500)
+        const statusCode = err.status || 500;
+
+        // Respondemos con un error
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
 module.exports = {
     insertarProductoController,
     actualizarProductoController,
@@ -249,5 +343,10 @@ module.exports = {
     obtenerProductosPaginacionController,
     obtenerProductoPorIdController,
     buscarProductosPorNombreController,
-    obtenerInsumosPorProductoControlller
+    obtenerProductosPorCategoriaController,
+    obtenerInsumosPorProductoControlller,
+    insertarCategoriaProductoController,
+    actualizarCategoriaProductoController,
+    obtenerCategoriaPorIdController,
+    obtenerCategoriasProductoController
 };

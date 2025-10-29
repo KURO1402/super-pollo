@@ -312,6 +312,7 @@ CREATE PROCEDURE obtenerMovimientosPorCaja(
 )
 BEGIN
     SELECT 
+        mc.idMovimientoCaja,
         mc.tipoMovimiento,
         mc.descripcionMovCaja,
         mc.montoMovimiento,
@@ -330,7 +331,8 @@ CREATE PROCEDURE obtenerUltimosMovimientosCaja(
     IN p_offset INT
 )
 BEGIN
-    SELECT 
+    SELECT
+        mc.idMovimientoCaja,
         mc.tipoMovimiento,
         mc.descripcionMovCaja,
         mc.montoMovimiento,
@@ -377,6 +379,7 @@ CREATE PROCEDURE obtenerArqueosCaja(
 )
 BEGIN
     SELECT 
+        ac.idArqueoCaja,
         DATE_FORMAT(ac.fechaArqueo, '%H:%i') AS horaArqueo,     -- Hora en formato hh:mm
         ac.montoFisico,
         ac.montoTarjeta,
@@ -400,6 +403,7 @@ CREATE PROCEDURE obtenerArqueosPorCaja(
 BEGIN
     -- Retornar los arqueos asociados a esa caja
     SELECT 
+        ac.idArqueoCaja,
         DATE_FORMAT(ac.fechaArqueo, '%H:%i') AS horaArqueo,     -- Hora en formato hh:mm
         ac.montoFisico,
         ac.montoTarjeta,

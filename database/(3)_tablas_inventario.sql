@@ -4,6 +4,7 @@ USE super_pollo;
 DROP TABLE IF EXISTS cantidadInsumoProducto;
 DROP TABLE IF EXISTS movimientosStock;
 DROP TABLE IF EXISTS insumos;
+DROP TABLE IF EXISTS categoriasProducto;
 DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS imagenesProductos;
 
@@ -31,6 +32,11 @@ CREATE TABLE movimientosStock(
     FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
 );
 
+CREATE TABLE categoriasProducto(
+    idCategoria INT PRIMARY KEY AUTO_INCREMENT,
+    nombreCategoria VARCHAR(100)
+);
+
 -- Tabla de productos
 CREATE TABLE productos(
     idProducto INT PRIMARY KEY AUTO_INCREMENT,
@@ -38,7 +44,9 @@ CREATE TABLE productos(
     descripcionProducto TEXT,
     precio DECIMAL(10,2) NOT NULL,
     usaInsumos TINYINT(1) NOT NULL DEFAULT 0,
-    estadoProducto TINYINT(1) NOT NULL DEFAULT 1
+    idCategoria INT,
+    estadoProducto TINYINT(1) NOT NULL DEFAULT 1,
+    FOREIGN KEY (idCategoria) REFERENCES categoriasProducto(idCategoria)
 );
 
 CREATE TABLE imagenesProductos(
