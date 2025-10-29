@@ -2,18 +2,16 @@ import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import { SiMercadopago } from "react-icons/si";
 
 // Inicializamos Mercado Pago con el public key
-initMercadoPago('TEST-12345678-1234-1234-1234-123456789012');
+initMercadoPago(import.meta.env.VITE_PUBLIC_KEY_MERCADOPAGO);
 
 const MercadoPagoButton = ({ 
   monto, 
   datosReserva, 
   onPaymentSuccess, 
   onPaymentError,
-  disabled 
+  disabled,
+  preferenceId // Ahora viene del componente padre
 }) => {
-  // configuramos la preferencia de id pero esto vendría del backend
-  const preferenceId = "TU_PREFERENCE_ID_AQUI";
-
   const customization = {
     visual: {
       buttonBackground: "black",
@@ -40,7 +38,7 @@ const MercadoPagoButton = ({
   return (
     <div className="w-full">
       <Wallet 
-        initialization={{ preferenceId }}
+        initialization={{ preferenceId: preferenceId }}
         customization={customization}
         onSubmit={() => console.log("Iniciando pago...")}
         onReady={() => console.log("Wallet ready")}
