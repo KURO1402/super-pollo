@@ -23,7 +23,8 @@ const {
     insertarCategoriaProductoModel,
     actualizarCategoriaProductoModel,
     obtenerCategoriaPorNombreModel,
-    obtenerCategoriaPorIdModel
+    obtenerCategoriaPorIdModel,
+    obtenerCategoriasProductoModel
 } = require("../modelo/productoModelo");
 
 const {
@@ -385,6 +386,12 @@ const obtenerProductosPorCategoriaService = async (idCategoria) => {
 
 // Servicio para obtener los insumos y su cantidad de un producto
 const obtenerInsumosPorProductoService = async (idProducto) => {
+    if (!idProducto || isNaN(Number(idProducto))) {
+        throw Object.assign(
+            new Error("Se requiere un ID de producto valido."),
+            { status: 400 }
+        );
+    }
     if (!idProducto) {
         throw Object.assign(new Error("Se necesita el ID del producto."), { status: 400 });
     }
@@ -502,6 +509,19 @@ const obtenerCategoriaPorIdService = async (idCategoria) => {
     };
 };
 
+const obtenerCategoriasProductoService = async () => {
+    const categorias = await obtenerCategoriasProductoModel();
+
+    if (!categorias || categorias.length === 0) {
+        throw Object.assign(new Error("No existen categorías en la base de datos."), { status: 404 });
+    }
+
+    return {
+        ok: true,
+        categorias: categorias
+    };
+};
+
 
 module.exports = {
     insertarProductoService,
@@ -519,5 +539,6 @@ module.exports = {
     obtenerInsumosPorProductoService,
     insertarCategoriaProductoService,
     actualizarCategoriaProductoService,
-    obtenerCategoriaPorIdService
+    obtenerCategoriaPorIdService,
+    obtenerCategoriasProductoService
 };

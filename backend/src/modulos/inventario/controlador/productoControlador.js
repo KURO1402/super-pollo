@@ -15,7 +15,8 @@ const {
     obtenerInsumosPorProductoService,
     insertarCategoriaProductoService,
     actualizarCategoriaProductoService,
-    obtenerCategoriaPorIdService
+    obtenerCategoriaPorIdService,
+    obtenerCategoriasProductoService
 } = require("../servicio/productoServicio");
 
 // ✅ Insertar un nuevo producto
@@ -309,6 +310,27 @@ const obtenerCategoriaPorIdController = async (req, res) => {
     }
 };
 
+const obtenerCategoriasProductoController = async (req, res) => {
+    try {
+        // Llamamos al servicio que obtiene las categorías
+        const resultado = await obtenerCategoriasProductoService();
+
+        // Respondemos con el resultado
+        res.status(200).json(resultado);
+    } catch (err) {
+        console.error("Error en obtenerCategoriasController:", err.message);
+
+        // Determinamos el código de estado del error (por defecto 500)
+        const statusCode = err.status || 500;
+
+        // Respondemos con un error
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
 module.exports = {
     insertarProductoController,
     actualizarProductoController,
@@ -325,5 +347,6 @@ module.exports = {
     obtenerInsumosPorProductoControlller,
     insertarCategoriaProductoController,
     actualizarCategoriaProductoController,
-    obtenerCategoriaPorIdController
+    obtenerCategoriaPorIdController,
+    obtenerCategoriasProductoController
 };

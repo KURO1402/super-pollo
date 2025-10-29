@@ -1,6 +1,7 @@
 USE super_pollo;
 
 DROP PROCEDURE IF EXISTS obtenerProductosPorCategoria;
+DROP PROCEDURE IF EXISTS ObtenerCategoriasProducto;
 
 DELIMITER //
 
@@ -23,3 +24,11 @@ BEGIN
     WHERE p.idCategoria = p_idCategoria
       AND p.estadoProducto = 1;
 END //
+
+
+CREATE PROCEDURE ObtenerCategoriasProducto()
+BEGIN
+    SELECT idCategoria, nombreCategoria FROM categoriasProducto;
+END //
+
+DELIMITER ;

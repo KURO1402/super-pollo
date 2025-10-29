@@ -19,7 +19,8 @@ const {
     obtenerInsumosPorProductoControlller,
     insertarCategoriaProductoController,
     actualizarCategoriaProductoController,
-    obtenerCategoriaPorIdController
+    obtenerCategoriaPorIdController,
+    obtenerCategoriasProductoController
 } = require("../controlador/productoControlador");
 
 // ✅ Rutas relacionadas a productos
@@ -36,7 +37,7 @@ router.delete("/eliminar-cantidad", autenticacionToken, eliminarCantidadInsumoPr
 router.post("/agregar-cantidad", autenticacionToken, insertarCantidadInsumoProductoController);
 
 router.get("/", obtenerProductosController);
-router.get("/paginacion", obtenerProductosPaginacionController)
+router.get("/paginacion", obtenerProductosPaginacionController);
 router.get("/busqueda", buscarProductosPorNombreController);
 router.get("/:idProducto", obtenerProductoPorIdController);
 router.get("/insumos-cantidad/:idProducto", obtenerInsumosPorProductoControlller);
@@ -45,6 +46,7 @@ router.get("/filtrar-categoria/:idCategoria", obtenerProductosPorCategoriaContro
 //Rutas para categorias
 router.post("/categorias/agregar", insertarCategoriaProductoController);
 router.put("/categorias/actualizar/:idCategoria", actualizarCategoriaProductoController);
-router.get("/categorias/:idCategoria", obtenerCategoriaPorIdController)
+router.get("/categorias/all", obtenerCategoriasProductoController);
+router.get("/categorias/:idCategoria", obtenerCategoriaPorIdController);
 
 module.exports = router;

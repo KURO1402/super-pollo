@@ -35,7 +35,7 @@ CREATE TABLE movimientosStock(
 CREATE TABLE categoriasProducto(
     idCategoria INT PRIMARY KEY AUTO_INCREMENT,
     nombreCategoria VARCHAR(100)
-)
+);
 
 -- Tabla de productos
 CREATE TABLE productos(

@@ -302,11 +302,13 @@ BEGIN
         p.descripcionProducto,
         p.precio,
         p.usaInsumos,
-        p.estadoProducto,
+        c.nombreCategoria,
         i.urlImagen
     FROM productos p
     LEFT JOIN imagenesProductos i 
         ON p.idProducto = i.idProducto
+    LEFT JOIN categoriasProducto c
+        ON p.idCategoria = c.idCategoria
     WHERE p.estadoProducto = 1
     ORDER BY p.idProducto DESC;
 END //
@@ -323,11 +325,13 @@ BEGIN
         p.descripcionProducto,
         p.precio,
         p.usaInsumos,
-        p.estadoProducto,
+        c.nombreCategoria,
         i.urlImagen
     FROM productos p
     LEFT JOIN imagenesProductos i 
         ON p.idProducto = i.idProducto
+    LEFT JOIN categoriasProducto c
+        ON p.idCategoria = c.idCategoria
     WHERE p.estadoProducto = 1
     ORDER BY p.idProducto DESC
     LIMIT p_limit OFFSET p_offset;
@@ -343,11 +347,13 @@ BEGIN
         p.descripcionProducto,
         p.precio,
         p.usaInsumos,
-        p.estadoProducto,
+        c.nombreCategoria,
         i.urlImagen
     FROM productos p
     LEFT JOIN imagenesProductos i 
         ON p.idProducto = i.idProducto
+    LEFT JOIN categoriasProducto c
+        ON p.idCategoria = c.idCategoria
     WHERE p.idProducto = p_idProducto
       AND p.estadoProducto = 1;
 END //
@@ -362,11 +368,13 @@ BEGIN
         p.descripcionProducto,
         p.precio,
         p.usaInsumos,
-        p.estadoProducto,
+        c.nombreCategoria,
         i.urlImagen
     FROM productos p
     LEFT JOIN imagenesProductos i 
         ON p.idProducto = i.idProducto
+    LEFT JOIN categoriasProducto c
+        ON p.idCategoria = c.idCategoria
     WHERE p.nombreProducto LIKE CONCAT('%', p_nombre, '%')
       AND p.estadoProducto = 1;
 END //

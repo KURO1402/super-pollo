@@ -387,6 +387,23 @@ const obtenerCategoriaPorIdModel = async (idCategoria) => {
     }
 };
 
+const obtenerCategoriasProductoModel = async () => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL ObtenerCategoriasProducto()");
+        return result[0]; // El resultado de las categorías estará en el primer elemento
+    } catch (err) {
+        console.error("Error en obtenerCategoriasModel:", err.message);
+        throw Object.assign(
+            new Error("Error al obtener las categorías de la base de datos"),
+            { status: 500 }
+        );
+    } finally {
+        if (conexion) conexion.release(); // Liberamos la conexión
+    }
+};
+
 // EXPORTAR MODELOS
 module.exports = {
     obtenerProductoPorIdModel,
@@ -411,5 +428,6 @@ module.exports = {
     insertarCategoriaProductoModel,
     actualizarCategoriaProductoModel,
     obtenerCategoriaPorNombreModel,
-    obtenerCategoriaPorIdModel 
+    obtenerCategoriaPorIdModel,
+    obtenerCategoriasProductoModel 
 };
