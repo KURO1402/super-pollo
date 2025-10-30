@@ -9,7 +9,7 @@ const validarDatosVentaBoleta = async (datosVenta) => {
       { status: 400 }
     );
   }
-  const { tipoComprobante, datosCliente, productos } = datosVenta;
+  const { tipoComprobante, datosCliente, productos, metodoPago } = datosVenta;
 
   if (!tipoComprobante || typeof tipoComprobante !== "number") {
     throw Object.assign(
@@ -27,6 +27,13 @@ const validarDatosVentaBoleta = async (datosVenta) => {
   if (!datosCliente || typeof datosCliente !== "object") {
     throw Object.assign(
       new Error("Se necesitan datos del cliente."),
+      { status: 400 }
+    );
+  }
+
+  if(!metodoPago || typeof metodoPago !== "string" || !metodoPago.trim()){
+    throw Object.assign(
+      new Error("Se necesita el metodo de pago."),
       { status: 400 }
     );
   }
@@ -111,6 +118,7 @@ const validarDatosVentaBoleta = async (datosVenta) => {
    
     try {
       const productoExistente = await obtenerProductoPorIdModel(producto.idProducto);
+      console.log(productoExistente);
       if (!productoExistente) {
         erroresProductos.push(`El insumo con ID ${producto.idProducto} no existe`);
       }
@@ -119,7 +127,7 @@ const validarDatosVentaBoleta = async (datosVenta) => {
     }
 
     if (erroresProductos.length > 0) {
-        throw Object.assign(new Error("Uno o más productos ingresados son inválidos."), { status: 404 });
+        throw Object.assign(new Error("Uno o más productos ingresados no son inválidos."), { status: 404 });
     }
   }
 };

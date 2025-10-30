@@ -41,17 +41,10 @@ function formatearVenta(datosFront, datosDB) {
     total_gravada: montosTotales.totalGravada,
     total_igv: montosTotales.totalIGV,
     total: montosTotales.total,
-    items: productosConDatos
+    items: productosConDatos,
+    enviar_automaticamente_a_la_sunat: true,
+    medio_de_pago: datosFront.metodoPago 
   };
-
-  // ✅ Agregar solo si existe email
-  /*if (cliente.email) {
-    venta.cliente_email = cliente.email;
-    venta.enviar_automaticamente_al_cliente = true;
-  }
-  if(cliente.direccion){
-    venta.cliente_direccion = cliente.direccion;
-  }*/
 
   return venta;
 }

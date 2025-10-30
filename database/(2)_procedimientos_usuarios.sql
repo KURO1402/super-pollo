@@ -332,6 +332,7 @@ BEGIN
     WHERE estadoUsuario = 1;
 END //
 
+
 CREATE PROCEDURE contarTipoDocumentoPorId(
     IN p_idTipoDocumento INT
 )
