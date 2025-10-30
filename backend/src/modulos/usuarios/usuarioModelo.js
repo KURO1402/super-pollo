@@ -113,7 +113,8 @@ const eliminarUsuarioModel = async (idUsuario, estado) => {
         return result[0][0]?.mensaje;
         
     } catch (error) {
-        
+        console.error("Error en eliminarUsuarioModel : ", err.message);
+        throw new Error("Error al eliminar el usaurio en la base de datos.");
     } finally {
         if (conexion) conexion.release
     }
@@ -128,7 +129,8 @@ const recuperarUsuarioModel = async (idUsuario, estado) => {
         return result[0][0]?.mensaje;
         
     } catch (error) {
-        
+        console.error("Error en recuperarUsuarioModel : ", err.message);
+        throw new Error("Error al recuperar usuario de la base de datos.");
     } finally {
         if (conexion) conexion.release
     }
@@ -142,7 +144,8 @@ const listarUsuariosModel = async () => {
         const [result] = await conexion.execute("CALL listarUsuarios()");
         return result[0]; // Devuelve el arreglo de usuarios
     } catch (error) {
-        throw error;
+        console.error("Error en listarUsuariosModel: ", err.message);
+        throw new Error("Error al listar los usuarios de la base de datos.");
     } finally {
         if (conexion) conexion.release();
     }
@@ -156,7 +159,8 @@ const listarUsuariosPaginacionModel = async (limit, offset) => {
         const [result] = await conexion.execute("CALL listarUsuariosPaginacion(?, ?)", [limit, offset]);
         return result[0]; // Devuelve el arreglo de usuarios
     } catch (error) {
-        throw error;
+        console.error("Error en listarUsuariosPaginacionModel: ", err.message);
+        throw new Error("Error al listar los usuarios de la base de datos.");
     } finally {
         if (conexion) conexion.release();
     }
@@ -170,7 +174,8 @@ const buscarUsuariosPorValorModel = async (valor) => {
         const [result] = await conexion.execute("CALL buscarUsuariosPorValor(?)", [valor]);
         return result[0]; // Devuelve un arreglo de usuarios que coincidan
     } catch (error) {
-        throw error;
+        console.error("Error en buscarUsuariosPorValorModel: ", err.message);
+        throw new Error("Error al buscar al usuario en la base de datos.");
     } finally {
         if (conexion) conexion.release();
     }
@@ -185,11 +190,34 @@ const contarUsuariosActivosModel = async () => {
         const [result] = await conexion.execute("CALL contarUsuariosActivos()");
         return result[0][0]?.totalUsuariosActivos; // Devuelve el número de usuarios activos
     } catch (error) {
-        throw error;
+        console.error("Error en contarUsuariosActivosModel: ", err.message);
+        throw new Error("Error al obtener el numero total de usuarios.");
     } finally {
         if (conexion) conexion.release();
     }
 };
+
+const contarTipoDocumentoPorIdModel = async (idTipoDocumento) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+
+        const [result] = await conexion.execute(
+            "CALL contarTipoDocumentoPorId(?)",
+            [idTipoDocumento]
+        );
+
+        // El resultado queda dentro del primer arreglo
+        return result[0][0]?.total || 0;
+
+    } catch (err) {
+        console.error("Error en contarTipoDocumentoPorIdModel: ", err.message);
+        throw new Error("Error al obtener el numero total de tipos de documento.");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 
 module.exports = { 
     consultarUsuarioPorIdModel,
@@ -202,5 +230,6 @@ module.exports = {
     listarUsuariosModel,
     listarUsuariosPaginacionModel,
     buscarUsuariosPorValorModel,
-    contarUsuariosActivosModel
+    contarUsuariosActivosModel,
+    contarTipoDocumentoPorIdModel
 }

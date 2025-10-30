@@ -51,7 +51,7 @@ app.get('/', (req, res) => {
 
 //usar rutas
 app.use('/ventas', ventasRoutes);
-app.use('/ventas', comprobanteRoutes);
+app.use('/comprobantes', comprobanteRoutes);
 app.use('/autenticacion', autenticacionRoutes);
 app.use('/fuente-datos', fuenteDatosRouter);
 app.use('/insumos', insumoRoutes);

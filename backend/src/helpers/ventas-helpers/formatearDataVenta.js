@@ -2,7 +2,7 @@ const { CODIGOS_SUNAT } = require('../../config/constantes');
 const { productos } = require("../../modulos/productos/productosModelo");
 
 // Importamos helpers
-const generarFechaActual = require("../generarFechaActual");
+const { generarFechaActual, generarHoraActual } = require("../generarTiempo");
 const { normalizarCliente } = require("./clienteHelpers");
 const { calcularMontosTotales } = require("./calculosFinancieros");
 const { obtenerProductosConDatos } = require("./calculosProductos");
@@ -18,7 +18,7 @@ function obtenerCodigoSunat(idTipoDocumento) {
 }
 
 function formatearVenta(datosFront, datosDB) {
-  const cliente = normalizarCliente(datosFront.datosCliente, datosFront.tipoComprobante);
+  const cliente = normalizarCliente(datosFront.datosCliente);
   const productosConDatos = obtenerProductosConDatos(datosFront.productos, productos);
   const montosTotales = calcularMontosTotales(productosConDatos, CODIGOS_SUNAT.IGV.PORCENTAJE);
 
@@ -32,7 +32,10 @@ function formatearVenta(datosFront, datosDB) {
     cliente_numero_de_documento: cliente.numeroDoc,
     cliente_denominacion: cliente.nombreCliente,
     cliente_direccion: cliente.direccion,
+    cliente_email: cliente.email,
+    enviar_automaticamente_al_cliente: !cliente.email ? false : true,
     fecha_de_emision: generarFechaActual(),
+    hora_de_emision: generarHoraActual(),
     moneda: CODIGOS_SUNAT.MONEDA.SOLES,
     porcentaje_de_igv: montosTotales.porcentajeIGV,
     total_gravada: montosTotales.totalGravada,
@@ -42,9 +45,13 @@ function formatearVenta(datosFront, datosDB) {
   };
 
   // ✅ Agregar solo si existe email
-  if (cliente.email) {
+  /*if (cliente.email) {
     venta.cliente_email = cliente.email;
+    venta.enviar_automaticamente_al_cliente = true;
   }
+  if(cliente.direccion){
+    venta.cliente_direccion = cliente.direccion;
+  }*/
 
   return venta;
 }

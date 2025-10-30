@@ -1,12 +1,7 @@
 const { CLIENTE_DEFAULT } = require('../../config/constantes');
 
 // Normalizar cliente según reglas de negocio
-function normalizarCliente(datosCliente, tipoComprobante) {
-
-  // Boleta sin cliente -> usar default
-  if (tipoComprobante === 2 && !datosCliente) {
-    return { ...CLIENTE_DEFAULT };
-  }
+function normalizarCliente(datosCliente) {
 
   const { tipoDoc, numeroDoc, nombreCliente, direccionCliente, correoCliente } = datosCliente;
 
@@ -14,12 +9,15 @@ function normalizarCliente(datosCliente, tipoComprobante) {
   const clienteNormalizado = {
     nombreCliente: nombreCliente.trim(),
     tipoDoc,
-    numeroDoc,
-    direccion: direccionCliente ? direccionCliente.trim() : "-"
+    numeroDoc
   };
 
+  if(direccionCliente){
+    clienteNormalizado.direccion = direccionCliente;
+  }
+
   // Solo agregar el email si existe y no está vacío
-  if (correoCliente && correoCliente.trim() !== "") {
+  if (correoCliente) {
     clienteNormalizado.email = correoCliente.trim();
   }
 

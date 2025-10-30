@@ -28,17 +28,6 @@ FOREIGN KEY (idRol) REFERENCES rolUsuarios(idRol),
 FOREIGN KEY (idTipoDocumento) REFERENCES tipoDocumento(idTipoDocumento) 
 );
 
-CREATE TABLE tarjetas (
-idTarjeta INT PRIMARY KEY AUTO_INCREMENT,
-tipoTarjeta ENUM('debito','credito') NOT NULL,
-numeroTarjeta CHAR(60) NOT NULL,
-nombreTitular CHAR(60) NOT NULL,
-cvv CHAR(60) NOT NULL,
-fechaVencimiento CHAR(60) NOT NULL,
-idUsuario INT,
-FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
-);
-
 CREATE TABLE verificacionCorreos (
     idVerificacion INT AUTO_INCREMENT PRIMARY KEY,
     correoVerificacion VARCHAR(100) NOT NULL,

@@ -2,7 +2,7 @@
 const validarCorreo = (correo) => {
 
   if (!correo || typeof correo !== "string") {
-    throw Object.assign(new Error("El correo es obligatorio"), { status: 400 });
+    throw Object.assign(new Error("El correo es necesario y debe estar en formato de texto."), { status: 400 });
   }
 
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -15,6 +15,11 @@ const validarCorreo = (correo) => {
 // Función para validar documentos según tipo numérico
 const validarDocumento = (tipo, valor) => {
   switch (Number(tipo)) {
+    case 0: // CLIENTES VARIOS ES DNI
+      if (!/^\d{8}$/.test(valor)) {
+        throw Object.assign(new Error("El numero de documento debe tener exactamente 8 dígitos"), { status: 400 });
+      }
+      break;
     case 1: // DNI
       if (!/^\d{8}$/.test(valor)) {
         throw Object.assign(new Error("El DNI debe tener exactamente 8 dígitos"), { status: 400 });

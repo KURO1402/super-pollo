@@ -1,11 +1,14 @@
 USE super_pollo;
 
 /* ELIMINAR PROCEDIMIENTOS SI YA EXISTEN */
+DROP PROCEDURE IF EXISTS obtenerTiposComprobante;
+DROP PROCEDURE IF EXISTS obtenerUltimoCorrelativo;
 DROP PROCEDURE IF EXISTS insertarVenta;
 DROP PROCEDURE IF EXISTS listarVentas;
 DROP PROCEDURE IF EXISTS obtenerVenta;
 DROP PROCEDURE IF EXISTS obtenerDetalleVenta;
 DROP PROCEDURE IF EXISTS obtenerSeriePorTipoComprobante;
+DROP PROCEDURE IF EXISTS actualizarCorrelativoSolo;
 
 DELIMITER //
 
