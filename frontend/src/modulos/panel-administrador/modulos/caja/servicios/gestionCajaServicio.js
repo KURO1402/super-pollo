@@ -145,19 +145,44 @@ export const obtenerMovimientosPorCajaServicio = async (idCaja) => {
     const respuesta = await API.get(`/caja/movimientos-caja/${idCaja}`);
     const data = respuesta.data;
 
-    if (!Array.isArray(data)) throw new Error("Error desconocido del servidor");
+    if (!Array.isArray(data)) {
+      console.warn('La respuesta de movimientos no es un array:', data);
+      return {
+        ok: true,
+        data: [],
+        mensaje: "No se encontraron movimientos para esta caja"
+      };
+    }
 
     return {
       ok: true,
       data: data.map((mov, index) => ({
         ...mov,
-        id: `mov-${idCaja}-${index}-${Date.now()}`  // Genera un id único para hacer el map de los movimientos
+        id: `mov-${idCaja}-${index}-${Date.now()}`
       })),
       mensaje: `Se obtuvieron ${data.length} movimientos`
     };
 
   } catch (error) {
     console.error('Error en obtenerMovimientosPorCajaServicio:', error);
+    
+    // Si el error es igual a 404, enviamos el array vacio
+    if (error.response?.status === 404) {
+      console.log(`No se encontraron movimientos para la caja ${idCaja}`);
+      return {
+        ok: true,
+        data: [],
+        mensaje: "No se encontraron movimientos para esta caja"
+      };
+    }
+    
+    // Para otros errores, lanzar excepción
+    const errorMessage = error.response?.data?.message || 
+                        error.response?.data?.mensaje ||
+                        error.message || 
+                        'Error al obtener movimientos';
+    
+    throw new Error(errorMessage);
   }
 };
 

@@ -1,100 +1,120 @@
+// hooks/useHistorialCajas.js
 import { useState, useEffect } from 'react';
 import { 
-  obtenerCajasCerradasServicio,
-  obtenerArqueosPorCajaServicio
+  obtenerCajasCerradasServicio, 
+  obtenerArqueosPorCajaServicio,
+  obtenerMovimientosPorCajaServicio 
 } from '../servicios/gestionCajaServicio';
 
 export const useHistorialCajas = () => {
-  // Estado para cajas cerradas
   const [cajasCerradas, setCajasCerradas] = useState([]);
+  const [arqueosCaja, setArqueosCaja] = useState([]);
+  const [movimientosCaja, setMovimientosCaja] = useState([]);
   const [loadingCajas, setLoadingCajas] = useState(false);
-  const [errorCajas, setErrorCajas] = useState(null);
-
-  // Estado para arqueos
-  const [arqueosPorCaja, setArqueosPorCaja] = useState([]);
   const [loadingArqueos, setLoadingArqueos] = useState(false);
+  const [loadingMovimientos, setLoadingMovimientos] = useState(false);
+  const [errorCajas, setErrorCajas] = useState(null);
   const [errorArqueos, setErrorArqueos] = useState(null);
+  const [errorMovimientos, setErrorMovimientos] = useState(null);
 
-  // Cargar cajas cerradas
-  const cargarCajasCerradas = async (pagina = 1, limite = 10) => {
+  // Cargar cajas cerradas al inicializar
+  useEffect(() => {
+    cargarCajasCerradas();
+  }, []);
+
+  const cargarCajasCerradas = async () => {
     setLoadingCajas(true);
     setErrorCajas(null);
     try {
-      const offset = (pagina - 1) * limite;
-      const cajasData = await obtenerCajasCerradasServicio(limite, offset);
-      
-      // seteamos el estado
-      setCajasCerradas(cajasData);
-      
-    } catch (err) {
-      setErrorCajas(err.message);
+      const cajas = await obtenerCajasCerradasServicio();
+      setCajasCerradas(cajas);
+    } catch (error) {
+      setErrorCajas(error.message);
+      console.error('Error al cargar cajas cerradas:', error);
     } finally {
       setLoadingCajas(false);
     }
   };
 
-  // Cargar arqueos
-  const cargarArqueos = async (idCaja) => {
+  // funcion para cargar arqueos de una caja específica
+  const cargarArqueosCaja = async (idCaja) => {
     setLoadingArqueos(true);
     setErrorArqueos(null);
     try {
-      const arqueosData = await obtenerArqueosPorCajaServicio(idCaja);
-      
-      // el backend solo devuelve el array
-      setArqueosPorCaja(arqueosData);
-      
-    } catch (err) {
-      setErrorArqueos(err.message);
+      const arqueos = await obtenerArqueosPorCajaServicio(idCaja);
+      setArqueosCaja(arqueos);
+      return arqueos;
+    } catch (error) {
+      setErrorArqueos(error.message);
+      throw error;
     } finally {
       setLoadingArqueos(false);
     }
   };
 
-  // Cargar todo el historial
-  const cargarTodoHistorial = async () => {
-    await cargarCajasCerradas();
+  // funcion para cargar movimientos de una caja específica
+  const cargarMovimientosCaja = async (idCaja) => {
+    setLoadingMovimientos(true);
+    setErrorMovimientos(null);
+    try {
+      const respuesta = await obtenerMovimientosPorCajaServicio(idCaja);
+      setMovimientosCaja(respuesta.data || []);
+      return respuesta.data || [];
+    } catch (error) {
+      setErrorMovimientos(error.message);
+      throw error;
+    } finally {
+      setLoadingMovimientos(false);
+    }
   };
 
-  // Utilidades compartidas
-  const formatCurrency = (cantidad) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN'
-    }).format(cantidad);
+  // funcion para cargar todos los datos de una caja 
+  const cargarDetallesCompletosCaja = async (idCaja) => {
+    try {
+      await Promise.all([
+        cargarArqueosCaja(idCaja),
+        cargarMovimientosCaja(idCaja)
+      ]);
+    } catch (error) {
+      console.error('Error al cargar detalles completos:', error);
+      throw error;
+    }
   };
 
-  // Función para formatear fecha
-  const formatDate = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+  // Funcion para formatear fecha
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Fecha no disponible';
+    try {
+      return new Date(dateString).toLocaleDateString('es-ES');
+    } catch {
+      return dateString; // Si ya esta formateada, devolverla tal cual
+    }
   };
 
-  // Cargar datos al inicializar
-  useEffect(() => {
-    cargarCajasCerradas();
-  }, []);
+  // Función para formatear moneda
+  const formatCurrency = (amount) => {
+    const numericAmount = parseFloat(amount) || 0;
+    return `S/ ${numericAmount.toFixed(2)}`;
+  };
 
   return {
-    // Cajas cerradas
+    // Estados
     cajasCerradas,
+    arqueosCaja,
+    movimientosCaja,
     loadingCajas,
-    errorCajas,
-    cargarCajasCerradas,
-    
-    // Arqueos
-    arqueosPorCaja,
     loadingArqueos,
+    loadingMovimientos,
+    errorCajas,
     errorArqueos,
-    cargarArqueos,
+    errorMovimientos,
     
-    // Acciones combinadas
-    cargarTodoHistorial,
-    
-    // Utilidades compartidas
-    formatCurrency,
+    // Funciones
+    cargarCajasCerradas,
+    cargarArqueosCaja,
+    cargarMovimientosCaja,
+    cargarDetallesCompletosCaja,
     formatDate,
+    formatCurrency
   };
 };

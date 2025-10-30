@@ -1,12 +1,19 @@
 import { FiAlertTriangle, FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
 
-const FilaCajasCerradas = ({ cajaCerrada, formatCurrency, abrirDetalle, setCajaSeleccionada  }) => {
-  console.log('caja en la fila: ', cajaCerrada)
+const FilaCajasCerradas = ({ 
+  cajaCerrada, 
+  formatCurrency, 
+  formatDate,
+  onVerDetalle 
+}) => {
+  
+  const handleVerDetalle = () => {
+    // Solo pasamos el idCaja a la función onVerDetalle
+    onVerDetalle(cajaCerrada.idCaja);
+  };
+
   return (
-    <tr
-      key={cajaCerrada.idCaja}
-      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150"
-    >
+    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
         {cajaCerrada.fecha}
       </td>
@@ -60,11 +67,8 @@ const FilaCajasCerradas = ({ cajaCerrada, formatCurrency, abrirDetalle, setCajaS
       </td>
       <td className="px-6 py-4">
         <button
-          onClick={() => {
-            setCajaSeleccionada(cajaCerrada);
-            abrirDetalle();
-          }}
-          className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200"
+          onClick={handleVerDetalle}
+          className="flex items-center cursor-pointer gap-1 px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200"
         >
           <FiEye className="w-4 h-4" />
           Ver Detalle
