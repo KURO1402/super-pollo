@@ -121,6 +121,14 @@ const HistorialCajasSeccion = () => {
     setPaginaActual(1);
   };
 
+  if (loadingCajas) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}

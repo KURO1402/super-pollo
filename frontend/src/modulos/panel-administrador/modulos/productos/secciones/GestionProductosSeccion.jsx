@@ -23,10 +23,12 @@ import { eliminarProductoServicio } from "../servicios/productoServicios";
 import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 import { ModalEditarProducto } from "../componentes/ModalEditarProducto";
 
+import ModalGestionCategorias from "../componentes/ModalGestionCategorias";
+
 const GestionProductosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
   const { productos, cargando, error, refetch } = useProductos();
-  const { paginaActual, setPaginaActual, paginar } = usePaginacion(8);
+  const { paginaActual, setPaginaActual, paginar, itemsPorPagina, setItemsPorPagina } = usePaginacion(8);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [productoAEliminar, setProductoAEliminar] = useState(null);
 
@@ -34,6 +36,7 @@ const GestionProductosSeccion = () => {
   const modalReceta = useModal(false);
   const modalNuevoProducto = useModal(false);
   const modalEditarProducto = useModal(false);
+  const modalGestionCategorias = useModal(false);
   const confirmacionEliminar = useConfirmacion();
 
   // funcion que escucha el evente de gestionar insumos
@@ -51,6 +54,11 @@ const GestionProductosSeccion = () => {
   function handleEditarProducto(producto) {
     setProductoSeleccionado(producto);
     modalEditarProducto.abrir();
+  }
+
+  // función para abrir modal de categorias
+  function handleAbrirCategorias() {
+    modalGestionCategorias.abrir();
   }
 
   // función para solicitar confirmación de eliminación
@@ -96,7 +104,6 @@ const GestionProductosSeccion = () => {
       setProductoAEliminar(null);
     }
   }
-
   // función para recargar productos después de guardar
   function handleGuardarProducto() {
     refetch();
@@ -115,9 +122,9 @@ const GestionProductosSeccion = () => {
   // Mapear los productos para las filas de la tabla
   const filasProductos = datosPaginados.map((producto) => (
     <FilaProducto 
-      key={producto.idProducto} // Cambiado de id a idProducto
+      key={producto.idProducto}
       producto={producto}
-      onGestionarInsumos={handleGestionarInsumos} // Cambiado de onVerReceta
+      onGestionarInsumos={handleGestionarInsumos}
       onEditarProducto={handleEditarProducto}
       onEliminarProducto={handleSolicitarEliminar} 
     />
@@ -129,23 +136,6 @@ const GestionProductosSeccion = () => {
       <div className="p-2">
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
-      </div>
-    );
-  }
-
-  // Mostrar error
-  if (error) {
-    return (
-      <div className="p-2">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <p className="text-red-800 dark:text-red-300">Error al cargar productos: {error}</p>
-          <button
-            onClick={refetch}
-            className="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
-          >
-            Reintentar
-          </button>
         </div>
       </div>
     );
@@ -174,10 +164,15 @@ const GestionProductosSeccion = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer">
             + Nuevo Producto
           </button>
+          <button 
+            onClick={handleAbrirCategorias}
+            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer">
+            Gestión de Categorías
+          </button>
         </div>
       </div>
 
-      {/* Tabla de productos - CORREGIDO encabezados */}
+      {/* Tabla de productos */}
       <Tabla
         encabezados={["PRODUCTO", "PRECIO", "USA INSUMOS", "ESTADO", "GESTIÓN INSUMOS", "ACCIONES"]}
         registros={filasProductos}
@@ -187,6 +182,9 @@ const GestionProductosSeccion = () => {
         paginaActual={paginaActual}
         totalPaginas={totalPaginas}
         alCambiarPagina={setPaginaActual}
+        itemsPorPagina={itemsPorPagina}
+        setItemsPorPagina={setItemsPorPagina}
+        mostrarSiempre={false}
       />
 
       {/* Modal para gestionar insumos */}
@@ -217,7 +215,7 @@ const GestionProductosSeccion = () => {
       >
         <ModalNuevoProducto 
           onClose={modalNuevoProducto.cerrar}
-          onGuardar={handleGuardarProducto} // Cambiado para recargar productos
+          onGuardar={handleGuardarProducto}
         />
       </Modal>
 
@@ -234,7 +232,7 @@ const GestionProductosSeccion = () => {
           <ModalEditarProducto 
             producto={productoSeleccionado}
             onClose={modalEditarProducto.cerrar}
-            onGuardar={handleGuardarProducto} // Cambiado para recargar productos
+            onGuardar={handleGuardarProducto} 
           />
         )}
       </Modal>
@@ -251,6 +249,18 @@ const GestionProductosSeccion = () => {
           textoCancelar={confirmacionEliminar.textoCancelar}
         />
       </div>
+
+      {/* Modal para agregar un nuevo producto */}
+      <Modal
+        estaAbierto={modalGestionCategorias.estaAbierto}
+        onCerrar={modalGestionCategorias.cerrar}
+        titulo="Gestión de Categorías"
+        tamaño="lg" 
+        mostrarHeader={true}
+        mostrarFooter={false}
+      >
+        <ModalGestionCategorias />
+      </Modal>
     </div>
   );
 };

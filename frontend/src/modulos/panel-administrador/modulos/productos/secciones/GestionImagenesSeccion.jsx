@@ -8,7 +8,7 @@ import Modal from '../../../componentes/modal/Modal';
 import { useModal } from '../../../hooks/useModal';
 
 const GestionImagenesSeccion = () => {
-  const { productos, cargando, error, refetch } = useProductos();
+  const { productos, cargando, refetch } = useProductos();
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const modalModificarImagen = useModal(false);
 
@@ -26,14 +26,6 @@ const GestionImagenesSeccion = () => {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-        <p className="text-red-800 dark:text-red-300">Error: {error}</p>
       </div>
     );
   }

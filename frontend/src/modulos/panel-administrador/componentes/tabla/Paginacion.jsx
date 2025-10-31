@@ -4,7 +4,7 @@ export const Paginacion = ({
   alCambiarPagina,
   itemsPorPagina,
   alCambiarItemsPorPagina,
-  mostrarSiempre = false // <- Agregar esta prop
+  mostrarSiempre = false
 }) => {
   const paginas = Array.from({ length: totalPaginas }, (_, i) => i + 1);
   const opcionesItems = [5, 10, 15, 20];
