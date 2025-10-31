@@ -7,6 +7,7 @@ const TablasCajasCerradas = ({
   cajasCerradas, 
   formatCurrency, 
   formatDate,
+  formatHora,
   paginaActual, 
   totalPaginas, 
   onCambiarPagina, 
@@ -22,6 +23,7 @@ const TablasCajasCerradas = ({
       cajaCerrada={cajaCerrada} 
       formatCurrency={formatCurrency}
       formatDate={formatDate}
+      formatHora={formatHora}
       onVerDetalle={onVerDetalle}
     />
   )); 

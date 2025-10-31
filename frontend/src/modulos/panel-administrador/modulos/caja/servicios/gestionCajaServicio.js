@@ -3,11 +3,19 @@ import API from "../../../../../app/servicio/axiosConfiguracion";
 
 // Servicio para abrir caja
 export const abrirCajaServicio = async (data) => {
+  console.log(data.montoInicial)
   try {
-    const respuesta = await API.post('/caja/abrir-caja', data);
+    const respuesta = await API.post('/caja/abrir-caja', {
+      montoInicial: Number(data.montoInicial)
+    });
     
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al abrir una caja");
+    }
+    
+    // Validar que idCaja existe
+    if (!respuesta.data.idCaja) {
+      throw new Error("No se recibió el ID de la caja");
     }
     
     return respuesta.data;
@@ -36,11 +44,10 @@ export const cerrarCajaServicio = async () => {
 // Servicio para registrar ingreso
 export const registrarIngresoServicio = async (data) => {
   try {
+    // normalizamos los datos antes de enviar al backend
     const datosParaBackend = {
-      monto: data.monto,
-      descripcion: data.descripcion,
-      tipoMovimiento: "Ingreso",
-      descripcionMovCaja: data.descripcion
+      monto: Number(data.monto),
+      descripcion: data.descripcion.trim(),
     };
     
     const respuesta = await API.post('/caja/ingreso-caja', datosParaBackend);
@@ -59,11 +66,10 @@ export const registrarIngresoServicio = async (data) => {
 // Servicio para registrar egreso
 export const registrarEgresoServicio = async (data) => {
   try {
+    // normalizamos los datos antes de enviar al backend
     const datosParaBackend = {
-      monto: data.monto,
-      descripcion: data.descripcion,
-      tipoMovimiento: "Egreso", 
-      descripcionMovCaja: data.descripcion
+      monto: Number(data.monto),
+      descripcion: data.descripcion.trim(),
     };
     
     const respuesta = await API.post('/caja/egreso-caja', datosParaBackend);
@@ -82,7 +88,13 @@ export const registrarEgresoServicio = async (data) => {
 // Servicio para registrar arqueo
 export const registrarArqueoServicio = async (data) => {
   try {
-    const respuesta = await API.post('/caja/arqueo-caja', data);
+    const datosParaBackend = {
+      montoFisico: Number(data.montoFisico) || 0,       
+      montoTarjeta: Number(data.montoTarjeta) || 0,        
+      montoBilleteraDigital: Number(data.montoBilleteraDigital) || 0,
+      otros:Number(data.otros) || 0
+    }
+    const respuesta = await API.post('/caja/arqueo-caja', datosParaBackend);
     
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al registrar arqueo");
@@ -140,76 +152,96 @@ export const obtenerMovimientosCajaServicio = async () => {
 };
 
 // Obtener los movimientos de una por ID
+// Obtener los movimientos de una caja por ID
 export const obtenerMovimientosPorCajaServicio = async (idCaja) => {
   try {
     const respuesta = await API.get(`/caja/movimientos-caja/${idCaja}`);
     const data = respuesta.data;
 
-    if (!Array.isArray(data)) {
-      console.warn('La respuesta de movimientos no es un array:', data);
-      return {
-        ok: true,
-        data: [],
-        mensaje: "No se encontraron movimientos para esta caja"
-      };
+    // Si el backend devuelve un array directo
+    if (Array.isArray(data)) {
+      return data.map((mov, index) => ({
+        ...mov,
+        id: `mov-${idCaja}-${index}-${Date.now()}`,
+      }));
     }
 
-    return {
-      ok: true,
-      data: data.map((mov, index) => ({
-        ...mov,
-        id: `mov-${idCaja}-${index}-${Date.now()}`
-      })),
-      mensaje: `Se obtuvieron ${data.length} movimientos`
-    };
-
+    console.warn("La respuesta de movimientos no es un array:", data);
+    return [];
   } catch (error) {
-    console.error('Error en obtenerMovimientosPorCajaServicio:', error);
-    
-    // Si el error es igual a 404, enviamos el array vacio
+    console.error("Error en obtenerMovimientosPorCajaServicio:", error);
+
+    // Si no hay movimientos (404), devolvemos array vacío
     if (error.response?.status === 404) {
       console.log(`No se encontraron movimientos para la caja ${idCaja}`);
-      return {
-        ok: true,
-        data: [],
-        mensaje: "No se encontraron movimientos para esta caja"
-      };
+      return [];
     }
-    
-    // Para otros errores, lanzar excepción
-    const errorMessage = error.response?.data?.message || 
-                        error.response?.data?.mensaje ||
-                        error.message || 
-                        'Error al obtener movimientos';
-    
+
+    const errorMessage =
+      error.response?.data?.message ||
+      error.response?.data?.mensaje ||
+      error.message ||
+      "Error al obtener movimientos";
+
     throw new Error(errorMessage);
   }
 };
 
+
 // Servicio para obtener arqueos de una caja específica
 export const obtenerArqueosPorCajaServicio = async (idCaja) => {
   try {
+    if (!idCaja) {
+      throw new Error("El ID de la caja es requerido para obtener los arqueos");
+    }
+
     const respuesta = await API.get(`/caja/arqueos-caja/${idCaja}`);
-    console.log('Respuestas del arqueo de la caja', respuesta.data)
-    // retornamos ese mismo array
-    return respuesta.data;
+
+    const data = respuesta?.data;
+
+    if (!Array.isArray(data)) {
+      throw new Error("Formato de respuesta inválido: se esperaba un array");
+    }
+
+    return data;
   } catch (error) {
-    console.error('Error al obtener arqueos por caja:', error);
-    return []; // devolvemos el array vacio
+    console.error("[obtenerArqueosPorCajaServicio] Error:", error);
+    throw new Error("Error al obtener los arqueos de la caja");
   }
 };
 
 // Servicio para obtener cajas cerradas
 export const obtenerCajasCerradasServicio = async (limit = 10, offset = 0) => {
   try {
-    const respuesta = await API.get(`/caja/registros-caja?limit=${limit}&offset=${offset}`);
-    // el backend devuelve directamente el array
-    const cajasCerradas = respuesta.data;
-    
-    return cajasCerradas; // Devuelve directamente el array
-    
+    // Validación básica de los parámetros
+    if (limit < 0 || offset < 0) {
+      throw new Error("Los valores de limit y offset deben ser positivos");
+    }
+
+    const respuesta = await API.get(`/caja/registros-caja`, {
+      params: { limit, offset }, 
+    });
+
+    const data = respuesta?.data;
+
+    // Validar formato de respuesta
+    if (!Array.isArray(data)) {
+      throw new Error("Formato de respuesta inválido: se esperaba un array");
+    }
+
+    // (Opcional) Validar campos mínimos esperados
+    const camposEsperados = ["idCaja", "fecha", "nombreUsuario", "montoActual"];
+    const formatoValido = data.every((caja) =>
+      camposEsperados.every((campo) => campo in caja)
+    );
+
+    if (!formatoValido) {
+      throw new Error("Algunas cajas cerradas no tienen los campos esperados");
+    }
+
+    return data;
   } catch (error) {
-    console.error('Error al obtener cajas cerradas:', error);
-    return []; // Devuelve array vacío en caso de error
+    console.error("[obtenerCajasCerradasServicio] Error:", error);
+    throw new Error("Error al obtener las cajas cerradas");
   }
 };

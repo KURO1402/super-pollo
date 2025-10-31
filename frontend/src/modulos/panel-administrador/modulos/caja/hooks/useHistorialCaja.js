@@ -57,9 +57,8 @@ export const useHistorialCajas = () => {
     setLoadingMovimientos(true);
     setErrorMovimientos(null);
     try {
-      const respuesta = await obtenerMovimientosPorCajaServicio(idCaja);
-      setMovimientosCaja(respuesta.data || []);
-      return respuesta.data || [];
+      const movimientos = await obtenerMovimientosPorCajaServicio(idCaja);
+      setMovimientosCaja(movimientos || []);
     } catch (error) {
       setErrorMovimientos(error.message);
       throw error;
@@ -87,7 +86,7 @@ export const useHistorialCajas = () => {
     try {
       return new Date(dateString).toLocaleDateString('es-ES');
     } catch {
-      return dateString; // Si ya esta formateada, devolverla tal cual
+      return dateString;
     }
   };
 
@@ -96,6 +95,16 @@ export const useHistorialCajas = () => {
     const numericAmount = parseFloat(amount) || 0;
     return `S/ ${numericAmount.toFixed(2)}`;
   };
+
+  function formatHora(hora) {
+    const date = new Date('1970-01-01T' + hora + ':00'); 
+    const opciones = {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true 
+    };
+    return date.toLocaleTimeString('es-ES', opciones);
+  }
 
   return {
     // Estados
@@ -115,6 +124,7 @@ export const useHistorialCajas = () => {
     cargarMovimientosCaja,
     cargarDetallesCompletosCaja,
     formatDate,
-    formatCurrency
+    formatCurrency,
+    formatHora
   };
 };

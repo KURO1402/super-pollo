@@ -8,30 +8,12 @@ const ModalDetalleArqueos = ({
   movimientosCaja,
   loadingArqueos,
   loadingMovimientos,
-  formatCurrency
+  formatCurrency,
+  formatHora
 }) => {
   const tieneArqueos = arqueosCaja && arqueosCaja.length > 0;
   const tieneMovimientos = movimientosCaja && movimientosCaja.length > 0;
   const arqueo = tieneArqueos ? arqueosCaja[0] : null;
-
-  // funcion para calcular total de ingresos
-  const calcularTotalIngresos = () => {
-    if (!tieneMovimientos) return 0;
-    return movimientosCaja
-      .filter(mov => mov.tipoMovimiento?.toLowerCase() === "ingreso")
-      .reduce((total, mov) => total + (parseFloat(mov.montoMovimiento) || 0), 0);
-  };
-
-  // funcion para calcular total de egresos
-  const calcularTotalEgresos = () => {
-    if (!tieneMovimientos) return 0;
-    return movimientosCaja
-      .filter(mov => mov.tipoMovimiento?.toLowerCase() === "egreso")
-      .reduce((total, mov) => total + (parseFloat(mov.montoMovimiento) || 0), 0);
-  };
-
-  const totalIngresos = calcularTotalIngresos();
-  const totalEgresos = calcularTotalEgresos();
 
   return (
     <Modal
@@ -67,7 +49,7 @@ const ModalDetalleArqueos = ({
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Hora</p>
-                    <p className="font-medium text-gray-900 dark:text-white">{arqueo.horaArqueo}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{formatHora(arqueo.horaArqueo)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Estado</p>
@@ -157,39 +139,6 @@ const ModalDetalleArqueos = ({
               </div>
             )}
 
-            {/* Resumen de movimientos */}
-            {tieneMovimientos && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                  Resumen de Movimientos
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Ingresos</p>
-                    <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                      {formatCurrency(totalIngresos)}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Egresos</p>
-                    <p className="text-lg font-bold text-red-600 dark:text-red-400">
-                      {formatCurrency(totalEgresos)}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Neto</p>
-                    <p className={`text-lg font-bold ${
-                      (totalIngresos - totalEgresos) >= 0 
-                        ? "text-green-600 dark:text-green-400" 
-                        : "text-red-600 dark:text-red-400"
-                    }`}>
-                      {formatCurrency(totalIngresos - totalEgresos)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Movimientos de caja solo si hay movimientos */}
             {tieneMovimientos ? (
               <div>
@@ -246,13 +195,12 @@ const ModalDetalleArqueos = ({
                 </div>
               </div>
             ) : (
-              !tieneArqueos && (
                 <div className="text-center py-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                   <FiAlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400">No hay datos disponibles para esta caja</p>
+                  <p className="text-gray-500 dark:text-gray-400">No hay movimientos disponibles para esta caja</p>
                 </div>
               )
-            )}
+            }
           </>
         )}
       </div>
