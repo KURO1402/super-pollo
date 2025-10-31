@@ -47,9 +47,10 @@ const validarDatosCerrarCaja = async (usuarioId) => {
     if (caja.length === 0) {
         throw Object.assign(new Error("No hay una caja abierta para cerrar."), { status: 400 });
     }
-
+    const cajaData = caja[0];
+    const idCaja = cajaData.idCaja;
     //Validar que la caja ya este arqueada
-    const arqueos = await obtenerArqueosPorCajaModel(caja.idCaja);
+    const arqueos = await obtenerArqueosPorCajaModel(idCaja);
     if (arqueos.length === 0) {
         throw Object.assign(new Error("No se puede cerrar la caja sin antes hacer un arqueo."), { status: 400 });
     }

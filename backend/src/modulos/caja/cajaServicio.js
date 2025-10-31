@@ -9,14 +9,11 @@ const crearCajaService = async (montoInicial, token) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
     await validarDatosAbrirCaja(montoInicial, decodedToken.idUsuario);
-    const resultado = await crearCajaModel(montoInicial, decodedToken.idUsuario);
-    //Validar que se haya creado la caja
-    if (resultado.affectedRows === 0) {
-        throw new Error("No se pudo crear la caja");
-    }
+    const idGenerado = await crearCajaModel(montoInicial, decodedToken.idUsuario);
 
     return {
         ok: true,
+        idCaja: idGenerado,
         mensaje: "Caja creada exitosamente"
     };
 }
