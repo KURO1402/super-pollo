@@ -10,27 +10,26 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
     defaultValues: {
       nombreInsumo: '',
       unidadMedida: '',
-      stockInsumo: '',
-      categoriaProducto: '',
+      cantidadInicial: '',
     }
   });
   // funcion que se ejecuta al enviar el formulario
   const onSubmit = async (data) => {
-    const stockInsumoDecimal = parseFloat(data.stockInsumo);
+    const cantidadInicialDecimal = parseFloat(data.cantidadInicial);
 
     // Verificar si la conversión fue exitosa
-    if (isNaN(stockInsumoDecimal)) {
+    if (isNaN(cantidadInicialDecimal)) {
       alertasCRUD.error('El valor de stock no es válido');
       return;
     }
-    // Actualizar el valor de stockInsumo a número
-    data.stockInsumo = stockInsumoDecimal;
+    // Actualizar el valor de cantidadInicial a número
+    data.cantidadInicial = cantidadInicialDecimal;
 
     try {
       await crearInsumoServicio(data);
-      alertasCRUD.creado();
       onGuardar();
       reset();
+      alertasCRUD.creado()
     } catch (error) {
       console.error("Error al crear un nuevo producto", error);
       alertasCRUD.error("Error al crear el insumo");
@@ -51,12 +50,6 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
     { value: 'Unidades', label: 'Unidades' },
     { value: 'Paquetes', label: 'Paquetes' },
     { value: 'Cajas', label: 'Cajas' }
-  ];
-
-  const categorias = [
-    { value: '', label: 'Seleccionar categoría' },
-    { value: 'insumo', label: 'Insumo' },
-    { value: 'bebida', label: 'Bebida' }
   ];
 
   return (
@@ -94,34 +87,6 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Categoría *
-            </label>
-            <select
-              {...register("categoriaProducto", { 
-                required: "La categoría es requerida",
-                validate: value => value !== "" || "Seleccione una categoría"
-              })}
-              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.categoriaProducto 
-                  ? 'border-red-500 dark:border-red-400' 
-                  : 'border-gray-300 dark:border-gray-600'
-              }`}
-            >
-              {categorias.map(cat => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-            {errors.categoriaProducto && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.categoriaProducto.message}
-              </p>
-            )}
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Unidad de Medida *
             </label>
             <select
@@ -147,10 +112,7 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
               </p>
             )}
           </div>
-        </div>
-
-        {/* Stock Actual */}
-        <div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Stock Actual *
             </label>
@@ -158,7 +120,7 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
               type="number"
               step="0.01"
               min="0"
-              {...register("stockInsumo", { 
+              {...register("cantidadInicial", { 
                 required: "El stock actual es requerido",
                 min: {
                   value: 0,
@@ -166,18 +128,20 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
                 }
               })}
               className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.stockInsumo 
+                errors.cantidadInicial 
                   ? 'border-red-500 dark:border-red-400' 
                   : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="0.00"
             />
-            {errors.stockInsumo && (
+            {errors.cantidadInicial && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.stockInsumo.message}
+                {errors.cantidadInicial.message}
               </p>
             )}
         </div>
+        </div>
+
 
         {/* Descripcion*/}
         <div>

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 // hook propios de react
 import { useEffect } from 'react';
 // servicios
-import { alertasCRUD } from '../../../../../utilidades/toastUtilidades';
+import mostrarAlerta, { alertasCRUD } from '../../../../../utilidades/toastUtilidades';
 import { actualizarInsumoServicio } from '../servicios/insumosServicios';
 
 export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
@@ -24,7 +24,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
       
       // Precargar todos los datos del insumo
       setValue('nombreInsumo', insumo.nombreInsumo || '');
-      setValue('categoriaProducto', insumo.categoriaProducto || '');
       setValue('stockInsumo', insumo.stockActual || insumo.stockInsumo || '');
       setValue('unidadMedida', insumo.unidadMedida || '');
       setValue('fechaActualizacion', fechaActual);
@@ -37,11 +36,11 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
       // Preparar datos para el backend
       const datosParaBackend = {
         nombreInsumo: data.nombreInsumo,
-        categoriaProducto: data.categoriaProducto,
-        stockInsumo: parseFloat(data.stockInsumo).toFixed(2),
+        cantidadInicial: parseFloat(data.stockInsumo).toFixed(2),
         unidadMedida: data.unidadMedida,
       };
 
+      console.log("datos par el back: ", datosParaBackend)
       // Llamar al servicio de actualización
       const resultado = await actualizarInsumoServicio(insumo.idInsumo, datosParaBackend);
 
@@ -59,8 +58,7 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
       }
     } catch (error) {
       console.error('Error al actualizar insumo:', error);
-      const mensajeError = error.response?.data?.mensaje || "Error al actualizar el insumo";
-      alertasCRUD.error(mensajeError);
+      mostrarAlerta.error('Ya existe un insumo son el mismo nombre');
     }
   };
 
@@ -107,12 +105,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
       default: return 'bg-gray-100 dark:bg-gray-900/30 border-gray-200 dark:border-gray-700';
     }
   };
-
-  // Opciones para los select
-  const categorias = [
-    { value: 'insumo', label: 'Insumo' },
-    { value: 'bebida', label: 'Bebida' }
-  ];
 
   const unidadesMedida = [
     { value: '', label: 'Seleccionar unidad' },
@@ -181,33 +173,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
 
         {/* Categoría y Unidad de Medida */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Categoría *
-            </label>
-            <select
-              {...register("categoriaProducto", { 
-                required: "La categoría es requerida"
-              })}
-              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.categoriaProducto 
-                  ? 'border-red-500 dark:border-red-400' 
-                  : 'border-gray-300 dark:border-gray-600'
-              }`}
-            >
-              <option value="">Seleccionar categoría...</option>
-              {categorias.map(cat => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-            {errors.categoriaProducto && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.categoriaProducto.message}
-              </p>
-            )}
-          </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -236,70 +201,48 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
               </p>
             )}
           </div>
-        </div>
-
-        {/* Stock Actual */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Stock Actual *
-          </label>
-          <div className="relative">
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              {...register("stockInsumo", { 
-                required: "El stock actual es requerido",
-                min: {
-                  value: 0,
-                  message: "El stock no puede ser negativo"
-                },
-                validate: value => {
-                  const numValue = parseFloat(value);
-                  return !isNaN(numValue) || "El stock debe ser un número válido";
-                }
-              })}
-              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.stockInsumo 
-                  ? 'border-red-500 dark:border-red-400' 
-                  : 'border-gray-300 dark:border-gray-600'
-              }`}
-              placeholder="0.00"
-            />
-            {unidadMedida && (
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span className="text-gray-500 dark:text-gray-400 text-sm">
-                  {unidadMedida}
-                </span>
-              </div>
+          {/* Stock Actual */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Stock Actual *
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                {...register("stockInsumo", { 
+                  required: "El stock actual es requerido",
+                  min: {
+                    value: 0,
+                    message: "El stock no puede ser negativo"
+                  },
+                  validate: value => {
+                    const numValue = parseFloat(value);
+                    return !isNaN(numValue) || "El stock debe ser un número válido";
+                  }
+                })}
+                className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  errors.stockInsumo 
+                    ? 'border-red-500 dark:border-red-400' 
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}
+                placeholder="0.00"
+              />
+              {unidadMedida && (
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">
+                    {unidadMedida}
+                  </span>
+                </div>
+              )}
+            </div>
+            {errors.stockInsumo && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                {errors.stockInsumo.message}
+              </p>
             )}
           </div>
-          {errors.stockInsumo && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.stockInsumo.message}
-            </p>
-          )}
-        </div>
-
-        {/* Fecha de Actualización */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Fecha de Actualización *
-          </label>
-          <input
-            type="date"
-            {...register("fechaActualizacion", { required: "La fecha es requerida" })}
-            className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.fechaActualizacion 
-                ? 'border-red-500 dark:border-red-400' 
-                : 'border-gray-300 dark:border-gray-600'
-            }`}
-          />
-          {errors.fechaActualizacion && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.fechaActualizacion.message}
-            </p>
-          )}
         </div>
 
         {/* Estado del Stock (Calculado) */}

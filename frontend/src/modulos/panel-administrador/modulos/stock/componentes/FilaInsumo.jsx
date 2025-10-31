@@ -1,15 +1,42 @@
-import { FiPackage, FiDroplet, FiAlertTriangle, FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiPackage, FiAlertTriangle, FiEdit, FiTrash2 } from "react-icons/fi";
 
 export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
   const handleEliminarClick = () => {
     onEliminarInsumo(insumo); //
   };
-  // Función para determinar el estado del stock
   const getEstadoStock = (stock) => {
-    if (stock === 0) return { texto: 'Sin Stock', color: 'red', icono: <FiAlertTriangle size={14} /> };
-    if (stock < 5) return { texto: 'Stock Bajo', color: 'red', icono: <FiAlertTriangle size={14} /> };
-    if (stock < 15) return { texto: 'Stock Medio', color: 'orange', icono: <FiPackage size={14} /> };
-    return { texto: 'Stock Bueno', color: 'green', icono: <FiPackage size={14} /> };
+    const actual = parseFloat(stock) || 0;
+    const stockMinimo = 5; 
+    
+    if (actual === 0) return { 
+      texto: 'Stock Agotado', 
+      color: 'red', 
+      icono: <FiAlertTriangle size={14} /> 
+    };
+    
+    if (actual <= stockMinimo * 0.3) return { 
+      texto: 'Stock Crítico', 
+      color: 'red', 
+      icono: <FiAlertTriangle size={14} /> 
+    };
+    
+    if (actual <= stockMinimo) return { 
+      texto: 'Stock Bajo', 
+      color: 'orange', 
+      icono: <FiAlertTriangle size={14} /> 
+    };
+    
+    if (actual <= stockMinimo * 1.5) return { 
+      texto: 'Stock Normal', 
+      color: 'blue', 
+      icono: <FiPackage size={14} /> 
+    };
+    
+    return { 
+      texto: 'Stock Óptimo', 
+      color: 'green', 
+      icono: <FiPackage size={14} /> 
+    };
   };
 
   const estado = getEstadoStock(insumo.stockInsumo);
@@ -19,33 +46,21 @@ export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
       {/* Nombre del Insumo */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${
-            insumo.categoriaProducto === 'bebida' 
-              ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-              : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-          }`}>
-            {insumo.categoriaProducto === 'bebida' ? 
-              <FiDroplet size={16} /> : 
+          <div className='p-2 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'>
               <FiPackage size={16} />
-            }
           </div>
           <div>
             <div className="text-sm font-medium text-gray-900 dark:text-white">
               {insumo.nombreInsumo}
             </div>
-            <div className="text-xs text-gray-500">ID: {insumo.idInsumo}</div>
           </div>
         </div>
       </td>
 
       {/* Categoría */}
       <td className="px-6 py-4 whitespace-nowrap">
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          insumo.categoriaProducto === 'bebida'
-            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-            : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-        }`}>
-          {insumo.categoriaProducto === 'bebida' ? 'Bebida' : 'Insumo'}
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+          Insumo
         </span>
       </td>
 
@@ -70,6 +85,8 @@ export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
             ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
             : estado.color === 'orange'
             ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
+            : estado.color === 'blue'
+            ? 'bg-orange-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
             : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
         }`}>
           {estado.icono}

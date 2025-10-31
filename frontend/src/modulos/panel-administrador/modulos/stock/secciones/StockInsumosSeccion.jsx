@@ -22,12 +22,18 @@ import { ModalMovimientoStock } from "../componentes/ModalMovimientoStock";
 import { ModalEditarStock } from "../componentes/ModalEditarStock";
 import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
 import { useConfirmacion } from "../../../hooks/useConfirmacion";
-import { alertasCRUD } from "../../../../../utilidades/toastUtilidades";
+import mostrarAlerta, { alertasCRUD } from "../../../../../utilidades/toastUtilidades";
 
 const StockInsumosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); // utilizamos nuestro hook de busqueda, lo desestructuramos
   const { filtro, setFiltro, aplicarFiltros } = useFiltro(); // lo mismo para el filtro
-  const { paginaActual, setPaginaActual, paginar } = usePaginacion(8); // tambien para la paginación
+  const { 
+    paginaActual, 
+    setPaginaActual, 
+    itemsPorPagina, 
+    setItemsPorPagina, 
+    paginar 
+  } = usePaginacion(5);
   const [insumoSeleccionado, setInsumoSeleccionado] = useState(null); // estado para insumo seleccionado
   const [insumoAEliminar, setInsumoAEliminar] = useState(null);
   const [ insumos, setInsumos ] = useState([]) // estado para los insumos
@@ -41,7 +47,7 @@ const StockInsumosSeccion = () => {
   const obtenerInsumos = async () => {
     try {
       const respuesta = await listarInsumoServicio();
-      setInsumos(respuesta.data);
+      setInsumos(respuesta);
     } catch (error) {
       setError("Error al obtener los insumos");
       console.error(error);
@@ -58,9 +64,18 @@ const StockInsumosSeccion = () => {
     "unidadMedida",
     "categoriaProducto"
   ]);
-  // Aplicar filtros adicionales
-  filtrados = aplicarFiltros(filtrados, "categoriaProducto");
   const { datosPaginados, totalPaginas } = paginar(filtrados);
+  
+  // Función para manejar cambio de página
+  const handleCambiarPagina = (nuevaPagina) => {
+    setPaginaActual(nuevaPagina);
+  };
+
+  // Función para manejar cambio de items por página
+  const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
+    setItemsPorPagina(nuevoItemsPorPagina);
+  };
+
   // Función para abrir modal de nuevo insumo
   const handleNuevoInsumo = () => {
     modalNuevoInsumo.abrir();
@@ -122,15 +137,13 @@ const cancelarEliminacion = () => {
 };
 
 const handleEliminarInsumo = async (idInsumo) => {
-  
   try {
     await eliminarInsumoServicio(idInsumo);
     setInsumos(prev => prev.filter(insumo => insumo.idInsumo !== idInsumo));
     
     alertasCRUD.eliminado();
-    
   } catch (error) {
-    alertasCRUD.error("Error al eliminar el insumo");
+    mostrarAlerta.error('No se puede eliminar un insumo con stock.')
   } finally {
     // Limpiar el estado
     setInsumoAEliminar(null);
@@ -168,15 +181,6 @@ const handleEliminarInsumo = async (idInsumo) => {
             onChange={setTerminoBusqueda}
             placeholder="Buscar por nombre de insumo, unidad o categoría..."
           />
-          <FiltroBusqueda
-            valor={filtro}
-            onChange={setFiltro} 
-            opciones={[
-              { value: "todos", label: "Todos los insumos" },
-              { value: "insumo", label: "Solo insumos" },
-              { value: "bebida", label: "Solo bebidas" },
-            ]}
-          />
           <div className="flex gap-2">
             {/* Botón para movimiento de stock */}
             <button 
@@ -205,7 +209,10 @@ const handleEliminarInsumo = async (idInsumo) => {
       <Paginacion
         paginaActual={paginaActual}
         totalPaginas={totalPaginas}
-        alCambiarPagina={setPaginaActual}
+        alCambiarPagina={handleCambiarPagina}
+        itemsPorPagina={itemsPorPagina}
+        alCambiarItemsPorPagina={handleCambiarItemsPorPagina}
+        mostrarSiempre={true}
       />
       {/* Modal para nuevo insumo */}
       <Modal

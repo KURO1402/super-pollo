@@ -63,7 +63,7 @@ const HistorialSalidasSeccion = () => {
   }, []);
 
   // Filtrar solo salidas
-  const salidas = movimientos.filter(mov => mov.tipoMovimiento === 'salida');
+  const salidas = movimientos.filter(mov => mov.nombreMovimiento === 'salida');
 
   // función para abrir modal de salida
   const handleSalidaStock = (salida) => {

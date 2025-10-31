@@ -40,7 +40,13 @@ const HistorialEntradasSeccion = () => {
   const obtenerMovimientos = async () => {
     try {
       const data = await listarMovimientosServicio();
-      setMovimientos(data);
+      const movimientosConId = data.map((mov, index) => ({
+        ...mov,
+        idMovimientoStock: `mov-${index}-${Date.now()}`, // ID temporal único
+        idMovimiento: `mov-${index}-${Date.now()}` // ID temporal único
+      }));
+
+      setMovimientos(movimientosConId);
     } catch (error) {
       console.error("Error al obtener movimientos:", error);
     }
@@ -62,7 +68,7 @@ const HistorialEntradasSeccion = () => {
   }, []);
 
   // Filtrar solo entradas
-  const entradas = movimientos.filter(mov => mov.tipoMovimiento === 'entrada');
+  const entradas = movimientos.filter(mov => mov.nombreMovimiento === 'entrada');
 
   // Función para abrir modal de entrada
   const handleEntradaStock = (entradas) => {
@@ -73,8 +79,9 @@ const HistorialEntradasSeccion = () => {
   // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(entradas, [
     "nombreInsumo",
-    "idMovimientoStock",
-    "cantidadMovimiento"
+    "cantidadMovimiento",
+    "detalleMovimiento",
+    "nombreUsuario"
   ]);
 
   // Aplicar filtro por insumo (si no es "todos")
@@ -87,13 +94,13 @@ const HistorialEntradasSeccion = () => {
   const { datosPaginados, totalPaginas } = paginar(filtrados);
 
   // Generar opciones de insumos para el filtro
-  const opcionesInsumos = [
+  /* const opcionesInsumos = [
     { value: "todos", label: "Todos los insumos" },
     ...insumos.map(insumo => ({
       value: insumo.nombreInsumo,
       label: insumo.nombreInsumo
     }))
-  ];
+  ]; */
 
   // Función para solicitar confirmación de eliminación
   const solicitarConfirmacionEliminar = (movimiento) => {
@@ -165,11 +172,11 @@ const HistorialEntradasSeccion = () => {
           />
           
           {/* Filtro por insumo */}
-          <FiltroBusqueda
+          {/* <FiltroBusqueda
             valor={filtro}
             onChange={setFiltro} 
             opciones={opcionesInsumos}
-          />
+          /> */}
         </div>
       </div>
 

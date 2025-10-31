@@ -3,7 +3,7 @@ import API from "../../../../../app/servicio/axiosConfiguracion";
 
 export const crearMovimientoServicio = async (data) => {
   try {
-    const respuesta = await API.post('/inventario-movimientos/registrar', data);
+    const respuesta = await API.post('/inventario/movimientos/registrar', data);
     
     if (respuesta.data && respuesta.data.ok) {
       return respuesta.data;
@@ -17,14 +17,13 @@ export const crearMovimientoServicio = async (data) => {
   }
 };
 
-// servicios/movimientosServicios.js
 export const listarMovimientosServicio = async () => {
   try {
-    const respuesta = await API.get('/inventario-movimientos');
+    const respuesta = await API.get('/inventario/movimientos');
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al listar los movimientos");
     }
-    return respuesta.data.data;
+    return respuesta.data.movimientos;
   } catch (error) {
     console.error('Error al listar movimientos:', error.message);
     throw error;
@@ -33,7 +32,7 @@ export const listarMovimientosServicio = async () => {
 
 export const obtenerMovimientoIdServicio = async (id) => {
   try {
-    const respuesta = await API.get(`/inventario-movimientos/${id}`);
+    const respuesta = await API.get(`/inventario/movimientos/${id}`);
     
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al obtener el movimiento");
@@ -47,7 +46,7 @@ export const obtenerMovimientoIdServicio = async (id) => {
 
 export const eliminarMovimientoServicio = async (id) => {
   try {
-    const respuesta = await API.delete(`/inventario-movimientos/${id}`);
+    const respuesta = await API.delete(`/inventario/movimientos/${id}`);
     
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al eliminar el movimiento");

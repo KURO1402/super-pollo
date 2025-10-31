@@ -3,9 +3,9 @@ import API from "../../../../../app/servicio/axiosConfiguracion";
 export const crearInsumoServicio = async (data) => {
   try {
     // Hacemos la solicitud con axios
-    const respuesta = await API.post('/inventario/crear', data);
+    const respuesta = await API.post('/insumos/insertar', data);
 
-    // Verificamos si la respuesta tiene un código de estado exitoso (2xx)
+    // Verificamos si la respuesta tiene un código de estado exitoso
     if (respuesta.data && respuesta.data.ok) {
       return respuesta.data;
     } else {
@@ -19,13 +19,12 @@ export const crearInsumoServicio = async (data) => {
 
 export const listarInsumoServicio = async () => {
   try {
-    // Hacemos la solicitud con axios, que ya incluye el authorization y content-Type en los headers
-    const respuesta = await API.get('/inventario/');
+    const respuesta = await API.get('/insumos/');
     //verificamos que la respuesta sea correcta
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al listar los insumos");
     }
-    return respuesta.data;
+    return respuesta.data.insumos;
   }
   catch (error) {
     console.error('Error al listar insumos:', error.message);
@@ -35,7 +34,7 @@ export const listarInsumoServicio = async () => {
 
 export const obtenerInsumoIdServicio = async (id) => {
   try {
-    const respuesta = await API.get(`/inventario/${id}`);
+    const respuesta = await API.get(`/insumos/${id}`);
     //verificamos que la respuesta sea correcta
     if (!respuesta.ok) {
       throw new Error(respuesta.data.mensaje || "Error al obtener el insumo");
@@ -50,7 +49,7 @@ export const obtenerInsumoIdServicio = async (id) => {
 
 export const actualizarInsumoServicio = async (id, data) => {
   try {
-    const respuesta = await API.put(`/inventario/${id}`, data);
+    const respuesta = await API.put(`/insumos/actualizar/${id}`, data);
     //verificamos que la respuesta sea correcta
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al actualizar el insumo");
@@ -64,8 +63,9 @@ export const actualizarInsumoServicio = async (id, data) => {
 };
 
 export const eliminarInsumoServicio = async (id) => {
+  console.log("el servicio:", id)
   try {
-    const respuesta = await API.delete(`/inventario/${id}`);
+    const respuesta = await API.delete(`/insumos/eliminar/${id}`);
     //verificamos que la respuesta sea correcta
     if (!respuesta.data.ok) {
       throw new Error(respuesta.data.mensaje || "Error al eliminar el insumo");
