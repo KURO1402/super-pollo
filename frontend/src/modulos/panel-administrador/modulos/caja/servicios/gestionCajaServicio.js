@@ -151,7 +151,6 @@ export const obtenerMovimientosCajaServicio = async () => {
   }
 };
 
-// Obtener los movimientos de una por ID
 // Obtener los movimientos de una caja por ID
 export const obtenerMovimientosPorCajaServicio = async (idCaja) => {
   try {

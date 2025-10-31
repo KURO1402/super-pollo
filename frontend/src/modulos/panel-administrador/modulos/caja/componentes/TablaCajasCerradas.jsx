@@ -7,10 +7,11 @@ const TablasCajasCerradas = ({
   cajasCerradas, 
   formatCurrency, 
   formatDate,
-  formatHora,
   paginaActual, 
   totalPaginas, 
-  onCambiarPagina, 
+  onCambiarPagina,
+  itemsPorPagina,
+  onCambiarItemsPorPagina,
   onVerDetalle,
   loading 
 }) => {
@@ -23,7 +24,6 @@ const TablasCajasCerradas = ({
       cajaCerrada={cajaCerrada} 
       formatCurrency={formatCurrency}
       formatDate={formatDate}
-      formatHora={formatHora}
       onVerDetalle={onVerDetalle}
     />
   )); 
@@ -66,13 +66,14 @@ const TablasCajasCerradas = ({
           <Tabla 
             encabezados={encabezados} 
             registros={registros} />
-          {totalPaginas > 1 && (
-            <Paginacion
-              paginaActual={paginaActual}
-              totalPaginas={totalPaginas}
-              alCambiarPagina={onCambiarPagina}
-            />
-          )}
+          <Paginacion
+            paginaActual={paginaActual}
+            totalPaginas={totalPaginas}
+            alCambiarPagina={onCambiarPagina} 
+            itemsPorPagina={itemsPorPagina}
+            alCambiarItemsPorPagina={onCambiarItemsPorPagina} 
+            mostrarSiempre={true}
+          />
         </>
       ) : (
         <div className="text-center py-12">

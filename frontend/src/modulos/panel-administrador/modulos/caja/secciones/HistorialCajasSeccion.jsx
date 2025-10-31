@@ -27,7 +27,14 @@ const HistorialCajasSeccion = () => {
   } = useHistorialCajas();
 
   const [filtros, setFiltros] = useState({ fechaInicio: "", fechaFin: "",}); // estado para los filtros
-  const { paginaActual, setPaginaActual, paginar } = usePaginacion(7); // para la paginación
+  const { 
+    paginaActual, 
+    setPaginaActual, 
+    itemsPorPagina,
+    setItemsPorPagina,
+    paginar  
+  } = usePaginacion(7); // para la paginación
+
   const { estaAbierto: modalDetalleAbierto, abrir: abrirDetalle, cerrar: cerrarDetalle } = useModal(); // uso del modal
 
   const parseFecha = (fechaStr) => {
@@ -215,6 +222,8 @@ const HistorialCajasSeccion = () => {
         onCambiarPagina={setPaginaActual}
         loading={loadingCajas}
         onVerDetalle={handleVerDetalle}
+        itemsPorPagina={itemsPorPagina}
+        onCambiarItemsPorPagina={setItemsPorPagina}
       />
 
       {/* Modal de Detalle */}

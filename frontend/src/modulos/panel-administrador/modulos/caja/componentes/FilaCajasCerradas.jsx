@@ -2,8 +2,7 @@ import { FiAlertTriangle, FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi
 
 const FilaCajasCerradas = ({ 
   cajaCerrada, 
-  formatCurrency, 
-  formatDate,
+  formatCurrency,
   onVerDetalle 
 }) => {
   
