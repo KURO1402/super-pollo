@@ -1,13 +1,93 @@
 import { FiFileText, FiDollarSign, FiCalendar, FiUsers, FiMapPin } from "react-icons/fi";
-import { FaRegCreditCard, FaUtensils } from "react-icons/fa";
+import { FaUtensils } from "react-icons/fa";
 import { reservaEstadoGlobal } from "../../estado-global/reservaEstadoGlobal";
+import MercadoPagoButton from "./MercadoPagoButton";
+import { useState } from "react";
+import { registrarReservacionServicio, generarPreferenciaMercadoPago } from "../../servicios/reservacionesServicio";
+import { useAutenticacionGlobal } from "../../../../app/estado-global/autenticacionGlobal";
 
 const Paso3Confirmacion = () => {
   const { datos, getSubtotal, getAnticipo, getTotal, resetReserva } = reservaEstadoGlobal();
-  
+  const { usuario } = useAutenticacionGlobal();
+  const [ procesandoPago, setProcesandoPago ] = useState(false);
+  const [ preferenceId, setPreferenceId ] = useState(null);
+  const [ reservationId, setReservationId] = useState(null);
+
   const subtotal = getSubtotal();
   const anticipo = getAnticipo();
   const total = getTotal();
+
+  // funcion para preparar la reserva y generar la preferencia
+  const prepararReservaYPreferencia = async () => {
+    if (preferenceId) return preferenceId; // Si ya existe, no generar otra
+
+    setProcesandoPago(true);
+    try {
+      // Primero registrar la reservación
+      const reservaData = {
+        fechaReservacion: datos.fecha,
+        horaReservacion: datos.hora + ':00',
+        cantidadPersonas: datos.personas,
+        idUsuario: usuario.idUsuario,
+        idMesa: obtenerIdMesa(datos.mesa),
+        detalles: datos.productos.map(producto => ({
+          cantidadProductoReservacion: producto.cantidad,
+          precioUnitario: producto.precio,
+          idProducto: producto.idProducto
+        }))
+      };
+
+      console.log("Enviando datos de reserva:", reservaData);
+      
+      const reservaCreada = await registrarReservacionServicio(reservaData);
+      console.log("Reserva creada:", reservaCreada);
+      
+      setReservationId(reservaCreada.id);
+
+      // Generar la preferencia de pago
+      const preferencia = await generarPreferenciaMercadoPago(reservaCreada.id);
+      console.log("Preferencia recibida:", preferencia);
+      
+      setPreferenceId(preferencia.id);
+      return preferencia.id;
+
+    } catch (error) {
+      console.error("Error al preparar reserva:", error);
+      alert("Error al preparar la reserva. Intenta nuevamente.");
+      throw error;
+    } finally {
+      setProcesandoPago(false);
+    }
+  };
+
+  const handlePaymentSuccess = async (paymentData) => {
+    setProcesandoPago(true);
+    try {
+      console.log("Pago exitoso:", paymentData);
+
+      // se deberia crear un end point para confirmar al backend 
+      
+      resetReserva();
+      alert("¡Reserva confirmada exitosamente! Recibirás un correo de confirmación.");
+      
+    } catch (error) {
+      console.error("Error al guardar reserva:", error);
+      alert("Error al guardar la reserva. Contacta con soporte.");
+    } finally {
+      setProcesandoPago(false);
+    }
+  };
+
+  const handlePaymentError = (error) => {
+    console.error("Error en el pago:", error);
+    alert("Error en el proceso de pago. Intenta nuevamente.");
+  };
+
+  // extraer id de la mesa
+  const obtenerIdMesa = (mesaTexto) => {
+    const match = mesaTexto?.match(/Mesa (\d+)/);
+    return match ? parseInt(match[1]) : null;
+  };
 
   // Formatear fecha para mejor visualización
   const formatearFecha = (fecha) => {
@@ -21,31 +101,12 @@ const Paso3Confirmacion = () => {
     return `S/ ${monto.toFixed(2)}`;
   };
 
-  const handleConfirmarReserva = async () => {
+  const handleIniciarPago = async () => {
     try {
-      // Simular procesamiento de pago
-      console.log("Iniciando proceso de pago...", {
-        ...datos,
-        subtotal: formatearMoneda(subtotal),
-        anticipo: formatearMoneda(anticipo),
-        total: formatearMoneda(total)
-      });
+      await prepararReservaYPreferencia();
 
-      // Aquí irá la integración real con Mercado Pago
-      // const response = await procesarPagoMercadoPago({ ...datos, anticipo });
-      
-      // Simular delay de procesamiento
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Resetear para nueva reserva
-      resetReserva();
-      
-      // Mostrar confirmación
-      alert("¡Reserva confirmada exitosamente! \n\nSe ha procesado el pago del anticipo. Recibirás un correo de confirmación.");
-      
     } catch (error) {
-      console.error("Error al procesar la reserva:", error);
-      alert("❌ Error al procesar la reserva. Por favor, intenta nuevamente.");
+      console.error("Error al iniciar pago:", error);
     }
   };
 
@@ -54,6 +115,9 @@ const Paso3Confirmacion = () => {
       resetReserva();
     }
   };
+
+  // Verificar si puede procesar el pago
+  const puedeProcesarPago = datos.productos.length > 0 && datos.mesa && !procesandoPago;
 
   return (
     <div className="space-y-8">
@@ -125,7 +189,7 @@ const Paso3Confirmacion = () => {
               <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                 {datos.productos.map(producto => (
                   <div 
-                    key={producto.id} 
+                    key={producto.idProducto} 
                     className="flex justify-between items-center p-3 bg-gray-700/50 rounded-lg border border-gray-600"
                   >
                     <div className="flex-1">
@@ -186,28 +250,46 @@ const Paso3Confirmacion = () => {
             </div>
           </div>
 
-          {/* Botón de Mercado Pago */}
-          <button 
-            onClick={handleConfirmarReserva}
-            disabled={datos.productos.length === 0 || !datos.mesa}
-            className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 mb-4 ${
-              datos.productos.length === 0 || !datos.mesa
-                ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white transform hover:scale-105 shadow-lg"
-            }`}
-          >
-            <FaRegCreditCard className="w-6 h-6" />
-            {datos.productos.length === 0 || !datos.mesa 
-              ? "Datos incompletos" 
-              : "Pagar con Mercado Pago"
-            }
-          </button>
+          {!preferenceId ? (
+            <button 
+              onClick={handleIniciarPago}
+              disabled={!puedeProcesarPago || procesandoPago}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {procesandoPago ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Preparando pago...
+                </>
+              ) : (
+                "Preparar Pago"
+              )}
+            </button>
+          ) : (
+            <div className="mb-4">
+              <MercadoPagoButton 
+                monto={anticipo}
+                datosReserva={datos}
+                preferenceId={preferenceId}
+                onPaymentSuccess={handlePaymentSuccess}
+                onPaymentError={handlePaymentError}
+                disabled={!puedeProcesarPago}
+              />
+            </div>
+          )}
+
+          {procesandoPago && (
+            <div className="text-center py-2">
+              <p className="text-blue-500 text-sm">Procesando reserva...</p>
+            </div>
+          )}
 
           <button 
             onClick={handleCancelarReserva}
-            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold transition-colors border border-gray-500"
+            disabled={procesandoPago}
+            className="w-full mt-3 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold transition-colors border border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Cancelar Reservación
+            {procesandoPago ? "Procesando..." : "Cancelar Reservación"}
           </button>
 
           <div className="mt-4 p-3 bg-gray-700/30 rounded-lg border border-gray-600">

@@ -84,7 +84,7 @@ const NuevaReservacion = () => {
               type="button"
               onClick={() => setPaso(pasoActual - 1)}
               disabled={pasoActual === 1}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer ${
                 pasoActual === 1
                   ? "bg-gray-700 text-gray-500 cursor-not-allowed"
                   : "bg-gray-600 hover:bg-gray-700 text-white hover:scale-105"
@@ -100,7 +100,7 @@ const NuevaReservacion = () => {
                 type="button" // Cambiado a type="button" para mejor control
                 onClick={handleSubmit(onSubmitPaso1)}
                 disabled={!puedeAvanzarPaso1}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer ${
                   !puedeAvanzarPaso1
                     ? "bg-gray-700 text-gray-500 cursor-not-allowed"
                     : "bg-red-600 hover:bg-red-700 text-white hover:scale-105"
@@ -115,7 +115,7 @@ const NuevaReservacion = () => {
                 type="button"
                 onClick={handleAvanzarPaso2}
                 disabled={!puedeAvanzarPaso2}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer ${
                   !puedeAvanzarPaso2
                     ? "bg-gray-700 text-gray-500 cursor-not-allowed"
                     : "bg-red-600 hover:bg-red-700 text-white hover:scale-105"
@@ -134,7 +134,7 @@ const NuevaReservacion = () => {
             <button
               type="button"
               onClick={() => setPaso(2)}
-              className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105"
+              className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105 cursor-pointer"
             >
               <FiArrowLeft className="w-5 h-5" />
               Volver a Productos
@@ -146,7 +146,7 @@ const NuevaReservacion = () => {
                 reservaEstadoGlobal.getState().resetReserva();
                 methods.reset();
               }}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105"
+              className="flex items-center gap-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105"
             >
               <FiArrowLeft className="w-5 h-5" />
               Nueva Reservación
