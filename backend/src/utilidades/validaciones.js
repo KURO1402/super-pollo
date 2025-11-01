@@ -30,12 +30,7 @@ const validarDocumento = (tipo, valor) => {
         throw Object.assign(new Error("El Carné de Extranjería debe tener entre 9 y 12 caracteres alfanuméricos"), { status: 400 });
       }
       break;
-    case 3: // Pasaporte
-      if (!/^[A-Za-z0-9]{6,12}$/.test(valor)) {
-        throw Object.assign(new Error("El Pasaporte debe tener entre 6 y 12 caracteres alfanuméricos"), { status: 400 });
-      }
-      break;
-    case 4: // RUC
+    case 3: // RUC
       if (!/^\d{11}$/.test(valor)) {
         throw Object.assign(new Error("El RUC debe tener exactamente 11 dígitos"), { status: 400 });
       }

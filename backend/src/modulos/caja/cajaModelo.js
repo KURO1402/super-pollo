@@ -47,13 +47,13 @@ const consultarCajaAbiertaModel = async () => {
 }
 
 // Modelo para registrar un ingreso en caja
-const registrarIngresoCajaModel = async (datos, usuarioId) => {
+const registrarIngresoCajaModel = async (datos, usuarioId, idVenta = null) => {
 
     let conexion;
     try {
         const { monto, descripcion } = datos;
         conexion = await pool.getConnection();
-        const [rows] = await conexion.query("CALL registrarIngresoCaja(?, ?, ?)", [monto, descripcion, usuarioId]);
+        const [rows] = await conexion.query("CALL registrarIngresoCaja(?, ?, ?, ?)", [monto, descripcion, usuarioId, idVenta]);
         return rows[0][0]?.mensaje;
     } catch (err) {
         console.error("Error en registrarIngresoCajaModel: ", err.message);
@@ -64,12 +64,12 @@ const registrarIngresoCajaModel = async (datos, usuarioId) => {
 };
 
 // Procedimiento para registrar un egreso en caja
-const registrarEgresoCajaModel = async (datos, usuarioId) => {
+const registrarEgresoCajaModel = async (datos, usuarioId,  idVenta = null) => {
     let conexion;
     try {
         const { monto, descripcion } = datos;
         conexion = await pool.getConnection();
-        const [rows] = await conexion.query("CALL registrarEgresoCaja(?, ?, ?)", [monto, descripcion, usuarioId]);
+        const [rows] = await conexion.query("CALL registrarEgresoCaja(?, ?, ?, ?)", [monto, descripcion, usuarioId, idVenta]);
         return rows[0][0]?.mensaje;
     } catch (err) {
         console.error("Error en registrarEgresoCajaModel: ", err.message);
@@ -171,6 +171,27 @@ const obtenerArqueosPorCajaModel = async (cajaId) => {
     }
 };
 
+const obtenerMovimientosCajaPorVentaModel = async (idVenta) => {
+    let conexion;
+    try {
+        // Obtener conexión del pool
+        conexion = await pool.getConnection();
+
+        // Ejecutar el procedimiento almacenado
+        const [result] = await conexion.execute(
+            "CALL obtenerMovimientosCajaPorVenta(?)",
+            [idVenta]
+        );
+
+        return result[0][0];
+    } catch (err) {
+        console.error("Error en obtenerMovimientosCajaPorVentaModel: ", err.message);
+        throw new Error("Error al obtener movimientos por venta de la base de datos.");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 module.exports = { 
     crearCajaModel, 
     cerrarCajaModel, 
@@ -182,5 +203,6 @@ module.exports = {
     obtenerMovimientosCajaModel,
     obtenerCajasModel,
     obtenerArqueosCaja,
-    obtenerArqueosPorCajaModel
+    obtenerArqueosPorCajaModel,
+    obtenerMovimientosCajaPorVentaModel
 }

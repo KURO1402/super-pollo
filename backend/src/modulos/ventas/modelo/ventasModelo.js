@@ -161,11 +161,74 @@ const contarMedioPagoModel = async (idMedioPago) => {
   }
 };
 
+const obtenerComprobantePorIdModel = async (idComprobante) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+
+    const [rows] = await conexion.query(
+      `CALL obtenerComprobantePorId(?)`,
+      [idComprobante]
+    );
+
+    // Retorna la primera fila si existe
+    return rows[0][0];
+
+  } catch (err) {
+    console.error("Error en obtenerComprobantePorIdModel:", err.message);
+    throw new Error("Error al obtener comprobante por ID");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
+const actualizarComprobanteAnuladoModel = async ({
+  idComprobante,
+  enlaceNubefact,
+  urlComprobanteXML,
+  keyNubefact,
+  aceptadaPorSunat,
+  estadoSunat,
+  sunatResponseCode
+}) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+
+    const [result] = await conexion.execute(
+      "CALL actualizarComprobanteAnulado(?, ?, ?, ?, ?, ?, ?)",
+      [
+        idComprobante,
+        enlaceNubefact,
+        urlComprobanteXML,
+        keyNubefact,
+        aceptadaPorSunat,
+        estadoSunat,
+        sunatResponseCode
+      ]
+    );
+
+    // Retorno del SELECT dentro del procedimiento
+    return result[0][0]?.mensaje;
+
+  } catch (err) {
+    console.error("Error en actualizarComprobanteAnuladoModel:", err.message);
+    throw Object.assign(
+      new Error("No se pudo actualizar el comprobante en la base de datos."),
+      { status: 500 }
+    );
+
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
 
 module.exports = {
   registrarVentaModel,
   insertarDetalleVentaModel,
   obtenerVentasModel,
   obtenerVentasIDModel,
-  contarMedioPagoModel
+  contarMedioPagoModel,
+  obtenerComprobantePorIdModel,
+  actualizarComprobanteAnuladoModel
 };

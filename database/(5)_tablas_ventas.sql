@@ -81,14 +81,12 @@ CREATE TABLE detalleVentas(
 /* INSERTAR TIPOS COMPROBANTES */
 INSERT INTO tipoComprobantes (nombreTipoComprobante, serie) VALUES
 ('Factura', 'FFF1'),
-('Boleta', 'BBB1'),
-('Nota de Crédito', 'NC01'),
-('Nota de Débito', 'ND01');
+('Boleta', 'BBB1');
 
 /*Insertar correlativos*/
 INSERT INTO correlativos (idTipoComprobante, ultimoNumero) VALUES
-(1, 30),  -- Factura
-(2, 31),  -- Boleta
+(1, 2),  -- Factura
+(2, 15),  -- Boleta
 (3, 0),  -- Nota de Crédito
 (4, 0);  -- Nota de Débito
 

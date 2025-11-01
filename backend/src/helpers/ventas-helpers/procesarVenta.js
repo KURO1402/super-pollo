@@ -1,7 +1,7 @@
 const { insertarDetalleVentaModel } = require("../../modulos/ventas/modelo/ventasModelo");
 const { obtenerProductoPorIdModel, obtenerInsumosPorProductoModel } = require("../../modulos/inventario/modelo/productoModelo");
 const { registrarMovimientoStockModel } = require("../../modulos/inventario/modelo/movimientosModelo")
-const procesarProductosYInsumos = async (productos, dataFormateada, respuestaVenta, idUsuario) => {
+const procesarProductosYInsumos = async (productos, dataFormateada, respuestaVenta, idUsuario, idVenta) => {
   const resultados = {
     detallesVenta: [],
     movimientosStock: [],
@@ -42,7 +42,8 @@ const procesarProductosYInsumos = async (productos, dataFormateada, respuestaVen
             cantidadTotalInsumo,
             "salida",
             "Venta",
-            idUsuario
+            idUsuario,
+            idVenta
           );
 
           resultados.movimientosStock.push({

@@ -2,14 +2,14 @@
 const pool = require("../../../config/conexionDB");
 
 // Registrar movimiento y actualizar stock 
-const registrarMovimientoStockModel = async (idInsumo, cantidad, tipoMovimiento, detalles, idUsuario) => {
+const registrarMovimientoStockModel = async (idInsumo, cantidad, tipoMovimiento, detalles, idUsuario, idVenta = null) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
 
         const [result] = await pool.query(
-            "CALL registrarMovimientoStock(?, ?, ?, ?, ?)",
-            [idInsumo, cantidad, tipoMovimiento, detalles, idUsuario]
+            "CALL registrarMovimientoStock(?, ?, ?, ?, ?, ?)",
+            [idInsumo, cantidad, tipoMovimiento, detalles, idVenta, idUsuario]
         );
 
         return result[0][0]?.mensaje; // Mensaje del SELECT del SP
@@ -35,7 +35,8 @@ const obtenerMovimientosPaginacionModel = async (limit, offset) => {
         // En MySQL, los resultados de CALL vienen en un array dentro de otro array
         return result[0]; // Devuelve el arreglo de movimientos
     } catch (error) {
-        throw error;
+        console.error("Error en obtenerMovimientosPaginacionModel:", err.message);
+        throw new Error("Error al obtener movimimientos de la base de datos.");
     } finally {
         if (conexion) conexion.release();
     }
@@ -51,7 +52,8 @@ const buscarMovimientosPorInsumoModel = async (nombreInsumo, limit, offset) => {
         );
         return result[0];
     } catch (error) {
-        throw error;
+        console.error("Error en buscarMovimientosPorInsumoModel:", err.message);
+        throw new Error("Error al buscar movimiento de la base de datos.");
     } finally {
         if (conexion) conexion.release();
     }
@@ -67,7 +69,8 @@ const buscarMovimientosPorUsuarioModel = async (nombreApellido, limit, offset) =
         );
         return result[0];
     } catch (error) {
-        throw error;
+        console.error("Error en buscarMovimientosPorUsuarioModel:", err.message);
+        throw new Error("Error al buscar movimiento de la base de datos.");
     } finally {
         if (conexion) conexion.release();
     }
@@ -83,7 +86,8 @@ const buscarMovimientosPorFechaModel = async (fechaInicio, fechaFin, limit, offs
         );
         return result[0];
     } catch (error) {
-        throw error;
+        console.error("Error en buscarMovimientosPorFechaModel:", err.message);
+        throw new Error("Error al buscar movimiento de la base de datos.");
     } finally {
         if (conexion) conexion.release();
     }
@@ -99,11 +103,35 @@ const buscarMovimientosPorTipoModel = async (tipoMovimiento, limit, offset) => {
         );
         return result[0];
     } catch (error) {
-        throw error;
+        console.error("Error en buscarMovimientosPorTipoModel:", err.message);
+        throw new Error("Error al buscar movimiento de la base de datos.");
     } finally {
         if (conexion) conexion.release();
     }
 };
+
+const obtenerMovimientosPorVentaModel = async (idVenta) => {
+    let conexion;
+    try {
+        // Obtener conexión del pool
+        conexion = await pool.getConnection();
+
+        // Llamar al procedimiento almacenado con el parámetro idVenta
+        const [result] = await conexion.execute(
+            "CALL obtenerMovimientosPorVenta(?)",
+            [idVenta]
+        );
+
+        // Los resultados vienen en result[0]
+        return result[0]; 
+    } catch (error) {
+        console.error("Error en obtenerMovimientosPorVentaModel:", err.message);
+        throw new Error("Error al obtener movimientos por venta de la base de datos.");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
 
 // Exportamos las funciones del modelo
 module.exports = {
@@ -112,5 +140,6 @@ module.exports = {
     buscarMovimientosPorInsumoModel,
     buscarMovimientosPorUsuarioModel,
     buscarMovimientosPorFechaModel,
-    buscarMovimientosPorTipoModel
+    buscarMovimientosPorTipoModel,
+    obtenerMovimientosPorVentaModel
 };

@@ -3,28 +3,32 @@ const { contarTipoDocumentoPorIdModel } = require("../../usuarios/usuarioModelo"
 const { obtenerProductoPorIdModel, obtenerInsumosPorProductoModel } = require("../../inventario/modelo/productoModelo");
 const { contarMedioPagoModel } = require("../modelo/ventasModelo");
 
-const validarDatosVentaBoleta = async (datosVenta) => {
+// Función de validación principal reutilizable
+const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requiereDireccion = false) => {
   if (!datosVenta || typeof datosVenta !== "object") {
     throw Object.assign(
       new Error("Se necesitan los datos de la venta para generar este mismo."),
       { status: 400 }
     );
   }
-  const { tipoComprobante, datosCliente, productos, idMetodoPago } = datosVenta;
 
+  const { tipoComprobante, datosCliente, productos, idMetodoPago} = datosVenta;
+
+  // Validar tipo de comprobante
   if (!tipoComprobante || typeof tipoComprobante !== "number") {
     throw Object.assign(
       new Error("El tipo de comprobante es obligatorio."),
       { status: 400 }
     );
   }
-  if (tipoComprobante !== 2) {
+  if (tipoComprobante !== tipoEsperado) {
     throw Object.assign(
-      new Error("El tipo de comprobante comprobante solo puede ser boleta."),
+      new Error(`El tipo de comprobante solo puede ser ${tipoNombre}.`),
       { status: 400 }
     );
   }
 
+  // Validar datos del cliente
   if (!datosCliente || typeof datosCliente !== "object") {
     throw Object.assign(
       new Error("Se necesitan datos del cliente."),
@@ -32,14 +36,15 @@ const validarDatosVentaBoleta = async (datosVenta) => {
     );
   }
 
-  if(!idMetodoPago || typeof idMetodoPago !== "number"){
+  // Validar método de pago
+  if (!idMetodoPago || typeof idMetodoPago !== "number") {
     throw Object.assign(
       new Error("Se necesita el metodo de pago."),
       { status: 400 }
     );
   }
   const metodosPago = await contarMedioPagoModel(idMetodoPago);
-  if(metodosPago === 0){
+  if (metodosPago === 0) {
     throw Object.assign(
       new Error("El metodo de pago no es valido."),
       { status: 400 }
@@ -47,48 +52,48 @@ const validarDatosVentaBoleta = async (datosVenta) => {
   }
 
   const { tipoDoc, numeroDoc, nombreCliente, direccionCliente, correoCliente } = datosCliente;
+
+  // Validar tipo de documento
   if (tipoDoc === undefined || tipoDoc === null || typeof tipoDoc !== "number") {
     throw Object.assign(
       new Error("Se necesita el tipo de documento del cliente."),
       { status: 400 }
     );
-  };
-  if (tipoDoc !== 0) {
-    const totalTiposDoc = await contarTipoDocumentoPorIdModel(tipoDoc);
-    if (totalTiposDoc === 0) {
-      throw Object.assign(
-        new Error("El tipo de documento del cliente no es válido."),
-        { status: 400 }
-      );
-    }
   }
 
+  // Validación específica para factura
+  if (tipoEsperado === 1 && tipoDoc !== 3) {
+    throw Object.assign(
+      new Error("Solo se puede generar factura con RUC."),
+      { status: 400 }
+    );
+  }
 
-  if (!numeroDoc || typeof numeroDoc !== "string" ||!numeroDoc.trim()) {
+  // Validar número de documento
+  if (!numeroDoc || typeof numeroDoc !== "string" || !numeroDoc.trim()) {
     throw Object.assign(
       new Error("Se necesita numero de documento del cliente."),
       { status: 400 }
     );
   }
-
   validarDocumento(tipoDoc, numeroDoc);
 
+  // Validar nombre del cliente
+  const mensajeNombre = tipoEsperado === 1 ? "Se necesita un nombre o razon social del cliente." : "Se necesita el nombre del cliente.";
   if (!nombreCliente || typeof nombreCliente !== "string" || !nombreCliente.trim()) {
-    throw Object.assign(
-      new Error("Se necesita el nombre del cliente."),
-      { status: 400 }
-    );
+    throw Object.assign(new Error(mensajeNombre), { status: 400 });
   }
 
-  if (!productos || !Array.isArray(productos) || productos.length === 0) {
-    throw Object.assign(
-      new Error("Se necesitan los productos para generar la venta."),
-      { status: 400 }
-    );
-  }
-
-  if (direccionCliente) {
-    if (typeof direccionCliente !== "string" || !direccionCliente.trim() || direccionCliente === undefined || direccionCliente === null) {
+  // Validar dirección
+  if (requiereDireccion) {
+    if (!direccionCliente || typeof direccionCliente !== "string" || !direccionCliente.trim()) {
+      throw Object.assign(
+        new Error("La direccion del cliente es obligatoria."),
+        { status: 400 }
+      );
+    }
+  } else if (direccionCliente) {
+    if (typeof direccionCliente !== "string" || !direccionCliente.trim()) {
       throw Object.assign(
         new Error("La direccion del cliente no tiene formato valido."),
         { status: 400 }
@@ -99,6 +104,14 @@ const validarDatosVentaBoleta = async (datosVenta) => {
   // Validar correo si se envía
   if (correoCliente) {
     validarCorreo(correoCliente);
+  }
+
+  // Validar productos
+  if (!productos || !Array.isArray(productos) || productos.length === 0) {
+    throw Object.assign(
+      new Error("Se necesitan los productos para generar la venta."),
+      { status: 400 }
+    );
   }
 
   let erroresProductos = [];
@@ -123,18 +136,18 @@ const validarDatosVentaBoleta = async (datosVenta) => {
         { status: 400 }
       );
     }
-   
+
     try {
       const productoExistente = await obtenerProductoPorIdModel(producto.idProducto);
       if (!productoExistente) {
-        erroresProductos.push(`El insumo con ID ${producto.idProducto} no existe`);
+        erroresProductos.push(`El producto con ID ${producto.idProducto} no existe`);
       }
     } catch (err) {
-      erroresProductos.push(`Error al validar el insumo con ID ${producto.idProducto}: ${err.message}`);
+      erroresProductos.push(`Error al validar el producto con ID ${producto.idProducto}: ${err.message}`);
     }
 
     if (erroresProductos.length > 0) {
-        throw Object.assign(new Error("Uno o más productos ingresados no son inválidos."), { status: 404 });
+      throw Object.assign(new Error("Uno o más productos ingresados no son válidos."), { status: 404 });
     }
   }
 };
@@ -162,7 +175,17 @@ const validarStockInsumos = async (productos) => {
   }
 };
 
-module.exports = { 
+// Funciones específicas que utilizan la función base
+const validarDatosVentaBoleta = async (datosVenta) => {
+  await validarDatosVentaBase(datosVenta, 2, "boleta", false);
+};
+
+const validarDatosVentaFactura = async (datosVenta) => {
+  await validarDatosVentaBase(datosVenta, 1, "factura", true);
+};
+
+module.exports = {
   validarDatosVentaBoleta,
-  validarStockInsumos 
+  validarStockInsumos,
+  validarDatosVentaFactura
 };

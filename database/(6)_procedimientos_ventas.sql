@@ -11,6 +11,8 @@ DROP PROCEDURE IF EXISTS obtenerDetalleVenta;
 DROP PROCEDURE IF EXISTS obtenerSeriePorTipoComprobante;
 DROP PROCEDURE IF EXISTS actualizarCorrelativoSolo;
 DROP PROCEDURE IF EXISTS contarMedioPagoPorId;
+DROP PROCEDURE IF EXISTS actualizarComprobanteAnulado;
+DROP PROCEDURE IF EXISTS obtenerComprobantePorId;
 
 DELIMITER //
 
@@ -286,6 +288,67 @@ BEGIN
     SELECT COUNT(*) AS total
     FROM medioPago
     WHERE idMedioPago = p_idMedioPago;
+END //
+
+CREATE PROCEDURE obtenerComprobantePorId(
+    IN p_idComprobante INT
+)
+BEGIN
+    SELECT 
+        c.idComprobante,
+        c.idVenta,
+        c.idTipoComprobante,
+        tc.nombreTipoComprobante,
+        tc.serie,
+        c.numeroCorrelativo,
+        c.enlaceNubefact,
+        c.urlComprobantePDF,
+        c.urlComprobanteXML,
+        c.codigoHash,
+        c.keyNubefact,
+        c.aceptadaPorSunat,
+        c.estadoSunat,
+        c.sunatResponseCode,
+        c.fechaEnvio
+    FROM comprobantes c
+    INNER JOIN tipoComprobantes tc 
+        ON c.idTipoComprobante = tc.idTipoComprobante
+    WHERE c.idComprobante = p_idComprobante;
+END //
+
+CREATE PROCEDURE actualizarComprobanteAnulado(
+    IN p_idComprobante INT,
+    IN p_enlaceNubefact VARCHAR(255),
+    IN p_urlComprobanteXML VARCHAR(255),
+    IN p_keyNubefact VARCHAR(100),
+    IN p_aceptadaPorSunat TINYINT,
+    IN p_estadoSunat VARCHAR(50),
+    IN p_sunatResponseCode VARCHAR(10)
+)
+BEGIN
+    -- Handler para cualquier excepción
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error al actualizar el comprobante anulado.';
+    END;
+
+    START TRANSACTION;
+
+    UPDATE comprobantes
+    SET
+        enlaceNubefact = p_enlaceNubefact,
+        urlComprobanteXML = p_urlComprobanteXML,
+        keyNubefact = p_keyNubefact,
+        aceptadaPorSunat = p_aceptadaPorSunat,
+        estadoSunat = p_estadoSunat,
+        sunatResponseCode = p_sunatResponseCode
+    WHERE idComprobante = p_idComprobante;
+
+    COMMIT;
+    SELECT 'Comprobante actualizado correctamente.' AS mensaje;
+
 END //
 
 DELIMITER ;
