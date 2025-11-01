@@ -67,7 +67,6 @@ export const obtenerMesasDisponiblesServicio = async (fecha, hora) => {
   }
 };
 
-
 // Servicio para obtener una reservación por ID
 export const obtenerReservacionPorIdServicio = async (idReservacion) => {
   try {

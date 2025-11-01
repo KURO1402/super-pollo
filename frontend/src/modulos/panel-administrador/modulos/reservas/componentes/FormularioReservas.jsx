@@ -1,15 +1,19 @@
 import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { FiCalendar, FiClock, FiUsers, FiBox, FiSave, FiX, FiMessageSquare, FiPhone, FiPlus, FiTrash2 } from "react-icons/fi";
-import { horariosDisponibles, estadosReserva } from "../data-temporal/mockReservas";
+import { FiCalendar, FiClock, FiUsers, FiBox, FiSave, FiX, FiPlus, FiTrash2, FiLoader } from "react-icons/fi";
+import { horariosDisponibles } from "../data-temporal/mockReservas";
 import { obtenerMesasDisponiblesServicio } from "../servicios/reservacionesServicio";
 import { useAutenticacionGlobal } from "../../../../../app/estado-global/autenticacionGlobal";
 import { registrarReservacionServicio } from "../../../../sitio-publico/servicios/reservacionesServicio";
+import { obtenerProductosServicio } from "../../productos/servicios/productoServicios";
+import { mostrarAlerta } from "../../../../../utilidades/toastUtilidades";
 
-const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, guardando }) => {
+const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
   const { usuario } = useAutenticacionGlobal();
   const [mesasDisponibles, setMesasDisponibles] = useState([]);
+  const [productosDisponibles, setProductosDisponibles] = useState([]);
   const [cargandoMesas, setCargandoMesas] = useState(false);
+  const [cargandoProductos, setCargandoProductos] = useState(true);
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [mostrarAgregarProducto, setMostrarAgregarProducto] = useState(false);
   const [nuevoProducto, setNuevoProducto] = useState({
@@ -17,17 +21,6 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
     cantidadProductoReservacion: 1,
     precioUnitario: 0
   });
-
-  // Lista de productos disponibles (deberías obtener esto de un servicio)
-  const productosDisponibles = [
-    { idProducto: 1, nombreProducto: "Pollo a la Brasa", precio: 45.00 },
-    { idProducto: 2, nombreProducto: "1/4 Pollo", precio: 25.00 },
-    { idProducto: 3, nombreProducto: "1/2 Pollo", precio: 35.00 },
-    { idProducto: 4, nombreProducto: "Inca Kola 500ml", precio: 5.00 },
-    { idProducto: 5, nombreProducto: "Coca Cola 1L", precio: 8.00 },
-    { idProducto: 6, nombreProducto: "Ensalada Mixta", precio: 14.50 },
-    { idProducto: 7, nombreProducto: "Papas Fritas", precio: 12.00 }
-  ];
 
   const fechaMinima = new Date().toISOString().split("T")[0];
   const {
@@ -44,6 +37,26 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
 
   const fechaReservaWatch = watch("fechaReservacion");
   const horaReservacionWatch = watch("horaReservacion");
+
+  // Cargar productos disponibles al inicializar
+  useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        setCargandoProductos(true);
+        const respuesta = await obtenerProductosServicio();
+        console.log("productos: ", respuesta.productos)
+        setProductosDisponibles(respuesta.productos);
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        mostrarAlerta.error('Error al cargar los productos disponibles');
+        setProductosDisponibles([]);
+      } finally {
+        setCargandoProductos(false);
+      }
+    };
+
+    cargarProductos();
+  }, []);
 
   useEffect(() => {
     if (reservaInicial) {
@@ -80,6 +93,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
           setMesasDisponibles(mesas.mesas || []);
         } catch (error) {
           console.error('Error al cargar mesas disponibles:', error);
+          mostrarAlerta.error('Error al cargar las mesas disponibles');
           setMesasDisponibles([]);
         } finally {
           setCargandoMesas(false);
@@ -100,7 +114,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
     if (productoSeleccionado) {
       setNuevoProducto({
         idProducto: productoSeleccionado.idProducto,
-        cantidadProductoReservacion: 1,
+        cantidadProductoReservacion: 1, 
         precioUnitario: productoSeleccionado.precio
       });
     } else {
@@ -114,8 +128,13 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
 
   // Agregar producto a la lista
   const handleAgregarProducto = () => {
-    if (!nuevoProducto.idProducto || nuevoProducto.cantidadProductoReservacion < 1) {
-      alert('Por favor, complete todos los campos del producto');
+    if (!nuevoProducto.idProducto) {
+      mostrarAlerta.advertencia('Por favor, seleccione un producto');
+      return;
+    }
+
+    if (nuevoProducto.cantidadProductoReservacion <= 0) {
+      mostrarAlerta.advertencia('La cantidad debe ser mayor a 0');
       return;
     }
 
@@ -128,6 +147,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
           ? { ...p, cantidadProductoReservacion: p.cantidadProductoReservacion + nuevoProducto.cantidadProductoReservacion }
           : p
       ));
+      mostrarAlerta.exito('Cantidad actualizada correctamente');
     } else {
       // Agregar nuevo producto
       const productoCompleto = {
@@ -135,25 +155,28 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
         nombreProducto: productosDisponibles.find(p => p.idProducto === nuevoProducto.idProducto)?.nombreProducto || 'Producto'
       };
       setProductosSeleccionados(prev => [...prev, productoCompleto]);
+      mostrarAlerta.exito('Producto agregado correctamente');
     }
 
     // Resetear formulario
     setNuevoProducto({
       idProducto: '',
-      cantidadProductoReservacion: 1,
-      precioUnitario: 0
+      cantidadProductoReservacion: 1, 
+      precioUnitario: 1
     });
     setMostrarAgregarProducto(false);
   };
 
   // Eliminar producto
   const handleEliminarProducto = (index) => {
+    const producto = productosSeleccionados[index];
     setProductosSeleccionados(prev => prev.filter((_, i) => i !== index));
+    mostrarAlerta.exito(`${producto.nombreProducto} eliminado de la reserva`);
   };
 
   // Actualizar cantidad de producto existente
   const handleActualizarCantidad = (index, nuevaCantidad) => {
-    if (nuevaCantidad < 1) return;
+    if (nuevaCantidad < 0) return;
     
     setProductosSeleccionados(prev => prev.map((producto, i) => 
       i === index ? { ...producto, cantidadProductoReservacion: nuevaCantidad } : producto
@@ -194,6 +217,19 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
 
   const procesarEnvio = async (data) => {
     try {
+      // Validar que haya al menos un producto
+      if (productosSeleccionados.length === 0) {
+        mostrarAlerta.advertencia('Debe agregar al menos un producto a la reserva');
+        return;
+      }
+
+      // Validar que todos los productos tengan cantidad mayor a 0
+      const productosInvalidos = productosSeleccionados.some(producto => producto.cantidadProductoReservacion <= 0);
+      if (productosInvalidos) {
+        mostrarAlerta.advertencia('Todos los productos deben tener una cantidad mayor a 0');
+        return;
+      }
+
       // Preparar datos para el backend
       const datosParaBackend = {
         fechaReservacion: data.fechaReservacion,
@@ -210,11 +246,12 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
 
       console.log('Enviando reserva con productos:', datosParaBackend);
       await registrarReservacionServicio(datosParaBackend);
-      alert('Reserva creada exitosamente');
-      onCancelar(); // Cerrar el modal después de guardar
+      mostrarAlerta.exito('Reserva creada exitosamente');
+      onCancelar();
     } catch (error) {
       console.error('Error al procesar reserva:', error);
-      throw error;
+      const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || 'Error al crear la reserva';
+      mostrarAlerta.error(mensajeError);
     }
   };
 
@@ -376,15 +413,24 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
           <button
             type="button"
             onClick={() => setMostrarAgregarProducto(!mostrarAgregarProducto)}
-            className="flex items-center gap-2 px-3 py-1 text-sm cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+            disabled={cargandoProductos}
+            className="flex items-center gap-2 px-3 py-1 text-sm cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FiPlus size={14} />
             Agregar Producto
           </button>
         </div>
 
+        {/* Loading de productos */}
+        {cargandoProductos && (
+          <div className="flex items-center justify-center py-4">
+            <FiLoader className="animate-spin h-5 w-5 text-blue-600 mr-2" />
+            <p className="text-sm text-gray-600 dark:text-gray-400">Cargando productos...</p>
+          </div>
+        )}
+
         {/* Formulario para agregar producto */}
-        {mostrarAgregarProducto && (
+        {mostrarAgregarProducto && !cargandoProductos && (
           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg mb-3 space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
@@ -399,7 +445,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
                   <option value="">Seleccionar producto</option>
                   {productosDisponibles.map(producto => (
                     <option key={producto.idProducto} value={producto.idProducto}>
-                      {producto.nombreProducto} - S/ {producto.precio.toFixed(2)}
+                      {producto.nombreProducto} - S/ {producto.precio}
                     </option>
                   ))}
                 </select>
@@ -413,9 +459,9 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
                   value={nuevoProducto.cantidadProductoReservacion}
                   onChange={(e) => setNuevoProducto(prev => ({
                     ...prev,
-                    cantidadProductoReservacion: parseInt(e.target.value) || 1
+                    cantidadProductoReservacion: parseInt(e.target.value) || 0
                   }))}
-                  min="1"
+                  min="0"
                   className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 />
               </div>
@@ -424,9 +470,9 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
             {/* Mostrar precio y subtotal */}
             {nuevoProducto.idProducto && (
               <div className="text-xs text-gray-600 dark:text-gray-400 p-2 bg-white dark:bg-gray-700 rounded border">
-                <strong>Precio unitario:</strong> S/ {nuevoProducto.precioUnitario.toFixed(2)}
+                <strong>Precio unitario:</strong> S/ {nuevoProducto.precioUnitario}
                 <br />
-                <strong>Subtotal:</strong> S/ {(nuevoProducto.precioUnitario * nuevoProducto.cantidadProductoReservacion).toFixed(2)}
+                <strong>Subtotal:</strong> S/ {(nuevoProducto.precioUnitario * nuevoProducto.cantidadProductoReservacion)}.00
               </div>
             )}
             
@@ -434,7 +480,8 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
               <button
                 type="button"
                 onClick={handleAgregarProducto}
-                className="px-3 py-1 text-xs cursor-pointer bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                disabled={nuevoProducto.cantidadProductoReservacion <= 0}
+                className="px-3 py-1 text-xs cursor-pointer bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Agregar Producto
               </button>
@@ -453,7 +500,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {productosSeleccionados.length === 0 ? (
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-              No hay productos agregados
+              {cargandoProductos ? "Cargando productos..." : "No hay productos agregados"}
             </p>
           ) : (
             productosSeleccionados.map((producto, index) => (
@@ -463,7 +510,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
                     {producto.nombreProducto}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    S/ {producto.precioUnitario.toFixed(2)} c/u
+                    S/ {producto.precioUnitario} c/u
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -471,7 +518,8 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
                     <button
                       type="button"
                       onClick={() => handleActualizarCantidad(index, producto.cantidadProductoReservacion - 1)}
-                      className="w-6 h-6 flex items-center justify-center text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 cursor-pointer"
+                      disabled={producto.cantidadProductoReservacion <= 0}
+                      className="w-6 h-6 flex items-center justify-center text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       -
                     </button>
@@ -487,7 +535,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
                     </button>
                   </div>
                   <p className="text-sm font-medium text-gray-900 dark:text-white w-20 text-right">
-                    S/ {(producto.precioUnitario * producto.cantidadProductoReservacion).toFixed(2)}
+                    S/ {(producto.precioUnitario * producto.cantidadProductoReservacion)}
                   </p>
                   <button
                     type="button"
@@ -507,7 +555,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
           <div className="flex justify-between items-center pt-3 mt-3 border-t border-gray-200 dark:border-gray-600">
             <span className="text-sm font-semibold text-gray-900 dark:text-white">Total:</span>
             <span className="text-lg font-bold text-green-600 dark:text-green-400">
-              S/ {calcularTotal().toFixed(2)}
+              S/ {calcularTotal()}
             </span>
           </div>
         )}
