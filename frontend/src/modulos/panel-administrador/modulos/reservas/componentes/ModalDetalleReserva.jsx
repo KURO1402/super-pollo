@@ -1,8 +1,6 @@
-// src/pages/reservas/componentes/ModalDetalleReserva.jsx
-
 import { FiUser, FiCalendar, FiClock, FiUsers, FiDollarSign, FiBox } from "react-icons/fi";
 
-export const ModalDetalleReserva = ({ reserva, detalle, onClose }) => {
+export const ModalDetalleReserva = ({ reserva, detalle }) => {
   if (!reserva) return null;
 
   const getEstadoColor = (estado) => {
@@ -30,9 +28,11 @@ export const ModalDetalleReserva = ({ reserva, detalle, onClose }) => {
   // Calcular total basado en los detalles
   const calcularTotal = () => {
     if (!detalle?.detalles) return 0;
-    return detalle.detalles.reduce((total, item) => 
-      total + (item.precioUnitario * item.cantidadProductoReservacion), 0
-    );
+    return detalle.detalles.reduce((total, item) => {
+      const precio = Number(item.precioUnitario) || 0;
+      const cantidad = Number(item.cantidadProductoReservacion) || 0;
+      return total + (precio * cantidad);
+    }, 0);
   };
 
   return (
@@ -48,7 +48,7 @@ export const ModalDetalleReserva = ({ reserva, detalle, onClose }) => {
           </p>
         </div>
         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getEstadoColor(reserva.estadoReservacion)}`}>
-          {reserva.estadoReservacion.toUpperCase()}
+          {reserva.estadoReservacion?.toUpperCase()}
         </span>
       </div>
 
@@ -77,7 +77,7 @@ export const ModalDetalleReserva = ({ reserva, detalle, onClose }) => {
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
               <FiClock size={12} />
-              {reserva.horaReservacion.substring(0,5)} horas
+              {reserva.horaReservacion?.substring(0,5)} horas
             </p>
           </div>
         </div>
@@ -112,21 +112,28 @@ export const ModalDetalleReserva = ({ reserva, detalle, onClose }) => {
             Productos Reservados
           </h4>
           <div className="space-y-2">
-            {detalle.detalles.map((producto, index) => (
-              <div key={index} className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-                <div>
+            {detalle.detalles.map((producto, index) => {
+              const precio = Number(producto.precioUnitario) || 0;
+              const cantidad = Number(producto.cantidadProductoReservacion) || 0;
+              return (
+                <div 
+                  key={index} 
+                  className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      Producto: {producto.nombreProducto}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {cantidad} x S/ {precio.toFixed(2)}
+                    </p>
+                  </div>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Producto #{producto.idProducto}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {producto.cantidadProductoReservacion} x S/ {producto.precioUnitario.toFixed(2)}
+                    S/ {(precio * cantidad).toFixed(2)}
                   </p>
                 </div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  S/ {(producto.precioUnitario * producto.cantidadProductoReservacion).toFixed(2)}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -145,7 +152,7 @@ export const ModalDetalleReserva = ({ reserva, detalle, onClose }) => {
           </div>
         </div>
         <span className={`px-3 py-1 rounded-full text-sm font-medium ${getEstadoColor(reserva.estadoReservacion)}`}>
-          {reserva.estadoReservacion.toUpperCase()}
+          {reserva.estadoReservacion?.toUpperCase()}
         </span>
       </div>
     </div>

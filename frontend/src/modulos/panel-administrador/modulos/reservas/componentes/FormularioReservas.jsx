@@ -44,7 +44,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
       try {
         setCargandoProductos(true);
         const respuesta = await obtenerProductosServicio();
-        console.log("productos: ", respuesta.productos)
         setProductosDisponibles(respuesta.productos);
       } catch (error) {
         console.error('Error al cargar productos:', error);

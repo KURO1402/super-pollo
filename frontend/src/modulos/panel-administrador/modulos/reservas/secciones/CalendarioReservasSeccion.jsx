@@ -12,6 +12,7 @@ import Modal from "../../../componentes/modal/Modal";
 import { useModal } from "../../../hooks/useModal";
 import { estadosReserva } from "../data-temporal/mockReservas";
 import FormularioReserva from "../componentes/FormularioReservas";
+import { ModalEditarReserva } from "../componentes/ModalEditarReserva";
 import { listarReservacionesServicio } from "../servicios/reservacionesServicio";
 
 const CalendarioReservasSeccion = () => {
@@ -21,7 +22,8 @@ const CalendarioReservasSeccion = () => {
   const [guardando, setGuardando] = useState(false);
   
   const calendarioRef = useRef(null);
-  const { estaAbierto, abrir, cerrar } = useModal();
+  const modalNuevaReserva = useModal();
+  const modalEditarReserva = useModal();
 
   useEffect(() => {
     cargarReservas();
@@ -38,6 +40,17 @@ const CalendarioReservasSeccion = () => {
     } finally {
       setCargando(false);
     }
+  };
+
+  // Función para verificar si una fecha es hoy o posterior
+  const esFechaValida = (fecha) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    const fechaComparar = new Date(fecha);
+    fechaComparar.setHours(0, 0, 0, 0);
+    
+    return fechaComparar >= hoy;
   };
 
   // Función para convertir reserva a evento del calendario
@@ -65,54 +78,55 @@ const CalendarioReservasSeccion = () => {
   const getColorPorEstado = (estado) => {
     const colores = {
       pendiente: '#f59e0b', // amber-500
-      confirmada: '#10b981', // green-500
-      pagado: '#059669', // green-600
+      pagado: '#10b981', // green-500
       cancelado: '#ef4444', // red-500
-      completada: '#6b7280' // gray-500
     };
-    return colores[estado] || '#6b7280';
+    return colores[estado] || '#f59e0b';
   };
 
   const obtenerEstiloEstado = (estado) => {
-    const config = estadosReserva[estado] || estadosReserva.pendiente;
     const estilos = {
-      yellow: {
+      pendiente: {
         bg: "bg-yellow-50",
         border: "border-l-4 border-yellow-500",
         text: "text-yellow-900",
         badge: "bg-yellow-200 text-yellow-800",
       },
-      blue: {
-        bg: "bg-blue-50",
-        border: "border-l-4 border-blue-500",
-        text: "text-blue-900",
-        badge: "bg-blue-200 text-blue-800",
-      },
-      green: {
+      pagado: {
         bg: "bg-green-50",
         border: "border-l-4 border-green-500",
         text: "text-green-900",
         badge: "bg-green-200 text-green-800",
       },
-      red: {
+      cancelado: {
         bg: "bg-red-50",
         border: "border-l-4 border-red-500",
         text: "text-red-900",
         badge: "bg-red-200 text-red-800",
-      },
-      gray: {
-        bg: "bg-gray-50",
-        border: "border-l-4 border-gray-500",
-        text: "text-gray-900",
-        badge: "bg-gray-200 text-gray-800",
-      },
+      }
     };
-    return estilos[config.color] || estilos.yellow;
+    return estilos[estado] || estilos.pendiente;
+  };
+
+  // Función para obtener el label del estado
+  const getLabelEstado = (estado) => {
+    const labels = {
+      pendiente: "Pendiente",
+      pagado: "Pagado",
+      cancelado: "Cancelado"
+    };
+    return labels[estado] || "Pendiente";
   };
 
   const abrirNuevaReserva = () => {
-    setReservaSeleccionada(null);
-    abrir();
+    // Para nueva reserva, establecer la fecha mínima como hoy
+    const hoy = new Date().toISOString().split('T')[0];
+    setReservaSeleccionada({ 
+      fechaReservacion: hoy,
+      horaReservacion: '12:00:00',
+      estadoReservacion: 'pendiente'
+    });
+    modalNuevaReserva.abrir();
   };
 
   const manejarSeleccionFecha = (info) => {
@@ -120,6 +134,7 @@ const CalendarioReservasSeccion = () => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
+    // Permitir selección de hoy y fechas futuras
     if (fechaSel < hoy) {
       alert("No se pueden reservar fechas anteriores a hoy");
       return;
@@ -127,47 +142,48 @@ const CalendarioReservasSeccion = () => {
 
     setReservaSeleccionada({ 
       fechaReservacion: info.startStr.split('T')[0],
-      horaReservacion: '12:00:00'
+      horaReservacion: '12:00:00',
+      estadoReservacion: 'pendiente'
     });
-    abrir();
+    modalNuevaReserva.abrir();
   };
 
   const manejarClickEvento = (info) => {
     const reserva = reservas.find((r) => r.idReservacion.toString() === info.event.id);
     if (reserva) {
       setReservaSeleccionada(reserva);
-      abrir();
+      modalEditarReserva.abrir();
     }
   };
 
-  const manejarGuardar = async (datos) => {
+  const manejarGuardarNuevaReserva = async (datos) => {
     try {
       setGuardando(true);
 
-      // Aquí iría la llamada al servicio para crear/actualizar reserva
-      // Por ahora, simulamos la actualización del estado local
-      
-      if (reservaSeleccionada?.idReservacion) {
-        console.log('Actualizando reserva:', datos);
-        // await actualizarReservacionServicio(reservaSeleccionada.idReservacion, datos);
-        setReservas((prev) => prev.map((r) => 
-          r.idReservacion === reservaSeleccionada.idReservacion ? { ...r, ...datos } : r
-        ));
-        alert("Reserva actualizada exitosamente");
-      } else {
-        console.log('Creando nueva reserva:', datos);
-        // await crearReservacionServicio(datos);
-        const nuevaReserva = {
-          ...datos,
-          idReservacion: Date.now(),
-          fechaCreacion: new Date().toISOString(),
-          nombresUsuario: datos.nombreCliente || 'Cliente Nuevo'
-        };
-        setReservas((prev) => [...prev, nuevaReserva]);
-        alert("Reserva creada exitosamente");
+      // Validar que la fecha sea hoy o posterior
+      if (!esFechaValida(datos.fechaReservacion)) {
+        alert("No se pueden crear reservas para fechas anteriores a hoy");
+        setGuardando(false);
+        return;
       }
 
-      cerrar();
+      // Asegurar que solo se usen los tres estados permitidos
+      const estadosPermitidos = ['pendiente', 'pagado', 'cancelado'];
+      if (!estadosPermitidos.includes(datos.estadoReservacion)) {
+        datos.estadoReservacion = 'pendiente';
+      }
+      
+      const nuevaReserva = {
+        ...datos,
+        idReservacion: Date.now(),
+        fechaCreacion: new Date().toISOString(),
+        nombresUsuario: datos.nombreCliente || 'Cliente Nuevo',
+        numeroMesa: datos.idMesa // Para compatibilidad con la visualización
+      };
+      setReservas((prev) => [...prev, nuevaReserva]);
+      alert("Reserva creada exitosamente");
+
+      modalNuevaReserva.cerrar();
       setReservaSeleccionada(null);
     } catch (error) {
       console.error('Error al guardar reserva:', error);
@@ -177,17 +193,37 @@ const CalendarioReservasSeccion = () => {
     }
   };
 
+  const manejarGuardarReservaEditada = async (datosActualizados) => {
+    try {
+      // Actualizar el estado local con los datos actualizados
+      setReservas((prev) => prev.map((r) => 
+        r.idReservacion === datosActualizados.idReservacion 
+          ? { ...r, ...datosActualizados, numeroMesa: datosActualizados.idMesa }
+          : r
+      ));
+      
+      // Recargar las reservas para asegurar que tenemos los datos más recientes
+      await cargarReservas();
+      
+      modalEditarReserva.cerrar();
+      setReservaSeleccionada(null);
+    } catch (error) {
+      console.error('Error al actualizar reserva en el calendario:', error);
+      alert("Error al actualizar la reserva");
+    }
+  };
+
   const renderizarEvento = (info) => {
     const estado = info.event.extendedProps?.estado || "pendiente";
     const estilos = obtenerEstiloEstado(estado);
-    const config = estadosReserva[estado];
+    const labelEstado = getLabelEstado(estado);
 
     return (
       <div className={`p-1.5 rounded ${estilos.bg} ${estilos.border} ${estilos.text} text-[11px] font-medium shadow-sm hover:shadow transition-all cursor-pointer`}>
         <div className="flex items-center justify-between gap-1 mb-1">
           <span className="truncate font-semibold text-xs">{info.event.title}</span>
           <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${estilos.badge}`}>
-            {config?.label || estado}
+            {labelEstado}
           </span>
         </div>
         <div className="flex items-center gap-2 text-[10px] opacity-90">
@@ -208,11 +244,11 @@ const CalendarioReservasSeccion = () => {
     .filter(r => r.estadoReservacion !== "cancelado")
     .map(convertirReservaAEvento);
 
+  // Fecha mínima para el calendari
   const fechaMinima = new Date().toISOString().split("T")[0];
 
   return (
     <div className="p-2">
-      {/* Header */}
       <div className="mb-4">
         <div className="mb-4 flex items-center">
           <FiCalendar className="mr-3 text-2xl text-gray-900 dark:text-white" />
@@ -221,6 +257,18 @@ const CalendarioReservasSeccion = () => {
         <p className="text-gray-600 dark:text-gray-400">
           Visualiza y gestiona todas las reservas programadas
         </p>
+        
+        {/* Leyenda de estados */}
+        <div className="flex flex-wrap gap-4 mt-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+            <span className="text-sm text-gray-600">Pendiente</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-green-500 rounded"></div>
+            <span className="text-sm text-gray-600">Pagado</span>
+          </div>
+        </div>
       </div>
 
       {/* Calendario */}
@@ -255,7 +303,16 @@ const CalendarioReservasSeccion = () => {
                   click: abrirNuevaReserva,
                 },
               }}
-              validRange={{ start: fechaMinima }}
+              // configuración para restringir selección de fechas pasadas
+              validRange={{ 
+                start: fechaMinima 
+              }}
+              selectAllow={(selectInfo) => {
+                const fechaSeleccionada = new Date(selectInfo.startStr);
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                return fechaSeleccionada >= hoy; // permite hoy y fechas futuras
+              }}
               buttonText={{
                 today: "Hoy",
                 month: "Mes",
@@ -265,17 +322,16 @@ const CalendarioReservasSeccion = () => {
               height="auto"
               dayMaxEvents={3}
               moreLinkContent={(args) => `+${args.num} más`}
-              
             />
           </div>
         )}
       </div>
 
-      {/* Modal */}
+      {/* modal para Nueva Reserva */}
       <Modal
-        estaAbierto={estaAbierto}
-        onCerrar={cerrar}
-        titulo={reservaSeleccionada?.idReservacion ? `Editar Reserva #${reservaSeleccionada.idReservacion}` : "Nueva Reserva"}
+        estaAbierto={modalNuevaReserva.estaAbierto}
+        onCerrar={modalNuevaReserva.cerrar}
+        titulo="Nueva Reserva"
         tamaño="lg"
         mostrarHeader={true}
         mostrarFooter={false}
@@ -283,10 +339,34 @@ const CalendarioReservasSeccion = () => {
         <FormularioReserva
           reservaInicial={reservaSeleccionada}
           reservas={reservas}
-          onSubmit={manejarGuardar}
-          onCancelar={cerrar}
+          onSubmit={manejarGuardarNuevaReserva}
+          onCancelar={modalNuevaReserva.cerrar}
           guardando={guardando}
+          // pasar solo los tres estados permitidos
+          estadosPermitidos={[
+            { valor: 'pendiente', label: 'Pendiente' },
+            { valor: 'pagado', label: 'Pagado' },
+            { valor: 'cancelado', label: 'Cancelado' }
+          ]}
         />
+      </Modal>
+
+      {/* Modal para editar Reserva */}
+      <Modal
+        estaAbierto={modalEditarReserva.estaAbierto}
+        onCerrar={modalEditarReserva.cerrar}
+        titulo={`Editar Reserva #${reservaSeleccionada?.idReservacion || ''}`}
+        tamaño="lg"
+        mostrarHeader={true}
+        mostrarFooter={false}
+      >
+        {reservaSeleccionada && (
+          <ModalEditarReserva 
+            idReservacion={reservaSeleccionada.idReservacion}
+            onClose={modalEditarReserva.cerrar}
+            onGuardar={manejarGuardarReservaEditada}
+          />
+        )}
       </Modal>
     </div>
   );

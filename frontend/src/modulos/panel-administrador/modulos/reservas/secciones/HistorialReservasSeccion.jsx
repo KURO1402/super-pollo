@@ -1,5 +1,3 @@
-// src/pages/reservas/componentes/HistorialReservasSeccion.jsx
-
 import { FaCalendarAlt } from "react-icons/fa";
 import { useState, useEffect } from "react";
 // componentes reutilizables
@@ -20,17 +18,25 @@ import { FilaReserva } from "../componentes/FilaReserva";
 // servicios
 import { 
   listarReservacionesServicio,
-  obtenerDetalleReservacionServicio
+  obtenerDetalleReservacionServicio,
+  actualizarReservacionServicio
 } from "../servicios/reservacionesServicio";
 
 const HistorialReservasSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
   const { filtro, setFiltro, aplicarFiltros } = useFiltro();
-  const { paginaActual, setPaginaActual, paginar } = usePaginacion(10);
+  const { 
+    paginaActual, 
+    setPaginaActual, 
+    itemsPorPagina, 
+    setItemsPorPagina, 
+    paginar 
+  } = usePaginacion(5);
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
   const [reservas, setReservas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [detalleReserva, setDetalleReserva] = useState(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
   
   const modalDetalle = useModal(false);
   const modalEditar = useModal(false);
@@ -47,7 +53,6 @@ const HistorialReservasSeccion = () => {
       setReservas(reservaciones);
     } catch (error) {
       console.error('Error al cargar reservaciones:', error);
-      alert('Error al cargar las reservaciones');
     } finally {
       setCargando(false);
     }
@@ -56,11 +61,19 @@ const HistorialReservasSeccion = () => {
   // Cargar detalle completo de la reservación
   const cargarDetalleReserva = async (idReservacion) => {
     try {
-      const detalle = await obtenerDetalleReservacionServicio(idReservacion);
-      setDetalleReserva(detalle);
+      setCargandoDetalle(true);
+      const respuesta = await obtenerDetalleReservacionServicio(idReservacion);
+
+      if (respuesta.ok) {
+        setDetalleReserva({
+          detalles: respuesta.detalle
+        });
+      }
     } catch (error) {
-      console.error('Error al cargar detalle de reservación:', error);
-      setDetalleReserva(null);
+      console.error("Error al cargar detalle de la reserva:", error);
+      mostrarAlerta.error("Error al obtener el detalle de la reserva");
+    } finally {
+      setCargandoDetalle(false);
     }
   };
 
@@ -75,27 +88,31 @@ const HistorialReservasSeccion = () => {
   filtrados = aplicarFiltros(filtrados, "estadoReservacion");
   const { datosPaginados, totalPaginas } = paginar(filtrados);
 
-  // Función para actualizar reserva
+  // Funcion para actualizar reserva
   const handleActualizarReserva = async (datosActualizados) => {
     try {
-      // Aquí iría la llamada al servicio de actualización
-      // await actualizarReservacionServicio(datosActualizados.idReservacion, datosActualizados);
-      
-      // Por ahora, actualizamos el estado local
-      setReservas(prevReservas => 
-        prevReservas.map(reserva => 
-          reserva.idReservacion === datosActualizados.idReservacion 
-            ? { ...reserva, ...datosActualizados }
-            : reserva
-        )
+      // Usar el servicio real para actualizar
+      const respuesta = await actualizarReservacionServicio(
+        datosActualizados.idReservacion, 
+        datosActualizados
       );
       
-      alert('Reserva actualizada correctamente');
-      modalEditar.cerrar();
+      if (respuesta.ok) {
+        // Actualizar el estado local con los datos actualizados
+        setReservas(prevReservas => 
+          prevReservas.map(reserva => 
+            reserva.idReservacion === datosActualizados.idReservacion 
+              ? { ...reserva, ...datosActualizados }
+              : reserva
+          )
+        );
+        modalEditar.cerrar();
+      } else {
+        throw new Error(respuesta.mensaje || "Error al actualizar reservación");
+      }
       
     } catch (error) {
       console.error('Error al actualizar reserva:', error);
-      alert('Error al actualizar la reserva');
     }
   };
 
@@ -103,22 +120,47 @@ const HistorialReservasSeccion = () => {
   const handleCancelarReserva = async (reserva) => {
     if (confirm(`¿Estás seguro de cancelar la reserva #${reserva.idReservacion}?`)) {
       try {
+        // Actualizar el estado en el backend
+        const datosActualizados = {
+          ...reserva,
+          estadoReservacion: 'cancelado'
+        };
         
-        setReservas(prevReservas => 
-          prevReservas.map(r => 
-            r.idReservacion === reserva.idReservacion 
-              ? { ...r, estadoReservacion: 'cancelado' }
-              : r
-          )
+        const respuesta = await actualizarReservacionServicio(
+          reserva.idReservacion, 
+          datosActualizados
         );
         
-        alert('Reserva cancelada correctamente');
+        if (respuesta.ok) {
+          // Actualizar el estado local
+          setReservas(prevReservas => 
+            prevReservas.map(r => 
+              r.idReservacion === reserva.idReservacion 
+                ? { ...r, estadoReservacion: 'cancelado' }
+                : r
+            )
+          );
+          
+          alert('Reserva cancelada correctamente');
+        } else {
+          throw new Error(respuesta.mensaje || "Error al cancelar reservación");
+        }
         
       } catch (error) {
         console.error('Error al cancelar reserva:', error);
-        alert('Error al cancelar la reserva');
+        alert('Error al cancelar la reserva: ' + error.message);
       }
     }
+  };
+
+  // Función para manejar cambio de página
+  const handleCambiarPagina = (nuevaPagina) => {
+    setPaginaActual(nuevaPagina);
+  };
+
+  // Función para manejar cambio de items por página
+  const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
+    setItemsPorPagina(nuevoItemsPorPagina);
   };
 
   const handleVerDetalle = async (reserva) => {
@@ -154,7 +196,7 @@ const HistorialReservasSeccion = () => {
         </p>
       </div>
 
-      {/* Barra de búsqueda y filtros */}
+      {/* Barra de busqueda y filtros */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
           <BarraBusqueda
@@ -184,7 +226,7 @@ const HistorialReservasSeccion = () => {
         <>
           {/* Tabla de reservas */}
           <Tabla
-            encabezados={["Reserva", "Cliente", "Detalles", "Estado", "Fecha", "Acciones"]}
+            encabezados={["Reserva", "Cliente", "Detalles", "Estado", "Acciones"]}
             registros={filasReservas}
           />
 
@@ -197,7 +239,10 @@ const HistorialReservasSeccion = () => {
           <Paginacion
             paginaActual={paginaActual}
             totalPaginas={totalPaginas}
-            alCambiarPagina={setPaginaActual}
+            alCambiarPagina={handleCambiarPagina}
+            itemsPorPagina={itemsPorPagina}
+            alCambiarItemsPorPagina={handleCambiarItemsPorPagina}
+            mostrarSiempre={true}
           />
         </>
       )}
@@ -211,14 +256,22 @@ const HistorialReservasSeccion = () => {
         mostrarHeader={true}
         mostrarFooter={false}
       >
-        <ModalDetalleReserva 
-          reserva={reservaSeleccionada}
-          detalle={detalleReserva}
-          onClose={modalDetalle.cerrar}
-        />
+        {cargandoDetalle ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            Cargando detalle de la reserva...
+          </div>
+        ) : (
+          reservaSeleccionada && (
+            <ModalDetalleReserva 
+              reserva={reservaSeleccionada}
+              detalle={detalleReserva}
+              onClose={modalDetalle.cerrar}
+            />
+          )
+        )}
       </Modal>
 
-      {/* Modal de edición */}
+      {/* Modal de edicionn */}
       <Modal
         estaAbierto={modalEditar.estaAbierto}
         onCerrar={modalEditar.cerrar}
@@ -229,7 +282,7 @@ const HistorialReservasSeccion = () => {
       >
         {reservaSeleccionada && (
           <ModalEditarReserva 
-            reserva={reservaSeleccionada}
+            idReservacion={reservaSeleccionada.idReservacion}
             onClose={modalEditar.cerrar}
             onGuardar={handleActualizarReserva}
           />

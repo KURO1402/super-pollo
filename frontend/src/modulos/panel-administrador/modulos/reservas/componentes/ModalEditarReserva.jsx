@@ -1,69 +1,56 @@
-import { FiCalendar, FiClock, FiUsers, FiBox, FiSave, FiX, FiPlus, FiTrash2 } from "react-icons/fi";
+import { FiCalendar, FiClock, FiUsers, FiBox, FiSave, FiX, FiLoader } from "react-icons/fi";
 import { useState, useEffect } from "react";
+import { obtenerReservacionPorIdServicio } from "../servicios/reservacionesServicio";
+import { actualizarReservacionServicio } from "../servicios/reservacionesServicio";
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
-export const ModalEditarReserva = ({ reserva, onClose, onGuardar }) => {
+export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
+  const [reserva, setReserva] = useState(null);
   const [formData, setFormData] = useState({
     fechaReservacion: '',
     horaReservacion: '',
     cantidadPersonas: '',
-    numeroMesa: '',
+    idMesa: '',
     estadoReservacion: 'pendiente'
   });
 
-  const [productos, setProductos] = useState([]);
-  const [mostrarAgregarProducto, setMostrarAgregarProducto] = useState(false);
-  const [nuevoProducto, setNuevoProducto] = useState({
-    nombre: '',
-    cantidad: 1,
-    precio: 0
-  });
+  const [cargando, setCargando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
 
-  // Lista de productos disponibles con precios fijos
-  const productosDisponibles = [
-    { id: 1, nombre: "Pollo a la Brasa", precio: 45.00 },
-    { id: 2, nombre: "1/4 Pollo", precio: 25.00 },
-    { id: 3, nombre: "1/2 Pollo", precio: 35.00 },
-    { id: 4, nombre: "Inca Kola 500ml", precio: 5.00 },
-    { id: 5, nombre: "Coca Cola 1L", precio: 8.00 },
-    { id: 6, nombre: "Ensalada Mixta", precio: 14.50 },
-    { id: 7, nombre: "Papas Fritas", precio: 12.00 }
-  ];
-
-  // Precargar datos cuando la reserva cambie
+  // Cargar datos de la reserva cuando cambia el idReservacion
   useEffect(() => {
-    if (reserva) {
-      setFormData({
-        fechaReservacion: reserva.fechaReservacion,
-        horaReservacion: reserva.horaReservacion.substring(0, 5),
-        cantidadPersonas: reserva.cantidadPersonas.toString(),
-        numeroMesa: reserva.numeroMesa.toString(),
-        estadoReservacion: reserva.estadoReservacion
-      });
-      
-      // Precargar productos si existen
-      if (reserva.productos && reserva.productos.length > 0) {
-        setProductos(reserva.productos);
-      }
+    if (idReservacion) {
+      cargarReserva();
     }
-  }, [reserva]);
+  }, [idReservacion]);
 
-  // Manejar cambio de producto en el select
-  const handleSeleccionarProducto = (e) => {
-    const nombreProducto = e.target.value;
-    const productoSeleccionado = productosDisponibles.find(p => p.nombre === nombreProducto);
-    
-    if (productoSeleccionado) {
-      setNuevoProducto({
-        nombre: productoSeleccionado.nombre,
-        cantidad: 1,
-        precio: productoSeleccionado.precio // Precio fijo del producto
-      });
-    } else {
-      setNuevoProducto({
-        nombre: '',
-        cantidad: 1,
-        precio: 0
-      });
+  const cargarReserva = async () => {
+    try {
+      setCargando(true);
+      const respuesta = await obtenerReservacionPorIdServicio(idReservacion);
+
+      if (respuesta.ok && Array.isArray(respuesta.reservacion) && respuesta.reservacion.length > 0) {
+        const reservaData = respuesta.reservacion[0];
+
+        setReserva(reservaData);
+        // Formatear datos para el formulario
+        setFormData({
+          idReservacion: reservaData.idReservacion,
+          fechaReservacion: reservaData.fechaReservacion
+          ? reservaData.fechaReservacion.split("T")[0]
+          : "",
+          horaReservacion: reservaData.horaReservacion.substring(0, 5),
+          cantidadPersonas: reservaData.cantidadPersonas.toString(),
+          idMesa: reservaData.idMesa.toString(),
+          estadoReservacion: reservaData.estadoReservacion,
+        });
+      }
+    } catch (error) {
+      console.error("Error al cargar reserva:", error);
+      mostrarAlerta.error("Error al cargar los datos de la reserva");
+      onClose();
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -76,110 +63,85 @@ export const ModalEditarReserva = ({ reserva, onClose, onGuardar }) => {
     }));
   };
 
-  // Manejo de cambios en la cantidad del nuevo producto
-  const handleChangeCantidad = (e) => {
-    const cantidad = parseInt(e.target.value) || 1;
-    setNuevoProducto(prev => ({
-      ...prev,
-      cantidad: cantidad < 1 ? 1 : cantidad
-    }));
-  };
-
-  // Agregar nuevo producto con precio fijo
-  const handleAgregarProducto = () => {
-    if (!nuevoProducto.nombre || nuevoProducto.cantidad < 1) {
-      alert('Por favor, complete todos los campos del producto');
-      return;
-    }
-
-    const productoExistente = productos.find(p => p.nombre === nuevoProducto.nombre);
-    
-    if (productoExistente) {
-      // Si el producto ya existe, actualizar cantidad (mantener el precio original)
-      setProductos(prev => prev.map(p => 
-        p.nombre === nuevoProducto.nombre 
-          ? { ...p, cantidad: p.cantidad + nuevoProducto.cantidad }
-          : p
-      ));
-    } else {
-      // Agregar nuevo producto con el precio fijo
-      setProductos(prev => [...prev, { ...nuevoProducto }]);
-    }
-
-    // Resetear formulario
-    setNuevoProducto({ nombre: '', cantidad: 1, precio: 0 });
-    setMostrarAgregarProducto(false);
-  };
-
-  // Eliminar producto
-  const handleEliminarProducto = (index) => {
-    setProductos(prev => prev.filter((_, i) => i !== index));
-  };
-
-  // Actualizar cantidad de producto existente
-  const handleActualizarCantidad = (index, nuevaCantidad) => {
-    if (nuevaCantidad < 1) return;
-    
-    setProductos(prev => prev.map((producto, i) => 
-      i === index ? { ...producto, cantidad: nuevaCantidad } : producto
-    ));
-  };
-
-  // Calcular total
-  const calcularTotal = () => {
-    return productos.reduce((total, producto) => total + (producto.precio * producto.cantidad), 0);
-  };
-
   // Manejo de envío del formulario
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validaciones básicas
-    if (!formData.fechaReservacion || !formData.horaReservacion || !formData.cantidadPersonas || !formData.numeroMesa) {
-      alert('Por favor, complete todos los campos obligatorios');
+    if (!formData.fechaReservacion || !formData.horaReservacion || !formData.cantidadPersonas || !formData.idMesa) {
+      mostrarAlerta.error('Por favor, complete todos los campos obligatorios');
       return;
     }
 
-    if (formData.cantidadPersonas < 1) {
-      alert('La cantidad de personas debe ser al menos 1');
+    if (parseInt(formData.cantidadPersonas) < 1) {
+      mostrarAlerta.error('La cantidad de personas debe ser al menos 1');
       return;
     }
 
-    if (formData.numeroMesa < 1) {
-      alert('El número de mesa debe ser válido');
+    if (parseInt(formData.idMesa) < 1) {
+      mostrarAlerta.error('El ID de mesa debe ser válido');
       return;
     }
 
-    // Preparar datos para enviar
-    const datosActualizados = {
-      ...formData,
-      cantidadPersonas: parseInt(formData.cantidadPersonas),
-      numeroMesa: parseInt(formData.numeroMesa),
-      idReservacion: reserva.idReservacion,
-      productos: productos,
-      montoTotal: calcularTotal()
-    };
+    // Validar que la fecha sea hoy o posterior
+    const fechaReservacion = new Date(formData.fechaReservacion);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    if (fechaReservacion < hoy) {
+      mostrarAlerta.error("No se pueden crear reservas para fechas anteriores a hoy");
+      return;
+    }
 
-    // Llamar a la función de guardar con los datos actualizados
-    onGuardar(datosActualizados);
+    try {
+      setGuardando(true);
+
+      // Preparar datos en el formato que espera el backend
+      const datosActualizados = {
+        fechaReservacion: formData.fechaReservacion,
+        horaReservacion: formData.horaReservacion + ':00',
+        cantidadPersonas: parseInt(formData.cantidadPersonas),
+        idUsuario: reserva.idUsuario,
+        idMesa: parseInt(formData.idMesa),
+        estadoReservacion: formData.estadoReservacion
+      };
+
+      // Llamar al servicio para actualizar
+      const respuesta = await actualizarReservacionServicio(idReservacion, datosActualizados);
+      
+      if (respuesta.ok) {
+        mostrarAlerta.exito("Reserva actualizada exitosamente");
+        if (onGuardar) {
+          onGuardar({ ...datosActualizados, idReservacion }); // Pasar los datos actualizados al callback
+        }
+        onClose();
+      } else {
+        throw new Error(respuesta.mensaje || "Error al actualizar reservación");
+      }
+
+    } catch (error) {
+      console.error('Error al guardar reserva:', error);
+      mostrarAlerta.error("Error al guardar la reserva");
+    } finally {
+      setGuardando(false);
+    }
   };
+
+  if (cargando) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <FiLoader className="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">Cargando datos de la reserva...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!reserva) return null;
 
   return (
     <div className="space-y-6">
-      {/* Información del cliente */}
-      <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-        <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
-          <FiUsers size={18} />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Cliente</p>
-          <p className="text-gray-900 dark:text-white font-medium">{reserva.nombresUsuario}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">ID: #{reserva.idReservacion}</p>
-        </div>
-      </div>
-
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Fecha y Hora */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -219,7 +181,7 @@ export const ModalEditarReserva = ({ reserva, onClose, onGuardar }) => {
           </div>
         </div>
 
-        {/* Cantidad de Personas y Mesa */}
+        {/* Cantidad de Personas y ID Mesa */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -244,13 +206,13 @@ export const ModalEditarReserva = ({ reserva, onClose, onGuardar }) => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               <div className="flex items-center gap-2">
                 <FiBox size={16} className="text-amber-600 dark:text-amber-400" />
-                Número de Mesa
+                ID Mesa
               </div>
             </label>
             <input
               type="number"
-              name="numeroMesa"
-              value={formData.numeroMesa}
+              name="idMesa"
+              value={formData.idMesa}
               onChange={handleChange}
               min="1"
               max="50"
@@ -277,163 +239,33 @@ export const ModalEditarReserva = ({ reserva, onClose, onGuardar }) => {
           </select>
         </div>
 
-        {/* Gestión de Productos */}
-        <div className="border-t pt-4">
-          <div className="flex justify-between items-center mb-3">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-              Productos Reservados
-            </h4>
-            <button
-              type="button"
-              onClick={() => setMostrarAgregarProducto(!mostrarAgregarProducto)}
-              className="flex items-center gap-2 px-3 py-1 text-sm cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-            >
-              <FiPlus size={14} />
-              Agregar Producto
-            </button>
-          </div>
-
-          {/* Formulario para agregar producto */}
-          {mostrarAgregarProducto && (
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg mb-3 space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    Producto
-                  </label>
-                  <select
-                    name="nombre"
-                    value={nuevoProducto.nombre}
-                    onChange={handleSeleccionarProducto}
-                    className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="">Seleccionar producto</option>
-                    {productosDisponibles.map(producto => (
-                      <option key={producto.id} value={producto.nombre}>
-                        {producto.nombre} - S/ {producto.precio.toFixed(2)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    Cantidad
-                  </label>
-                  <input
-                    type="number"
-                    name="cantidad"
-                    value={nuevoProducto.cantidad}
-                    onChange={handleChangeCantidad}
-                    min="1"
-                    className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
-                </div>
-              </div>
-              
-              {/* Mostrar precio fijo del producto seleccionado */}
-              {nuevoProducto.nombre && (
-                <div className="text-xs text-gray-600 dark:text-gray-400 p-2 bg-white dark:bg-gray-700 rounded border">
-                  <strong>Precio unitario:</strong> S/ {nuevoProducto.precio.toFixed(2)}
-                  <br />
-                  <strong>Subtotal:</strong> S/ {(nuevoProducto.precio * nuevoProducto.cantidad).toFixed(2)}
-                </div>
-              )}
-              
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleAgregarProducto}
-                  className="px-3 py-1 text-xs cursor-pointer bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-                >
-                  Agregar Producto
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMostrarAgregarProducto(false)}
-                  className="px-3 py-1 text-xs bg-gray-500 cursor-pointer text-white rounded hover:bg-gray-600 transition-colors"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Lista de productos */}
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {productos.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                No hay productos agregados
-              </p>
-            ) : (
-              productos.map((producto, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{producto.nombre}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      S/ {producto.precio.toFixed(2)} c/u
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleActualizarCantidad(index, producto.cantidad - 1)}
-                        className="w-6 h-6 flex items-center justify-center text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 cursor-pointer"
-                      >
-                        -
-                      </button>
-                      <span className="text-sm font-medium w-8 text-center text-gray-800 dark:text-gray-200">{producto.cantidad}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleActualizarCantidad(index, producto.cantidad + 1)}
-                        className="w-6 h-6 flex items-center justify-center text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 cursor-pointer"
-                      >
-                        +
-                      </button>
-                    </div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white w-20 text-right">
-                      S/ {(producto.precio * producto.cantidad).toFixed(2)}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => handleEliminarProducto(index)}
-                      className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
-                    >
-                      <FiTrash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Total */}
-          {productos.length > 0 && (
-            <div className="flex justify-between items-center pt-3 mt-3 border-t border-gray-200 dark:border-gray-600">
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">Total:</span>
-              <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                S/ {calcularTotal().toFixed(2)}
-              </span>
-            </div>
-          )}
-        </div>
-
         {/* Botones de acción */}
         <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
           <button
             type="button"
             onClick={onClose}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded-lg transition-colors font-medium cursor-pointer"
+            disabled={guardando}
+            className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded-lg transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FiX size={16} />
             Cancelar
           </button>
           <button
             type="submit"
-            className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium flex-1 justify-center cursor-pointer"
+            disabled={guardando}
+            className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium flex-1 justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <FiSave size={16} />
-            Guardar Cambios
+            {guardando ? (
+              <>
+                <FiLoader className="animate-spin" size={16} />
+                Guardando...
+              </>
+            ) : (
+              <>
+                <FiSave size={16} />
+                Guardar Cambios
+              </>
+            )}
           </button>
         </div>
       </form>

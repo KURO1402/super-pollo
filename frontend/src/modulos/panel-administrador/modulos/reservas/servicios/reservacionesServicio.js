@@ -1,5 +1,3 @@
-// src/pages/reservas/servicios/reservacionesServicio.js
-
 import API from "../../../../../app/servicio/axiosConfiguracion";
 
 // Servicio para listar todas las reservaciones
@@ -101,23 +99,6 @@ export const obtenerDetalleReservacionServicio = async (idReservacion) => {
   }
 };
 
-// Servicio para obtener el pago de una reservación
-export const obtenerPagoReservacionServicio = async (idReservacion) => {
-  try {
-    const respuesta = await API.get(`/reservaciones/${idReservacion}/pago`);
-    
-    if (respuesta.data && respuesta.data.ok) {
-      return respuesta.data;
-    } else {
-      throw new Error(respuesta.data?.mensaje || "Error al obtener pago de reservación");
-    }
-  } catch (error) {
-    console.error('Error en obtenerPagoReservacionServicio:', error);
-    console.error('Error response:', error.response?.data);
-    throw error;
-  }
-};
-
 // Servicio para actualizar una reservación
 export const actualizarReservacionServicio = async (idReservacion, datosActualizados) => {
   try {
@@ -130,26 +111,6 @@ export const actualizarReservacionServicio = async (idReservacion, datosActualiz
     }
   } catch (error) {
     console.error('Error en actualizarReservacionServicio:', error);
-    console.error('Error response:', error.response?.data);
-    throw error;
-  }
-};
-
-// Servicio para cancelar una reservación (simulado ya que no existe en el backend)
-export const cancelarReservacionServicio = async (idReservacion) => {
-  try {
-    // Como no hay endpoint específico para cancelar, usamos el de actualización
-    const respuesta = await API.put(`/reservaciones/${idReservacion}`, {
-      estadoReservacion: 'cancelado'
-    });
-    
-    if (respuesta.data && respuesta.data.ok) {
-      return respuesta.data;
-    } else {
-      throw new Error(respuesta.data?.mensaje || "Error al cancelar reservación");
-    }
-  } catch (error) {
-    console.error('Error en cancelarReservacionServicio:', error);
     console.error('Error response:', error.response?.data);
     throw error;
   }

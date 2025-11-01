@@ -1,8 +1,6 @@
-// src/pages/reservas/componentes/FilaReserva.jsx
-
 import { FiEye, FiEdit, FiTrash2, FiUser, FiCalendar, FiClock, FiUsers } from "react-icons/fi";
 
-export const FilaReserva = ({ reserva, onVerDetalle, onEditar, onCancelar }) => {
+export const FilaReserva = ({ reserva, onVerDetalle, onEditar }) => {
   const getEstadoColor = (estado) => {
     switch (estado) {
       case 'pagado': 
@@ -93,13 +91,6 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar, onCancelar }) => 
         </div>
       </td>
 
-      {/* Fecha de Creación */}
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-900 dark:text-white">
-          {new Date(reserva.fechaCreacion).toLocaleDateString('es-ES')}
-        </div>
-      </td>
-
       {/* Acciones */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
@@ -117,15 +108,6 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar, onCancelar }) => 
           >
             <FiEdit size={16} />
           </button>
-          {reserva.estadoReservacion !== 'cancelado' && (
-            <button 
-              onClick={() => onCancelar(reserva)}
-              className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
-              title="Cancelar reserva"
-            >
-              <FiTrash2 size={16} />
-            </button>
-          )}
         </div>
       </td>
     </tr>
