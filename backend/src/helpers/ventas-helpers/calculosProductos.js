@@ -1,14 +1,5 @@
 const { CODIGOS_SUNAT } = require('../../config/constantes');
 
-// Obtener productos con cálculos de IGV
-function obtenerProductosConDatos(productosSolicitados, catalogo) {
-
-  return productosSolicitados.map(({ idProducto, cantidad }) => {
-    const producto = catalogo.find(p => p.idProducto === idProducto);
-    return calcularMontosProducto(producto, cantidad);
-  });
-}
-
 // Calcular montos individuales del producto
 function calcularMontosProducto(producto, cantidad) {
   const precioConIGV = Number(producto.precio);
@@ -29,6 +20,15 @@ function calcularMontosProducto(producto, cantidad) {
     igv: Number(igv.toFixed(2)),
     total: Number(total.toFixed(2))
   };
+};
+
+// Obtener productos con cálculos de IGV
+function obtenerProductosConDatos(productosSolicitados, catalogo) {
+
+  return productosSolicitados.map(({ idProducto, cantidad }) => {
+    const producto = catalogo.find(p => p.idProducto === idProducto);
+    return calcularMontosProducto(producto, cantidad);
+  });
 }
 
 module.exports = {

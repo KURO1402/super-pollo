@@ -9,7 +9,7 @@ const obtenerProductoPorIdModel = async (idProducto) => {
     try {
         conexion = await pool.getConnection();
         const [rows] = await conexion.execute("CALL obtenerProductoPorId(?)", [idProducto]);
-        return rows[0];
+        return rows[0][0];
     } catch (err) {
         console.error("Error en obtenerProductoPorIdModel:", err.message);
         throw new Error("Error al obtener el producto de la base de datos");

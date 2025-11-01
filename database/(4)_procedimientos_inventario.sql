@@ -17,6 +17,7 @@ DROP PROCEDURE IF EXISTS buscarMovimientosPorInsumo;
 DROP PROCEDURE IF EXISTS buscarMovimientosPorUsuario;
 DROP PROCEDURE IF EXISTS buscarMovimientosPorFecha;
 DROP PROCEDURE IF EXISTS buscarMovimientosPorTipo;
+DROP PROCEDURE IF EXISTS obtenerMovimientosPorVenta;
 
 DELIMITER //
 -- =============================================
@@ -165,6 +166,7 @@ CREATE PROCEDURE registrarMovimientoStock(
     IN p_cantidad DECIMAL(10,2),
     IN p_tipoMovimiento ENUM('entrada','salida'),
     IN P_detallesMovimiento TEXT,
+    IN p_idVenta INT,
     IN p_idUsuario INT
 )
 BEGIN
@@ -186,12 +188,14 @@ BEGIN
         cantidadMovimiento,
         tipoMovimiento,
         detallesMovimiento,
+        idVenta,
         idUsuario
     ) VALUES (
         p_idInsumo,
         p_cantidad,
         p_tipoMovimiento,
         P_detallesMovimiento,
+        p_idVenta,
         p_idUsuario
     );
 
@@ -323,6 +327,26 @@ BEGIN
     WHERE m.tipoMovimiento = p_tipoMovimiento
     ORDER BY m.fechaMovimiento DESC
     LIMIT p_limit OFFSET p_offset;
+END //
+
+CREATE PROCEDURE obtenerMovimientosPorVenta(
+    IN p_idVenta INT
+)
+BEGIN
+    SELECT 
+        i.idInsumo,
+        m.tipoMovimiento AS nombreMovimiento,
+        i.nombreInsumo,
+        m.cantidadMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%d-%m-%Y') AS fechaMovimiento,
+        DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
+        m.detallesMovimiento,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM movimientosStock m
+    INNER JOIN insumos i ON m.idInsumo = i.idInsumo
+    INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
+    WHERE m.idVenta = p_idVenta
+    ORDER BY m.fechaMovimiento DESC;
 END //
 
 DELIMITER ;

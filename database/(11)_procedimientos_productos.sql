@@ -387,6 +387,7 @@ BEGIN
     SELECT 
         i.idInsumo,
         i.nombreInsumo,
+        i.stockInsumo,
         cip.cantidadUso
     FROM cantidadInsumoProducto cip
     INNER JOIN insumos i 

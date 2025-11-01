@@ -107,7 +107,7 @@ const actualizarProductoService = async (idProducto, datos) => {
     const { nombreProducto, descripcionProducto, precio, idCategoria } = datos;
     const producto = await obtenerProductoPorIdModel(Number(idProducto));
     
-    if (producto.length === 0) {
+    if (!producto) {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
     }
 
@@ -139,7 +139,7 @@ const eliminarProductoService = async (idProducto) => {
     }
 
     const producto = await obtenerProductoPorIdModel(idProducto);
-    if (producto.length === 0) {
+    if (!producto) {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
     }
 
@@ -159,7 +159,7 @@ const actualizarImagenProductoService = async (idProducto, file) => {
     }
 
     const producto = await obtenerProductoPorIdModel(idProducto);
-    if (producto.length === 0) {
+    if (!producto) {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
     }
 
@@ -187,7 +187,7 @@ const actualizarCantidadUsoInsumoProductoService = async (datos) => {
     const { idInsumo, idProducto, nuevaCantidad } = datos;
     const producto = await obtenerProductoPorIdModel(idProducto);
 
-    if (producto.length === 0) {
+    if (!producto) {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
     }
 
@@ -224,7 +224,7 @@ const eliminarCantidadInsumoProductoService = async (datos) => {
     }
 
     const producto = await obtenerProductoPorIdModel(idProducto);
-    if (producto.length === 0) {
+    if (!producto) {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
     }
 
@@ -261,7 +261,7 @@ const insertarCantidadInsumoProductoService = async (datos) => {
     const { idProducto, idInsumo, cantidadUso } = datos;
 
     const producto = await obtenerProductoPorIdModel(idProducto);
-    if (producto.length === 0) {
+    if (!producto) {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
     }
 
@@ -333,13 +333,13 @@ const obtenerProductoPorIdService = async (idProducto) => {
 
     const producto = await obtenerProductoPorIdModel(Number(idProducto));
 
-    if (!producto || producto.length === 0) {
+    if (!producto) {
         throw Object.assign(new Error("No existe un producto con el ID especificado."), { status: 404 });
     }
 
     return {
         ok: true, 
-        producto: producto[0]
+        producto: producto
     };
 };
 
@@ -398,7 +398,7 @@ const obtenerInsumosPorProductoService = async (idProducto) => {
 
     const producto = await obtenerProductoPorIdModel(idProducto);
 
-    if (!producto || producto.length === 0) {
+    if (!producto ) {
         throw Object.assign(new Error("No existe un producto con el ID especificado."), { status: 404 });
     }
 
@@ -407,6 +407,11 @@ const obtenerInsumosPorProductoService = async (idProducto) => {
     if (!insumos || insumos.length === 0) {
         throw Object.assign(new Error("No existen insumos asociados a este producto."), { status: 404 });
     }
+    
+    insumos.forEach(insumo => {
+        delete insumo.stockInsumos;
+    });
+    
 
     return {
         ok: true, 

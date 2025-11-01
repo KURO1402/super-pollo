@@ -12,6 +12,7 @@ DROP PROCEDURE IF EXISTS obtenerUltimosMovimientosCaja;
 DROP PROCEDURE IF EXISTS obtenerCajasCerradas;
 DROP PROCEDURE IF EXISTS obtenerArqueosCaja;
 DROP PROCEDURE IF EXISTS obtenerArqueosPorCaja;
+DROP PROCEDURE IF EXISTS obtenerMovimientosCajaPorVenta;
 
 /* CREAR PROCEDIMIENTOS ALMACENADOS DEL MODULO DE CAJA */
 DELIMITER //
@@ -123,7 +124,8 @@ END //
 CREATE PROCEDURE registrarIngresoCaja(
     IN p_monto DECIMAL(10,2),
     IN p_descripcion VARCHAR(255),
-    IN p_idUsuario INT
+    IN p_idUsuario INT,
+    IN p_idVenta INT
 )
 BEGIN
     DECLARE v_idCaja INT;
@@ -159,14 +161,16 @@ BEGIN
         montoMovimiento,
         descripcionMovCaja,
         idCaja,
-        idUsuario
+        idUsuario,
+        idVenta
     )
     VALUES (
         'Ingreso',
         p_monto,
         p_descripcion,
         v_idCaja,
-        p_idUsuario
+        p_idUsuario,
+        p_idVenta
     );
 
     -- Actualizar la caja
@@ -177,13 +181,16 @@ BEGIN
     WHERE idCaja = v_idCaja;
 
     COMMIT;
+
+    SELECT 'Ingreso registrado exitosamente' AS mensaje;
 END //
 
 -- Procedimiento para registrar un egreso en caja
 CREATE PROCEDURE registrarEgresoCaja(
     IN p_monto DECIMAL(10,2),
     IN p_descripcion VARCHAR(255),
-    IN p_idUsuario INT
+    IN p_idUsuario INT,
+    IN p_idVenta INT
 )
 BEGIN
     DECLARE v_idCaja INT;
@@ -225,14 +232,16 @@ BEGIN
         montoMovimiento,
         descripcionMovCaja,
         idCaja,
-        idUsuario
+        idUsuario,
+        idVenta
     )
     VALUES (
         'Egreso',
         p_monto,
         p_descripcion,
         v_idCaja,
-        p_idUsuario
+        p_idUsuario,
+        p_idVenta
     );
 
     -- Actualizar caja
@@ -243,6 +252,7 @@ BEGIN
     WHERE idCaja = v_idCaja;
 
     COMMIT;
+    SELECT 'Egreso registrado exitosamente' AS mensaje;
 END //
 
 -- Procedimiento para registrar un arqueo de caja
@@ -344,6 +354,25 @@ BEGIN
     ORDER BY mc.fechaMovimiento DESC
     LIMIT p_limit OFFSET p_offset;
 END //
+
+CREATE PROCEDURE obtenerMovimientosCajaPorVenta(
+    IN p_idVenta INT
+)
+BEGIN
+    SELECT
+        mc.idMovimientoCaja,
+        mc.tipoMovimiento,
+        mc.descripcionMovCaja,
+        mc.montoMovimiento,
+        DATE_FORMAT(mc.fechaMovimiento, '%d/%m/%Y') AS fecha,
+        DATE_FORMAT(mc.fechaMovimiento, '%H:%i') AS hora,
+        CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
+    FROM movimientosCaja mc
+    INNER JOIN usuarios u ON mc.idUsuario = u.idUsuario
+    WHERE mc.idVenta = p_idVenta
+    ORDER BY mc.fechaMovimiento DESC;
+END //
+
 
 -- Procedimiento para obtener detalles de las cajas cerradas por partes
 CREATE PROCEDURE obtenerCajasCerradas(

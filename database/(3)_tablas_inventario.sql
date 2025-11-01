@@ -26,8 +26,10 @@ CREATE TABLE movimientosStock(
     tipoMovimiento ENUM('salida','entrada') NOT NULL,
     fechaMovimiento DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     detallesMovimiento TEXT,
-    idInsumo INT,
-    idUsuario INT,
+    idVenta INT,
+    idInsumo INT NOT NULL,
+    idUsuario INT NOT NULL,
+    FOREIGN KEY (idVenta) REFERENCES ventas(idVenta)
     FOREIGN KEY (idInsumo) REFERENCES insumos(idInsumo),
     FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
 );

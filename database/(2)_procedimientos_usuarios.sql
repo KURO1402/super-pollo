@@ -332,4 +332,14 @@ BEGIN
     WHERE estadoUsuario = 1;
 END //
 
+
+CREATE PROCEDURE contarTipoDocumentoPorId(
+    IN p_idTipoDocumento INT
+)
+BEGIN
+    SELECT COUNT(*) AS total
+    FROM tipoDocumento
+    WHERE idTipoDocumento = p_idTipoDocumento;
+END //
+
 DELIMITER ;

@@ -37,8 +37,10 @@ CREATE TABLE movimientosCaja (
     descripcionMovCaja VARCHAR(255),
     idCaja INT NOT NULL,
     idUsuario INT NOT NULL,
+    idVenta INT,
     FOREIGN KEY (idCaja) REFERENCES caja(idCaja),
-    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
+    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario),
+    FOREIGN KEY (idVenta) REFERENCES ventas(idVenta)
 );
 
 -- Tabla para registrar arqueos de caja

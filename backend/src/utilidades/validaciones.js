@@ -2,7 +2,7 @@
 const validarCorreo = (correo) => {
 
   if (!correo || typeof correo !== "string") {
-    throw Object.assign(new Error("El correo es obligatorio"), { status: 400 });
+    throw Object.assign(new Error("El correo es necesario y debe estar en formato de texto."), { status: 400 });
   }
 
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -15,6 +15,11 @@ const validarCorreo = (correo) => {
 // Función para validar documentos según tipo numérico
 const validarDocumento = (tipo, valor) => {
   switch (Number(tipo)) {
+    case 0: // CLIENTES VARIOS ES DNI
+      if (!/^\d{8}$/.test(valor)) {
+        throw Object.assign(new Error("El numero de documento debe tener exactamente 8 dígitos"), { status: 400 });
+      }
+      break;
     case 1: // DNI
       if (!/^\d{8}$/.test(valor)) {
         throw Object.assign(new Error("El DNI debe tener exactamente 8 dígitos"), { status: 400 });
@@ -25,12 +30,7 @@ const validarDocumento = (tipo, valor) => {
         throw Object.assign(new Error("El Carné de Extranjería debe tener entre 9 y 12 caracteres alfanuméricos"), { status: 400 });
       }
       break;
-    case 3: // Pasaporte
-      if (!/^[A-Za-z0-9]{6,12}$/.test(valor)) {
-        throw Object.assign(new Error("El Pasaporte debe tener entre 6 y 12 caracteres alfanuméricos"), { status: 400 });
-      }
-      break;
-    case 4: // RUC
+    case 3: // RUC
       if (!/^\d{11}$/.test(valor)) {
         throw Object.assign(new Error("El RUC debe tener exactamente 11 dígitos"), { status: 400 });
       }

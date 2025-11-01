@@ -1,12 +1,10 @@
 const axios = require("axios");
 
 const generarComprobanteNubefact = async (data) => {
-    const urlnubeFact = "https://api.nubefact.com/api/v1/017d0c63-24c8-4634-adea-5793973da0e6";
-    const token = "51b40a8683394ab1a147abfe04a538868d535726b6374f2e90aba544a7500190";
+    const urlnubeFact = "https://api.nubefact.com/api/v1/69a5b70b-56f6-404a-818c-cc50aee07376";
+    const token = "0cc4cffe30254fb1ac920d5dc6bbf47e7b9ba7fcf72c4210aa433812e575e0d8";
     
     try {
-        //console.log("Enviando a Nubefact:", JSON.stringify(data, null, 2)); // Para debug
-
         const response = await axios.post(urlnubeFact, data, {
             headers: {
                 "Content-Type": "application/json",
