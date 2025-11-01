@@ -1,3 +1,5 @@
+// src/pages/reservas/componentes/FilaReserva.jsx
+
 import { FiEye, FiEdit, FiTrash2, FiUser, FiCalendar, FiClock, FiUsers } from "react-icons/fi";
 
 export const FilaReserva = ({ reserva, onVerDetalle, onEditar, onCancelar }) => {
@@ -31,7 +33,8 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar, onCancelar }) => 
   const formatearFecha = (fecha) => {
     return new Date(fecha).toLocaleDateString('es-ES', {
       day: '2-digit',
-      month: '2-digit'
+      month: '2-digit',
+      year: 'numeric'
     });
   };
 
@@ -48,7 +51,7 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar, onCancelar }) => 
               #{reserva.idReservacion}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              {formatearFecha(reserva.fechaReservacion)} {reserva.horaReservacion.substring(0,5)}
+              {formatearFecha(reserva.fechaReservacion)}
             </div>
           </div>
         </div>
@@ -71,10 +74,14 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar, onCancelar }) => 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
             <FiUsers size={14} />
-            <span>{reserva.cantidadPersonas}</span>
+            <span>{reserva.cantidadPersonas} pers.</span>
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-400">
             Mesa {reserva.numeroMesa}
+          </div>
+          <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+            <FiClock size={14} />
+            <span>{reserva.horaReservacion.substring(0,5)}</span>
           </div>
         </div>
       </td>
@@ -86,10 +93,10 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar, onCancelar }) => 
         </div>
       </td>
 
-      {/* Monto */}
+      {/* Fecha de Creación */}
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-gray-900 dark:text-white">
-          S/ {reserva.montoTotal.toFixed(2)}
+        <div className="text-sm text-gray-900 dark:text-white">
+          {new Date(reserva.fechaCreacion).toLocaleDateString('es-ES')}
         </div>
       </td>
 
@@ -110,13 +117,15 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar, onCancelar }) => 
           >
             <FiEdit size={16} />
           </button>
-          <button 
-            onClick={() => onCancelar(reserva)}
-            className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
-            title="Cancelar reserva"
-          >
-            <FiTrash2 size={16} />
-          </button>
+          {reserva.estadoReservacion !== 'cancelado' && (
+            <button 
+              onClick={() => onCancelar(reserva)}
+              className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+              title="Cancelar reserva"
+            >
+              <FiTrash2 size={16} />
+            </button>
+          )}
         </div>
       </td>
     </tr>

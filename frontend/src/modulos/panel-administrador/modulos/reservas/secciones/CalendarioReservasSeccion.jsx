@@ -10,9 +10,9 @@ import { FiClock, FiUsers, FiPlus, FiLoader, FiCalendar } from "react-icons/fi";
 
 import Modal from "../../../componentes/modal/Modal";
 import { useModal } from "../../../hooks/useModal";
-import { mockReservas, estadosReserva } from "../data-temporal/mockReservas";
-import { convertirReservaAEvento, validarDisponibilidadMesa } from "../utilidades/ValidacionesReservaciones";
+import { estadosReserva } from "../data-temporal/mockReservas";
 import FormularioReserva from "../componentes/FormularioReservas";
+import { listarReservacionesServicio } from "../servicios/reservacionesServicio";
 
 const CalendarioReservasSeccion = () => {
   const [reservas, setReservas] = useState([]);
@@ -30,16 +30,47 @@ const CalendarioReservasSeccion = () => {
   const cargarReservas = async () => {
     try {
       setCargando(true);
-      await new Promise(resolve => setTimeout(resolve, 800));
-      console.log('Cargando reservas desde el backend...');
-      setReservas(mockReservas);
-      console.log('Reservas cargadas:', mockReservas.length);
+      const reservaciones = await listarReservacionesServicio();
+      setReservas(reservaciones);
     } catch (error) {
       console.error('Error al cargar reservas:', error);
       alert("Error al cargar las reservas");
     } finally {
       setCargando(false);
     }
+  };
+
+  // Función para convertir reserva a evento del calendario
+  const convertirReservaAEvento = (reserva) => {
+    const fecha = new Date(reserva.fechaReservacion);
+    const fechaStr = fecha.toISOString().split('T')[0];
+    
+    return {
+      id: reserva.idReservacion.toString(),
+      title: `${reserva.nombresUsuario} - Mesa ${reserva.numeroMesa}`,
+      start: fechaStr + 'T' + reserva.horaReservacion,
+      extendedProps: {
+        estado: reserva.estadoReservacion,
+        hora: reserva.horaReservacion.substring(0, 5),
+        cantidad: reserva.cantidadPersonas,
+        mesa: reserva.numeroMesa,
+        cliente: reserva.nombresUsuario
+      },
+      backgroundColor: getColorPorEstado(reserva.estadoReservacion),
+      borderColor: getColorPorEstado(reserva.estadoReservacion),
+      textColor: '#fff'
+    };
+  };
+
+  const getColorPorEstado = (estado) => {
+    const colores = {
+      pendiente: '#f59e0b', // amber-500
+      confirmada: '#10b981', // green-500
+      pagado: '#059669', // green-600
+      cancelado: '#ef4444', // red-500
+      completada: '#6b7280' // gray-500
+    };
+    return colores[estado] || '#6b7280';
   };
 
   const obtenerEstiloEstado = (estado) => {
@@ -94,12 +125,15 @@ const CalendarioReservasSeccion = () => {
       return;
     }
 
-    setReservaSeleccionada({ fechaReserva: info.startStr });
+    setReservaSeleccionada({ 
+      fechaReservacion: info.startStr.split('T')[0],
+      horaReservacion: '12:00:00'
+    });
     abrir();
   };
 
   const manejarClickEvento = (info) => {
-    const reserva = reservas.find((r) => r.id === info.event.id);
+    const reserva = reservas.find((r) => r.idReservacion.toString() === info.event.id);
     if (reserva) {
       setReservaSeleccionada(reserva);
       abrir();
@@ -110,43 +144,26 @@ const CalendarioReservasSeccion = () => {
     try {
       setGuardando(true);
 
-      const datosSanitizados = {
-        ...datos,
-        nombreCliente: datos.nombreCliente.trim(),
-        telefono: datos.telefono?.trim() || "",
-        comentarios: datos.comentarios?.trim() || "",
-      };
-
-      // Validar disponibilidad
-      if (!validarDisponibilidadMesa(
-        reservas,
-        datosSanitizados.fechaReserva,
-        datosSanitizados.horaReserva,
-        datosSanitizados.numeroMesa,
-        reservaSeleccionada?.id
-      )) {
-        alert("La mesa no está disponible en ese horario");
-        setGuardando(false);
-        return;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 600));
-
-      if (reservaSeleccionada?.id) {
-        console.log('Actualizando reserva en el backend:', datosSanitizados);
-        const nuevaReserva = { ...datosSanitizados, id: reservaSeleccionada.id };
-        setReservas((prev) => prev.map((r) => (r.id === reservaSeleccionada.id ? nuevaReserva : r)));
-        console.log('Reserva actualizada exitosamente');
+      // Aquí iría la llamada al servicio para crear/actualizar reserva
+      // Por ahora, simulamos la actualización del estado local
+      
+      if (reservaSeleccionada?.idReservacion) {
+        console.log('Actualizando reserva:', datos);
+        // await actualizarReservacionServicio(reservaSeleccionada.idReservacion, datos);
+        setReservas((prev) => prev.map((r) => 
+          r.idReservacion === reservaSeleccionada.idReservacion ? { ...r, ...datos } : r
+        ));
         alert("Reserva actualizada exitosamente");
       } else {
-        console.log('Creando nueva reserva en el backend:', datosSanitizados);
+        console.log('Creando nueva reserva:', datos);
+        // await crearReservacionServicio(datos);
         const nuevaReserva = {
-          ...datosSanitizados,
-          id: Date.now().toString(),
+          ...datos,
+          idReservacion: Date.now(),
           fechaCreacion: new Date().toISOString(),
+          nombresUsuario: datos.nombreCliente || 'Cliente Nuevo'
         };
         setReservas((prev) => [...prev, nuevaReserva]);
-        console.log('Reserva creada exitosamente');
         alert("Reserva creada exitosamente");
       }
 
@@ -170,7 +187,7 @@ const CalendarioReservasSeccion = () => {
         <div className="flex items-center justify-between gap-1 mb-1">
           <span className="truncate font-semibold text-xs">{info.event.title}</span>
           <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${estilos.badge}`}>
-            {config.label}
+            {config?.label || estado}
           </span>
         </div>
         <div className="flex items-center gap-2 text-[10px] opacity-90">
@@ -188,7 +205,7 @@ const CalendarioReservasSeccion = () => {
   };
 
   const eventosCalendario = reservas
-    .filter(r => r.estado !== "cancelado")
+    .filter(r => r.estadoReservacion !== "cancelado")
     .map(convertirReservaAEvento);
 
   const fechaMinima = new Date().toISOString().split("T")[0];
@@ -248,6 +265,7 @@ const CalendarioReservasSeccion = () => {
               height="auto"
               dayMaxEvents={3}
               moreLinkContent={(args) => `+${args.num} más`}
+              
             />
           </div>
         )}
@@ -257,7 +275,7 @@ const CalendarioReservasSeccion = () => {
       <Modal
         estaAbierto={estaAbierto}
         onCerrar={cerrar}
-        titulo={reservaSeleccionada?.id ? `Editar Reserva #${reservaSeleccionada.id}` : "Nueva Reserva"}
+        titulo={reservaSeleccionada?.idReservacion ? `Editar Reserva #${reservaSeleccionada.idReservacion}` : "Nueva Reserva"}
         tamaño="lg"
         mostrarHeader={true}
         mostrarFooter={false}
@@ -270,111 +288,6 @@ const CalendarioReservasSeccion = () => {
           guardando={guardando}
         />
       </Modal>
-
-      <style jsx>{`
-        .calendar-wrapper :global(.fc) {
-          background: transparent;
-        }
-        
-        .calendar-wrapper :global(.fc .fc-toolbar-title) {
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: rgb(17 24 39);
-        }
-        
-        .calendar-wrapper :global(.dark .fc .fc-toolbar-title) {
-          color: rgb(243 244 246);
-        }
-        
-        .calendar-wrapper :global(.fc-theme-standard th) {
-          background: transparent;
-          border-color: rgb(229 231 235);
-        }
-        
-        .calendar-wrapper :global(.dark .fc-theme-standard th) {
-          border-color: rgb(55 65 81);
-        }
-        
-        .calendar-wrapper :global(.fc-theme-standard td) {
-          border-color: rgb(229 231 235);
-        }
-        
-        .calendar-wrapper :global(.dark .fc-theme-standard td) {
-          border-color: rgb(55 65 81);
-        }
-        
-        .calendar-wrapper :global(.fc .fc-daygrid-day-number) {
-          color: rgb(17 24 39);
-          padding: 0.5rem;
-          font-weight: 500;
-        }
-        
-        .calendar-wrapper :global(.dark .fc .fc-daygrid-day-number) {
-          color: rgb(243 244 246);
-        }
-        
-        .calendar-wrapper :global(.fc .fc-col-header-cell-cushion) {
-          color: rgb(75 85 99);
-          font-weight: 600;
-          padding: 0.75rem 0.5rem;
-        }
-        
-        .calendar-wrapper :global(.dark .fc .fc-col-header-cell-cushion) {
-          color: rgb(209 213 219);
-        }
-        
-        .calendar-wrapper :global(.fc .fc-button-primary) {
-          background-color: rgb(37 99 235);
-          border-color: rgb(37 99 235);
-          color: #ffffff;
-          font-weight: 500;
-          padding: 0.5rem 1rem;
-          border-radius: 0.5rem;
-          font-size: 0.875rem;
-        }
-        
-        .calendar-wrapper :global(.fc .fc-button-primary:hover) {
-          background-color: rgb(29 78 216);
-          border-color: rgb(29 78 216);
-        }
-        
-        .calendar-wrapper :global(.fc .fc-button-primary:not(:disabled):active),
-        .calendar-wrapper :global(.fc .fc-button-primary:not(:disabled).fc-button-active) {
-          background-color: rgb(30 64 175);
-          border-color: rgb(30 64 175);
-        }
-        
-        .calendar-wrapper :global(.fc .fc-daygrid-day:hover) {
-          background-color: rgb(249 250 251);
-        }
-        
-        .calendar-wrapper :global(.dark .fc .fc-daygrid-day:hover) {
-          background-color: rgb(31 41 55 / 0.5);
-        }
-        
-        .calendar-wrapper :global(.fc .fc-daygrid-day.fc-day-today) {
-          background-color: rgb(219 234 254 / 0.3) !important;
-        }
-        
-        .calendar-wrapper :global(.dark .fc .fc-daygrid-day.fc-day-today) {
-          background-color: rgb(30 58 138 / 0.2) !important;
-        }
-        
-        .calendar-wrapper :global(.fc-event) {
-          border: none !important;
-          background: none !important;
-        }
-
-        .calendar-wrapper :global(.fc .fc-more-link) {
-          color: rgb(37 99 235);
-          font-weight: 500;
-          font-size: 0.75rem;
-        }
-
-        .calendar-wrapper :global(.dark .fc .fc-more-link) {
-          color: rgb(96 165 250);
-        }
-      `}</style>
     </div>
   );
 };

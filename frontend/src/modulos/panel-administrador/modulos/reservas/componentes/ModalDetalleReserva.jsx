@@ -1,6 +1,8 @@
+// src/pages/reservas/componentes/ModalDetalleReserva.jsx
+
 import { FiUser, FiCalendar, FiClock, FiUsers, FiDollarSign, FiBox } from "react-icons/fi";
 
-export const ModalDetalleReserva = ({ reserva, onClose }) => {
+export const ModalDetalleReserva = ({ reserva, detalle, onClose }) => {
   if (!reserva) return null;
 
   const getEstadoColor = (estado) => {
@@ -23,6 +25,14 @@ export const ModalDetalleReserva = ({ reserva, onClose }) => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  // Calcular total basado en los detalles
+  const calcularTotal = () => {
+    if (!detalle?.detalles) return 0;
+    return detalle.detalles.reduce((total, item) => 
+      total + (item.precioUnitario * item.cantidadProductoReservacion), 0
+    );
   };
 
   return (
@@ -96,22 +106,24 @@ export const ModalDetalleReserva = ({ reserva, onClose }) => {
       </div>
 
       {/* Productos Reservados */}
-      {reserva.productos && reserva.productos.length > 0 && (
+      {detalle?.detalles && detalle.detalles.length > 0 && (
         <div>
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
             Productos Reservados
           </h4>
           <div className="space-y-2">
-            {reserva.productos.map((producto, index) => (
+            {detalle.detalles.map((producto, index) => (
               <div key={index} className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{producto.nombre}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    Producto #{producto.idProducto}
+                  </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {producto.cantidad} x S/ {producto.precio.toFixed(2)}
+                    {producto.cantidadProductoReservacion} x S/ {producto.precioUnitario.toFixed(2)}
                   </p>
                 </div>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  S/ {(producto.precio * producto.cantidad).toFixed(2)}
+                  S/ {(producto.precioUnitario * producto.cantidadProductoReservacion).toFixed(2)}
                 </p>
               </div>
             ))}
@@ -126,9 +138,9 @@ export const ModalDetalleReserva = ({ reserva, onClose }) => {
             <FiDollarSign size={18} />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total</p>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Estimado</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              S/ {reserva.montoTotal.toFixed(2)}
+              S/ {calcularTotal().toFixed(2)}
             </p>
           </div>
         </div>
