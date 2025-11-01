@@ -1,28 +1,69 @@
 import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
 import mostrarAlerta from '../../../../../utilidades/toastUtilidades';
 import { actualizarProductoServicio } from '../servicios/productoServicios';
+import { useCategorias } from '../hooks/useCategorias';
 
 export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
+  // Hook de categorías
+  const { categorias, loading: cargandoCategorias, cargarCategorias } = useCategorias();
+  const [categoriasCargadas, setCategoriasCargadas] = useState(false);
+
   const {
     register, 
     handleSubmit, 
     formState: { errors, isSubmitting },
-    reset
+    reset,
+    setValue
   } = useForm({
     defaultValues: {
       nombreProducto: producto.nombreProducto,
       descripcionProducto: producto.descripcionProducto,
       precio: parseFloat(producto.precio),
+      idCategoria: ''
     }
   });
 
+  // Cargar categorías solo una vez al abrir el modal
+  useEffect(() => {
+    const inicializar = async () => {
+      if (!categoriasCargadas) {
+        await cargarCategorias();
+        setCategoriasCargadas(true);
+      }
+    };
+    
+    inicializar();
+  }, [cargarCategorias, categoriasCargadas]);
+
+  // Establecer la categoría cuando las categorías estén cargadas
+  useEffect(() => {
+    if (categoriasCargadas && categorias.length > 0 && producto.nombreCategoria) {
+      // Buscar el ID de categoría basado en el nombreCategoria del producto
+      const categoriaEncontrada = categorias.find(
+        cat => cat.nombreCategoria === producto.nombreCategoria
+      );
+      
+      if (categoriaEncontrada) {
+        setValue('idCategoria', categoriaEncontrada.idCategoria);
+      }
+    }
+  }, [categoriasCargadas, categorias, producto.nombreCategoria, setValue]);
+
   const onSubmit = async (data) => {
     try {
+      // Validar categoría
+      if (!data.idCategoria) {
+        mostrarAlerta.advertencia('Debe seleccionar una categoría para el producto');
+        return;
+      }
+
       // Preparar datos para el backend
       const datosActualizados = {
         nombreProducto: data.nombreProducto,
         descripcionProducto: data.descripcionProducto,
-        precio: parseFloat(data.precio)
+        precio: parseFloat(data.precio),
+        idCategoria: parseInt(data.idCategoria)
       };
       
       // Llamar al servicio de actualización
@@ -34,6 +75,8 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
       
     } catch (error) {
       console.error('Error al actualizar producto:', error);
+      const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || error.message || 'Error al actualizar el producto';
+      mostrarAlerta.error(mensajeError);
     }
   };
 
@@ -69,6 +112,47 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
           {errors.nombreProducto && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
               {errors.nombreProducto.message}
+            </p>
+          )}
+        </div>
+
+        {/* Categoría */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Categoría del Producto *
+          </label>
+          <select
+            {...register("idCategoria", { 
+              required: "La categoría es requerida"
+            })}
+            className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              errors.idCategoria 
+                ? 'border-red-500 dark:border-red-400' 
+                : 'border-gray-300 dark:border-gray-600'
+            }`}
+          >
+            <option value="">Seleccionar categoría</option>
+            {cargandoCategorias ? (
+              <option value="" disabled>Cargando categorías...</option>
+            ) : (
+              categorias.map(categoria => (
+                <option 
+                  key={categoria.idCategoria} 
+                  value={categoria.idCategoria}
+                >
+                  {categoria.nombreCategoria}
+                </option>
+              ))
+            )}
+          </select>
+          {errors.idCategoria && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {errors.idCategoria.message}
+            </p>
+          )}
+          {producto.nombreCategoria && (
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Categoría actual: <strong>{producto.nombreCategoria}</strong>
             </p>
           )}
         </div>
@@ -136,6 +220,12 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
               <span className="text-blue-700 dark:text-blue-400">Estado:</span>
               <span className="ml-1 text-blue-900 dark:text-blue-200">
                 {producto.estadoProducto === 1 ? 'Activo' : 'Inactivo'}
+              </span>
+            </div>
+            <div className="col-span-2">
+              <span className="text-blue-700 dark:text-blue-400">Categoría Actual:</span>
+              <span className="ml-1 text-blue-900 dark:text-blue-200">
+                {producto.nombreCategoria || 'Sin categoría'}
               </span>
             </div>
           </div>

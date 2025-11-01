@@ -15,7 +15,6 @@ const ModalGestionCategorias = () => {
     crearCategoria,
     actualizarCategoria,
     eliminarCategoria,
-    limpiarError
   } = useCategorias();
 
   // Modales internos
@@ -24,7 +23,6 @@ const ModalGestionCategorias = () => {
 
   // Estado para categoría en edición
   const [categoriaEditar, setCategoriaEditar] = useState(null);
-  const [categoriaEliminar, setCategoriaEliminar] = useState(null);
 
   // Cargar categorías cuando se monta el componente
   useEffect(() => {
@@ -40,11 +38,6 @@ const ModalGestionCategorias = () => {
   const handleAbrirEditar = (categoria) => {
     setCategoriaEditar(categoria);
     modalCategoria.abrir();
-  };
-
-  const handleAbrirEliminar = (categoria) => {
-    setCategoriaEliminar(categoria);
-    modalConfirmacion.abrir();
   };
 
   const handleGuardarCategoria = async (nombreCategoria) => {
@@ -94,7 +87,6 @@ const ModalGestionCategorias = () => {
         loading={loading}
         error={error}
         onEditar={handleAbrirEditar}
-        onEliminar={handleAbrirEliminar}
       />
 
       {/* Modales internos */}

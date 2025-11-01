@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 // servicios
 import { listarInsumoServicio } from '../../stock/servicios/insumosServicios';
 import { crearProductoServicio } from '../servicios/productoServicios';
-
+// hooks
+import { useCategorias } from '../hooks/useCategorias';
 // utilidades
 import mostrarAlerta from '../../../../../utilidades/toastUtilidades';
 
@@ -13,6 +14,10 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
   const [insumosDisponibles, setInsumosDisponibles] = useState([]);
   const [insumosSeleccionados, setInsumosSeleccionados] = useState([]);
   const [cargandoInsumos, setCargandoInsumos] = useState(true);
+  const [nuevaCategoria, setNuevaCategoria] = useState('');
+
+  // Hook de categorías
+  const { categorias, loading: cargandoCategorias, cargarCategorias, crearCategoria } = useCategorias();
 
   const {
     register, 
@@ -27,26 +32,31 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
       precio: '',
       descripcionProducto: '',
       usaInsumo: false, 
-      imagen: null
+      imagen: null,
+      idCategoria: ''
     }
   });
 
-  // Obtener insumos del backend - Mismo patrón que en ModalMovimientoStock
-  const obtenerInsumos = async () => {
-    try {
-      const respuesta = await listarInsumoServicio();
-      setInsumosDisponibles(respuesta.data);
-    } catch (error) {
-      console.error('Error al obtener insumos:', error);
-      alertasCRUD.error('Error al cargar los insumos');
-    } finally {
-      setCargandoInsumos(false);
-    }
-  };
-
+  // Cargar insumos y categorías al inicializar
   useEffect(() => {
-    obtenerInsumos();
-  }, []);
+    const cargarDatos = async () => {
+      try {
+        setCargandoInsumos(true);
+        const [respuestaInsumos] = await Promise.all([
+          listarInsumoServicio(),
+          cargarCategorias() // Cargar categorías también
+        ]);
+        setInsumosDisponibles(respuestaInsumos);
+      } catch (error) {
+        console.error('Error al obtener datos:', error);
+        mostrarAlerta.error('Error al cargar los datos iniciales');
+      } finally {
+        setCargandoInsumos(false);
+      }
+    };
+
+    cargarDatos();
+  }, [cargarCategorias]);
 
   // función para cancelar y cerrar el modal
   const handleCancelar = () => {
@@ -56,27 +66,27 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
   };
 
   // funcion para manejar el cambio de imagen
-const handleImagenChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    // Validar formato de imagen
-    const formatosPermitidos = ['image/png', 'image/jpeg'];
-    if (!formatosPermitidos.includes(file.type)) {
-      mostrarAlerta.advertencia('Formato de imagen no válido. Solo se permiten PNG o JPEG');
-      e.target.value = ''; // Limpiar el input
-      return;
+  const handleImagenChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validar formato de imagen
+      const formatosPermitidos = ['image/png', 'image/jpeg'];
+      if (!formatosPermitidos.includes(file.type)) {
+        mostrarAlerta.advertencia('Formato de imagen no válido. Solo se permiten PNG o JPEG');
+        e.target.value = ''; // Limpiar el input
+        return;
+      }
+      
+      // Validar tamaño (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        mostrarAlerta.advertencia('La imagen es demasiado grande. Máximo 5MB permitido');
+        e.target.value = '';
+        return;
+      }
+      
+      setValue('imagen', file);
     }
-    
-    // Validar tamaño (máximo 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      mostrarAlerta.advertencia('La imagen es demasiado grande. Máximo 5MB permitido');
-      e.target.value = '';
-      return;
-    }
-    
-    setValue('imagen', file);
-  }
-};
+  };
 
   // Función para agregar un insumo
   const agregarInsumo = () => {
@@ -116,98 +126,105 @@ const handleImagenChange = (e) => {
   const imagenActual = watch('imagen');
   const usaInsumo = watch('usaInsumo');
 
-// Función onSubmit
-const onSubmit = async (data) => {
-  try {
-    // Validaciones basicas
-    if (!data.nombreProducto || !data.precio) {
-      mostrarAlerta.advertencia('Nombre y precio son requeridos');
-      return;
-    }
+  // Función onSubmit
+  const onSubmit = async (data) => {
+    try {
+      // Validaciones basicas
+      if (!data.nombreProducto || !data.precio) {
+        mostrarAlerta.advertencia('Nombre y precio son requeridos');
+        return;
+      }
 
-    // Validar que haya imagen
-    if (!data.imagen) {
-      mostrarAlerta.advertencia('La imagen del producto es requerida');
-      return;
-    }
+      // Validar categoría
+      if (!data.idCategoria) {
+        mostrarAlerta.advertencia('Debe seleccionar una categoría para el producto');
+        return;
+      }
 
-    // Validar formato de imagen
-    const formatosPermitidos = ['image/png', 'image/jpeg'];
-    if (!formatosPermitidos.includes(data.imagen.type)) {
-      mostrarAlerta.advertencia('Formato de imagen no válido. Solo se permiten PNG o JPEG');
-      return;
-    }
+      // Validar que haya imagen
+      if (!data.imagen) {
+        mostrarAlerta.advertencia('La imagen del producto es requerida');
+        return;
+      }
 
-    // Validar insumos si usaInsumo está activado
-    if (data.usaInsumo) {
-      if (insumosSeleccionados.length === 0) {
-        mostrarAlerta.advertencia('Debe agregar al menos un insumo cuando activa "usa sistema de insumos"');
+      // Validar formato de imagen
+      const formatosPermitidos = ['image/png', 'image/jpeg'];
+      if (!formatosPermitidos.includes(data.imagen.type)) {
+        mostrarAlerta.advertencia('Formato de imagen no válido. Solo se permiten PNG o JPEG');
+        return;
+      }
+
+      // Validar insumos si usaInsumo está activado
+      if (data.usaInsumo) {
+        if (insumosSeleccionados.length === 0) {
+          mostrarAlerta.advertencia('Debe agregar al menos un insumo cuando activa "usa sistema de insumos"');
+          return;
+        }
+        
+        // Validar que todos los insumos tengan id y cantidad válida
+        const insumosInvalidos = insumosSeleccionados.some(insumo => 
+          !insumo.idInsumo || !insumo.cantidad || parseFloat(insumo.cantidad) <= 0
+        );
+        
+        if (insumosInvalidos) {
+          mostrarAlerta.advertencia('Todos los insumos deben tener un producto seleccionado y una cantidad válida mayor a 0');
+          return;
+        }
+      }
+
+      //Crear FormData
+      const formData = new FormData();
+      
+      //imagen
+      formData.append('image', data.imagen);
+      
+      //Preparar el objeto de datos para el backend
+      const datosProducto = {
+        nombreProducto: data.nombreProducto,
+        descripcionProducto: data.descripcionProducto || '',
+        precio: parseFloat(data.precio),
+        idCategoria: parseInt(data.idCategoria), // Agregar categoría
+        usaInsumo: data.usaInsumo ? 1 : 0,
+        insumos: data.usaInsumo ? insumosSeleccionados
+          .filter(insumo => insumo.idInsumo && insumo.cantidad)
+          .map(insumo => ({
+            idInsumo: parseInt(insumo.idInsumo),
+            cantidadUso: parseFloat(insumo.cantidad)
+          })) : []
+      };
+
+      // Validacion final de insumos
+      if (data.usaInsumo && datosProducto.insumos.length === 0) {
+        mostrarAlerta.advertencia('Debe agregar al menos un insumo válido cuando activa "usa sistema de insumos"');
         return;
       }
       
-      // Validar que todos los insumos tengan id y cantidad válida
-      const insumosInvalidos = insumosSeleccionados.some(insumo => 
-        !insumo.idInsumo || !insumo.cantidad || parseFloat(insumo.cantidad) <= 0
-      );
+      // Agregar datos como JSON string al FormData
+      formData.append('datos', JSON.stringify(datosProducto));
       
-      if (insumosInvalidos) {
-        mostrarAlerta.advertencia('Todos los insumos deben tener un producto seleccionado y una cantidad válida mayor a 0');
-        return;
+      for (let [key, value] of formData.entries()) {
+        if (key === 'image') {
+          console.log(`${key}:`, value.name, value.type, value.size);
+        } else {
+          console.log(`${key}:`, value);
+        }
       }
+      
+      // Llamar al servicio
+      await crearProductoServicio(formData);
+      
+      // Mostrar éxito y limpiar
+      mostrarAlerta.exito('Producto creado exitosamente');
+      onGuardar();
+      reset();
+      setInsumosSeleccionados([]);
+      
+    } catch (error) {
+      console.error('Error al crear producto:', error);
+      const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || error.message || 'Error al crear el producto';
+      mostrarAlerta.error(`A ocurrido un error inesperado`);
     }
-
-    //Crear FormData
-    const formData = new FormData();
-    
-    //imagen
-    formData.append('image', data.imagen);
-    
-    //Preparar el objeto de datos para el backend
-    const datosProducto = {
-      nombreProducto: data.nombreProducto,
-      descripcionProducto: data.descripcionProducto || '',
-      precio: parseFloat(data.precio),
-      usaInsumo: data.usaInsumo ? 1 : 0,
-      insumos: data.usaInsumo ? insumosSeleccionados
-        .filter(insumo => insumo.idInsumo && insumo.cantidad)
-        .map(insumo => ({
-          idInsumo: parseInt(insumo.idInsumo),
-          cantidadUso: parseFloat(insumo.cantidad)
-        })) : []
-    };
-
-    // Validacion final de insumos
-    if (data.usaInsumo && datosProducto.insumos.length === 0) {
-      mostrarAlerta.advertencia('Debe agregar al menos un insumo válido cuando activa "usa sistema de insumos"');
-      return;
-    }
-    
-    // Agregar datos como JSON string al FormData
-    formData.append('datos', JSON.stringify(datosProducto));
-    
-    for (let [key, value] of formData.entries()) {
-      if (key === 'image') {
-        console.log(`${key}:`, value.name, value.type, value.size);
-      } else {
-        console.log(`${key}:`, value);
-      }
-    }
-    
-    // Llamar al servicio
-    await crearProductoServicio(formData);
-    
-    // Mostrar éxito y limpiar
-    mostrarAlerta.exito('Producto creado exitosamente');
-    onGuardar();
-    reset();
-    setInsumosSeleccionados([]);
-    
-  } catch (error) {
-    console.error('Error al crear producto:', error);
-    const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || error.message || 'Error al crear el producto';
-    mostrarAlerta.error(`A ocurrido un error inesperado`);
-  }
-};
+  };
 
   return (
     <div className="space-y-6">
@@ -236,6 +253,41 @@ const onSubmit = async (data) => {
           {errors.nombreProducto && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
               {errors.nombreProducto.message}
+            </p>
+          )}
+        </div>
+
+        {/* Categoría */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Categoría del Producto *
+          </label>
+          <div className="flex gap-2">
+            <select
+              {...register("idCategoria", { 
+                required: "La categoría es requerida"
+              })}
+              className={`flex-1 px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.idCategoria 
+                  ? 'border-red-500 dark:border-red-400' 
+                  : 'border-gray-300 dark:border-gray-600'
+              }`}
+            >
+              <option value="">Seleccionar categoría</option>
+              {cargandoCategorias ? (
+                <option value="" disabled>Cargando categorías...</option>
+              ) : (
+                categorias.map(categoria => (
+                  <option key={categoria.idCategoria} value={categoria.idCategoria}>
+                    {categoria.nombreCategoria}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
+          {errors.idCategoria && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {errors.idCategoria.message}
             </p>
           )}
         </div>
@@ -368,6 +420,7 @@ const onSubmit = async (data) => {
             )}
           </div>
         )}
+
         {/* Descripción */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

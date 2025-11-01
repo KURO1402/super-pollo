@@ -1,14 +1,7 @@
-import { FiTrash2, FiEdit, FiPackage, FiPlus } from "react-icons/fi";
+import { FiTrash2, FiEdit, FiPlus } from "react-icons/fi";
 import { LuChefHat } from "react-icons/lu";
 
 export const FilaProducto = ({ producto, onGestionarInsumos, onEditarProducto, onEliminarProducto }) => {
-  const getEstadoClases = (estadoProducto) => {
-    if (estadoProducto === 1) {
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-    }
-    return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-  };
-
   const getUsaInsumosClases = (usaInsumos) => {
     if (usaInsumos === 1) {
       return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
@@ -16,7 +9,7 @@ export const FilaProducto = ({ producto, onGestionarInsumos, onEditarProducto, o
     return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
   };
 
-  // Determinar el texto y ícono según si ya tiene insumos o no
+  // Determinar el texto y icono segun si ya tiene insumos o no
   const getConfiguracionInsumos = (usaInsumos) => {
     if (usaInsumos === 1) {
       return {
@@ -67,6 +60,13 @@ export const FilaProducto = ({ producto, onGestionarInsumos, onEditarProducto, o
           S/{parseFloat(producto.precio).toFixed(2)}
         </span>
       </td>
+
+      {/* CATEGORIA */}
+      <td className="px-4 py-3">
+        <span className="font-semibold text-orange-600 dark:text-orange-400">
+          {producto.nombreCategoria}
+        </span>
+      </td>
       
       {/* USA INSUMOS */}
       <td className="px-4 py-3">
@@ -75,14 +75,7 @@ export const FilaProducto = ({ producto, onGestionarInsumos, onEditarProducto, o
         </span>
       </td>
       
-      {/* ESTADO */}
-      <td className="px-4 py-3">
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getEstadoClases(producto.estadoProducto)}`}>
-          {producto.estadoProducto === 1 ? 'Activo' : 'Inactivo'}
-        </span>
-      </td>
-      
-      {/* GESTIÓN DE INSUMOS - SIEMPRE DISPONIBLE */}
+      {/* GESTIÓN DE INSUMOS */}
       <td className="px-4 py-3">
         <button
           onClick={() => onGestionarInsumos(producto)}

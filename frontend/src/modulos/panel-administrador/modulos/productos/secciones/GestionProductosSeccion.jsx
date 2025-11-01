@@ -50,13 +50,23 @@ const GestionProductosSeccion = () => {
     modalNuevoProducto.abrir();
   }
 
-  // función para abrir modal editar producto
+  // funcion para abrir modal editar producto
   function handleEditarProducto(producto) {
     setProductoSeleccionado(producto);
     modalEditarProducto.abrir();
   }
 
-  // función para abrir modal de categorias
+  // Funcion para manejar cambio de página
+  const handleCambiarPagina = (nuevaPagina) => {
+    setPaginaActual(nuevaPagina);
+  };
+
+  // Funciun para manejar cambio de items por página
+  const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
+    setItemsPorPagina(nuevoItemsPorPagina);
+  };
+
+  // funciun para abrir modal de categorias
   function handleAbrirCategorias() {
     modalGestionCategorias.abrir();
   }
@@ -93,7 +103,6 @@ const GestionProductosSeccion = () => {
       
       // Actualizar la lista localmente sin recargar toda la página
       refetch();
-      
       // Mostrar mensaje de éxito
       mostrarAlerta.exito('Producto eliminado exitosamente');
       
@@ -151,7 +160,7 @@ const GestionProductosSeccion = () => {
         <p className="text-gray-600 dark:text-gray-400">Administra los productos del menú y sus recetas</p>
       </div>
 
-      {/* Barra de búsqueda y filtros */}
+      {/* Barra de busqueda y filtros */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
           <BarraBusqueda
@@ -174,17 +183,17 @@ const GestionProductosSeccion = () => {
 
       {/* Tabla de productos */}
       <Tabla
-        encabezados={["PRODUCTO", "PRECIO", "USA INSUMOS", "ESTADO", "GESTIÓN INSUMOS", "ACCIONES"]}
+        encabezados={["PRODUCTO", "PRECIO", "CATEGORIA", "USA INSUMOS", "GESTIÓN INSUMOS", "ACCIONES"]}
         registros={filasProductos}
       />
 
       <Paginacion
         paginaActual={paginaActual}
         totalPaginas={totalPaginas}
-        alCambiarPagina={setPaginaActual}
+        alCambiarPagina={handleCambiarPagina}
         itemsPorPagina={itemsPorPagina}
-        setItemsPorPagina={setItemsPorPagina}
-        mostrarSiempre={false}
+        alCambiarItemsPorPagina={handleCambiarItemsPorPagina}
+        mostrarSiempre={true}
       />
 
       {/* Modal para gestionar insumos */}

@@ -39,7 +39,7 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
       
       // Cargar todos los insumos disponibles
       const respuestaInsumosDisponibles = await listarInsumoServicio();
-      setInsumosDisponibles(respuestaInsumosDisponibles.data || []);
+      setInsumosDisponibles(respuestaInsumosDisponibles || []);
       
     } catch (err) {
       console.error('Error cargando datos:', err);
