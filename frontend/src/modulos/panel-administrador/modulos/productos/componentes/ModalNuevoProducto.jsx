@@ -40,7 +40,7 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
   // Cargar insumos y categorías al inicializar
   useEffect(() => {
     const cargarDatos = async () => {
-      try {
+      try { 
         setCargandoInsumos(true);
         const [respuestaInsumos] = await Promise.all([
           listarInsumoServicio(),
@@ -222,7 +222,7 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
     } catch (error) {
       console.error('Error al crear producto:', error);
       const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || error.message || 'Error al crear el producto';
-      mostrarAlerta.error(`A ocurrido un error inesperado`);
+      mostrarAlerta.error(mensajeError);
     }
   };
 

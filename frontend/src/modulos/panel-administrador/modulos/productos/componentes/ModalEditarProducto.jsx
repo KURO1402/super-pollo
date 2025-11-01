@@ -36,10 +36,10 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
     inicializar();
   }, [cargarCategorias, categoriasCargadas]);
 
-  // Establecer la categoría cuando las categorías estén cargadas
+  // Establecer la categoria cuando las categorias estén cargadas
   useEffect(() => {
     if (categoriasCargadas && categorias.length > 0 && producto.nombreCategoria) {
-      // Buscar el ID de categoría basado en el nombreCategoria del producto
+      // Buscar el id de categoria basado en el nombreCategoria del producto
       const categoriaEncontrada = categorias.find(
         cat => cat.nombreCategoria === producto.nombreCategoria
       );
@@ -52,7 +52,7 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
 
   const onSubmit = async (data) => {
     try {
-      // Validar categoría
+      // Validar categoria
       if (!data.idCategoria) {
         mostrarAlerta.advertencia('Debe seleccionar una categoría para el producto');
         return;
