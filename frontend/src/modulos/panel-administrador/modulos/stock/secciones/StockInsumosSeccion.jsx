@@ -26,7 +26,6 @@ import mostrarAlerta, { alertasCRUD } from "../../../../../utilidades/toastUtili
 
 const StockInsumosSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); // utilizamos nuestro hook de busqueda, lo desestructuramos
-  const { filtro, setFiltro, aplicarFiltros } = useFiltro(); // lo mismo para el filtro
   const { 
     paginaActual, 
     setPaginaActual, 
@@ -168,7 +167,7 @@ const handleEliminarInsumo = async (idInsumo) => {
     <div className="p-2">
       <div className="mb-4">
         <div className="mb-4 flex items-center">
-          <BsBoxSeam className="mr-3 text-2xl text-gray-900 dark:text-white" />
+          <BsBoxSeam className="mr-3 text-2xl text-yellow-500" />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Stock de los Insumos</h1>
         </div>
         <p className="text-gray-600 dark:text-gray-400">Gestión de materia prima y bebidas</p>
@@ -181,22 +180,23 @@ const handleEliminarInsumo = async (idInsumo) => {
             onChange={setTerminoBusqueda}
             placeholder="Buscar por nombre de insumo, unidad o categoría..."
           />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {/* Botón para movimiento de stock */}
             <button 
               onClick={handleMovimientoStock}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer"
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 cursor-pointer text-sm sm:text-base flex-1 sm:flex-none min-w-0"
             >
-              <BsBoxSeam className="text-lg" />
-              Movimiento Stock
+              <BsBoxSeam className="text-lg flex-shrink-0" />
+              <span className="truncate">Movimiento Stock</span>
             </button>
             
             {/* Botón para nuevo insumo */}
             <button 
               onClick={handleNuevoInsumo}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-medium transition-colors flex items-center gap-1 cursor-pointer text-sm sm:text-base flex-1 sm:flex-none min-w-0"
             >
-              + Nuevo Insumo
+              <span className="text-lg">+</span>
+              <span className="truncate">Nuevo Insumo</span>
             </button>
           </div>
         </div>
@@ -249,7 +249,7 @@ const handleEliminarInsumo = async (idInsumo) => {
           modalEditarStock.cerrar();
           setInsumoSeleccionado(null); // Limpiar selección al cerrar
         }}
-        titulo={`Editar Stock: ${insumoSeleccionado?.nombreInsumo || ''}`}
+        titulo={`Editar Insumo: ${insumoSeleccionado?.nombreInsumo || ''}`}
         tamaño="md"
         mostrarHeader={true}
         mostrarFooter={false}

@@ -3,7 +3,7 @@ import API from "../../../../../app/servicio/axiosConfiguracion";
 
 export const crearMovimientoServicio = async (data) => {
   try {
-    const respuesta = await API.post('/inventario/movimientos/registrar', data);
+    const respuesta = await API.post('/inventario/movimiento', data);
     
     if (respuesta.data && respuesta.data.ok) {
       return respuesta.data;
@@ -12,7 +12,6 @@ export const crearMovimientoServicio = async (data) => {
     }
   } catch (error) {
     console.error('Error en crearMovimientoServicio:', error);
-    console.error('Response data:', error.response?.data);
     throw error;
   }
 };
@@ -40,20 +39,6 @@ export const obtenerMovimientoIdServicio = async (id) => {
     return respuesta.data;
   } catch (error) {
     console.error('Error al obtener el movimiento:', error.message);
-    throw error;
-  }
-};
-
-export const eliminarMovimientoServicio = async (id) => {
-  try {
-    const respuesta = await API.delete(`/inventario/movimientos/${id}`);
-    
-    if (!respuesta.data.ok) {
-      throw new Error(respuesta.data.mensaje || "Error al eliminar el movimiento");
-    }
-    return respuesta.data;
-  } catch (error) {
-    console.error('Error al eliminar el movimiento:', error.message);
     throw error;
   }
 };

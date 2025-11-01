@@ -1,143 +1,110 @@
-// librerías
+// librerias 
 import { MdHistory } from "react-icons/md";
-// hooks de react
+// hook de react
 import { useEffect, useState } from "react";
-// importamos nuestros componentes reutilizables
+// importar componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; 
-import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import Modal from "../../../componentes/modal/Modal";
-import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
-import { alertasCRUD } from "../../../../../utilidades/toastUtilidades";
-// tambien los custom hooks
+// importar custom hooks
 import { useBusqueda } from "../../../hooks/useBusqueda"; 
-import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
-import { useConfirmacion } from "../../../hooks/useConfirmacion";
-// importamos los componentes que solo vana a servir para construir esta sección
-import { FilaSalida } from "../componentes/FilaSalida";
-import { ModalSalidaStock } from "../componentes/ModalSalidaStock";
+// importar componentes de su propio módulo
+import { FilaSalida } from "../componentes/FilaSalida"; 
 // servicios del backend 
-import { eliminarMovimientoServicio, listarMovimientosServicio } from "../servicios/movientosStockServicio";
-import { listarInsumoServicio } from "../servicios/insumosServicios";
-import { eliminarInsumoServicio } from "../servicios/insumosServicios";
+import { listarMovimientosServicio } from "../servicios/movientosStockServicio";
+import { BsPlusLg } from "react-icons/bs";
+import { ModalMovimientoStock } from "../componentes/ModalMovimientoStock";
 
 const HistorialSalidasSeccion = () => {
-  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
-  const { filtro, setFiltro, aplicarFiltros } = useFiltro();
-  const { paginaActual, setPaginaActual, paginar } = usePaginacion(8);
-  const [salidaSeleccionada, setSalidaSeleccionada] = useState(null);
+  const { 
+    paginaActual, 
+    setPaginaActual, 
+    itemsPorPagina, 
+    setItemsPorPagina, 
+    paginar 
+  } = usePaginacion(5);
+
+  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); 
   const [movimientos, setMovimientos] = useState([]);
-  const [insumos, setInsumos] = useState([]);
-  const [movimientoAEliminar, setMovimientoAEliminar] = useState(null);
-  const confirmacionEliminar = useConfirmacion();
-  
-  // modal para salida de stock
-  const modalSalidaStock = useModal(false);
+  const [cargando, setCargando] = useState(false);
+
+  const modalMovimientoStock = useModal(false);
 
   // Obtener movimientos del backend
   const obtenerMovimientos = async () => {
     try {
+      setCargando(true);
       const data = await listarMovimientosServicio();
-      setMovimientos(data);
+      const movimientosConId = data.map((mov, index) => ({
+        ...mov,
+        idMovimientoStock: `mov-${index}-${Date.now()}`, // ID temporal único
+        idMovimiento: `mov-${index}-${Date.now()}` // ID temporal único
+      }));
+
+      setMovimientos(movimientosConId);
     } catch (error) {
       console.error("Error al obtener movimientos:", error);
-    }
-  };
-
-  // Obtener insumos del backend
-  const obtenerInsumos = async () => {
-    try {
-      const respuesta = await listarInsumoServicio();
-      setInsumos(respuesta.data);
-    } catch (error) {
-      console.error("Error al obtener insumos:", error);
+    } finally {
+      setCargando(false);
     }
   };
 
   useEffect(() => {
     obtenerMovimientos();
-    obtenerInsumos();
   }, []);
 
-  // Filtrar solo salidas
+  // Filtrar solo entradas
   const salidas = movimientos.filter(mov => mov.nombreMovimiento === 'salida');
 
-  // función para abrir modal de salida
-  const handleSalidaStock = (salida) => {
-    setSalidaSeleccionada(salida);
-    modalSalidaStock.abrir();
+  // Función para abrir modal de movimiento de stock
+  const handleMovimientoStock = () => {
+    modalMovimientoStock.abrir();
+  };
+
+  // CORREGIDO: Esta función se ejecuta cuando se crea un nuevo movimiento
+  const handleMovimientoCreado = async () => {
+    try {
+      // Dar tiempo al backend para procesar
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Recargamos la lista completa desde el backend
+      await obtenerMovimientos();
+      
+      // Cerrar modal
+      modalMovimientoStock.cerrar();
+    } catch (error) {
+      console.error("Error al actualizar la lista:", error);
+    }
   };
 
   // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(salidas, [
     "nombreInsumo",
-    "idMovimientoStock",
-    "cantidadMovimiento"
+    "cantidadMovimiento",
+    "detalleMovimiento",
+    "nombreUsuario"
   ]);
-
-  // Aplicar filtro por insumo (si no es "todos")
-  if (filtro !== "todos") {
-    filtrados = filtrados.filter(salida => 
-      salida.nombreInsumo === filtro
-    );
-  }
 
   const { datosPaginados, totalPaginas } = paginar(filtrados);
 
-  const solicitarConfirmacionEliminar = (movimiento) => {
-    setMovimientoAEliminar(movimiento);
-    
-    confirmacionEliminar.solicitarConfirmacion(
-      `¿Estás seguro de eliminar la salida de "${movimiento.nombreInsumo}"? Esta acción no se puede deshacer.`,
-      () => {
-        handleEliminarMovimiento(movimiento.idMovimientoStock);
-      },
-      {
-        titulo: "Eliminar Salida",
-        tipo: "peligro", 
-        textoConfirmar: "Sí, eliminar",
-        textoCancelar: "Cancelar"
-      }
-    );
+  // Función para manejar cambio de página
+  const handleCambiarPagina = (nuevaPagina) => {
+    setPaginaActual(nuevaPagina);
   };
 
-  const handleEliminarMovimiento = async (idMovimiento) => {
-    try {
-      await eliminarMovimientoServicio(idMovimiento);
-      setMovimientos(prev => prev.filter(mov => mov.idMovimientoStock !== idMovimiento));
-      alertasCRUD.eliminado();
-    } catch (error) {
-      console.error('Error al eliminar movimiento:', error);
-      alertasCRUD.error("Error al eliminar la salida");
-    } finally {
-      setMovimientoAEliminar(null);
-    }
+  // Función para manejar cambio de items por página
+  const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
+    setItemsPorPagina(nuevoItemsPorPagina);
   };
 
-  const cancelarEliminacion = () => {
-    setMovimientoAEliminar(null);
-    confirmacionEliminar.ocultarConfirmacion();
-  };
-
-  // Generar opciones de insumos para el filtro
-  const opcionesInsumos = [
-    { value: "todos", label: "Todos los insumos" },
-    ...insumos.map(insumo => ({
-      value: insumo.nombreInsumo,
-      label: insumo.nombreInsumo
-    }))
-  ];
-
-  // Mapear las salidas para las filas de la tabla
+  // Mapear las entradas para las filas de la tabla
   const filasSalidas = datosPaginados.map((salida) => (
-    <FilaSalida 
+    <FilaSalida
       key={salida.idMovimientoStock} 
-      salida={salida} 
-      onSalidaStock={handleSalidaStock}
-      onEliminarMovimiento={solicitarConfirmacionEliminar}
+      salida={salida}
     />
   ));
 
@@ -151,64 +118,66 @@ const HistorialSalidasSeccion = () => {
         <p className="text-gray-600 dark:text-gray-400">Registro de consumos y ventas de insumos</p>
       </div>
       
-      {/* Barra de búsqueda y filtros */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
+        <div className="md:col-span-2">
           <BarraBusqueda
             valor={terminoBusqueda} 
             onChange={setTerminoBusqueda}
             placeholder="Buscar por insumo, ID movimiento o cantidad..."
           />
-          
-          {/* Filtro por insumo */}
-          <FiltroBusqueda
-            valor={filtro}
-            onChange={setFiltro} 
-            opciones={opcionesInsumos}
-          />
         </div>
+        <button 
+          onClick={handleMovimientoStock}
+          className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer text-sm border-2 border-red-500 hover:border-red-600"
+        >
+          <BsPlusLg className="text-lg flex-shrink-0" />
+          <span className="truncate">Nueva Salida</span>
+        </button>
       </div>
+
+      {cargando ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">Cargando salidas...</p>
+        </div>
+      ) : (
+        <>
+          <Tabla
+            encabezados={["Insumo", "Cantidad", "Fecha", "Hora", "Usuario", "Detalle"]}
+            registros={filasSalidas}
+          /> 
+          
+          {datosPaginados.length === 0 && (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              {salidas.length === 0 ? "No hay salidas registradas" : "No se encontraron entradas que coincidan con la búsqueda"}
+            </div>
+          )}
+          
+          <Paginacion
+            paginaActual={paginaActual}
+            totalPaginas={totalPaginas}
+            alCambiarPagina={handleCambiarPagina}
+            itemsPorPagina={itemsPorPagina}
+            alCambiarItemsPorPagina={handleCambiarItemsPorPagina}
+            mostrarSiempre={true}
+          />
+        </>
+      )}
       
-      {/* Tabla de salidas */}
-      <Tabla
-        encabezados={["Insumo", "Cantidad", "Fecha", "Hora", "Usuario", "Acciones"]}
-        registros={filasSalidas}
-      /> 
-      
-      <Paginacion
-        paginaActual={paginaActual}
-        totalPaginas={totalPaginas}
-        alCambiarPagina={setPaginaActual}
-      />
-      
+      {/* Modal para movimiento de stock */}
       <Modal
-        estaAbierto={modalSalidaStock.estaAbierto}
-        onCerrar={modalSalidaStock.cerrar}
-        titulo={`Salida de Stock: ${salidaSeleccionada?.nombreInsumo || ''}`}
+        estaAbierto={modalMovimientoStock.estaAbierto}
+        onCerrar={modalMovimientoStock.cerrar}
+        titulo="Registrar Movimiento de Stock"
         tamaño="md"
         mostrarHeader={true}
         mostrarFooter={false}
       >
-        {salidaSeleccionada && (
-          <ModalSalidaStock 
-            salida={salidaSeleccionada}
-            onClose={modalSalidaStock.cerrar}
-            onGuardar={modalSalidaStock.cerrar}
-          />
-        )}
-      </Modal>
-      <div className="p-2">
-        <ModalConfirmacion
-          visible={confirmacionEliminar.confirmacionVisible}
-          onCerrar={cancelarEliminacion}
-          onConfirmar={confirmacionEliminar.confirmarAccion}
-          titulo={confirmacionEliminar.tituloConfirmacion}
-          mensaje={confirmacionEliminar.mensajeConfirmacion}
-          tipo={confirmacionEliminar.tipoConfirmacion}
-          textoConfirmar={confirmacionEliminar.textoConfirmar}
-          textoCancelar={confirmacionEliminar.textoCancelar}
+        <ModalMovimientoStock 
+          onClose={modalMovimientoStock.cerrar}
+          onGuardar={handleMovimientoCreado}
         />
-      </div>
+      </Modal>
     </div>
   );
 };

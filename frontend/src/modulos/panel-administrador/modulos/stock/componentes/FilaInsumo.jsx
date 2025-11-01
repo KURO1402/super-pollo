@@ -46,7 +46,7 @@ export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
       {/* Nombre del Insumo */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
-          <div className='p-2 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'>
+          <div className='p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'>
               <FiPackage size={16} />
           </div>
           <div>
@@ -59,7 +59,7 @@ export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
 
       {/* Categoría */}
       <td className="px-6 py-4 whitespace-nowrap">
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium  bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400">
           Insumo
         </span>
       </td>

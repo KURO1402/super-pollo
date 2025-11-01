@@ -16,6 +16,7 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
       idInsumo: '',
       tipoMovimiento: 'entrada',
       cantidadMovimiento: '',
+      detalle: '',
       fecha: '',
       hora: '',
     }
@@ -28,10 +29,11 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
   const obtenerInsumos = async () => {
     try {
       const respuesta = await listarInsumoServicio();
-      setInsumos(respuesta.data);
+      setInsumos(respuesta?.data || respuesta || []);
     } catch (error) {
       console.error('Error al obtener insumos:', error);
       alertasCRUD.error('Error al cargar los insumos');
+      setInsumos([]); // Asegurar que siempre sea un array
     } finally {
       setCargando(false);
     }
@@ -55,7 +57,8 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
       const movimientoData = {
         idInsumo: parseInt(data.idInsumo),
         tipoMovimiento: data.tipoMovimiento,
-        cantidadMovimiento: parseFloat(data.cantidadMovimiento)
+        cantidadMovimiento: parseFloat(data.cantidadMovimiento),
+        detallesMovimiento: data.detalle || '', // Incluir el detalle
       };
       
       await crearMovimientoServicio(movimientoData);
@@ -79,8 +82,8 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
   const tipoMovimiento = watch('tipoMovimiento');
   const insumoSeleccionado = watch('idInsumo');
 
-  // Obtener el insumo seleccionado para mostrar detalles
-  const insumoActual = insumos.find(insumo => insumo.idInsumo === parseInt(insumoSeleccionado));
+  // Obtener el insumo seleccionado para mostrar detalles (con validación)
+  const insumoActual = insumos?.find(insumo => insumo.idInsumo === parseInt(insumoSeleccionado));
 
   return (
     <div className="space-y-6">
@@ -103,7 +106,7 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
             } ${cargando ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <option value="">{cargando ? 'Cargando insumos...' : 'Seleccionar insumo...'}</option>
-            {insumos.map(insumo => (
+            {insumos?.map(insumo => (
               <option key={insumo.idInsumo} value={insumo.idInsumo}>
                 {insumo.nombreInsumo} ({insumo.unidadMedida})
               </option>
@@ -182,6 +185,22 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
           </div>
         </div>
 
+        {/* Campo Detalle */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Detalle (Opcional)
+          </label>
+          <textarea
+            {...register("detalle")}
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            placeholder="Ingrese detalles adicionales sobre el movimiento (ej: motivo, proveedor, destino, etc.)"
+          />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Descripción opcional del movimiento
+          </p>
+        </div>
+
         {/* Resumen del Movimiento */}
         {insumoActual && (
           <div className={`p-4 rounded-lg border ${
@@ -209,6 +228,11 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
                   } {insumoActual.unidadMedida}
                 </strong>
               </p>
+              {watch('detalle') && (
+                <p className="text-gray-600 dark:text-gray-400 mt-2">
+                  <strong>Detalle:</strong> {watch('detalle')}
+                </p>
+              )}
             </div>
           </div>
         )}
