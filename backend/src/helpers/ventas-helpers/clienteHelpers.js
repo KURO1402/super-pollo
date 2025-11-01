@@ -1,5 +1,3 @@
-const { CLIENTE_DEFAULT } = require('../../config/constantes');
-
 // Normalizar cliente según reglas de negocio
 function normalizarCliente(datosCliente) {
 

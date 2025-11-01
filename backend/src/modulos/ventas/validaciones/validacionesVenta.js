@@ -1,6 +1,7 @@
 const { validarDocumento, validarCorreo } = require("../../../utilidades/validaciones");
 const { contarTipoDocumentoPorIdModel } = require("../../usuarios/usuarioModelo");
-const { obtenerProductoPorIdModel } = require("../../inventario/modelo/productoModelo")
+const { obtenerProductoPorIdModel, obtenerInsumosPorProductoModel } = require("../../inventario/modelo/productoModelo");
+const { contarMedioPagoModel } = require("../modelo/ventasModelo");
 
 const validarDatosVentaBoleta = async (datosVenta) => {
   if (!datosVenta || typeof datosVenta !== "object") {
@@ -9,7 +10,7 @@ const validarDatosVentaBoleta = async (datosVenta) => {
       { status: 400 }
     );
   }
-  const { tipoComprobante, datosCliente, productos, metodoPago } = datosVenta;
+  const { tipoComprobante, datosCliente, productos, idMetodoPago } = datosVenta;
 
   if (!tipoComprobante || typeof tipoComprobante !== "number") {
     throw Object.assign(
@@ -31,9 +32,16 @@ const validarDatosVentaBoleta = async (datosVenta) => {
     );
   }
 
-  if(!metodoPago || typeof metodoPago !== "string" || !metodoPago.trim()){
+  if(!idMetodoPago || typeof idMetodoPago !== "number"){
     throw Object.assign(
       new Error("Se necesita el metodo de pago."),
+      { status: 400 }
+    );
+  }
+  const metodosPago = await contarMedioPagoModel(idMetodoPago);
+  if(metodosPago === 0){
+    throw Object.assign(
+      new Error("El metodo de pago no es valido."),
       { status: 400 }
     );
   }
@@ -56,7 +64,7 @@ const validarDatosVentaBoleta = async (datosVenta) => {
   }
 
 
-  if (!numeroDoc || typeof numeroDoc !== "string") {
+  if (!numeroDoc || typeof numeroDoc !== "string" ||!numeroDoc.trim()) {
     throw Object.assign(
       new Error("Se necesita numero de documento del cliente."),
       { status: 400 }
@@ -65,7 +73,7 @@ const validarDatosVentaBoleta = async (datosVenta) => {
 
   validarDocumento(tipoDoc, numeroDoc);
 
-  if (!nombreCliente || typeof nombreCliente !== "string") {
+  if (!nombreCliente || typeof nombreCliente !== "string" || !nombreCliente.trim()) {
     throw Object.assign(
       new Error("Se necesita el nombre del cliente."),
       { status: 400 }
@@ -118,7 +126,6 @@ const validarDatosVentaBoleta = async (datosVenta) => {
    
     try {
       const productoExistente = await obtenerProductoPorIdModel(producto.idProducto);
-      console.log(productoExistente);
       if (!productoExistente) {
         erroresProductos.push(`El insumo con ID ${producto.idProducto} no existe`);
       }
@@ -132,4 +139,30 @@ const validarDatosVentaBoleta = async (datosVenta) => {
   }
 };
 
-module.exports = { validarDatosVentaBoleta };
+const validarStockInsumos = async (productos) => {
+  for (const producto of productos) {
+    const productoDB = await obtenerProductoPorIdModel(producto.idProducto);
+
+    if (productoDB.usaInsumos === 1) {
+      const insumos = await obtenerInsumosPorProductoModel(producto.idProducto);
+
+      for (const insumo of insumos) {
+        const requerido = producto.cantidad * insumo.cantidadUso;
+
+        if (insumo.stockInsumo < requerido) {
+          throw Object.assign(
+            new Error(
+              `Stock insuficiente para el insumo: ${insumo.nombreInsumo}, Stock actual: ${insumo.stockInsumo}, requerido: ${requerido}.`
+            ),
+            { status: 409 }
+          );
+        }
+      }
+    }
+  }
+};
+
+module.exports = { 
+  validarDatosVentaBoleta,
+  validarStockInsumos 
+};

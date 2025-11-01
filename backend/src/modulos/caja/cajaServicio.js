@@ -4,11 +4,19 @@ const { crearCajaModel, cerrarCajaModel, consultarCajaAbiertaModel, registrarIng
 const { validarDatosAbrirCaja, validarDatosCerrarCaja, validarDatosIngresoCaja, validarDatosEgresoCaja, validarDatosArqueoCaja } = require("./cajaValidaciones");
 
 //Servicio para crear una nueva caja
-const crearCajaService = async (montoInicial, token) => {
+const crearCajaService = async (datos, token) => {
+    validarDatosAbrirCaja(datos);
+
+    cajas = await consultarCajaAbiertaModel();
+
+    if (cajas.length > 0) {
+        throw Object.assign(new Error("Ya hay una caja abierta. No se puede abrir otra."), { status: 400 });
+    }
 
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-    await validarDatosAbrirCaja(montoInicial, decodedToken.idUsuario);
+    const { montoInicial } = datos
+
     const resultado = await crearCajaModel(montoInicial, decodedToken.idUsuario);
     //Validar que se haya creado la caja
     if (resultado.affectedRows === 0) {
@@ -46,14 +54,9 @@ const registrarIngresoCajaService = async (datos, token) => {
     await validarDatosIngresoCaja(datos, decodedToken.idUsuario);
     const resultado = await registrarIngresoCajaModel(datos, decodedToken.idUsuario);
 
-    //Validar que se haya creado la caja
-    if (resultado.affectedRows === 0) {
-        throw new Error("No se pudo crear la caja");
-    }
-
     return {
         ok: true,
-        mensaje: "Ingreso registrado exitosamente"
+        mensaje: resultado
     };
 }
 
@@ -64,14 +67,9 @@ const registrarEgresoCajaService = async (datos, token) => {
     await validarDatosEgresoCaja(datos, decodedToken.idUsuario);
     const resultado = await registrarEgresoCajaModel(datos, decodedToken.idUsuario);
 
-    //Validar que se haya creado la caja
-    if (resultado.affectedRows === 0) {
-        throw new Error("No se pudo crear la caja");
-    }
-
     return {
         ok: true,
-        mensaje: "Egreso registrado exitosamente"
+        mensaje: resultado
     };
 }
 

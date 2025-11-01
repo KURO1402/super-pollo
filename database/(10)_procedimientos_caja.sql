@@ -177,6 +177,8 @@ BEGIN
     WHERE idCaja = v_idCaja;
 
     COMMIT;
+
+    SELECT 'Ingreso registrado exitosamente' AS mensaje;
 END //
 
 -- Procedimiento para registrar un egreso en caja
@@ -243,6 +245,7 @@ BEGIN
     WHERE idCaja = v_idCaja;
 
     COMMIT;
+    SELECT 'Egreso registrado exitosamente' AS mensaje;
 END //
 
 -- Procedimiento para registrar un arqueo de caja

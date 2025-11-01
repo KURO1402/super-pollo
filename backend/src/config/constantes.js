@@ -2,7 +2,6 @@
 const CODIGOS_SUNAT = {
   TIPOS_DOCUMENTO: {
     DNI: "1",
-    PASAPORTE: "7",
     CARNET_EXTRANJERIA: "4",
     RUC: "6"
   },
@@ -24,19 +23,10 @@ const CODIGOS_SUNAT = {
   UNIDAD_MEDIDA: "NIU"
 };
 
-// Configuración de clientes
-const CLIENTE_DEFAULT = {
-  tipoDoc: "-",
-  numeroDoc: "00000000",
-  nombreCliente: "Consumidor final",
-  direccion: "-",
-  email: "-"
-};
 
 const MONTO_MINIMO_DOCUMENTO = 700;
 
 module.exports = {
   CODIGOS_SUNAT,
-  CLIENTE_DEFAULT,
   MONTO_MINIMO_DOCUMENTO
 };

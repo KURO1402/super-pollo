@@ -1,37 +1,19 @@
 const { consultarCajaAbiertaModel, obtenerArqueosPorCajaModel } = require("./cajaModelo")
 const { consultarUsuarioPorIdModel } = require("../usuarios/usuarioModelo")
 
-const validarDatosAbrirCaja = async (montoInicial, usuarioId) => {
-
-    //Validar que montoInicial y usuarioId estén presentes y sean del tipo correcto
-    if (!montoInicial || !usuarioId) {
-         throw Object.assign(new Error("Se necesita un monto inicial y un ID de usuario válidos"), { status: 400 });
+const validarDatosAbrirCaja = (datos) => {
+    if(!datos || typeof datos !== 'object') {
+        throw Object.assign(new Error("Se necesitan datos como el monto inicial para aperturar una caja."), { status: 400 });
     }
+    const { montoInicial } = datos;
 
     // validar que montoInicial y usuarioId estén presentes y sean del tipo correcto
-    if (!montoInicial || !usuarioId) {
-         throw Object.assign(new Error("Se necesita un monto inicial y un ID de usuario válidos"), { status: 400 });
+    if (!montoInicial || typeof montoInicial !== "number") {
+         throw Object.assign(new Error("Se necesita un monto inicial"), { status: 400 });
     }
     //Validar que montoInicial sea un numero y mayor o igual a 0
-    if (typeof montoInicial !== 'number' || montoInicial < 0) {
+    if (montoInicial < 0) {
         throw Object.assign(new Error("El monto inicial debe ser un número mayor o igual a 0"), { status: 400 });
-    }
-
-    //Validar que usuarioId sea un numero y mayor a 0
-    if (typeof usuarioId !== 'number' || usuarioId <= 0) {
-        throw Object.assign(new Error("El id de usuario tiene que ser valido y numerico"), { status: 400 });
-    }
-    
-    //Validar que no haya una caja ya abierta
-    cajas = await consultarCajaAbiertaModel();
-    if (cajas.length > 0) {
-        throw Object.assign(new Error("Ya hay una caja abierta. No se puede abrir otra."), { status: 400 });
-    }
-
-    // Validar que el usuarioId exista en la base de datos
-    const usuario = await consultarUsuarioPorIdModel(usuarioId);
-    if (usuario.length === 0) {
-        throw Object.assign(new Error("Usuario inexistente"), { status: 400 });
     }
 }
 

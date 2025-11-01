@@ -407,6 +407,11 @@ const obtenerInsumosPorProductoService = async (idProducto) => {
     if (!insumos || insumos.length === 0) {
         throw Object.assign(new Error("No existen insumos asociados a este producto."), { status: 404 });
     }
+    
+    insumos.forEach(insumo => {
+        delete insumo.stockInsumos;
+    });
+    
 
     return {
         ok: true, 

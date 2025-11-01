@@ -3,7 +3,7 @@ const { crearCajaService, cerrarCajaService, registrarIngresoCajaService, regist
 const crearCajaController = async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1]; // Extraer el token del encabezado Authorization
   try {
-    const resultado = await crearCajaService(req.body.montoInicial, token);
+    const resultado = await crearCajaService(req.body, token);
     res.status(200).json(resultado);
   } catch (err) {
     // Manejo centralizado de errores

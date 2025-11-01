@@ -8,7 +8,7 @@ const {
 const router = express.Router();
 
 // Registrar una nueva venta
-router.post("/generar-venta", registrarBoletaVentaController);
+router.post("/generar-boleta", registrarBoletaVentaController);
 
 // Obtener todas las ventas (con paginación)
 router.get("/", obtenerVentaController);

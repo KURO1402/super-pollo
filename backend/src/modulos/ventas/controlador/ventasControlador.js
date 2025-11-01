@@ -3,18 +3,17 @@ const {
   registrarBoletaVentaService,
 } = require("../servicio/ventasServicio");
 
-// Importamos las validaciones
-const {validarVenta} = require("../../../utilidades/validaciones")
 //Registrar ventas
 const registrarBoletaVentaController = async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
     try {
         const datosVenta = req.body;
         
-        const resultado = await registrarBoletaVentaService(datosVenta);
+        const resultado = await registrarBoletaVentaService(datosVenta, token);
         
         return res.status(201).json({
             ok: true,
-            resultado
+            resultado: resultado
         });
         
     } catch (err) {

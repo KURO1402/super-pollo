@@ -53,8 +53,8 @@ const registrarIngresoCajaModel = async (datos, usuarioId) => {
     try {
         const { monto, descripcion } = datos;
         conexion = await pool.getConnection();
-        const [result] = await conexion.query("CALL registrarIngresoCaja(?, ?, ?)", [monto, descripcion, usuarioId]);
-        return result;
+        const [rows] = await conexion.query("CALL registrarIngresoCaja(?, ?, ?)", [monto, descripcion, usuarioId]);
+        return rows[0][0]?.mensaje;
     } catch (err) {
         console.error("Error en registrarIngresoCajaModel: ", err.message);
         throw new Error("Error al registrar el ingreso en caja en la base de datos");
@@ -69,8 +69,8 @@ const registrarEgresoCajaModel = async (datos, usuarioId) => {
     try {
         const { monto, descripcion } = datos;
         conexion = await pool.getConnection();
-        const [result] = await conexion.query("CALL registrarEgresoCaja(?, ?, ?)", [monto, descripcion, usuarioId]);
-        return result;
+        const [rows] = await conexion.query("CALL registrarEgresoCaja(?, ?, ?)", [monto, descripcion, usuarioId]);
+        return rows[0][0]?.mensaje;
     } catch (err) {
         console.error("Error en registrarEgresoCajaModel: ", err.message);
         throw new Error("Error al registrar el egreso en caja en la base de datos");
