@@ -2,18 +2,17 @@ import { useState, useEffect } from "react";
 import { FiMail, FiPhone, FiUser, FiFileText, FiBriefcase} from "react-icons/fi";
 import { FaRegUser } from "react-icons/fa";
 import { GoPencil } from "react-icons/go";
-import Modal from "../componentes/modal/Modal";
-import { useModal } from "../hooks/useModal";
+import Modal from "../../../componentes/modal/Modal";
+import { useModal } from "../../../hooks/useModal"
 import FormularioEditUsuario from "../componentes/FormularioEditUsuario";
-import CampoInfo from "../componentes/CampoInfo";
-import { BotonSimple } from "../componentes/botones/BotonSimple";
+import CampoInfo from "../../../componentes/CampoInfo";
+import { BotonSimple } from "../../../componentes/botones/BotonSimple";
 import InputContraseñaEditable from "../componentes/InputContraseñaEditable";
 
 
 const Perfil = () => {
   const [usuario, setUsuario] = useState(null); //estado para guardar la info del usuario
   const { estaAbierto, abrir, cerrar } = useModal(); // de nuestro hook modal
-  // obtener datos del usuario, solo de ejemplo
   useEffect(() => {
     const fetchUsuario = async () => {
       const respuesta = {
