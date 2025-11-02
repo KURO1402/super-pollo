@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiMail, FiPhone, FiUser, FiFileText, FiBriefcase} from "react-icons/fi";
+import { FiMail, FiPhone, FiUser, FiFileText, FiBriefcase, FiShield} from "react-icons/fi";
 import { FaRegUser } from "react-icons/fa";
 import { GoPencil } from "react-icons/go";
 import Modal from "../../../componentes/modal/Modal";
@@ -10,12 +10,31 @@ import { BotonSimple } from "../../../componentes/botones/BotonSimple";
 import { useAutenticacionGlobal } from "../../../../../app/estado-global/autenticacionGlobal";
 import { obtenerUsuarioPorIdServicio } from "../servicios/usuariosServicios";
 import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
+import ModalActualizarCorreo from "../componentes/ModalActualizarCorreo";
+import ModalActualizarClave from "../componentes/ModalActualizarClave";
 
 const Perfil = () => {
   const { usuario: usuarioGlobal } = useAutenticacionGlobal();
   const [usuarioPerfil, setUsuarioPerfil] = useState(null);
   const [cargando, setCargando] = useState(true);
-  const { estaAbierto, abrir, cerrar } = useModal();
+
+  const { 
+    estaAbierto: modalEditarAbierto, 
+    abrir: abrirEditar, 
+    cerrar: cerrarEditar 
+  } = useModal();
+  
+  const { 
+    estaAbierto: modalCorreoAbierto, 
+    abrir: abrirCorreo, 
+    cerrar: cerrarCorreo 
+  } = useModal();
+  
+  const { 
+    estaAbierto: modalClaveAbierto, 
+    abrir: abrirClave, 
+    cerrar: cerrarClave 
+  } = useModal();
 
   // Cargar datos del usuario cuando el componente se monta
   useEffect(() => {
@@ -27,7 +46,6 @@ const Perfil = () => {
           const respuesta = await obtenerUsuarioPorIdServicio(usuarioGlobal.idUsuario);
           
           if (respuesta.ok && respuesta.usuario) {
-            console.log(respuesta.usuario)
             setUsuarioPerfil(respuesta.usuario);
           } else {
             throw new Error("No se pudieron cargar los datos del perfil");
@@ -69,6 +87,14 @@ const Perfil = () => {
 
     cargarPerfilUsuario();
   }, [usuarioGlobal]);
+
+  // Manejador para cuando se actualiza el correo
+  const handleCorreoActualizado = (nuevoCorreo) => {
+    setUsuarioPerfil(prev => ({
+      ...prev,
+      correoUsuario: nuevoCorreo
+    }));
+  };
 
   // Manejador para cuando se actualiza el usuario
   const handleUsuarioActualizado = (usuarioActualizado) => {
@@ -194,8 +220,8 @@ const Perfil = () => {
             Información personal
           </h2>
           <BotonSimple
-            funcion={abrir}
-            etiqueta="Editar"
+            funcion={abrirEditar}
+            etiqueta="Editar Perfil"
             icono={GoPencil}
           />
         </div>
@@ -216,11 +242,22 @@ const Perfil = () => {
                   valor={usuarioPerfil.apellidosUsuario}
                 />
               </div>
-              <CampoInfo 
-                icono={FiMail}
-                etiqueta="Correo electrónico"
-                valor={usuarioPerfil.correoUsuario}
-              />
+              {/* Correo con botón de edición */}
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-3">
+                  <FiMail className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Correo electrónico</p>
+                    <p className="text-gray-900 dark:text-white">{usuarioPerfil.correoUsuario}</p>
+                  </div>
+                </div>
+                <BotonSimple
+                  funcion={abrirCorreo}
+                  etiqueta="Cambiar"
+                  variante="secundario"
+                  tamaño="sm"
+                />
+              </div>
               <CampoInfo 
                 icono={FiPhone}
                 etiqueta="Teléfono"
@@ -247,26 +284,30 @@ const Perfil = () => {
                 valor={obtenerRol(usuarioPerfil.idRol)}
               />
 
-              {/* Nota sobre contraseña */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Contraseña
-                </label>
-                <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Para cambiar tu contraseña, utiliza la opción específica en la sección de seguridad.
-                  </p>
+              {/* Contraseña con botón de edición */}
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-3">
+                  <FiShield className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">••••••••</p>
+                  </div>
                 </div>
+                <BotonSimple
+                  funcion={abrirClave}
+                  etiqueta="Cambiar"
+                  variante="secundario"
+                  tamaño="sm"
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal de Edición - Usando el mismo ModalEditarUsuario */}
       <Modal
-        estaAbierto={estaAbierto}
-        onCerrar={cerrar}
+        estaAbierto={modalEditarAbierto}
+        onCerrar={cerrarEditar}
         titulo="Editar Perfil"
         tamaño="lg"
         mostrarHeader
@@ -275,8 +316,41 @@ const Perfil = () => {
         {usuarioPerfil && (
           <ModalEditarUsuario 
             idUsuario={usuarioPerfil.idUsuario}
-            onClose={cerrar}
+            onClose={cerrarEditar}
             onUsuarioActualizado={handleUsuarioActualizado}
+          />
+        )}
+      </Modal>
+      <Modal
+        estaAbierto={modalCorreoAbierto}
+        onCerrar={cerrarCorreo}
+        titulo="Actualizar Correo Electrónico"
+        tamaño="md"
+        mostrarHeader
+        mostrarFooter={false}
+      >
+        {usuarioPerfil && (
+          <ModalActualizarCorreo
+            idUsuario={usuarioPerfil.idUsuario}
+            correoActual={usuarioPerfil.correoUsuario}
+            onClose={cerrarCorreo}
+            onCorreoActualizado={handleCorreoActualizado}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        estaAbierto={modalClaveAbierto}
+        onCerrar={cerrarClave}
+        titulo="Cambiar Contraseña"
+        tamaño="md"
+        mostrarHeader
+        mostrarFooter={false}
+      >
+        {usuarioPerfil && (
+          <ModalActualizarClave
+            idUsuario={usuarioPerfil.idUsuario}
+            onClose={cerrarClave}
           />
         )}
       </Modal>

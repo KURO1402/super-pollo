@@ -67,3 +67,37 @@ export const obtenerUsuarioPorIdServicio = async (idUsuario) => {
     throw error;
   }
 };
+
+// Servicio para actualizar correo electrónico
+export const actualizarCorreoUsuarioServicio = async (idUsuario, datos) => {
+  try {
+    const respuesta = await API.patch(`/usuarios/actualizar-correo/${idUsuario}`, datos);
+    
+    if (respuesta.data && respuesta.data.ok) {
+      return respuesta.data;
+    } else {
+      throw new Error(respuesta.data?.mensaje || "Error al actualizar correo");
+    }
+  } catch (error) {
+    console.error('Error en actualizarCorreoUsuarioServicio:', error);
+    console.error('Error response:', error.response?.data);
+    throw error;
+  }
+};
+
+// Servicio para actualizar contraseña
+export const actualizarClaveUsuarioServicio = async (idUsuario, datos) => {
+  try {
+    const respuesta = await API.patch(`/usuarios/actualizar-clave/${idUsuario}`, datos);
+    
+    if (respuesta.data && respuesta.data.ok) {
+      return respuesta.data;
+    } else {
+      throw new Error(respuesta.data?.mensaje || "Error al actualizar contraseña");
+    }
+  } catch (error) {
+    console.error('Error en actualizarClaveUsuarioServicio:', error);
+    console.error('Error response:', error.response?.data);
+    throw error;
+  }
+};
