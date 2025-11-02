@@ -23,7 +23,7 @@ const FilaCajasCerradas = ({
         {formatCurrency(cajaCerrada.montoActual)}
       </td>
       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-medium">
-        {formatCurrency(cajaCerrada.montoFisico)}
+        {formatCurrency(cajaCerrada.montoTotal)}
       </td>
       <td
         className={`px-6 py-4 text-sm font-medium ${

@@ -148,7 +148,7 @@ const seleccionarUsuarioService = async (datos) => {
   //Verificamos que el modelo nos ha devuelto un usuario
   if (resultado.length == 0) {
     //Lanzamos un error para el catch del controlador
-    throw Object.assign(new Error("Credenciales de acceso invalidas"), { status: 401 });
+    throw Object.assign(new Error("Correo o contraseña incorrectos. Por favor, verifica e intenta de nuevo."), { status: 401 });
   }
 
   //Guardamos el usuario en una constante
@@ -160,7 +160,7 @@ const seleccionarUsuarioService = async (datos) => {
   //Si es false es decir que las contraseñas no coinciden
   if (!contraseñaValida) {
     //Lanzamos error
-    throw Object.assign(new Error("Credenciales de acceso invalidas"), { status: 401 });
+    throw Object.assign(new Error("Correo o contraseña incorrectos. Por favor, verifica e intenta de nuevo."), { status: 401 });
   }
 
   // Creamos un objeto con los datos necesarios del usuario para el token y enviar al frontend

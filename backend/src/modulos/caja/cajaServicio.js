@@ -135,7 +135,7 @@ const obtenerArqueosPorCajaService = async (cajaId) => {
         throw Object.assign(new Error("No se encontraron registros"), { status: 404 });
     }
     return arqueos;
-}
+};
 
 module.exports = {
     crearCajaService,

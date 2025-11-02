@@ -9,6 +9,7 @@ const registrarVentaModel = async (datos) => {
 
     const {
       numeroDocumentoCliente,
+      nombreCliente,
       fechaEmision,
       fechaVencimiento,
       porcentajeIGV,
@@ -32,11 +33,12 @@ const registrarVentaModel = async (datos) => {
     // Llamada al procedimiento almacenado que devuelve directamente los datos
     const [rows] = await conexion.execute(
       `CALL registrarVentaYComprobante(
-        ?,?,?,?,?,?,?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,?,?,?,?,
         ?,?,?,?,?,?,?,?
       );`,
       [
         numeroDocumentoCliente,
+        nombreCliente,
         fechaEmision,
         fechaVencimiento,
         porcentajeIGV,
@@ -102,44 +104,6 @@ const insertarDetalleVentaModel = async ({
   } catch (err) {
     console.error("Error en insertarDetalleVentaModel:", err.message);
     throw new Error("Error al registrar el detalle de venta en la base de datos");
-  } finally {
-    if (conexion) conexion.release();
-  }
-};
-
-/**
- * Modelo para obtener ventas con paginación (20 en 20)
- */
-const obtenerVentasModel = async (pagina = 1) => {
-  let conexion;
-  try {
-    conexion = await pool.getConnection();
-    const [rows] = await conexion.query(`CALL listarVentas(?)`, [pagina]);
-
-    // Como CALL devuelve arrays anidados, usamos rows[0]
-    return rows[0];
-  } catch (err) {
-    console.error("Error en obtenerVentasModel", err.message);
-    throw new Error("Error al obtener ventas de la base de datos");
-  } finally {
-    if (conexion) conexion.release();
-  }
-};
-
-/**
- * Modelo para obtener una venta específica por ID
- */
-const obtenerVentasIDModel = async (idVenta) => {
-  let conexion;
-  try {
-    conexion = await pool.getConnection();
-    const [rows] = await conexion.query(`CALL obtenerVenta(?)`, [idVenta]);
-
-    // Devolvemos la primera fila si existe
-    return rows[0][0] || null;
-  } catch (err) {
-    console.error("Error en obtenerVentasIDModel", err.message);
-    throw new Error("Error al obtener venta por ID");
   } finally {
     if (conexion) conexion.release();
   }
@@ -223,12 +187,187 @@ const actualizarComprobanteAnuladoModel = async ({
   }
 };
 
+const obtenerResumenVentasModel = async (limit, offset) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.execute(
+      "CALL obtenerResumenVentas(?, ?)",
+      [limit, offset]
+    );
+    return result[0];
+  } catch (err) {
+    console.error("Error en obtenerResumenVentasModel:", err.message);
+    throw new Error("Error al obtener resumen de ventas.");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
+const obtenerResumenVentaPorIdModel = async (idVenta) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.execute(
+      "CALL obtenerResumenVentaPorId(?)",
+      [idVenta]
+    );
+    return result[0][0];
+  } catch (err) {
+    console.error("Error en obtenerResumenVentaPorIdModel:", err.message);
+    throw new Error("Error al obtener resumen de venta por ID.");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
+const obtenerResumenVentasPorRangoFechaModel = async (fechaInicio, fechaFin, limit, offset) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.execute(
+      "CALL obtenerResumenVentasPorRangoFecha(?, ?, ?, ?)",
+      [fechaInicio, fechaFin, limit, offset]
+    );
+    return result[0];
+  } catch (err) {
+    console.error("Error en obtenerResumenVentasPorRangoFechaModel:", err.message);
+    throw new Error("Error al obtener ventas por rango de fecha.");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
+const obtenerResumenVentasPorNombreUsuarioModel = async (busqueda, limit, offset) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.execute(
+      "CALL obtenerResumenVentasPorNombreUsuario(?, ?, ?)",
+      [busqueda, limit, offset]
+    );
+    return result[0];
+  } catch (err) {
+    console.error("Error en obtenerResumenVentasPorNombreUsuarioModel:", err.message);
+    throw new Error("Error al obtener ventas por nombre de usuario.");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
+const obtenerVentasPorComprobanteModel = async (busqueda, limit, offset) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.execute(
+      "CALL obtenerVentasPorComprobante(?, ?, ?)",
+      [busqueda, limit, offset]
+    );
+    return result[0];
+  } catch (err) {
+    console.error("Error en obtenerVentasPorComprobanteModel:", err.message);
+    throw new Error("Error al obtener ventas por comprobante.");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
+
+const obtenerResumenVentasPorAceptacionSunatModel = async (aceptadaSunat, limit, offset) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.execute(
+      "CALL obtenerResumenVentasPorAceptacionSunat(?, ?, ?)",
+      [aceptadaSunat, limit, offset]
+    );
+    return result[0];
+  } catch (err) {
+    console.error("Error en obtenerResumenVentasPorAceptacionSunatModel:", err.message);
+    throw new Error("Error al obtener ventas por aceptación SUNAT.");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
+const obtenerEstadosSunatModel = async () => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+
+    const [result] = await conexion.execute("CALL obtenerEstadosSunat()");
+
+    return result[0];
+
+  } catch (err) {
+    console.error("Error en obtenerEstadosSunatModel:", err.message);
+    throw new Error("Error al obtener estados de sunat.");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
+const obtenerMediosPagoModel = async () => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [result] = await conexion.execute("CALL obtenerMediosPago()");
+        return result[0];
+    } catch (error) {
+        throw error;
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const obtenerDetalleVentaPorIdVentaModel = async (idVenta) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.execute(
+      "CALL obtenerDetalleVentaPorIdVenta(?)",
+      [idVenta]
+    );
+    return result[0]; // devuelve arreglo con detalles
+  } catch (err) {
+    console.error("Error en obtenerDetalleVentaPorIdVentaModel:", err.message);
+    throw new Error("Error al obtener detalle de la venta.");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
+const obtenerComprobantePorIdVentaModel = async (idVenta) => {
+  let conexion;
+  try {
+    conexion = await pool.getConnection();
+    const [result] = await conexion.execute(
+      "CALL obtenerComprobantePorIdVenta(?)",
+      [idVenta]
+    );
+    return result[0]; // devuelve arreglo con comprobantes
+  } catch (err) {
+    console.error("Error en obtenerComprobantePorIdVentaModel:", err.message);
+    throw new Error("Error al obtener comprobante de la venta.");
+  } finally {
+    if (conexion) conexion.release();
+  }
+};
+
 module.exports = {
   registrarVentaModel,
   insertarDetalleVentaModel,
-  obtenerVentasModel,
-  obtenerVentasIDModel,
   contarMedioPagoModel,
   obtenerComprobantePorIdModel,
-  actualizarComprobanteAnuladoModel
+  actualizarComprobanteAnuladoModel,
+  obtenerResumenVentasModel,
+  obtenerResumenVentaPorIdModel,
+  obtenerResumenVentasPorRangoFechaModel,
+  obtenerResumenVentasPorNombreUsuarioModel,
+  obtenerVentasPorComprobanteModel,
+  obtenerResumenVentasPorAceptacionSunatModel,
+  obtenerEstadosSunatModel,
+  obtenerMediosPagoModel,
+  obtenerDetalleVentaPorIdVentaModel,
+  obtenerComprobantePorIdVentaModel
 };

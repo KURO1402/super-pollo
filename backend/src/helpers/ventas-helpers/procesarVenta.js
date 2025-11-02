@@ -77,6 +77,7 @@ const procesarProductosYInsumos = async (productos, dataFormateada, respuestaVen
 const prepararDatosVenta = (dataFormateada, datosVenta, respuestaNubefact, idUsuario) => {
   return {
     numeroDocumentoCliente: dataFormateada.cliente_numero_de_documento,
+    nombreCliente: dataFormateada.cliente_denominacion,
     fechaEmision: dataFormateada.fecha_de_emision,
     fechaVencimiento: dataFormateada.fecha_de_emision,
     porcentajeIGV: dataFormateada.porcentaje_de_igv,

@@ -110,6 +110,12 @@ const buscarMovimientosPorUsuarioService = async (nombreApellido, limit, offset)
 };
 
 const buscarMovimientosPorFechaService = async (fechaInicio, fechaFin, limit, offset) => {
+  if (!fechaInicio || !fechaFin) {
+    throw Object.assign(
+      new Error("Debe proporcionar fechaInicio y fechaFin para filtrar las movimientos de stock."),
+      { status: 400 }
+    );
+  }
   const limite = parseInt(limit) || 10;
   const desplazamiento = parseInt(offset) || 0;
 

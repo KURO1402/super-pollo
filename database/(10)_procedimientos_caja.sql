@@ -386,6 +386,10 @@ BEGIN
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario,
         c.montoActual,
         ac.montoFisico,
+        ac.montoTarjeta,
+        ac.montoBilleteraDigital,
+        ac.otros,
+        (ac.montoFisico + ac.montoTarjeta + ac.montoBilleteraDigital + IFNULL(ac.otros, 0)) AS montoTotal,
         ac.diferencia,
         ac.estadoCaja
     FROM caja c

@@ -109,6 +109,7 @@ CREATE TABLE movimientosStock (
 CREATE TABLE ventas (
     idVenta INT PRIMARY KEY AUTO_INCREMENT,
     numeroDocumentoCliente VARCHAR(12) NOT NULL,
+    nombreCliente VARCHAR(100) NOT NULL,
     fechaEmision DATE NOT NULL,
     fechaVencimiento DATE NULL,
     porcentajeIGV DECIMAL(10,2) NOT NULL,
@@ -155,6 +156,7 @@ CREATE TABLE comprobantes (
     FOREIGN KEY (idVenta) REFERENCES ventas(idVenta),
     FOREIGN KEY (idTipoComprobante) REFERENCES tipoComprobantes(idTipoComprobante)
 );
+
 CREATE TABLE mesas (
     idMesa INT PRIMARY KEY AUTO_INCREMENT,
     numeroMesa INT NOT NULL,
