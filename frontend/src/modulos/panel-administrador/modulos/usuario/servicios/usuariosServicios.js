@@ -20,7 +20,6 @@ export const obtenerUsuariosServicio = async () => {
 
 // Servicio para crear un nuevo usuario
 export const eliminarUsuarioServicio = async (idUsuario) => {
-  console.log("servicio id",idUsuario)
   try {
     const respuesta = await API.delete(`/usuarios/${idUsuario}`);
     if (respuesta.data && respuesta.data.ok) {
@@ -37,7 +36,6 @@ export const eliminarUsuarioServicio = async (idUsuario) => {
 
 // Servicio para actualizar un usuario
 export const actualizarUsuarioServicio = async (idUsuario, datosActualizados) => {
-  console.log("lo que recibimos: ", idUsuario, datosActualizados)
   try {
     const respuesta = await API.put(`/usuarios/actualizar-usuario/${idUsuario}`, datosActualizados);
     
@@ -59,7 +57,6 @@ export const obtenerUsuarioPorIdServicio = async (idUsuario) => {
     const respuesta = await API.get(`/usuarios/${idUsuario}`);
     
     if (respuesta.data && respuesta.data.ok) {
-      console.log("en el servecio:", respuesta.data)
       return respuesta.data;
     } else {
       throw new Error(respuesta.data?.mensaje || "Error al obtener usuario");

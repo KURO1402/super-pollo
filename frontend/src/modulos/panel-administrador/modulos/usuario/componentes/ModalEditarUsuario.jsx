@@ -24,7 +24,6 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
       
       if (respuesta.ok && respuesta.usuario) {
         const usuarioData = respuesta.usuario;
-        console.log("modal:", usuarioData)
         setUsuario(usuarioData);
         
         // Precargar solo los campos editables en el formulario

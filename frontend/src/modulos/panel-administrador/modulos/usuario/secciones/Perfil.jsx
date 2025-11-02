@@ -4,57 +4,131 @@ import { FaRegUser } from "react-icons/fa";
 import { GoPencil } from "react-icons/go";
 import Modal from "../../../componentes/modal/Modal";
 import { useModal } from "../../../hooks/useModal"
-import FormularioEditUsuario from "../componentes/FormularioEditUsuario";
+import ModalEditarUsuario from "../componentes/ModalEditarUsuario";
 import CampoInfo from "../../../componentes/CampoInfo";
 import { BotonSimple } from "../../../componentes/botones/BotonSimple";
-import InputContraseñaEditable from "../componentes/InputContraseñaEditable";
-
+import { useAutenticacionGlobal } from "../../../../../app/estado-global/autenticacionGlobal";
+import { obtenerUsuarioPorIdServicio } from "../servicios/usuariosServicios";
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
 const Perfil = () => {
-  const [usuario, setUsuario] = useState(null); //estado para guardar la info del usuario
-  const { estaAbierto, abrir, cerrar } = useModal(); // de nuestro hook modal
+  const { usuario: usuarioGlobal } = useAutenticacionGlobal();
+  const [usuarioPerfil, setUsuarioPerfil] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const { estaAbierto, abrir, cerrar } = useModal();
+
+  // Cargar datos del usuario cuando el componente se monta
   useEffect(() => {
-    const fetchUsuario = async () => {
-      const respuesta = {
-        nombre: "Juan",
-        apellido: "Pérez Casas",
-        tipoDocumento: "DNI",
-        numeroDocumento: "12345678",
-        correo: "juan@example.com",
-        telefono: "987654321",
-        rol: "Admin",
-        clave: "123123abc"
-      };
-      setUsuario(respuesta);
+    const cargarPerfilUsuario = async () => {
+      try {
+        setCargando(true);
+        
+        if (usuarioGlobal?.idUsuario) {
+          const respuesta = await obtenerUsuarioPorIdServicio(usuarioGlobal.idUsuario);
+          
+          if (respuesta.ok && respuesta.usuario) {
+            console.log(respuesta.usuario)
+            setUsuarioPerfil(respuesta.usuario);
+          } else {
+            throw new Error("No se pudieron cargar los datos del perfil");
+          }
+        } else {
+          // Si no hay usuario global, usar datos mock temporalmente
+          setUsuarioPerfil({
+            idUsuario: 1,
+            nombresUsuario: "Juan",
+            apellidosUsuario: "Pérez Casas",
+            idTipoDocumento: 1,
+            numeroDocumentoUsuario: "12345678",
+            correoUsuario: "juan@example.com",
+            telefonoUsuario: "987654321",
+            idRol: 2,
+            estadoUsuario: "activo"
+          });
+        }
+      } catch (error) {
+        console.error('Error al cargar perfil:', error);
+        mostrarAlerta.error('Error al cargar los datos del perfil');
+        
+        // Datos mock como fallback
+        setUsuarioPerfil({
+          idUsuario: usuarioGlobal?.idUsuario || 1,
+          nombresUsuario: "Usuario",
+          apellidosUsuario: "Demo",
+          idTipoDocumento: 1,
+          numeroDocumentoUsuario: "00000000",
+          correoUsuario: "usuario@demo.com",
+          telefonoUsuario: "000000000",
+          idRol: 3,
+          estadoUsuario: "activo"
+        });
+      } finally {
+        setCargando(false);
+      }
     };
 
-    fetchUsuario();
-  }, []);
+    cargarPerfilUsuario();
+  }, [usuarioGlobal]);
 
-  //función para subir los datos, aqui se debe cambiar para mandar al backend
-  const onSubmit = async (data) => {
-    try {
-      setUsuario(data);
-      cerrar();
-    } catch (error) {
-      console.error("Error al guardar cambios:", error);
-    }
-  };
-  // hallar las iniciales 
-  const getIniciales = (nombre, apellido) => {
-    return `${nombre?.charAt(0) || ''}${apellido?.charAt(0) || ''}`.toUpperCase();
+  // Manejador para cuando se actualiza el usuario
+  const handleUsuarioActualizado = (usuarioActualizado) => {
+    setUsuarioPerfil(usuarioActualizado);
+    cerrar();
   };
 
-  if (!usuario) return (
-    <div className="flex items-center justify-center h-64">
-      <p className="text-gray-500 dark:text-gray-400">Cargando perfil...</p>
-    </div>
-  );
+  // Función para obtener el texto del tipo de documento
+  const obtenerTipoDocumento = (idTipoDocumento) => {
+    const tipos = {
+      1: "DNI",
+      2: "Pasaporte", 
+      3: "Carné de extranjería",
+      4: "RUC"
+    };
+    return tipos[idTipoDocumento] || "No especificado";
+  };
+
+  // Función para obtener el texto del rol
+  const obtenerRol = (idRol) => {
+    const roles = {
+      1: "Superadministrador",
+      2: "Administrador",
+      3: "Usuario"
+    };
+    return roles[idRol] || "No especificado";
+  };
+
+  // Hallar las iniciales 
+  const getIniciales = (nombres, apellidos) => {
+    return `${nombres?.charAt(0) || ''}${apellidos?.charAt(0) || ''}`.toUpperCase();
+  };
+
+  if (cargando) {
+    return (
+      <div className="w-full mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Cargando perfil...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!usuarioPerfil) {
+    return (
+      <div className="w-full mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <p className="text-gray-500 dark:text-gray-400">No se pudo cargar el perfil</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full mx-auto p-6">
       <div className="flex items-center space-x-2">
-        <h1 className="text-2xl text-gray-800 dark:text-gray-100 font-bold mt-0 mb-1 leading-tight ">Perfil</h1>
+        <h1 className="text-2xl text-gray-800 dark:text-gray-100 font-bold mt-0 mb-1 leading-tight">Perfil</h1>
         <FaRegUser className="text-2xl mb-2 text-gray-800 dark:text-gray-100" />
       </div>
 
@@ -65,18 +139,23 @@ const Perfil = () => {
             <div className="flex-shrink-0">
               <div className="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center shadow-md">
                 <span className="text-3xl font-bold text-white">
-                  {getIniciales(usuario.nombre, usuario.apellido)}
+                  {getIniciales(usuarioPerfil.nombresUsuario, usuarioPerfil.apellidosUsuario)}
                 </span>
               </div>
             </div>
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {usuario.nombre} {usuario.apellido}
+                {usuarioPerfil.nombresUsuario} {usuarioPerfil.apellidosUsuario}
               </h1>
               <div className="flex items-center gap-4 text-gray-600 dark:text-gray-300">
                 <div className="flex items-center gap-2">
                   <FiBriefcase className="w-4 h-4" />
-                  <span>{usuario.rol}</span>
+                  <span>{obtenerRol(usuarioPerfil.idRol)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                    Activo
+                  </span>
                 </div>
               </div>
             </div>
@@ -92,7 +171,7 @@ const Perfil = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                <p className="font-medium text-gray-900 dark:text-white">{usuario.correo}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{usuarioPerfil.correoUsuario}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -101,7 +180,7 @@ const Perfil = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Teléfono</p>
-                <p className="font-medium text-gray-900 dark:text-white">{usuario.telefono}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{usuarioPerfil.telefonoUsuario || 'No especificado'}</p>
               </div>
             </div>
           </div>
@@ -128,24 +207,24 @@ const Perfil = () => {
               <div className="grid grid-cols-2 gap-6">
                 <CampoInfo 
                   icono={FiUser}
-                  etiqueta="Nombre"
-                  valor={usuario.nombre}
+                  etiqueta="Nombres"
+                  valor={usuarioPerfil.nombresUsuario}
                 />
                 <CampoInfo 
                   icono={FiUser}
-                  etiqueta="Apellido"
-                  valor={usuario.apellido}
+                  etiqueta="Apellidos"
+                  valor={usuarioPerfil.apellidosUsuario}
                 />
               </div>
               <CampoInfo 
                 icono={FiMail}
                 etiqueta="Correo electrónico"
-                valor={usuario.correo}
+                valor={usuarioPerfil.correoUsuario}
               />
               <CampoInfo 
                 icono={FiPhone}
                 etiqueta="Teléfono"
-                valor={usuario.telefono}
+                valor={usuarioPerfil.telefonoUsuario || 'No especificado'}
               />
             </div>
             {/* Columna Derecha */}
@@ -154,44 +233,52 @@ const Perfil = () => {
                 <CampoInfo 
                   icono={FiFileText}
                   etiqueta="Tipo de documento"
-                  valor={usuario.tipoDocumento}
+                  valor={obtenerTipoDocumento(usuarioPerfil.idTipoDocumento)}
                 />
                 <CampoInfo 
                   icono={FiFileText}
                   etiqueta="Número de documento"
-                  valor={usuario.numeroDocumento}
+                  valor={usuarioPerfil.numeroDocumentoUsuario}
                 />
               </div>
               <CampoInfo 
                 icono={FiBriefcase}
                 etiqueta="Rol Usuario"
-                valor={usuario.rol}
+                valor={obtenerRol(usuarioPerfil.idRol)}
               />
 
+              {/* Nota sobre contraseña */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   Contraseña
                 </label>
-                <InputContraseñaEditable usuario={usuario} setUsuario={setUsuario} />
+                <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Para cambiar tu contraseña, utiliza la opción específica en la sección de seguridad.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {/* Modal de Edición */}
+
+      {/* Modal de Edición - Usando el mismo ModalEditarUsuario */}
       <Modal
         estaAbierto={estaAbierto}
         onCerrar={cerrar}
         titulo="Editar Perfil"
-        tamaño="xl"
+        tamaño="lg"
         mostrarHeader
         mostrarFooter={false}
       >
-        <FormularioEditUsuario
-          usuario={usuario}
-          onSubmit={onSubmit}
-          cerrar={cerrar}
-        />
+        {usuarioPerfil && (
+          <ModalEditarUsuario 
+            idUsuario={usuarioPerfil.idUsuario}
+            onClose={cerrar}
+            onUsuarioActualizado={handleUsuarioActualizado}
+          />
+        )}
       </Modal>
     </div>
   );
