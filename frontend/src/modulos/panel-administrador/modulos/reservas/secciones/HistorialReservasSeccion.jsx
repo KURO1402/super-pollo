@@ -1,7 +1,5 @@
-// librerias externas
 import { FaCalendarAlt } from "react-icons/fa";
-// hook de react
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda";
@@ -17,19 +15,67 @@ import { useModal } from "../../../hooks/useModal";
 import { ModalDetalleReserva } from "../componentes/ModalDetalleReserva";
 import { ModalEditarReserva } from "../componentes/ModalEditarReserva";
 import { FilaReserva } from "../componentes/FilaReserva";
-// data temporal
-import { reservasDatos } from "../data-temporal/reservas";
-
+// servicios
+import { 
+  listarReservacionesServicio,
+  obtenerDetalleReservacionServicio,
+  actualizarReservacionServicio
+} from "../servicios/reservacionesServicio";
 
 const HistorialReservasSeccion = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
   const { filtro, setFiltro, aplicarFiltros } = useFiltro();
-  const { paginaActual, setPaginaActual, paginar } = usePaginacion(10);
+  const { 
+    paginaActual, 
+    setPaginaActual, 
+    itemsPorPagina, 
+    setItemsPorPagina, 
+    paginar 
+  } = usePaginacion(5);
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
-  const [reservas, setReservas] = useState(reservasDatos); // Estado para las reservas
+  const [reservas, setReservas] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [detalleReserva, setDetalleReserva] = useState(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
   
   const modalDetalle = useModal(false);
   const modalEditar = useModal(false);
+
+  // Cargar reservaciones al inicializar
+  useEffect(() => {
+    cargarReservaciones();
+  }, []);
+
+  const cargarReservaciones = async () => {
+    try {
+      setCargando(true);
+      const reservaciones = await listarReservacionesServicio();
+      setReservas(reservaciones);
+    } catch (error) {
+      console.error('Error al cargar reservaciones:', error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  // Cargar detalle completo de la reservación
+  const cargarDetalleReserva = async (idReservacion) => {
+    try {
+      setCargandoDetalle(true);
+      const respuesta = await obtenerDetalleReservacionServicio(idReservacion);
+
+      if (respuesta.ok) {
+        setDetalleReserva({
+          detalles: respuesta.detalle
+        });
+      }
+    } catch (error) {
+      console.error("Error al cargar detalle de la reserva:", error);
+      mostrarAlerta.error("Error al obtener el detalle de la reserva");
+    } finally {
+      setCargandoDetalle(false);
+    }
+  };
 
   // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(reservas, [
@@ -42,58 +88,84 @@ const HistorialReservasSeccion = () => {
   filtrados = aplicarFiltros(filtrados, "estadoReservacion");
   const { datosPaginados, totalPaginas } = paginar(filtrados);
 
-  // Función para actualizar reserva (llamada al backend)
+  // Funcion para actualizar reserva
   const handleActualizarReserva = async (datosActualizados) => {
     try {
-      console.log("Actualizando reserva:", datosActualizados);
-      
-      // Aquí iría la llamada real al backend
-      // const response = await axios.put(`/api/reservas/${datosActualizados.idReservacion}`, datosActualizados);
-      
-      // Simulación de actualización
-      setReservas(prevReservas => 
-        prevReservas.map(reserva => 
-          reserva.idReservacion === datosActualizados.idReservacion 
-            ? { ...reserva, ...datosActualizados }
-            : reserva
-        )
+      // Usar el servicio real para actualizar
+      const respuesta = await actualizarReservacionServicio(
+        datosActualizados.idReservacion, 
+        datosActualizados
       );
       
-      // Mostrar alerta de éxito
-      alert('Reserva actualizada correctamente');
+      if (respuesta.ok) {
+        // Actualizar el estado local con los datos actualizados
+        setReservas(prevReservas => 
+          prevReservas.map(reserva => 
+            reserva.idReservacion === datosActualizados.idReservacion 
+              ? { ...reserva, ...datosActualizados }
+              : reserva
+          )
+        );
+        modalEditar.cerrar();
+      } else {
+        throw new Error(respuesta.mensaje || "Error al actualizar reservación");
+      }
       
     } catch (error) {
       console.error('Error al actualizar reserva:', error);
-      alert('Error al actualizar la reserva');
     }
   };
 
-  // función para cancelar reserva
+  // Función para cancelar reserva
   const handleCancelarReserva = async (reserva) => {
     if (confirm(`¿Estás seguro de cancelar la reserva #${reserva.idReservacion}?`)) {
       try {
-        console.log("Cancelando reserva:", reserva.idReservacion);
-        // Aquí iría la llamada real al backend
-        // Simulación de cancelación
-        setReservas(prevReservas => 
-          prevReservas.map(r => 
-            r.idReservacion === reserva.idReservacion 
-              ? { ...r, estadoReservacion: 'cancelado' }
-              : r
-          )
+        // Actualizar el estado en el backend
+        const datosActualizados = {
+          ...reserva,
+          estadoReservacion: 'cancelado'
+        };
+        
+        const respuesta = await actualizarReservacionServicio(
+          reserva.idReservacion, 
+          datosActualizados
         );
         
-        alert('Reserva cancelada correctamente');
+        if (respuesta.ok) {
+          // Actualizar el estado local
+          setReservas(prevReservas => 
+            prevReservas.map(r => 
+              r.idReservacion === reserva.idReservacion 
+                ? { ...r, estadoReservacion: 'cancelado' }
+                : r
+            )
+          );
+          
+          alert('Reserva cancelada correctamente');
+        } else {
+          throw new Error(respuesta.mensaje || "Error al cancelar reservación");
+        }
         
       } catch (error) {
         console.error('Error al cancelar reserva:', error);
-        alert('Error al cancelar la reserva');
+        alert('Error al cancelar la reserva: ' + error.message);
       }
     }
   };
 
-  const handleVerDetalle = (reserva) => {
+  // Función para manejar cambio de página
+  const handleCambiarPagina = (nuevaPagina) => {
+    setPaginaActual(nuevaPagina);
+  };
+
+  // Función para manejar cambio de items por página
+  const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
+    setItemsPorPagina(nuevoItemsPorPagina);
+  };
+
+  const handleVerDetalle = async (reserva) => {
     setReservaSeleccionada(reserva);
+    await cargarDetalleReserva(reserva.idReservacion);
     modalDetalle.abrir();
   };
 
@@ -124,7 +196,7 @@ const HistorialReservasSeccion = () => {
         </p>
       </div>
 
-      {/* Barra de búsqueda y filtros */}
+      {/* Barra de busqueda y filtros */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
           <BarraBusqueda
@@ -145,17 +217,35 @@ const HistorialReservasSeccion = () => {
         </div>
       </div>
 
-      {/* Tabla de reservas */}
-      <Tabla
-        encabezados={["Reserva", "Cliente", "Detalles", "Estado", "Monto", "Acciones"]}
-        registros={filasReservas}
-      />
+      {cargando ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">Cargando reservas...</p>
+        </div>
+      ) : (
+        <>
+          {/* Tabla de reservas */}
+          <Tabla
+            encabezados={["Reserva", "Cliente", "Detalles", "Estado", "Acciones"]}
+            registros={filasReservas}
+          />
 
-      <Paginacion
-        paginaActual={paginaActual}
-        totalPaginas={totalPaginas}
-        alCambiarPagina={setPaginaActual}
-      />
+          {datosPaginados.length === 0 && (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              {reservas.length === 0 ? "No hay reservas registradas" : "No se encontraron reservas que coincidan con la búsqueda"}
+            </div>
+          )}
+
+          <Paginacion
+            paginaActual={paginaActual}
+            totalPaginas={totalPaginas}
+            alCambiarPagina={handleCambiarPagina}
+            itemsPorPagina={itemsPorPagina}
+            alCambiarItemsPorPagina={handleCambiarItemsPorPagina}
+            mostrarSiempre={true}
+          />
+        </>
+      )}
 
       {/* Modal de detalle */}
       <Modal
@@ -166,13 +256,22 @@ const HistorialReservasSeccion = () => {
         mostrarHeader={true}
         mostrarFooter={false}
       >
-        <ModalDetalleReserva 
-          reserva={reservaSeleccionada}
-          onClose={modalDetalle.cerrar}
-        />
+        {cargandoDetalle ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            Cargando detalle de la reserva...
+          </div>
+        ) : (
+          reservaSeleccionada && (
+            <ModalDetalleReserva 
+              reserva={reservaSeleccionada}
+              detalle={detalleReserva}
+              onClose={modalDetalle.cerrar}
+            />
+          )
+        )}
       </Modal>
 
-      {/* Modal de edición */}
+      {/* Modal de edicionn */}
       <Modal
         estaAbierto={modalEditar.estaAbierto}
         onCerrar={modalEditar.cerrar}
@@ -183,7 +282,7 @@ const HistorialReservasSeccion = () => {
       >
         {reservaSeleccionada && (
           <ModalEditarReserva 
-            reserva={reservaSeleccionada}
+            idReservacion={reservaSeleccionada.idReservacion}
             onClose={modalEditar.cerrar}
             onGuardar={handleActualizarReserva}
           />

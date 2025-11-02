@@ -1,10 +1,26 @@
 import { useForm, Controller } from "react-hook-form";
-import { useEffect } from "react";
-import { FiCalendar, FiClock, FiUsers, FiBox, FiSave, FiX, FiMessageSquare, FiPhone } from "react-icons/fi";
-import { configuracionMesas, horariosDisponibles, estadosReserva } from "../data-temporal/mockReservas";
-import { validarDisponibilidadMesa } from "../utilidades/ValidacionesReservaciones"
+import { useEffect, useState } from "react";
+import { FiCalendar, FiClock, FiUsers, FiBox, FiSave, FiX, FiPlus, FiTrash2, FiLoader } from "react-icons/fi";
+import { horariosDisponibles } from "../data-temporal/mockReservas";
+import { obtenerMesasDisponiblesServicio } from "../servicios/reservacionesServicio";
+import { useAutenticacionGlobal } from "../../../../../app/estado-global/autenticacionGlobal";
+import { registrarReservacionServicio } from "../../../../sitio-publico/servicios/reservacionesServicio";
+import { obtenerProductosServicio } from "../../productos/servicios/productoServicios";
+import { mostrarAlerta } from "../../../../../utilidades/toastUtilidades";
 
-const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, guardando }) => {
+const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
+  const { usuario } = useAutenticacionGlobal();
+  const [mesasDisponibles, setMesasDisponibles] = useState([]);
+  const [productosDisponibles, setProductosDisponibles] = useState([]);
+  const [cargandoMesas, setCargandoMesas] = useState(false);
+  const [cargandoProductos, setCargandoProductos] = useState(true);
+  const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+  const [mostrarAgregarProducto, setMostrarAgregarProducto] = useState(false);
+  const [nuevoProducto, setNuevoProducto] = useState({
+    idProducto: '',
+    cantidadProductoReservacion: 1,
+    precioUnitario: 0
+  });
 
   const fechaMinima = new Date().toISOString().split("T")[0];
   const {
@@ -12,59 +28,174 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
   } = useForm({
     mode: "onChange",
     defaultValues: {
-      nombreCliente: "",
-      telefono: "",
       cantidadPersonas: 2,
-      fechaReserva: "",
-      horaReserva: "",
-      numeroMesa: "",
-      estado: "pendiente",
-      comentarios: "",
+      fechaReservacion: "",
+      horaReservacion: "",
+      idMesa: "",
     },
   });
 
-  const fechaReservaWatch = watch("fechaReserva");
-  const horaReservaWatch = watch("horaReserva");
+  const fechaReservaWatch = watch("fechaReservacion");
+  const horaReservacionWatch = watch("horaReservacion");
+
+  // Cargar productos disponibles al inicializar
+  useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        setCargandoProductos(true);
+        const respuesta = await obtenerProductosServicio();
+        setProductosDisponibles(respuesta.productos);
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        mostrarAlerta.error('Error al cargar los productos disponibles');
+        setProductosDisponibles([]);
+      } finally {
+        setCargandoProductos(false);
+      }
+    };
+
+    cargarProductos();
+  }, []);
 
   useEffect(() => {
     if (reservaInicial) {
-      reset(reservaInicial);
+      reset({
+        cantidadPersonas: reservaInicial.cantidadPersonas || 2,
+        fechaReservacion: reservaInicial.fechaReservacion?.split('T')[0] || "",
+        horaReservacion: reservaInicial.horaReservacion?.substring(0, 5) || "",
+        idMesa: reservaInicial.numeroMesa || "",
+        comentarios: "",
+        idUsuario: reservaInicial.idUsuario,
+      });
     } else {
       reset({
-        nombreCliente: "",
-        telefono: "",
         cantidadPersonas: 2,
-        fechaReserva: "",
-        horaReserva: "",
-        numeroMesa: "",
-        estado: "pendiente",
-        comentarios: "",
+        fechaReservacion: "",
+        horaReservacion: "",
+        idMesa: "",
+        estadoReservacion: "pendiente",
+        idUsuario: 1,
       });
     }
   }, [reservaInicial, reset]);
 
+  // Cargar mesas disponibles cuando cambien fecha y hora
+  useEffect(() => {
+    const cargarMesasDisponibles = async () => {
+      if (fechaReservaWatch && horaReservacionWatch) {
+        try {
+          setCargandoMesas(true);
+          const mesas = await obtenerMesasDisponiblesServicio(
+            fechaReservaWatch,
+            horaReservacionWatch + ':00'
+          );
+          setMesasDisponibles(mesas.mesas || []);
+        } catch (error) {
+          console.error('Error al cargar mesas disponibles:', error);
+          mostrarAlerta.error('Error al cargar las mesas disponibles');
+          setMesasDisponibles([]);
+        } finally {
+          setCargandoMesas(false);
+        }
+      } else {
+        setMesasDisponibles([]);
+      }
+    };
+
+    cargarMesasDisponibles();
+  }, [fechaReservaWatch, horaReservacionWatch]);
+
+  // Manejar selección de producto
+  const handleSeleccionarProducto = (e) => {
+    const idProducto = parseInt(e.target.value);
+    const productoSeleccionado = productosDisponibles.find(p => p.idProducto === idProducto);
+    
+    if (productoSeleccionado) {
+      setNuevoProducto({
+        idProducto: productoSeleccionado.idProducto,
+        cantidadProductoReservacion: 1, 
+        precioUnitario: productoSeleccionado.precio
+      });
+    } else {
+      setNuevoProducto({
+        idProducto: '',
+        cantidadProductoReservacion: 1,
+        precioUnitario: 0
+      });
+    }
+  };
+
+  // Agregar producto a la lista
+  const handleAgregarProducto = () => {
+    if (!nuevoProducto.idProducto) {
+      mostrarAlerta.advertencia('Por favor, seleccione un producto');
+      return;
+    }
+
+    if (nuevoProducto.cantidadProductoReservacion <= 0) {
+      mostrarAlerta.advertencia('La cantidad debe ser mayor a 0');
+      return;
+    }
+
+    const productoExistente = productosSeleccionados.find(p => p.idProducto === nuevoProducto.idProducto);
+    
+    if (productoExistente) {
+      // Si el producto ya existe, actualizar cantidad
+      setProductosSeleccionados(prev => prev.map(p => 
+        p.idProducto === nuevoProducto.idProducto 
+          ? { ...p, cantidadProductoReservacion: p.cantidadProductoReservacion + nuevoProducto.cantidadProductoReservacion }
+          : p
+      ));
+      mostrarAlerta.exito('Cantidad actualizada correctamente');
+    } else {
+      // Agregar nuevo producto
+      const productoCompleto = {
+        ...nuevoProducto,
+        nombreProducto: productosDisponibles.find(p => p.idProducto === nuevoProducto.idProducto)?.nombreProducto || 'Producto'
+      };
+      setProductosSeleccionados(prev => [...prev, productoCompleto]);
+      mostrarAlerta.exito('Producto agregado correctamente');
+    }
+
+    // Resetear formulario
+    setNuevoProducto({
+      idProducto: '',
+      cantidadProductoReservacion: 1, 
+      precioUnitario: 1
+    });
+    setMostrarAgregarProducto(false);
+  };
+
+  // Eliminar producto
+  const handleEliminarProducto = (index) => {
+    const producto = productosSeleccionados[index];
+    setProductosSeleccionados(prev => prev.filter((_, i) => i !== index));
+    mostrarAlerta.exito(`${producto.nombreProducto} eliminado de la reserva`);
+  };
+
+  // Actualizar cantidad de producto existente
+  const handleActualizarCantidad = (index, nuevaCantidad) => {
+    if (nuevaCantidad < 0) return;
+    
+    setProductosSeleccionados(prev => prev.map((producto, i) => 
+      i === index ? { ...producto, cantidadProductoReservacion: nuevaCantidad } : producto
+    ));
+  };
+
+  // Calcular total
+  const calcularTotal = () => {
+    return productosSeleccionados.reduce((total, producto) => 
+      total + (producto.precioUnitario * producto.cantidadProductoReservacion), 0
+    );
+  };
+
   const validaciones = {
-    nombreCliente: {
-      required: "El nombre del cliente es requerido",
-      minLength: { value: 3, message: "Mínimo 3 caracteres" },
-      maxLength: { value: 100, message: "Máximo 100 caracteres" },
-      pattern: {
-        value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-        message: "Solo letras y espacios"
-      },
-    },
-    telefono: {
-      pattern: {
-        value: /^[9]\d{8}$/,
-        message: "Formato: 9 dígitos comenzando con 9"
-      },
-    },
     cantidadPersonas: {
       required: "Campo requerido",
       min: { value: 1, message: "Mínimo 1 persona" },
       max: { value: 20, message: "Máximo 20 personas" },
     },
-    fechaReserva: {
+    fechaReservacion: {
       required: "La fecha es requerida",
       validate: {
         noEsPasada: (value) => {
@@ -75,106 +206,56 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
         },
       },
     },
-    horaReserva: {
+    horaReservacion: {
       required: "La hora es requerida",
     },
-    numeroMesa: {
+    idMesa: {
       required: "Debe seleccionar una mesa",
-    },
-    estado: {
-      required: "Debe seleccionar un estado",
-    },
-    comentarios: {
-      maxLength: { value: 500, message: "Máximo 500 caracteres" },
     },
   };
 
-  const mesasDisponibles = configuracionMesas.mesas.filter((mesa) => {
-    if (!fechaReservaWatch || !horaReservaWatch) return true;
-    
-    return validarDisponibilidadMesa(
-      reservas,
-      fechaReservaWatch,
-      horaReservaWatch,
-      mesa.numero,
-      reservaInicial?.id
-    );
-  });
+  const procesarEnvio = async (data) => {
+    try {
+      // Validar que haya al menos un producto
+      if (productosSeleccionados.length === 0) {
+        mostrarAlerta.advertencia('Debe agregar al menos un producto a la reserva');
+        return;
+      }
+
+      // Validar que todos los productos tengan cantidad mayor a 0
+      const productosInvalidos = productosSeleccionados.some(producto => producto.cantidadProductoReservacion <= 0);
+      if (productosInvalidos) {
+        mostrarAlerta.advertencia('Todos los productos deben tener una cantidad mayor a 0');
+        return;
+      }
+
+      // Preparar datos para el backend
+      const datosParaBackend = {
+        fechaReservacion: data.fechaReservacion,
+        horaReservacion: data.horaReservacion + ':00',
+        cantidadPersonas: parseInt(data.cantidadPersonas),
+        idMesa: parseInt(data.idMesa),
+        idUsuario: usuario.idUsuario,
+        detalles: productosSeleccionados.map(producto => ({
+          idProducto: producto.idProducto,
+          cantidadProductoReservacion: producto.cantidadProductoReservacion,
+          precioUnitario: producto.precioUnitario
+        }))
+      };
+
+      console.log('Enviando reserva con productos:', datosParaBackend);
+      await registrarReservacionServicio(datosParaBackend);
+      mostrarAlerta.exito('Reserva creada exitosamente');
+      onCancelar();
+    } catch (error) {
+      console.error('Error al procesar reserva:', error);
+      const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || 'Error al crear la reserva';
+      mostrarAlerta.error(mensajeError);
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Información del cliente */}
-      {reservaInicial && (
-        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-          <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
-            <FiUsers size={18} />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Cliente</p>
-            <p className="text-gray-900 dark:text-white font-medium">{reservaInicial.nombreCliente}</p>
-            {reservaInicial.id && (
-              <p className="text-xs text-gray-500 dark:text-gray-400">ID: #{reservaInicial.id}</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Nombre del Cliente */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          <div className="flex items-center gap-2">
-            <FiUsers size={16} className="text-purple-600 dark:text-purple-400" />
-            Nombre del Cliente <span className="text-red-500">*</span>
-          </div>
-        </label>
-        <Controller
-          name="nombreCliente"
-          control={control}
-          rules={validaciones.nombreCliente}
-          render={({ field }) => (
-            <>
-              <input
-                {...field}
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Ej: Juan Pérez García"
-              />
-              {errors.nombreCliente && (
-                <p className="text-xs text-red-500 mt-1">⚠️ {errors.nombreCliente.message}</p>
-              )}
-            </>
-          )}
-        />
-      </div>
-
-      {/* Teléfono */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          <div className="flex items-center gap-2">
-            <FiPhone size={16} className="text-green-600 dark:text-green-400" />
-            Teléfono
-          </div>
-        </label>
-        <Controller
-          name="telefono"
-          control={control}
-          rules={validaciones.telefono}
-          render={({ field }) => (
-            <>
-              <input
-                {...field}
-                type="tel"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white"
-                placeholder="987654321"
-                maxLength="9"
-              />
-              {errors.telefono && (
-                <p className="text-xs text-red-500 mt-1">⚠️ {errors.telefono.message}</p>
-              )}
-            </>
-          )}
-        />
-      </div>
+    <form onSubmit={handleSubmit(procesarEnvio)} className="space-y-4">
 
       {/* Fecha y Hora */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -186,9 +267,9 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
             </div>
           </label>
           <Controller
-            name="fechaReserva"
+            name="fechaReservacion"
             control={control}
-            rules={validaciones.fechaReserva}
+            rules={validaciones.fechaReservacion}
             render={({ field }) => (
               <>
                 <input
@@ -197,8 +278,8 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
                   min={fechaMinima}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]"
                 />
-                {errors.fechaReserva && (
-                  <p className="text-xs text-red-500 mt-1">⚠️ {errors.fechaReserva.message}</p>
+                {errors.fechaReservacion && (
+                  <p className="text-xs text-red-500 mt-1">{errors.fechaReservacion.message}</p>
                 )}
               </>
             )}
@@ -213,9 +294,9 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
             </div>
           </label>
           <Controller
-            name="horaReserva"
+            name="horaReservacion"
             control={control}
-            rules={validaciones.horaReserva}
+            rules={validaciones.horaReservacion}
             render={({ field }) => (
               <>
                 <select
@@ -234,8 +315,8 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
                     ))}
                   </optgroup>
                 </select>
-                {errors.horaReserva && (
-                  <p className="text-xs text-red-500 mt-1">⚠️ {errors.horaReserva.message}</p>
+                {errors.horaReservacion && (
+                  <p className="text-xs text-red-500 mt-1">⚠️ {errors.horaReservacion.message}</p>
                 )}
               </>
             )}
@@ -268,7 +349,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
                   max="20"
                 />
                 {errors.cantidadPersonas && (
-                  <p className="text-xs text-red-500 mt-1">⚠️ {errors.cantidadPersonas.message}</p>
+                  <p className="text-xs text-red-500 mt-1">{errors.cantidadPersonas.message}</p>
                 )}
               </>
             )}
@@ -283,9 +364,9 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
             </div>
           </label>
           <Controller
-            name="numeroMesa"
+            name="idMesa"
             control={control}
-            rules={validaciones.numeroMesa}
+            rules={validaciones.idMesa}
             render={({ field: { onChange, value, ...field } }) => (
               <>
                 <select
@@ -293,26 +374,28 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
                   value={value}
                   onChange={(e) => onChange(parseInt(e.target.value) || "")}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white"
-                  disabled={!fechaReservaWatch || !horaReservaWatch}
+                  disabled={!fechaReservaWatch || !horaReservacionWatch || cargandoMesas}
                 >
                   <option value="">
-                    {!fechaReservaWatch || !horaReservaWatch
+                    {cargandoMesas 
+                      ? "Cargando mesas disponibles..." 
+                      : !fechaReservaWatch || !horaReservacionWatch
                       ? "Seleccione fecha y hora primero"
                       : mesasDisponibles.length > 0
                       ? "Seleccione una mesa"
                       : "No hay mesas disponibles"}
                   </option>
                   {mesasDisponibles.map((mesa) => (
-                    <option key={mesa.numero} value={mesa.numero}>
-                      Mesa {mesa.numero} - {mesa.zona} ({mesa.capacidad}p)
+                    <option key={mesa.idMesa} value={mesa.idMesa}>
+                      Mesa {mesa.numeroMesa} ({mesa.capacidad || 4}p)
                     </option>
                   ))}
                 </select>
-                {errors.numeroMesa && (
-                  <p className="text-xs text-red-500 mt-1">⚠️ {errors.numeroMesa.message}</p>
+                {errors.idMesa && (
+                  <p className="text-xs text-red-500 mt-1">{errors.idMesa.message}</p>
                 )}
-                {fechaReservaWatch && horaReservaWatch && mesasDisponibles.length === 0 && (
-                  <p className="text-xs text-orange-500 mt-1">ℹ️ No hay mesas disponibles en este horario</p>
+                {fechaReservaWatch && horaReservacionWatch && mesasDisponibles.length === 0 && !cargandoMesas && (
+                  <p className="text-xs text-orange-500 mt-1">No hay mesas disponibles en este horario</p>
                 )}
               </>
             )}
@@ -320,65 +403,161 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
         </div>
       </div>
 
-      {/* Estado */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Estado de la Reserva <span className="text-red-500">*</span>
-        </label>
-        <Controller
-          name="estado"
-          control={control}
-          rules={validaciones.estado}
-          render={({ field }) => (
-            <>
-              <select
-                {...field}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-              >
-                {Object.values(estadosReserva).map((estado) => (
-                  <option key={estado.valor} value={estado.valor}>
-                    {estado.label}
-                  </option>
-                ))}
-              </select>
-              {errors.estado && (
-                <p className="text-xs text-red-500 mt-1">⚠️ {errors.estado.message}</p>
-              )}
-            </>
-          )}
-        />
-      </div>
+      {/* Gestión de Productos */}
+      <div className="border-t pt-4">
+        <div className="flex justify-between items-center mb-3">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+            Productos Reservados
+          </h4>
+          <button
+            type="button"
+            onClick={() => setMostrarAgregarProducto(!mostrarAgregarProducto)}
+            disabled={cargandoProductos}
+            className="flex items-center gap-2 px-3 py-1 text-sm cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FiPlus size={14} />
+            Agregar Producto
+          </button>
+        </div>
 
-      {/* Comentarios */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          <div className="flex items-center gap-2">
-            <FiMessageSquare size={16} className="text-gray-600 dark:text-gray-400" />
-            Comentarios adicionales
+        {/* Loading de productos */}
+        {cargandoProductos && (
+          <div className="flex items-center justify-center py-4">
+            <FiLoader className="animate-spin h-5 w-5 text-blue-600 mr-2" />
+            <p className="text-sm text-gray-600 dark:text-gray-400">Cargando productos...</p>
           </div>
-        </label>
-        <Controller
-          name="comentarios"
-          control={control}
-          rules={validaciones.comentarios}
-          render={({ field }) => (
-            <>
-              <textarea
-                {...field}
-                rows="3"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 dark:bg-gray-700 dark:text-white resize-none"
-                placeholder="Preferencias especiales del cliente..."
-                maxLength="500"
-              />
-              {errors.comentarios && (
-                <p className="text-xs text-red-500 mt-1">⚠️ {errors.comentarios.message}</p>
-              )}
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {field.value?.length || 0}/500 caracteres
-              </p>
-            </>
+        )}
+
+        {/* Formulario para agregar producto */}
+        {mostrarAgregarProducto && !cargandoProductos && (
+          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg mb-3 space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  Producto
+                </label>
+                <select
+                  value={nuevoProducto.idProducto}
+                  onChange={handleSeleccionarProducto}
+                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">Seleccionar producto</option>
+                  {productosDisponibles.map(producto => (
+                    <option key={producto.idProducto} value={producto.idProducto}>
+                      {producto.nombreProducto} - S/ {producto.precio}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  Cantidad
+                </label>
+                <input
+                  type="number"
+                  value={nuevoProducto.cantidadProductoReservacion}
+                  onChange={(e) => setNuevoProducto(prev => ({
+                    ...prev,
+                    cantidadProductoReservacion: parseInt(e.target.value) || 0
+                  }))}
+                  min="0"
+                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+            
+            {/* Mostrar precio y subtotal */}
+            {nuevoProducto.idProducto && (
+              <div className="text-xs text-gray-600 dark:text-gray-400 p-2 bg-white dark:bg-gray-700 rounded border">
+                <strong>Precio unitario:</strong> S/ {nuevoProducto.precioUnitario}
+                <br />
+                <strong>Subtotal:</strong> S/ {(nuevoProducto.precioUnitario * nuevoProducto.cantidadProductoReservacion)}.00
+              </div>
+            )}
+            
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleAgregarProducto}
+                disabled={nuevoProducto.cantidadProductoReservacion <= 0}
+                className="px-3 py-1 text-xs cursor-pointer bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Agregar Producto
+              </button>
+              <button
+                type="button"
+                onClick={() => setMostrarAgregarProducto(false)}
+                className="px-3 py-1 text-xs bg-gray-500 cursor-pointer text-white rounded hover:bg-gray-600 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Lista de productos seleccionados */}
+        <div className="space-y-2 max-h-48 overflow-y-auto">
+          {productosSeleccionados.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+              {cargandoProductos ? "Cargando productos..." : "No hay productos agregados"}
+            </p>
+          ) : (
+            productosSeleccionados.map((producto, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {producto.nombreProducto}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    S/ {producto.precioUnitario} c/u
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleActualizarCantidad(index, producto.cantidadProductoReservacion - 1)}
+                      disabled={producto.cantidadProductoReservacion <= 0}
+                      className="w-6 h-6 flex items-center justify-center text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      -
+                    </button>
+                    <span className="text-sm font-medium w-8 text-center text-gray-800 dark:text-gray-200">
+                      {producto.cantidadProductoReservacion}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleActualizarCantidad(index, producto.cantidadProductoReservacion + 1)}
+                      className="w-6 h-6 flex items-center justify-center text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 cursor-pointer"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white w-20 text-right">
+                    S/ {(producto.precioUnitario * producto.cantidadProductoReservacion)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleEliminarProducto(index)}
+                    className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+                  >
+                    <FiTrash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))
           )}
-        />
+        </div>
+
+        {/* Total */}
+        {productosSeleccionados.length > 0 && (
+          <div className="flex justify-between items-center pt-3 mt-3 border-t border-gray-200 dark:border-gray-600">
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Total:</span>
+            <span className="text-lg font-bold text-green-600 dark:text-green-400">
+              S/ {calcularTotal()}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Botones */}
@@ -398,7 +577,7 @@ const FormularioReserva = ({ reservaInicial, reservas, onSubmit, onCancelar, gua
           className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium flex-1 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <FiSave size={16} />
-          {guardando ? "Guardando..." : reservaInicial?.id ? "Actualizar Reserva" : "Guardar Reserva"}
+          {guardando ? "Guardando..." : reservaInicial?.idReservacion ? "Actualizar Reserva" : "Guardar Reserva"}
         </button>
       </div>
     </form>
