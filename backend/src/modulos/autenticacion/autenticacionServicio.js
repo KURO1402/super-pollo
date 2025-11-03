@@ -8,6 +8,7 @@ const enviarCorreoVerificacion = require("../../helpers/enviarCorreo")
 
 // FUNCION PARA REGISTRAR USUARIO
 const registrarUsuarioService = async (datos) => {
+  console.log(datos);
   //Validaciones
   await registrarUsuarioValidacion(datos);
 
@@ -69,6 +70,10 @@ const insertarVerificacionCorreoService = async (datos) => {
   };
 
   validarCorreo(correo);
+  const usuarioExistente = await seleccionarUsuarioCorreoModel(correo);
+  if (usuarioExistente.length > 0) {
+    throw Object.assign(new Error("Ya existe un usuario registrado con el correo ingresado."), { status: 409 });
+  }
 
   //Generamos un coodigo de 6 digitos aleatorios
   const codigo = Math.floor(100000 + Math.random() * 900000).toString();

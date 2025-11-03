@@ -18,7 +18,8 @@ const registrarUsuarioValidacion = async (datos) => {
     "clave",
     "numeroDocumentoUsuario",
     "telefonoUsuario",
-    "idTipoDocumento"
+    "idTipoDocumento",
+    "aceptoTerminos"
   ];
 
   const faltantes = camposObligatorios.filter(

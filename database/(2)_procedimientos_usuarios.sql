@@ -3,8 +3,8 @@ USE super_pollo;
 -- Eliminar procedimientos existentes
 DROP PROCEDURE IF EXISTS insertarRol;
 DROP PROCEDURE IF EXISTS listarRoles;
+DROP PROCEDURE IF EXISTS obtenerRolPorId;
 DROP PROCEDURE IF EXISTS actualizarRol;
-DROP PROCEDURE IF EXISTS eliminarRol;
 DROP PROCEDURE IF EXISTS listarTipoDocumento;
 DROP PROCEDURE IF EXISTS listarUsuariosPaginacion;
 DROP PROCEDURE IF EXISTS actualizarUsuario;
@@ -16,10 +16,10 @@ DROP PROCEDURE IF EXISTS obtenerClaveUsuario;
 DROP PROCEDURE IF EXISTS listarUsuarios;
 DROP PROCEDURE IF EXISTS buscarUsuariosPorValor;
 DROP PROCEDURE IF EXISTS contarUsuariosActivos;
+DROP PROCEDURE IF EXISTS contarTipoDocumentoPorId;
+DROP PROCEDURE IF EXISTS actualizarRolUsuario;
 
 DELIMITER //
-
--- SECCIÓN 1: ROLES
 
 CREATE PROCEDURE insertarRol(
     IN p_nombreRol VARCHAR(50)
@@ -38,12 +38,24 @@ BEGIN
     VALUES (p_nombreRol);
 
     COMMIT;
+    SELECT 'Rol insertado correctamente' AS mensaje;
 END //
 
 CREATE PROCEDURE listarRoles()
 BEGIN
     SELECT idRol, nombreRol 
     FROM rolUsuarios;
+END //
+
+CREATE PROCEDURE obtenerRolPorId(
+    IN p_idRol INT
+)
+BEGIN
+    SELECT 
+        idRol,
+        nombreRol
+    FROM rolUsuarios
+    WHERE idRol = p_idRol;
 END //
 
 CREATE PROCEDURE actualizarRol(
@@ -65,25 +77,7 @@ BEGIN
     WHERE idRol = p_idRol;
 
     COMMIT;
-END //
-
-CREATE PROCEDURE eliminarRol(
-    IN p_idRol INT
-)
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al eliminar el rol.';
-    END;
-
-    START TRANSACTION;
-
-    DELETE FROM rolUsuarios
-    WHERE idRol = p_idRol;
-
-    COMMIT;
+    SELECT 'Nombre del rol actualizado correctamente' AS mensaje;
 END //
 
 /* ============================================================
@@ -232,29 +226,8 @@ BEGIN
     WHERE idUsuario = p_idUsuario;
 END //
 
-CREATE PROCEDURE listarUsuarios()
-BEGIN
-    SELECT 
-        u.idUsuario,
-        u.nombresUsuario,
-        u.apellidosUsuario,
-        u.correoUsuario,
-        u.numeroDocumentoUsuario,
-        u.telefonoUsuario,
-        u.idRol,
-        r.nombreRol,
-        u.idTipoDocumento,
-        td.nombreTipoDocumento
-    FROM usuarios u
-    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
-    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
-    WHERE u.estadoUsuario = 1
-    ORDER BY u.idUsuario DESC;
-END //
-
-CREATE PROCEDURE listarUsuariosPaginacion(
-    IN p_limit INT,
-    IN p_offset INT
+CREATE PROCEDURE listarUsuarios(
+    IN p_idUsuario INT
 )
 BEGIN
     SELECT 
@@ -272,6 +245,32 @@ BEGIN
     LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
     LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
+      AND u.idUsuario <> p_idUsuario
+    ORDER BY u.idUsuario DESC;
+END //
+
+CREATE PROCEDURE listarUsuariosPaginacion(
+    IN p_limit INT,
+    IN p_offset INT,
+    IN p_idUsuario INT
+)
+BEGIN
+    SELECT 
+        u.idUsuario,
+        u.nombresUsuario,
+        u.apellidosUsuario,
+        u.correoUsuario,
+        u.numeroDocumentoUsuario,
+        u.telefonoUsuario,
+        u.idRol,
+        r.nombreRol,
+        u.idTipoDocumento,
+        td.nombreTipoDocumento
+    FROM usuarios u
+    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
+    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
+    WHERE u.estadoUsuario = 1
+      AND u.idUsuario <> p_idUsuario
     ORDER BY u.idUsuario DESC
     LIMIT p_limit OFFSET p_offset;
 END //
@@ -299,7 +298,8 @@ BEGIN
 END //
 
 CREATE PROCEDURE buscarUsuariosPorValor(
-    IN p_valor VARCHAR(100)
+    IN p_valor VARCHAR(100),
+    IN p_idUsuario INT
 )
 BEGIN
     SELECT 
@@ -317,12 +317,14 @@ BEGIN
     LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
     LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
+      AND u.idUsuario <> p_idUsuario
       AND (
             u.nombresUsuario LIKE CONCAT('%', p_valor, '%') OR
             u.apellidosUsuario LIKE CONCAT('%', p_valor, '%') OR
             u.correoUsuario LIKE CONCAT('%', p_valor, '%') OR
             u.telefonoUsuario LIKE CONCAT('%', p_valor, '%')
-          );
+          )
+    ORDER BY u.idUsuario DESC;
 END //
 
 CREATE PROCEDURE contarUsuariosActivos()
@@ -340,6 +342,30 @@ BEGIN
     SELECT COUNT(*) AS total
     FROM tipoDocumento
     WHERE idTipoDocumento = p_idTipoDocumento;
+END //
+
+CREATE PROCEDURE actualizarRolUsuario(
+    IN p_idUsuario INT,
+    IN p_idRolNuevo INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al actualizar rol del usuario.';
+    END;
+
+    START TRANSACTION;
+
+    UPDATE usuarios
+    SET idRol = p_idRolNuevo
+    WHERE idUsuario = p_idUsuario
+      AND estadoUsuario = 1;
+
+    COMMIT;
+    
+    SELECT 'Rol de usuario cambiado exitosamente' AS mensaje;
 END //
 
 DELIMITER ;

@@ -18,6 +18,8 @@ const { crearPreferencia } = require("../../servicios/mercadoPago.js");
 // Importamos el webhook de Mercado Pago
 const mercadoPagoWebhook = require("../../servicios/mercadoPagoWebhook.js");
 
+const { autenticacionToken } = require("../../middlewares/autenticacionMiddleware");
+
 // Creamos el enrutador
 const router = express.Router();
 

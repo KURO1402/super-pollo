@@ -1,5 +1,61 @@
 const pool = require("../../config/conexionDB");
 
+const insertarRolUsuarioModel = async (nombreRol) => {
+   let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.execute("CALL insertarRol(?)", [nombreRol]);
+        return rows[0][0]?.mensaje;
+    } catch (err) {
+        console.error("Error en insertarRolUsuarioModel: ", err.message);
+        throw new Error("Error al insertar el rol.");
+    } finally {
+        if (conexion) conexion.release();
+    } 
+}
+
+const  listarRolesModel = async (id) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.execute("CALL listarRoles()");
+        return rows[0];
+    } catch (err) {
+        console.error("Error en listarRolesModel: ", err.message);
+        throw new Error("Error al obtener roles de la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const obtenerRolPorIdModel = async (idRol) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.execute("CALL obtenerRolPorId(?)", [idRol]);
+        return rows[0][0] || null; // Retorna un objeto o null si no existe
+    } catch (err) {
+        console.error("Error en obtenerRolPorIdModel:", err.message);
+        throw new Error("Error al obtener el rol de la base de datos");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+const actualizarNombreRolUsuarioModel = async (idRol, nombreRol) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.execute("CALL actualizarRol(?, ?)", [idRol, nombreRol]);
+        return rows[0][0]?.mensaje;
+    } catch (err) {
+        console.error("Error en actualizarRolUsuarioModel: ", err.message);
+        throw new Error("Error al actualizar rol.");
+    } finally {
+        if (conexion) conexion.release();
+    }
+}
+
 const  consultarUsuarioPorIdModel = async (id) => {
     let conexion;
     try {
@@ -137,11 +193,11 @@ const recuperarUsuarioModel = async (idUsuario, estado) => {
 };
 
 //Modelo para obtener todos los usuarios
-const listarUsuariosModel = async () => {
+const listarUsuariosModel = async (idUsuario) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [result] = await conexion.execute("CALL listarUsuarios()");
+        const [result] = await conexion.execute("CALL listarUsuarios(?)", [idUsuario]);
         return result[0]; // Devuelve el arreglo de usuarios
     } catch (error) {
         console.error("Error en listarUsuariosModel: ", err.message);
@@ -152,11 +208,11 @@ const listarUsuariosModel = async () => {
 };
 
 //Modelo para listar usuarios con paginación.
-const listarUsuariosPaginacionModel = async (limit, offset) => {
+const listarUsuariosPaginacionModel = async (limit, offset, idUsuario) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [result] = await conexion.execute("CALL listarUsuariosPaginacion(?, ?)", [limit, offset]);
+        const [result] = await conexion.execute("CALL listarUsuariosPaginacion(?, ?, ?)", [limit, offset, idUsuario]);
         return result[0]; // Devuelve el arreglo de usuarios
     } catch (error) {
         console.error("Error en listarUsuariosPaginacionModel: ", err.message);
@@ -167,11 +223,11 @@ const listarUsuariosPaginacionModel = async (limit, offset) => {
 };
 
  //Modelo para buscar usuarios por un valor (nombre, apellido, correo o teléfono).
-const buscarUsuariosPorValorModel = async (valor) => {
+const buscarUsuariosPorValorModel = async (valor, idUsuario) => {
     let conexion;
     try {
         conexion = await pool.getConnection();
-        const [result] = await conexion.execute("CALL buscarUsuariosPorValor(?)", [valor]);
+        const [result] = await conexion.execute("CALL buscarUsuariosPorValor(?, ?)", [valor, idUsuario]);
         return result[0]; // Devuelve un arreglo de usuarios que coincidan
     } catch (error) {
         console.error("Error en buscarUsuariosPorValorModel: ", err.message);
@@ -218,8 +274,33 @@ const contarTipoDocumentoPorIdModel = async (idTipoDocumento) => {
     }
 };
 
+const actualizarRolUsuarioModel = async (idUsuario, idRolNuevo) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+
+        const [result] = await conexion.execute(
+            "CALL actualizarRolUsuario(?, ?)",
+            [idUsuario, idRolNuevo]
+        );
+
+        return result[0][0]?.mensaje;
+
+    } catch (err) {
+        console.error("Error en actualizarRolUsuarioModel:", err.message);
+        throw new Error("Error al actualizar el rol del usuario en la base de datos.");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
+
+
 
 module.exports = { 
+    insertarRolUsuarioModel,
+    listarRolesModel,
+    obtenerRolPorIdModel,
+    actualizarNombreRolUsuarioModel,
     consultarUsuarioPorIdModel,
     actualizarUsuarioModel,
     actualizarCorreoUsuarioModel,
@@ -231,5 +312,6 @@ module.exports = {
     listarUsuariosPaginacionModel,
     buscarUsuariosPorValorModel,
     contarUsuariosActivosModel,
-    contarTipoDocumentoPorIdModel
+    contarTipoDocumentoPorIdModel,
+    actualizarRolUsuarioModel
 }
