@@ -3,6 +3,10 @@ const bcrypt = require("bcryptjs");
 const { obtenerEstadoVerificacionCorreoModel, seleccionarUsuarioCorreoModel } = require("../autenticacion/autenticacionModelo")
 
 const {
+    insertarRolUsuarioModel,
+    listarRolesModel,
+    obtenerRolPorIdModel,
+    actualizarNombreRolUsuarioModel,
     consultarUsuarioPorIdModel,
     actualizarUsuarioModel,
     actualizarCorreoUsuarioModel,
@@ -12,11 +16,87 @@ const {
     listarUsuariosModel,
     listarUsuariosPaginacionModel,
     buscarUsuariosPorValorModel,
-    contarUsuariosActivosModel
+    contarUsuariosActivosModel,
+    actualizarRolUsuarioModel
 } = require("./usuarioModelo")
 
 const { validarActualizarUsuario, validarActualizarCorreoUsuario } = require("./usuarioValidaciones")
 
+const insertarRolUsuarioService = async (datos) => {
+    if (!datos || typeof datos !== "object") {
+        throw Object.assign(
+            new Error("Se necesita el nombre del rol."),
+            { status: 400 }
+        );
+    }
+    const { nombreRol } = datos;
+    if (!nombreRol || typeof nombreRol !== "string" || !nombreRol.trim()) {
+        throw Object.assign(
+            new Error("Se necesita el nombre del rol."),
+            { status: 400 }
+        );
+    }
+    const respuesta = await insertarRolUsuarioModel(nombreRol);
+
+    return {
+        ok: true,
+        mensaje: respuesta
+    };
+};
+
+const listarRolesService = async () => {
+    const roles = await listarRolesModel();
+    if (roles.length === 0) {
+        throw Object.assign(
+            new Error("No se encontraron roles."),
+            { status: 404 }
+        );
+    }
+
+    return {
+        ok: true,
+        roles: roles
+    };
+};
+
+const actualizarNombreRolUsuarioService = async (idRol, datos) => {
+    if (!idRol || isNaN(Number(idRol))) {
+        throw Object.assign(
+            new Error("Se necesita un ID de rol válido."),
+            { status: 400 }
+        );
+    }
+    if (!datos || typeof datos !== "object") {
+        throw Object.assign(
+            new Error("Se necesita el nuevo nombre del rol."),
+            { status: 400 }
+        );
+    }
+    const { nombreRol } = datos;
+    if (!nombreRol || typeof nombreRol !== "string" || !nombreRol.trim()) {
+        throw Object.assign(
+            new Error("Se necesita el nuevo nombre del rol."),
+            { status: 400 }
+        );
+    }
+    const rol = await obtenerRolPorIdModel(idRol);
+    if (!rol || rol.length === 0) {
+        throw Object.assign(new Error("El rol especificado no existe."), { status: 404 });
+    }
+    const respuesta = await actualizarNombreRolUsuarioModel(idRol, nombreRol);
+
+    if (!respuesta) {
+        throw Object.assign(
+            new Error("No se pudo actualizar rol."),
+            { status: 500 }
+        );
+    }
+
+    return {
+        ok: true,
+        mensaje: respuesta
+    }
+};
 
 const actualizarUsuarioService = async (datos, idUsuario) => {
     const idUsuarioNumerico = Number(idUsuario)
@@ -171,7 +251,6 @@ const eliminarUsuarioService = async (idUsuario) => {
     }
 
     const respuesta = await eliminarUsuarioModel(idUsuarioNumerico, 0);
-    console.log(respuesta);
     return {
         ok: true,
         mensaje: respuesta
@@ -179,8 +258,8 @@ const eliminarUsuarioService = async (idUsuario) => {
 };
 
 // Servicio para obtener todos los usuarios
-const obtenerUsuariosService = async () => {
-    const usuarios = await listarUsuariosModel();
+const obtenerUsuariosService = async (idUsuario) => {
+    const usuarios = await listarUsuariosModel(idUsuario);
     if (!usuarios || usuarios.length === 0) {
         throw Object.assign(
             new Error("No existen usuarios."),
@@ -188,17 +267,17 @@ const obtenerUsuariosService = async () => {
         );
     }
     return {
-        ok: true, 
-        usuarios:usuarios
+        ok: true,
+        usuarios: usuarios
     };
 };
 
 // Servicio para obtener usuarios con paginación
-const obtenerUsuariosPaginacionService = async (limit, offset) => {
+const obtenerUsuariosPaginacionService = async (limit, offset, idUsuario) => {
     const limite = parseInt(limit) || 10;
     const desplazamiento = parseInt(offset) || 0;
 
-    const usuarios = await listarUsuariosPaginacionModel(limite, desplazamiento);
+    const usuarios = await listarUsuariosPaginacionModel(limite, desplazamiento, idUsuario);
     if (!usuarios || usuarios.length === 0) {
         throw Object.assign(
             new Error("No existen usuarios."),
@@ -206,8 +285,8 @@ const obtenerUsuariosPaginacionService = async (limit, offset) => {
         );
     }
     return {
-        ok: true, 
-        usuarios:usuarios
+        ok: true,
+        usuarios: usuarios
     };
 };
 
@@ -231,14 +310,14 @@ const consultarUsuarioPorIdService = async (id) => {
     }
 
     return {
-        ok: true, 
+        ok: true,
         usuario: usuario[0]
-    }; 
+    };
 };
 
 
 // Servicio para buscar usuarios por un valor (nombre, apellido, correo o teléfono)
-const buscarUsuariosPorValorService = async (valor) => {
+const buscarUsuariosPorValorService = async (valor, idUsuario) => {
     if (!valor || typeof valor !== "string") {
         throw Object.assign(
             new Error("Se requiere un valor válido para buscar."),
@@ -246,7 +325,7 @@ const buscarUsuariosPorValorService = async (valor) => {
         );
     }
 
-    const usuarios = await buscarUsuariosPorValorModel(valor);
+    const usuarios = await buscarUsuariosPorValorModel(valor, idUsuario);
     if (!usuarios || usuarios.length === 0) {
         throw Object.assign(
             new Error("No se encontraron usuarios que coincidan."),
@@ -254,8 +333,8 @@ const buscarUsuariosPorValorService = async (valor) => {
         );
     }
     return {
-        ok: true, 
-        usuarios:usuarios
+        ok: true,
+        usuarios: usuarios
     };
 };
 
@@ -269,12 +348,66 @@ const contarUsuariosActivosService = async () => {
         );
     }
     return {
-        ok: true, 
-        total:total
+        ok: true,
+        total: total
     };
 };
 
+const actualizarRolUsuarioService = async (datos, idUsuario, idActual) => {
+    if (!idUsuario || isNaN(Number(idUsuario))) {
+        throw Object.assign(
+            new Error("Se necesita un ID de rol válido."),
+            { status: 400 }
+        );
+    }
+    if (!datos || typeof datos !== "object") {
+        throw Object.assign(
+            new Error("Se necesita el nombre del rol."),
+            { status: 400 }
+        );
+    }
+    const { nuevoRol } = datos;
+
+    if (!nuevoRol || typeof nuevoRol !== "number") {
+        throw Object.assign(new Error("Debe proporcionar un rol válido."), { status: 400 });
+    }
+    
+    if (Number(idUsuario) === idActual) {
+        throw Object.assign(
+            new Error("Usted mismo no puede modificar su rol."),
+            { status: 403 }
+        );
+    }
+
+    // 🔹 Verificar que el usuario exista
+    const usuario = await consultarUsuarioPorIdModel(idUsuario);
+    if (!usuario || usuario.length === 0) {
+        throw Object.assign(new Error("El usuario especificado no existe."), { status: 404 });
+    }
+
+    const rol = await obtenerRolPorIdModel(nuevoRol);
+    if (!rol || rol.length === 0) {
+        throw Object.assign(new Error("El rol especificado no existe."), { status: 404 });
+    }
+
+    // 🔹 Evitar que se reasigne el mismo rol
+    if (usuario[0].idRol === nuevoRol) {
+        throw Object.assign(new Error("El usuario ya tiene asignado este rol."), { status: 400 });
+    }
+
+    const respuesta = await actualizarRolUsuarioModel(idUsuario, nuevoRol);
+
+    return {
+        ok: true,
+        mensaje: respuesta.mensaje || "Rol del usuario actualizado correctamente."
+    };
+};
+
+
 module.exports = {
+    insertarRolUsuarioService,
+    listarRolesService,
+    actualizarNombreRolUsuarioService,
     actualizarUsuarioService,
     actualizarCorreoUsuarioService,
     actualizarClaveUsuarioService,
@@ -283,5 +416,6 @@ module.exports = {
     obtenerUsuariosPaginacionService,
     consultarUsuarioPorIdService,
     buscarUsuariosPorValorService,
-    contarUsuariosActivosService
+    contarUsuariosActivosService,
+    actualizarRolUsuarioService
 }

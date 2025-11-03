@@ -1,4 +1,7 @@
 const { 
+    insertarRolUsuarioService,
+    listarRolesService,
+    actualizarNombreRolUsuarioService,
     actualizarUsuarioService, 
     actualizarCorreoUsuarioService, 
     actualizarClaveUsuarioService,
@@ -7,8 +10,55 @@ const {
     obtenerUsuariosPaginacionService,
     buscarUsuariosPorValorService,
     consultarUsuarioPorIdService,
-    contarUsuariosActivosService 
+    contarUsuariosActivosService,
+    actualizarRolUsuarioService 
 } = require("./usuarioServicio");
+
+const insertarRolUsuarioController = async (req, res) => {
+    try {
+        const respuesta = await insertarRolUsuarioService(req.body);
+        return res.status(200).json(respuesta);
+    } catch (err) {
+        console.error("Error en listarRolesController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+}
+const listarRolesController = async (req, res) => {
+    try {
+        const respuesta = await listarRolesService();
+        return res.status(200).json(respuesta);
+    } catch (err) {
+        console.error("Error en listarRolesController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
+const actualizarNombreRolUsuarioController = async (req, res) => {
+    const { idRol } = req.params;
+
+    try {
+        const respuesta = await actualizarNombreRolUsuarioService(idRol, req.body);
+        return res.status(200).json(respuesta);
+    } catch (err) {
+        console.error("Error en actualizarRolUsuarioController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+}
 
 const actualizarUsuarioController = async (req, res) => {
     try {
@@ -79,8 +129,9 @@ const eliminarUsuarioController = async (req, res) => {
 
 // Controlador para obtener todos los usuarios
 const obtenerUsuariosController = async (req, res) => {
+    const {idUsuario} = req.usuario;
     try {
-        const usuarios = await obtenerUsuariosService();
+        const usuarios = await obtenerUsuariosService(idUsuario);
 
         return res.status(200).json(usuarios);
     } catch (err) {
@@ -98,8 +149,9 @@ const obtenerUsuariosController = async (req, res) => {
 const obtenerUsuariosPaginacionController = async (req, res) => {
     try {
         const { limit, offset } = req.query;
+        const {idUsuario} = req.usuario;
 
-        const usuarios = await obtenerUsuariosPaginacionService(limit, offset);
+        const usuarios = await obtenerUsuariosPaginacionService(limit, offset, idUsuario);
 
         return res.status(200).json(usuarios);
 
@@ -118,8 +170,8 @@ const obtenerUsuariosPaginacionController = async (req, res) => {
 const buscarUsuariosPorValorController = async (req, res) => {
     try {
         const { valor } = req.query;
-
-        const usuarios = await buscarUsuariosPorValorService(valor);
+        const {idUsuario} = req.usuario;
+        const usuarios = await buscarUsuariosPorValorService(valor, idUsuario);
 
         return res.status(200).json(usuarios);
 
@@ -171,7 +223,29 @@ const contarUsuariosActivosController = async (req, res) => {
     }
 };
 
+const actualizarRolUsuarioController = async (req, res) => {
+    try {
+        const { idUser } = req.params;
+        const {idUsuario} = req.usuario;
+        const respuesta = await actualizarRolUsuarioService(req.body, idUser, idUsuario);
+
+        return res.status(200).json(respuesta);
+
+    } catch (err) {
+        console.error("Error en actualizarRolUsuarioController:", err.message);
+        const statusCode = err.status || 500;
+
+        return res.status(statusCode).json({
+            ok: false,
+            mensaje: err.message || "Error interno del servidor"
+        });
+    }
+};
+
 module.exports = {
+    insertarRolUsuarioController,
+    listarRolesController,
+    actualizarNombreRolUsuarioController,
     actualizarUsuarioController,
     actualizarCorreoUsuarioController,
     actualizarClaveUsuarioController,
@@ -180,5 +254,6 @@ module.exports = {
     obtenerUsuariosPaginacionController,
     consultarUsuarioPorIdController,
     buscarUsuariosPorValorController,
-    contarUsuariosActivosController
+    contarUsuariosActivosController,
+    actualizarRolUsuarioController
 }

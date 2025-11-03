@@ -1,7 +1,9 @@
 require('dotenv').config(); // Cargar variables de entorno
+const helmet = require("helmet");
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
+const limitador = require("./src/middlewares/limitador");
 
 //rutas del modulo de autenticacion
 const autenticacionRoutes = require("./src/modulos/autenticacion/autenticacionRutas");
@@ -30,6 +32,11 @@ const productoRoutes = require("./src/modulos/inventario/rutas/productoRutas");
 const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas")
 
 const app = express();
+
+app.use(limitador);
+app.use(express.json({ limit: "50kb" }));
+app.use(express.urlencoded({ extended: true, limit: "50kb" }));
+app.use(helmet());
 
 const corsOptions = {
   origin: 'http://localhost:5173',  // el origen específico permitido

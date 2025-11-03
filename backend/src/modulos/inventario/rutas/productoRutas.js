@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const verificarImagen = require("../../../middlewares/verificarImagenMiddleware");
-const autenticacionToken = require("../../../middlewares/autenticacionMiddleware")
+const { autenticacionToken, verificarRoles } = require("../../../middlewares/autenticacionMiddleware");
 
 const {
     insertarProductoController,
@@ -24,29 +24,29 @@ const {
 } = require("../controlador/productoControlador");
 
 // ✅ Rutas relacionadas a productos
-router.post("/agregar-producto", autenticacionToken, verificarImagen, insertarProductoController);
-router.put("/actualizar-producto/:idProducto",  actualizarProductoController);
-router.delete("/eliminar-producto/:idProducto", autenticacionToken, eliminarProductoController);
+router.post("/agregar-producto", autenticacionToken, verificarRoles(1, 2), verificarImagen, insertarProductoController);
+router.put("/actualizar-producto/:idProducto", verificarRoles(1, 2),  actualizarProductoController);
+router.delete("/eliminar-producto/:idProducto", verificarRoles(1, 2), autenticacionToken, eliminarProductoController);
 
 // ✅ Rutas relacionadas a imágenes
-router.put("/actualizar-imagen/:idProducto", autenticacionToken, verificarImagen, actualizarImagenProductoController);
+router.put("/actualizar-imagen/:idProducto", verificarRoles(1, 2), autenticacionToken, verificarImagen, actualizarImagenProductoController);
 
 // ✅ Rutas relacionadas a insumos y cantidades
-router.patch("/modificar-cantidad", autenticacionToken, actualizarCantidadUsoInsumoProductoController);
-router.delete("/eliminar-cantidad", autenticacionToken, eliminarCantidadInsumoProductoController);
-router.post("/agregar-cantidad", autenticacionToken, insertarCantidadInsumoProductoController);
+router.patch("/modificar-cantidad", verificarRoles(1, 2), autenticacionToken, actualizarCantidadUsoInsumoProductoController);
+router.delete("/eliminar-cantidad", verificarRoles(1, 2), autenticacionToken, eliminarCantidadInsumoProductoController);
+router.post("/agregar-cantidad", verificarRoles(1, 2), autenticacionToken, insertarCantidadInsumoProductoController);
 
-router.get("/", obtenerProductosController);
-router.get("/paginacion", obtenerProductosPaginacionController);
-router.get("/busqueda", buscarProductosPorNombreController);
-router.get("/:idProducto", obtenerProductoPorIdController);
-router.get("/insumos-cantidad/:idProducto", obtenerInsumosPorProductoControlller);
-router.get("/filtrar-categoria/:idCategoria", obtenerProductosPorCategoriaController);
+router.get("/", autenticacionToken, verificarRoles(1, 2), obtenerProductosController);
+router.get("/paginacion", autenticacionToken, verificarRoles(1, 2), obtenerProductosPaginacionController);
+router.get("/busqueda", autenticacionToken, verificarRoles(1, 2), buscarProductosPorNombreController);
+router.get("/:idProducto", autenticacionToken, verificarRoles(1, 2), obtenerProductoPorIdController);
+router.get("/insumos-cantidad/:idProducto", verificarRoles(1, 2), autenticacionToken, obtenerInsumosPorProductoControlller);
+router.get("/filtrar-categoria/:idCategoria", verificarRoles(1, 2), autenticacionToken, obtenerProductosPorCategoriaController);
 
 //Rutas para categorias
-router.post("/categorias/agregar", insertarCategoriaProductoController);
-router.put("/categorias/actualizar/:idCategoria", actualizarCategoriaProductoController);
-router.get("/categorias/all", obtenerCategoriasProductoController);
-router.get("/categorias/:idCategoria", obtenerCategoriaPorIdController);
+router.post("/categorias/agregar", autenticacionToken, verificarRoles(1, 2), insertarCategoriaProductoController);
+router.put("/categorias/actualizar/:idCategoria", verificarRoles(1, 2), autenticacionToken, actualizarCategoriaProductoController);
+router.get("/categorias/all", autenticacionToken, verificarRoles(1, 2), obtenerCategoriasProductoController);
+router.get("/categorias/:idCategoria", autenticacionToken, verificarRoles(1, 2), obtenerCategoriaPorIdController);
 
 module.exports = router;
