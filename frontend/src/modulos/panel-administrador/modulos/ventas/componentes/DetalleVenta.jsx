@@ -3,7 +3,7 @@ import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
 import { useState, useEffect } from "react";
 
 export const DetalleVenta = () => {
-  const { detalle, removerProducto, actualizarCantidad } = useVentaEstadoGlobal();
+  const { detalle, removerProducto, actualizarCantidad, obtenerId } = useVentaEstadoGlobal();
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const [inputValues, setInputValues] = useState({});
 
@@ -11,54 +11,59 @@ export const DetalleVenta = () => {
   useEffect(() => {
     const nuevosInputs = {};
     detalle.forEach((item) => {
-      nuevosInputs[item.id] = item.cantidad.toString();
+      const itemId = obtenerId(item);
+      nuevosInputs[itemId] = item.cantidad.toString();
     });
     setInputValues(nuevosInputs);
-  }, [detalle]);
+  }, [detalle, obtenerId]);
 
-  const handleCantidadChange = (id, valor) => {
+  const handleCantidadChange = (itemId, valor) => {
     // Permitir campo vacío temporalmente
-    setInputValues({ ...inputValues, [id]: valor });
+    setInputValues({ ...inputValues, [itemId]: valor });
     
     // Solo actualizar si es un número válido
     const cantidad = parseInt(valor);
     if (!isNaN(cantidad) && cantidad > 0 && cantidad <= 999) {
-      actualizarCantidad(id, cantidad);
+      actualizarCantidad(itemId, cantidad);
     }
   };
 
-  const handleCantidadBlur = (id, cantidadActual) => {
+  const handleCantidadBlur = (itemId, cantidadActual) => {
     // Al perder el foco, si está vacío o inválido, restaurar al valor anterior
-    const valor = inputValues[id];
+    const valor = inputValues[itemId];
     const cantidad = parseInt(valor);
     
     if (!valor || isNaN(cantidad) || cantidad <= 0) {
-      setInputValues({ ...inputValues, [id]: cantidadActual.toString() });
+      setInputValues({ ...inputValues, [itemId]: cantidadActual.toString() });
     } else if (cantidad > 999) {
-      actualizarCantidad(id, 999);
-      setInputValues({ ...inputValues, [id]: "999" });
+      actualizarCantidad(itemId, 999);
+      setInputValues({ ...inputValues, [itemId]: "999" });
     }
   };
-  // función para aumentar la cantidad desde el detalle, antes estaba en el estado global
-  const aumentarCantidad = (id, cantidadActual) => {
+
+  // función para aumentar la cantidad desde el detalle
+  const aumentarCantidad = (itemId, cantidadActual) => {
     if (cantidadActual < 999) {
       const nuevaCantidad = cantidadActual + 1;
-      actualizarCantidad(id, nuevaCantidad);
-      setInputValues({ ...inputValues, [id]: nuevaCantidad.toString() });
+      actualizarCantidad(itemId, nuevaCantidad);
+      setInputValues({ ...inputValues, [itemId]: nuevaCantidad.toString() });
     }
   };
-  // de igual forma para disminuir, antes estaba en el estado global
-  const disminuirCantidad = (id, cantidadActual) => {
+
+  // de igual forma para disminuir
+  const disminuirCantidad = (itemId, cantidadActual) => {
     if (cantidadActual > 1) {
       const nuevaCantidad = cantidadActual - 1;
-      actualizarCantidad(id, nuevaCantidad);
-      setInputValues({ ...inputValues, [id]: nuevaCantidad.toString() });
+      actualizarCantidad(itemId, nuevaCantidad);
+      setInputValues({ ...inputValues, [itemId]: nuevaCantidad.toString() });
     }
   };
+
   // para confirmar el cambio
-  const confirmarEliminacion = (id) => {
-    setProductoAEliminar(id);
+  const confirmarEliminacion = (itemId) => {
+    setProductoAEliminar(itemId);
   };
+
   // para eliminar el Producto
   const eliminarProducto = () => {
     if (productoAEliminar) {
@@ -66,7 +71,8 @@ export const DetalleVenta = () => {
       setProductoAEliminar(null);
     }
   };
-  // cancelar la eliminarión
+
+  // cancelar la eliminación
   const cancelarEliminacion = () => {
     setProductoAEliminar(null);
   };
@@ -118,97 +124,103 @@ export const DetalleVenta = () => {
                 </tr>
               </thead>
               <tbody>
-                {detalle.map((item, index) => (
-                  <tr
-                    key={item.id}
-                    className={`
-                      border-t border-gray-200 dark:border-gray-700 
-                      hover:bg-gray-50 dark:hover:bg-gray-750 
-                      transition-colors
-                      ${productoAEliminar === item.id ? 'bg-red-50 dark:bg-red-900/20' : ''}
-                      ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-800/50'}
-                    `}
-                  >
-                    {/* Columna Cantidad */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => disminuirCantidad(item.id, item.cantidad)}
-                          disabled={item.cantidad <= 1}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-l border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          title="Disminuir cantidad"
-                        >
-                          <FiMinus size={14} />
-                        </button>
-                        
-                        <input
-                          type="number"
-                          min="1"
-                          max="999"
-                          value={inputValues[item.id] !== undefined ? inputValues[item.id] : item.cantidad}
-                          onChange={(e) => handleCantidadChange(item.id, e.target.value)}
-                          onBlur={() => handleCantidadBlur(item.id, item.cantidad)}
-                          onFocus={(e) => e.target.select()}
-                          className="w-14 h-7 text-center border-t border-b border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        
-                        <button
-                          onClick={() => aumentarCantidad(item.id, item.cantidad)}
-                          disabled={item.cantidad >= 999}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-r border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          title="Aumentar cantidad"
-                        >
-                          <FiPlus size={14} />
-                        </button>
-                      </div>
-                    </td>
-
-                    {/* Columna Producto */}
-                    <td className="px-4 py-3 text-gray-900 dark:text-gray-200 font-medium">
-                      {item.nombre}
-                    </td>
-
-                    {/* Columna Precio Unitario */}
-                    <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
-                      S/ {item.precio.toFixed(2)}
-                    </td>
-
-                    {/* Columna Total */}
-                    <td className="px-4 py-3 text-right font-bold text-gray-900 dark:text-white">
-                      S/ {(item.cantidad * item.precio).toFixed(2)}
-                    </td>
-
-                    {/* Columna Acciones */}
-                    <td className="px-4 py-3 text-center">
-                      {productoAEliminar === item.id ? (
+                {detalle.map((item, index) => {
+                  const itemId = obtenerId(item);
+                  const nombre = item.nombreProducto || item.nombre;
+                  const precio = item.precioProducto || item.precio;
+                  
+                  return (
+                    <tr
+                      key={itemId}
+                      className={`
+                        border-t border-gray-200 dark:border-gray-700 
+                        hover:bg-gray-50 dark:hover:bg-gray-750 
+                        transition-colors
+                        ${productoAEliminar === itemId ? 'bg-red-50 dark:bg-red-900/20' : ''}
+                        ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-800/50'}
+                      `}
+                    >
+                      {/* Columna Cantidad */}
+                      <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">
                           <button
-                            onClick={eliminarProducto}
-                            className="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
-                            title="Confirmar eliminación"
+                            onClick={() => disminuirCantidad(itemId, item.cantidad)}
+                            disabled={item.cantidad <= 1}
+                            className="inline-flex items-center justify-center w-7 h-7 rounded-l border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            title="Disminuir cantidad"
                           >
-                            Sí
+                            <FiMinus size={14} />
                           </button>
+                          
+                          <input
+                            type="number"
+                            min="1"
+                            max="999"
+                            value={inputValues[itemId] || item.cantidad}
+                            onChange={(e) => handleCantidadChange(itemId, e.target.value)}
+                            onBlur={() => handleCantidadBlur(itemId, item.cantidad)}
+                            onFocus={(e) => e.target.select()}
+                            className="w-14 h-7 text-center border-t border-b border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          
                           <button
-                            onClick={cancelarEliminacion}
-                            className="px-2 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors"
-                            title="Cancelar"
+                            onClick={() => aumentarCantidad(itemId, item.cantidad)}
+                            disabled={item.cantidad >= 999}
+                            className="inline-flex items-center justify-center w-7 h-7 rounded-r border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            title="Aumentar cantidad"
                           >
-                            No
+                            <FiPlus size={14} />
                           </button>
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => confirmarEliminacion(item.id)}
-                          className="inline-flex items-center justify-center w-8 h-8 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
-                          title="Eliminar producto"
-                        >
-                          <FiTrash2 size={16} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+
+                      {/* Columna Producto */}
+                      <td className="px-4 py-3 text-gray-900 dark:text-gray-200 font-medium">
+                        {nombre}
+                      </td>
+
+                      {/* Columna Precio Unitario */}
+                      <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
+                        S/ {precio}
+                      </td>
+
+                      {/* Columna Total */}
+                      <td className="px-4 py-3 text-right font-bold text-gray-900 dark:text-white">
+                        S/ {(item.cantidad * precio).toFixed(2)}
+                      </td>
+
+                      {/* Columna Acciones */}
+                      <td className="px-4 py-3 text-center">
+                        {productoAEliminar === itemId ? (
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={eliminarProducto}
+                              className="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                              title="Confirmar eliminación"
+                            >
+                              Sí
+                            </button>
+                            <button
+                              onClick={cancelarEliminacion}
+                              className="px-2 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors"
+                              title="Cancelar"
+                            >
+                              No
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => confirmarEliminacion(itemId)}
+                            className="inline-flex items-center justify-center w-8 h-8 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                            title="Eliminar producto"
+                          >
+                            <FiTrash2 size={16} />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
