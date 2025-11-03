@@ -102,7 +102,7 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
         idInsumo: idInsumo,
         nuevaCantidad: parseFloat(nuevaCantidad)
       };
-
+      console.log("lo que se envía", datos)
       await modificarCantidadInsumoServicio(datos);
       
       // Recargar los insumos del producto

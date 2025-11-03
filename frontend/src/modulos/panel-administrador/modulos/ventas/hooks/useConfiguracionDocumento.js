@@ -11,16 +11,11 @@ const useConfiguracionDocumento = (tipo, setValue) => {
       setbusquedaHabilitada(true);
       setValue("numeroDocumento", ""); // reset input
     } else if (tipo === "2") {
-      // Pasaporte
-      setPlaceholder("Ejemplo: E1234567");
-      setbusquedaHabilitada(false);
-      setValue("numeroDocumento", ""); // reset input
-    } else if (tipo === "3") {
       // Carne de extranjería
       setPlaceholder("Ejemplo: P1234567");
       setbusquedaHabilitada(false);
       setValue("numeroDocumento", ""); // reset input
-    } else if (tipo === "4") {
+    } else if (tipo === "3") {
       // RUC
       setPlaceholder("Ejemplo: 20123456789");
       setbusquedaHabilitada(true);

@@ -49,14 +49,14 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
       let nombreCompleto = ""; // Inicializamos la variable fuera de los condicionales
       let datosFormateados = ""
 
-      if (tipo === "1") { // si el tipo es igual a 1, se llamará a la función de buscarPorDNI
+      if (tipo === "1") { // si el tipo es igual a 1 (DNI), se llamará a la función de buscarPorDNI
         data = await buscarPorDNI(numeroDoc);
         nombreCompleto = data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres; // concatenamos para obtener el nombre completo
         datosFormateados = nombreCompleto.replace(/\b\w/g, char => char.toUpperCase()).replace(/\B\w/g, char => char.toLowerCase());
-      } else if (tipo === "4") { // lo mismo para el RUC
+      } else if (tipo === "3") { // si el tipo es igual a 3 (RUC), se llamará a la función de buscarPorRUC
         data = await buscarPorRUC(numeroDoc);
         datosFormateados = data.razonSocial;
-      } else { // si no cumple ninguno de los casos
+      } else { // si no cumple ninguno de los casos (Carnet de extranjería)
         console.log("Búsqueda solo disponible para DNI y RUC");
         return;
       }
@@ -118,13 +118,10 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
                 if (tipo === "1" && value.length !== 8) {
                   return "El DNI debe tener 8 dígitos";
                 }
-                if (tipo === "4" && value.length !== 11) {
+                if (tipo === "3" && value.length !== 11) {
                   return "El RUC debe tener 11 dígitos";
                 }
                 if (tipo === "2" && !/^[A-Z0-9]{6,12}$/i.test(value)) {
-                  return "Pasaporte inválido";
-                }
-                if (tipo === "3" && !/^[A-Z0-9]{9,12}$/i.test(value)) {
                   return "Carné de extranjería inválido";
                 }
                 return true; // si no hay ningun error regresamos true
@@ -235,6 +232,17 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
             <span className="text-xs text-red-500">{errors.email.message}</span>
           )}
         </div>
+      </div>
+
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+        <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
+          Requisitos para Factura:
+        </h4>
+        <ul className="text-xs text-blue-700 dark:text-blue-300 list-disc list-inside space-y-1">
+          <li>RUC obligatorio (11 dígitos)</li>
+          <li>Dirección fiscal requerida</li>
+          <li>Razón social de la empresa</li>
+        </ul>
       </div>
 
       {/* Botones de acción */}

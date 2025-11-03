@@ -243,7 +243,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
         }))
       };
 
-      console.log('Enviando reserva con productos:', datosParaBackend);
       await registrarReservacionServicio(datosParaBackend);
       mostrarAlerta.exito('Reserva creada exitosamente');
       onCancelar();

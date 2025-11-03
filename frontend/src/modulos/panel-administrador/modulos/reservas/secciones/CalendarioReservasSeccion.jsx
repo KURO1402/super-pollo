@@ -14,6 +14,7 @@ import { estadosReserva } from "../data-temporal/mockReservas";
 import FormularioReserva from "../componentes/FormularioReservas";
 import { ModalEditarReserva } from "../componentes/ModalEditarReserva";
 import { listarReservacionesServicio } from "../servicios/reservacionesServicio";
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
 const CalendarioReservasSeccion = () => {
   const [reservas, setReservas] = useState([]);
@@ -36,7 +37,6 @@ const CalendarioReservasSeccion = () => {
       setReservas(reservaciones);
     } catch (error) {
       console.error('Error al cargar reservas:', error);
-      alert("Error al cargar las reservas");
     } finally {
       setCargando(false);
     }
@@ -136,7 +136,7 @@ const CalendarioReservasSeccion = () => {
 
     // Permitir selección de hoy y fechas futuras
     if (fechaSel < hoy) {
-      alert("No se pueden reservar fechas anteriores a hoy");
+      mostrarAlerta.advertencia("No se pueden reservar fechas anteriores a hoy");
       return;
     }
 
@@ -162,7 +162,7 @@ const CalendarioReservasSeccion = () => {
 
       // Validar que la fecha sea hoy o posterior
       if (!esFechaValida(datos.fechaReservacion)) {
-        alert("No se pueden crear reservas para fechas anteriores a hoy");
+        mostrarAlerta.advertencia("No se pueden crear reservas para fechas anteriores a hoy");
         setGuardando(false);
         return;
       }
@@ -181,13 +181,13 @@ const CalendarioReservasSeccion = () => {
         numeroMesa: datos.idMesa // Para compatibilidad con la visualización
       };
       setReservas((prev) => [...prev, nuevaReserva]);
-      alert("Reserva creada exitosamente");
+      mostrarAlerta.exito("Reserva creada exitosamente");
 
       modalNuevaReserva.cerrar();
       setReservaSeleccionada(null);
     } catch (error) {
       console.error('Error al guardar reserva:', error);
-      alert("Error al guardar la reserva");
+      mostrarAlerta.error("Error al guardar la reserva");
     } finally {
       setGuardando(false);
     }
@@ -209,7 +209,7 @@ const CalendarioReservasSeccion = () => {
       setReservaSeleccionada(null);
     } catch (error) {
       console.error('Error al actualizar reserva en el calendario:', error);
-      alert("Error al actualizar la reserva");
+      mostrarAlerta.error("Error al actualizar la reserva");
     }
   };
 
