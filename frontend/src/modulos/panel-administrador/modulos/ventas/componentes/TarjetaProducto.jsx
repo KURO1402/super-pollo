@@ -14,10 +14,10 @@ export const TarjetaProducto = ({ producto }) => {
     >
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex justify-between items-center">
         <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
-          {producto.nombre}
+          {producto.nombreProducto}
         </h3>
         <p className="font-bold text-blue-600 text-sm ">
-          S/ {producto.precio.toFixed(2)}
+          S/ {producto.precio}
         </p>
       </div>
     </button>

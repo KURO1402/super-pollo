@@ -2,9 +2,10 @@
 import { FiShoppingCart, FiUser, FiEdit2, FiCheck, FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
 // hooks de react
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // servicios
-import { registrarVenta } from "../servicios/ventasServicio";
+import { generarBoletaServicio } from "../servicios/ventasServicio";
+import { obtenerProductosServicio } from "../../productos/servicios/productoServicios"
 // Estado global o manejo de contexto
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
 // componentes reutilizables
@@ -22,14 +23,14 @@ import { DetalleVenta } from "../componentes/DetalleVenta";
 import { ResumenVenta } from "../componentes/ResumenVenta";
 import { FormularioCliente } from "../componentes/FormularioCliente";
 // data temporal
-import { productos } from "../data-temporal/productos";
 import { metodoPagoDatos } from "../data-temporal/metodoPago";
 
 const SeccionVentas = () => {
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
   const { detalle, subtotal, impuesto, total, limpiarVenta } = useVentaEstadoGlobal();
   const { estaAbierto, abrir, cerrar } = useModal();
-   const { confirmacionVisible, mensajeConfirmacion, tituloConfirmacion, solicitarConfirmacion, ocultarConfirmacion, confirmarAccion} = useConfirmacion();
+  const { confirmacionVisible, mensajeConfirmacion, tituloConfirmacion, solicitarConfirmacion, ocultarConfirmacion, confirmarAccion} = useConfirmacion();
+  
   // guardar los datos en estados locales
   const [tipoComprobante, setTipoComprobante] = useState(2);
   const [tipoPago, setTipoPago] = useState("contado");
@@ -39,6 +40,28 @@ const SeccionVentas = () => {
   const [cargando, setCargando] = useState(false);
   const [mostrarPDF, setMostrarPDF] = useState(false);
   const [urlPDF, setUrlPDF] = useState(null);
+  const [productos, setProductos] = useState([]);
+  const [cargandoProductos, setCargandoProductos] = useState(true);
+
+  // Cargar productos del backend al inicializar
+  useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        setCargandoProductos(true);
+        const productosData = await obtenerProductosServicio();
+        setProductos(productosData.productos);
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        mostrarAlerta.error('Error al cargar los productos');
+        // En caso de error, mantener productos vacíos
+        setProductos([]);
+      } finally {
+        setCargandoProductos(false);
+      }
+    };
+
+    cargarProductos();
+  }, []);
 
   const handleTipoComprobante = (tipo) => {
     setTipoComprobante(tipo);
@@ -48,20 +71,24 @@ const SeccionVentas = () => {
       setDatosCliente(null);
     }
   };
+
   // Abrir modal para agregar/editar cliente
   const handleAbrirModalCliente = () => {
     abrir();
   };
+
   // Cerrar modal del cliente
   const handleCerrarModalCliente = () => {
     cerrar();
   };
+
   // guardar datos del cliente desde el formulario
   const handleClienteGuardado = (cliente) => {
     mostrarAlerta.exito("Cliente agregado a la venta");
     setDatosCliente(cliente);
     cerrar();
   };
+
   // eliminar cleinte de la venta
   const handleEliminarCliente = () => {
     solicitarConfirmacion(
@@ -73,6 +100,7 @@ const SeccionVentas = () => {
       "Quitar cliente"
     );
   };
+
   // generar el comprobante, aqui se llama al servicio
   const handleGenerarComprobante = async () => {
     // Validaciones
@@ -100,6 +128,7 @@ const SeccionVentas = () => {
       const venta = {
         tipoComprobante: Number(tipoComprobante),
         productos: productosVenta,
+        idMetodoPago: 2,
       };
 
       // Si hay datos del cliente (obligatorio para factura, opcional para boleta)
@@ -113,7 +142,7 @@ const SeccionVentas = () => {
       // mostramos los datos que se envian al backend
       console.log("Datos enviados al backend:", venta);
       // llamar al servicio para registrar la venta
-      const ventaRegistrada = await registrarVenta(venta);
+      const ventaRegistrada = await generarBoletaServicio(venta);
       // mostrar resultado
       if (ventaRegistrada) {
         console.log("Venta registrada:", ventaRegistrada);
@@ -138,6 +167,7 @@ const SeccionVentas = () => {
       setCargando(false);
     }
   };
+
   // limpiar toda la venta
   const handleLimpiarVenta = () => {
     if (detalle.length > 0 || datosCliente) {
@@ -153,19 +183,22 @@ const SeccionVentas = () => {
       );
     }
   };
+
   // cerrar modal de pdf
   const handleCerrarModalPDF = () => {
     setMostrarPDF(false);
     setUrlPDF(null);
   };
+
   // descargar o imprimir el pdf del comprobante
   const handleDescargarPDF = () => {
     if (urlPDF) {
       window.open(urlPDF, '_blank');
     }
   };
+
   // filtrar productos por busqueda
-  let filtrados = filtrarPorBusqueda(productos, ["nombre"]);
+  let filtrados = filtrarPorBusqueda(productos, ["nombreProducto", "descripcionProducto"]);
 
   return (
     <div className="p-2">
@@ -186,12 +219,29 @@ const SeccionVentas = () => {
               placeholder="Buscar por producto..."
             />
           </div>
-          <div className="grid grid-cols-1 gap-2 max-h-[70vh] overflow-y-auto">
-            {filtrados.map((producto) => (
-              <TarjetaProducto key={producto.id} producto={producto} />
-            ))}
-          </div>
+          
+          {/* Estado de carga de productos */}
+          {cargandoProductos ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Cargando productos...</p>
+              </div>
+            </div>
+          ) : productos.length === 0 ? (
+            <div className="text-center py-8">
+              <FiShoppingCart className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+              <p className="text-gray-500 dark:text-gray-400">No hay productos disponibles</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-2 max-h-[70vh] overflow-y-auto">
+              {filtrados.map((producto) => (
+                <TarjetaProducto key={producto.idProducto} producto={producto} />
+              ))}
+            </div>
+          )}
         </div>
+
         <div className="col-span-3">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0 border-b border-gray-200 dark:border-gray-700 pb-4 lg:pb-0">
             <div className="flex w-full lg:w-auto">

@@ -46,8 +46,8 @@ import CalendarioReservasSeccion from "../modulos/panel-administrador/modulos/re
 import HistorialReservasSeccion from "../modulos/panel-administrador/modulos/reservas/secciones/HistorialReservasSeccion";
 
 // secciones de usuario y perfil
-import Usuarios from "../modulos/panel-administrador/paginas/Usuarios";
-import Perfil from "../modulos/panel-administrador/paginas/Perfil";
+import Usuarios from "../modulos/panel-administrador/modulos/usuario/secciones/Usuarios"
+import Perfil from "../modulos/panel-administrador/modulos/usuario/secciones/Perfil";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta

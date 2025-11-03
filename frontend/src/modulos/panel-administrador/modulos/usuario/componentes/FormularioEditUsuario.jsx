@@ -1,6 +1,6 @@
 
 import { useForm } from "react-hook-form";
-import { obtenerTiposDocumento } from "../../sitio-publico/servicios/tiposDocService";
+import { obtenerTiposDocumento } from "../../../../sitio-publico/servicios/tiposDocService";
 import { useEffect, useState } from "react";
 
 const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
