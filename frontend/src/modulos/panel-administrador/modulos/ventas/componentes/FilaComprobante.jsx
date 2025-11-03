@@ -1,63 +1,151 @@
-import { FiFileText, FiCheckCircle, FiXCircle, FiEye } from "react-icons/fi";
+import { FiFileText, FiCheckCircle, FiXCircle, FiEye, FiDownload, FiUser } from "react-icons/fi";
 
-export const FilaComprobante = ({ comprobante }) => {
+export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante }) => {
+  // Determinar color según tipo de comprobante
+  const getColorComprobante = () => {
+    if (venta.nombreTipoComprobante === "Factura") {
+      return {
+        bg: "bg-blue-100 dark:bg-blue-900/30",
+        text: "text-blue-600 dark:text-blue-400"
+      };
+    } else if (venta.nombreTipoComprobante === "Boleta") {
+      return {
+        bg: "bg-green-100 dark:bg-green-900/30", 
+        text: "text-green-600 dark:text-green-400"
+      };
+    } else {
+      return {
+        bg: "bg-gray-100 dark:bg-gray-900/30",
+        text: "text-gray-600 dark:text-gray-400"
+      };
+    }
+  };
+
+  // Determinar estado SUNAT
+  const getEstadoSunat = () => {
+    if (venta.aceptadaPorSunat === 1) {
+      return {
+        texto: "ACEPTADO",
+        bg: "bg-green-100 dark:bg-green-900/30",
+        text: "text-green-800 dark:text-green-400",
+        icono: <FiCheckCircle size={14} />
+      };
+    } else {
+      return {
+        texto: "DENEGADO", 
+        bg: "bg-red-100 dark:bg-red-900/30",
+        text: "text-red-800 dark:text-red-400",
+        icono: <FiXCircle size={14} />
+      };
+    }
+  };
+
+  // Color para método de pago
+  const getColorMetodoPago = () => {
+    const metodo = venta.nombreMedioPago?.toLowerCase() || '';
+    if (metodo.includes('efectivo')) {
+      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
+    } else if (metodo.includes('tarjeta')) {
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"; 
+    } else if (metodo.includes('transferencia')) {
+      return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400";
+    } else if (metodo.includes('yape') || metodo.includes('plin')) {
+      return "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400";
+    }
+    return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
+  };
+
+  const colorComprobante = getColorComprobante();
+  const estado = getEstadoSunat();
+  const colorMetodoPago = getColorMetodoPago();
+
   return (
-    <tr key={comprobante.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
+      {/* Comprobante */}
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center gap-2">
-            { /* si es factura se le da el volor azul, sino verde */ }
-          <FiFileText className={`${comprobante.tipo === "factura" ? "text-blue-500" : "text-green-500"}`} />
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-lg ${colorComprobante.bg} ${colorComprobante.text}`}>
+            <FiFileText size={16} />
+          </div>
           <div>
             <div className="text-sm font-medium text-gray-900 dark:text-white">
-              {comprobante.serie}-{comprobante.correlativo} 
+              {venta.comprobante}
             </div>
-            <div className="text-xs text-gray-500 capitalize">{comprobante.tipo}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+              {venta.nombreTipoComprobante}
+            </div>
           </div>
         </div>
       </td>
 
-      {/* cliente */}
+      {/* Cliente */}
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-gray-900 dark:text-white">{comprobante.cliente}</div>
-        <div className="text-xs text-gray-500">{comprobante.rucDni}</div>
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400">
+            <FiUser size={16} />
+          </div>
+          <div>
+            <div className="text-sm font-medium text-gray-900 dark:text-white">
+              {venta.nombreCliente}
+            </div>
+          </div>
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-xs text-gray-500 dark:text-gray-400">
+          {venta.usuarioRegistro}
+        </div>
+      </td>
+      {/* Método de Pago */}
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorMetodoPago}`}>
+          {venta.nombreMedioPago}
+        </span>
       </td>
 
-      {/* fechas */}
+      {/* Fechas */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-900 dark:text-white">
-          Emisión: {comprobante.fechaEmision}
+          {venta.fechaEmision}
         </div>
-        <div className="text-xs text-gray-500">
-          Vencimiento: {comprobante.fechaVencimiento}
+        <div className="text-xs text-gray-500 dark:text-gray-400">
+          Vence: {venta.fechaVencimiento}
         </div>
       </td>
 
-      {/* total */}
+      {/* Total */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-medium text-gray-900 dark:text-white">
-          S/ {comprobante.totalVenta.toFixed(2)}
+          S/ {parseFloat(venta.totalVenta).toFixed(2)}
         </div>
       </td>
 
-      {/* estado sunat */}
+      {/* Estado SUNAT */}
       <td className="px-6 py-4 whitespace-nowrap">
-        <div
-          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-            comprobante.estado === "aceptado"
-              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-          }`}
-        > 
-          {comprobante.estado === "aceptado" ? <FiCheckCircle size={12} /> : <FiXCircle size={12} />}
-          {comprobante.estado.toUpperCase()}
+        <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${estado.bg} ${estado.text}`}>
+          {estado.icono}
+          {estado.texto}
         </div>
       </td>
-      
+
       {/* Acciones */}
       <td className="px-6 py-4 whitespace-nowrap">
-        <button className="flex text-center p-1 pl-6 text-blue-500 hover:text-blue-700" title="Ver detalle">
-          <FiEye />
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={onVerDetalle}
+            className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cursor-pointer"
+            title="Ver detalle"
+          >
+            <FiEye size={16} />
+          </button>
+          <button 
+            onClick={onDescargarComprobante}
+            className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors cursor-pointer"
+            title="Descargar comprobante"
+          >
+            <FiDownload size={16} />
+          </button>
+        </div>
       </td>
     </tr>
   );

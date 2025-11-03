@@ -35,3 +35,29 @@ export const obtenerMetodosPagoServicio = async () => {
     }
 }
 
+// Obtener resumen de ventas
+export const obtenerVentasServicio = async () => {
+    const respuesta = await API.get("/ventas/resumen");
+    if(!respuesta.data.ok){
+        throw new Error(respuesta.data.mensaje || "Error al obtener las ventas");
+    }
+    return respuesta.data.ventas;
+}
+
+// Obtener detalle de una venta específica
+export const obtenerDetalleVentaServicio = async (idVenta) => {
+    const respuesta = await API.get(`/ventas/detalle-venta/${idVenta}`);
+    if(!respuesta.data.ok){
+        throw new Error(respuesta.data.mensaje || "Error al obtener el detalle de la venta");
+    }
+    return respuesta.data.detalles;
+}
+
+// Obtener comprobante para descargar PDF
+export const obtenerComprobanteServicio = async (idVenta) => {
+    const respuesta = await API.get(`/ventas/comprobante/${idVenta}`);
+    if(!respuesta.data.ok){
+        throw new Error(respuesta.data.mensaje || "Error al obtener el comprobante");
+    }
+    return respuesta.data.comprobante[0]; // Retorna el primer elemento del array
+}

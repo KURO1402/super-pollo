@@ -1,33 +1,112 @@
-import { comprobantes } from "../data-temporal/comprobantes";
+import { useState, useEffect } from "react";
 import { Tabla } from "../../../componentes/tabla/Tabla";
-import { FilaComprobante } from "../componentes/FilaComprobante";  // Importamos el componente personalizado
+import { FilaComprobante } from "../componentes/FilaComprobante";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; 
 import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
+import Modal from "../../../componentes/modal/Modal";
 // importamos los hooks que vamos a utilizar
 import { useBusqueda } from "../../../hooks/useBusqueda"; 
 import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
+import { useModal } from "../../../hooks/useModal";
+// servicios
+import { obtenerVentasServicio, obtenerComprobanteServicio, obtenerDetalleVentaServicio } from "../servicios/ventasServicio";
+import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
 const RegistroVentasSeccion = () => {
-  // desestructuramos los hooks para extraer los valores o funciones de cada uno
+  // estados
+  const [ventas, setVentas] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [detalleVenta, setDetalleVenta] = useState(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
+
+  // hooks
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); 
   const { filtro, setFiltro, aplicarFiltros } = useFiltro();
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(5);
-  // utilizamos la función de useBusqueda, donde le pasamos los parametros de comprobantes para item y los campos
-  let filtrados = filtrarPorBusqueda(comprobantes, [
-    "serie",
-    "correlativo",
-    "cliente",
-    "rucDni", 
-  ]);
-  filtrados = aplicarFiltros(filtrados); // utilizamos la funcion para aplicar los filtros
+  const { estaAbierto, abrir, cerrar } = useModal();
 
-  const { datosPaginados, totalPaginas } = paginar(filtrados); // llamamos a la funcion de paginar y le enviamos los datos filtrados
-  // nos devuelde los datoPaginados y el total de paginas y las guardamos
-  // mapeamos los comprobantes para que se muestren en la tabla, con los datos Paginados
-  const filasComprobantes = datosPaginados.map((c) => (
-    <FilaComprobante key={c.id} comprobante={c} />
+  // Cargar ventas al montar el componente
+  useEffect(() => {
+    const cargarVentas = async () => {
+      try {
+        setCargando(true);
+        const ventasData = await obtenerVentasServicio();
+        console.log("secciojn", ventasData)
+        setVentas(ventasData);
+      } catch (error) {
+        console.error('Error al cargar ventas:', error);
+        mostrarAlerta.error("Error al cargar las ventas");
+        setVentas([]);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    cargarVentas();
+  }, []);
+
+  // Función para ver detalle de venta
+  const handleVerDetalle = async (idVenta) => {
+    try {
+      setCargandoDetalle(true);
+      const detalles = await obtenerDetalleVentaServicio(idVenta);
+      setDetalleVenta(detalles);
+      abrir();
+    } catch (error) {
+      console.error('Error al cargar detalle:', error);
+      mostrarAlerta.error("Error al cargar el detalle de la venta");
+    } finally {
+      setCargandoDetalle(false);
+    }
+  };
+
+  // Función para descargar comprobante
+  const handleDescargarComprobante = async (idVenta) => {
+    try {
+      const comprobante = await obtenerComprobanteServicio(idVenta);
+      if (comprobante.urlComprobantePDF) {
+        window.open(comprobante.urlComprobantePDF, '_blank');
+        mostrarAlerta.exito("Comprobante descargado");
+      } else {
+        mostrarAlerta.error("No se encontró el comprobante PDF");
+      }
+    } catch (error) {
+      console.error('Error al descargar comprobante:', error);
+      mostrarAlerta.error("Error al descargar el comprobante");
+    }
+  };
+
+  // Filtrar y paginar datos
+  let filtrados = filtrarPorBusqueda(ventas, [
+    "comprobante",
+    "nombreCliente",
+    "nombreTipoComprobante",
+  ]);
+
+  // Aplicar filtro por estado SUNAT
+  if (filtro !== "todos") {
+    filtrados = filtrados.filter(venta => {
+      if (filtro === "aceptado") {
+        return venta.aceptadaPorSunat === 1;
+      } else if (filtro === "denegado") {
+        return venta.aceptadaPorSunat === 0;
+      }
+      return true;
+    });
+  }
+
+  const { datosPaginados, totalPaginas } = paginar(filtrados);
+
+  // Mapear ventas a filas de tabla
+  const filasComprobantes = datosPaginados.map((venta) => (
+    <FilaComprobante 
+      key={venta.idVenta} 
+      venta={venta}
+      onVerDetalle={() => handleVerDetalle(venta.idVenta)}
+      onDescargarComprobante={() => handleDescargarComprobante(venta.idVenta)}
+    />
   ));
 
   return (
@@ -36,39 +115,125 @@ const RegistroVentasSeccion = () => {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Registro de Ventas</h1>
         <p className="text-gray-600 dark:text-gray-400">Historial de comprobantes electrónicos</p>
       </div>
-      {/* le enviamos los estados y funciones para actualizar los estados al componente de busqueda y filtro */}
+
+      {/* Barra de búsqueda y filtros */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
-          {/* Barra de búsqueda */}
           <BarraBusqueda
             valor={terminoBusqueda} 
             onChange={setTerminoBusqueda}
-            placeholder="Buscar por serie, correlativo, cliente o RUC/DNI..."
+            placeholder="Buscar por comprobante, cliente o tipo..."
           />
   
-          {/* Filtro por estado */}
           <FiltroBusqueda
             valor={filtro}
             onChange={setFiltro} 
             opciones={[
               { value: "todos", label: "Todos los estados" },
-              { value: "aceptado", label: "Aceptados" },
-              { value: "denegado", label: "Denegados" },
+              { value: "aceptado", label: "Aceptados por SUNAT" },
+              { value: "denegado", label: "Denegados por SUNAT" },
             ]}
           />
         </div>
       </div>
-      
-      {/* le enviamos las filas personalizadas a la tabla */}
-      <Tabla
-        encabezados={["Comprobante", "Cliente", "Fechas", "Total", "Estado SUNAT", "Acciones"]}
-        registros={filasComprobantes} // pasamos los comprobantes mapeados 
-      /> 
-      <Paginacion
-        paginaActual={paginaActual}
-        totalPaginas={totalPaginas}
-        alCambiarPagina={setPaginaActual}
-      />
+
+      {/* Tabla de ventas */}
+      {cargando ? (
+        <div className="flex justify-center items-center h-32">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+            <p className="text-gray-600 dark:text-gray-400">Cargando ventas...</p>
+          </div>
+        </div>
+      ) : ventas.length === 0 ? (
+        <div className="text-center py-8 bg-white dark:bg-gray-800 rounded-lg">
+          <p className="text-gray-500 dark:text-gray-400">No hay ventas registradas</p>
+        </div>
+      ) : (
+        <>
+          <Tabla
+            encabezados={["Comprobante", "Cliente", "Cajero" , "Método Pago", "Fechas", "Total", "Estado SUNAT", "Acciones"]}
+            registros={filasComprobantes}
+          />
+          <Paginacion
+            paginaActual={paginaActual}
+            totalPaginas={totalPaginas}
+            alCambiarPagina={setPaginaActual}
+          />
+        </>
+      )}
+
+      {/* Modal de detalle de venta */}
+      <Modal
+        estaAbierto={estaAbierto}
+        onCerrar={cerrar}
+        titulo="Detalle de Venta"
+        tamaño="lg"
+        mostrarHeader={true}
+        mostrarFooter={false}
+      >
+        {cargandoDetalle ? (
+          <div className="flex justify-center items-center h-32">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+              <p className="text-gray-600 dark:text-gray-400">Cargando detalle...</p>
+            </div>
+          </div>
+        ) : detalleVenta && (
+          <div className="space-y-4">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Producto
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Cantidad
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Precio Unit.
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Subtotal
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      IGV
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {detalleVenta.map((detalle) => (
+                    <tr key={detalle.idDetalleVenta}>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        {detalle.nombreProducto}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        {detalle.cantidadProducto}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        S/ {parseFloat(detalle.precioUnitario).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        S/ {parseFloat(detalle.subtotal).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        S/ {parseFloat(detalle.igv).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                        S/ {parseFloat(detalle.totalProducto).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
