@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-
 import { useSidebar } from "../context/SidebarContext";
-
 import { BotonCambioTema } from "../componentes/BotonCambioTema";
 import DesplegableUsuario from "../componentes/DesplegableUsuario";
 
 const Cabecera = () => {
-  const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
   const handleToggle = () => {
@@ -17,11 +15,25 @@ const Cabecera = () => {
     }
   };
 
-  const toggleApplicationMenu = () => {
-    setApplicationMenuOpen(!isApplicationMenuOpen);
-  };
-
   const inputRef = useRef(null);
+
+  // Detectar cambios en el tamaño de la pantalla
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+    };
+
+    // Verificar tamaño inicial
+    checkScreenSize();
+
+    // Agregar listener para cambios de tamaño
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -42,10 +54,11 @@ const Cabecera = () => {
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-50 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
-      <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
-        <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
+      <div className="flex items-center justify-between w-full px-3 py-3 lg:px-6 lg:py-4">
+        {/* Lado izquierdo - Botón menú */}
+        <div className="flex items-center gap-2 lg:gap-4">
           <button
-            className="items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg z-99999 dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
+            className="flex items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
             onClick={handleToggle}
             aria-label="Toggle Sidebar"
           >
@@ -82,17 +95,13 @@ const Cabecera = () => {
             )}
           </button>
         </div>
-        <div
-          className={`${
-            isApplicationMenuOpen ? "flex" : "hidden"
-          } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
-        >
-          <div className="flex items-center gap-2 2xsm:gap-3">
-            {/* <!-- Dark Mode Toggler --> */}
-            <BotonCambioTema />
-            {/* <!-- Notification Menu Area --> */}
-          </div>
-          {/* <!-- User Area --> */}
+
+        {/* Lado derecho - Controles de usuario */}
+        <div className="flex items-center gap-3">
+          {/* Botón de cambio de tema */}
+          <BotonCambioTema />
+          
+          {/* Desplegable de usuario */}
           <DesplegableUsuario />
         </div>
       </div>
