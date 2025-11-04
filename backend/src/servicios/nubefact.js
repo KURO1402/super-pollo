@@ -1,9 +1,14 @@
+require("dotenv").config();
 const axios = require("axios");
 
 const generarComprobanteNubefact = async (data) => {
-    const urlnubeFact = "https://api.nubefact.com/api/v1/69a5b70b-56f6-404a-818c-cc50aee07376";
-    const token = "0cc4cffe30254fb1ac920d5dc6bbf47e7b9ba7fcf72c4210aa433812e575e0d8";
-    
+    const urlnubeFact = process.env.NUBEFACT_URL;
+    const token = process.env.NUBEFACT_TOKEN;
+
+    if (!urlnubeFact || !token) {
+        throw new Error("Las variables de entorno NUBEFACT_URL o NUBEFACT_TOKEN no están definidas");
+    }
+
     try {
         const response = await axios.post(urlnubeFact, data, {
             headers: {
@@ -18,14 +23,14 @@ const generarComprobanteNubefact = async (data) => {
         if (error.response) {
             console.error("Error Nubefact - Status:", error.response.status);
             console.error("Error Nubefact - Data:", error.response.data);
-            // Retornamos el error para que el servicio lo maneje
             return error.response.data;
         } else {
             console.error("Error de conexión:", error.message);
             throw error;
         }
     }
-}
+};
+
 module.exports = {
     generarComprobanteNubefact
-}
+};

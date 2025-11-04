@@ -5,33 +5,27 @@ const cors = require('cors');
 const cookieParser = require("cookie-parser");
 const limitador = require("./src/middlewares/limitador");
 
-//rutas del modulo de autenticacion
 const autenticacionRoutes = require("./src/modulos/autenticacion/autenticacionRutas");
 
-//rutas del modulo de fuente de datos
-const fuenteDatosRouter = require("./src/modulos/fuente-datos/fuenteDatosRutas")
+const fuenteDatosRouter = require("./src/modulos/fuente-datos/fuenteDatosRutas");
 
-//ruta para ventas
 const ventasRoutes = require("./src/modulos/ventas/rutas/ventasRutas");
 const comprobanteRoutes = require("./src/modulos/ventas/rutas/comprobanteRutas");
 
-//ruta para reservaciones
 const reservacionesRoutes = require("./src/modulos/reservaciones/reservacionesRutas.js");
 
-//rutas para inventario
 const insumoRoutes = require("./src/modulos/inventario/rutas/insumoRutas");
 const inentarioRoutes = require("./src/modulos/inventario/rutas/movimientoRutas.js");
 
-// Rutas para caja
 const cajaRoutes = require("./src/modulos/caja/cajaRutas.js");
 
-//Rutas para imagenes
 const productoRoutes = require("./src/modulos/inventario/rutas/productoRutas");
 
-//Rutas de usuarios
 const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas")
 
 const app = express();
+
+app.set('trust proxy', true);
 
 app.use(limitador);
 app.use(express.json({ limit: "50kb" }));
@@ -39,36 +33,31 @@ app.use(express.urlencoded({ extended: true, limit: "50kb" }));
 app.use(helmet());
 
 const corsOptions = {
-  origin: 'http://localhost:5173',  // el origen específico permitido
-  credentials: true,                 // permite el envío de cookies y credenciale
+  origin: 'http://localhost:5173',
+  credentials: true,
 };
 
-// Middlewares
-app.use(cors(corsOptions)); // Permitir peticiones del frontend
-app.use(cookieParser()); //Habilita lectura de cookies
-app.use(express.json()); // Leer JSON en requests
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(express.json());
 
-// Variables de entorno
 const PORT = process.env.PORT || 3001;
 
-// Ruta de prueba
 app.get('/', (req, res) => {
   res.send('Servidor funcionando');
 });
 
-//usar rutas
-app.use('/ventas', ventasRoutes);
-app.use('/comprobantes', comprobanteRoutes);
-app.use('/autenticacion', autenticacionRoutes);
-app.use('/fuente-datos', fuenteDatosRouter);
-app.use('/insumos', insumoRoutes);
-app.use('/inventario', inentarioRoutes)
-app.use('/reservaciones', reservacionesRoutes);
-app.use('/caja', cajaRoutes);
-app.use('/productos', productoRoutes);
-app.use('/usuarios', usuariosRoutes);
+app.use('/api/ventas', ventasRoutes);
+app.use('/api/comprobantes', comprobanteRoutes);
+app.use('/api/autenticacion', autenticacionRoutes);
+app.use('/api/fuente-datos', fuenteDatosRouter);
+app.use('/api/insumos', insumoRoutes);
+app.use('/api/inventario', inentarioRoutes);
+app.use('/api/reservaciones', reservacionesRoutes);
+app.use('/api/caja', cajaRoutes);
+app.use('/api/productos', productoRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
-// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

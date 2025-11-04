@@ -12,17 +12,18 @@ const {
 } = require("./fuenteDatosControlador.js")
 
 const router = express.Router();
+const { autenticacionToken, verificarRoles } = require("../../middlewares/autenticacionMiddleware");
 
 //ruta para obtener los tipos de documento
 router.get("/tipos-documentos", listarTipoDocumentoController);
 
-router.get("/top-productos", topProductosMasVendidosController);
-router.get("/ingresos-egresos", obtenerResumenVentasEgresosMensualController);
-router.get("/comparacion-ventas", obtenerVentasHoyComparacionController);
-router.get("/cantidad-ventas", obtenerCantidadVentasHoyComparacionController);
-router.get("/cantidad-reservaciones",obtenerReservasHoyComparacionController);
-router.get("/balance-anual", obtenerBalanceGeneralAnualController);
-router.get("/porcentaje-medios-pago", obtenerPorcentajeMediosPagoController);
-router.get("/ventas-mes", obtenerVentasPorMesController);
+router.get("/top-productos", autenticacionToken, verificarRoles(1), topProductosMasVendidosController);
+router.get("/ingresos-egresos",autenticacionToken, verificarRoles(1), obtenerResumenVentasEgresosMensualController);
+router.get("/comparacion-ventas", autenticacionToken, verificarRoles(1), obtenerVentasHoyComparacionController);
+router.get("/cantidad-ventas",autenticacionToken, verificarRoles(1), obtenerCantidadVentasHoyComparacionController);
+router.get("/cantidad-reservaciones", autenticacionToken, verificarRoles(1),obtenerReservasHoyComparacionController);
+router.get("/balance-anual", autenticacionToken, verificarRoles(1), obtenerBalanceGeneralAnualController);
+router.get("/porcentaje-medios-pago", autenticacionToken, verificarRoles(1), obtenerPorcentajeMediosPagoController);
+router.get("/ventas-mes", autenticacionToken, verificarRoles(1), obtenerVentasPorMesController);
 
 module.exports = router;
