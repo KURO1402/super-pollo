@@ -13,7 +13,6 @@ export const obtenerUsuariosServicio = async () => {
     }
   } catch (error) {
     console.error('Error en obtenerUsuariosServicio:', error);
-    console.error('Error response:', error.response?.data);
     throw error;
   }
 };
@@ -29,7 +28,6 @@ export const eliminarUsuarioServicio = async (idUsuario) => {
     }
   } catch (error) {
     console.error('Error en eliminarUsuarioServicio:', error);
-    console.error('Error response:', error.response?.data);
     throw error;
   }
 };
@@ -46,7 +44,6 @@ export const actualizarUsuarioServicio = async (idUsuario, datosActualizados) =>
     }
   } catch (error) {
     console.error('Error en actualizarUsuarioServicio:', error);
-    console.error('Error response:', error.response?.data);
     throw error;
   }
 };
@@ -63,7 +60,6 @@ export const obtenerUsuarioPorIdServicio = async (idUsuario) => {
     }
   } catch (error) {
     console.error('Error en obtenerUsuarioPorIdServicio:', error);
-    console.error('Error response:', error.response?.data);
     throw error;
   }
 };
@@ -80,7 +76,6 @@ export const actualizarCorreoUsuarioServicio = async (idUsuario, datos) => {
     }
   } catch (error) {
     console.error('Error en actualizarCorreoUsuarioServicio:', error);
-    console.error('Error response:', error.response?.data);
     throw error;
   }
 };
@@ -113,7 +108,23 @@ export const listarRolesServicio = async () => {
     }
   } catch (error) {
     console.error('Error en listarRolesServicio:', error);
-    console.error('Error response:', error.response?.data);
+    throw error;
+  }
+};
+
+export const actualizarRolUsuarioServicio  = async (idUsuario, idRolNuevo) => {
+  try {
+    const respuesta = await API.patch(`/usuarios/cambiar-rol/${idUsuario}`, {
+      nuevoRol: idRolNuevo
+    });
+    
+    if (respuesta.data && respuesta.data.ok) {
+      return respuesta.data;
+    } else {
+      throw new Error(respuesta.data?.mensaje || 'Error al listar los roles');
+    }
+  } catch (error) {
+    console.error('Error en listarRolesServicio:', error);
     throw error;
   }
 };
