@@ -50,10 +50,20 @@ export const registrarReservacionServicio = async (data) => {
 export const generarPreferenciaMercadoPago = async (reservationId) => {
   try {
     const respuesta = await API.post(`/reservaciones/${reservationId}/crear-preferencia`);
-    console.log("Preferencia generada:", respuesta.data);
     return respuesta.data;
   } catch (error) {
     console.error("Error en generarPreferenciaMercadoPago: ", error);
+    throw error;
+  }
+}
+
+export const obtenerReservasIdServicio = async (reservationId) => {
+  try {
+    const respuesta = await API.get(`/reservaciones/${reservationId}`);
+    console.log("respuesta del backend :", respuesta.data);
+    return respuesta.data;
+  } catch (error) {
+    console.error("Error en obtenerReservasIdServicio: ", error);
     throw error;
   }
 }

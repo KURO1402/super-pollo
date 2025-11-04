@@ -36,7 +36,6 @@ const RegistroVentasSeccion = () => {
         setVentas(ventasData);
       } catch (error) {
         console.error('Error al cargar ventas:', error);
-        mostrarAlerta.error("Error al cargar las ventas");
         setVentas([]);
       } finally {
         setCargando(false);

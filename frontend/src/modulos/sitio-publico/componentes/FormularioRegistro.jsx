@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'; // manejo de estados
 
 //Importamos el servico que trae los tipos de docuemento
 import { obtenerTiposDocumento } from '../servicios/tiposDocService.js';
+import { Link } from 'react-router-dom';
 
 // resive dos parametros que le enviamos en Registro.jxs
 const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
@@ -174,13 +175,17 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         etiqueta={
           <>
             Acepto los{' '}
-            <a href="#" className="text-azul-primario hover:underline">
+            <Link to="/terminos-condiciones">
+             <button className="text-azul-primario hover:underline">
               Términos y Condiciones
-            </a>{' '}
+            </button>
+            </Link>{' '}
             y la{' '}
-            <a href="#" className="text-azul-primario hover:underline">
-              Política de Privacidad
-            </a>
+            <Link to="/politicas-privacidad"> 
+              <button className="text-azul-primario hover:underline">
+                Política de Privacidad
+              </button>
+            </Link>
           </>
         }
         registro={register}

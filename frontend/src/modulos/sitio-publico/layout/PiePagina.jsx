@@ -31,9 +31,9 @@ const navEnlaces = [
 
 const PiePagina = () => {
   return (
-    <footer className="w-full bg-azul-secundario">
+    <footer className="w-full bg-azul-secundario ">
       {/* Sección amarilla de información de contacto */}
-      <div className="bg-amarillo py-8 px-12 rounded-2xl mx-20 mt-12">
+      <div className="bg-amarillo py-8 px-12 rounded-2xl mx-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center mb-3">
@@ -130,12 +130,16 @@ const PiePagina = () => {
             reservados.
           </p>
           <div className="mt-2">
-            <a href="#" className="hover:underline mx-2">
-              Términos y Condiciones
-            </a>
-            <a href="#" className="hover:underline mx-2">
-              Políticas de Privacidad
-            </a>
+            <Link to="/terminos-condiciones">
+              <button className="hover:underline mx-2">
+                Términos y Condiciones
+              </button>
+            </Link>
+            <Link to="/politicas-privacidad">
+              <button className="hover:underline mx-2">
+                Políticas de Privacidad
+              </button>
+            </Link>
           </div>
         </div>
       </div>

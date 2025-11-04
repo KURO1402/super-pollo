@@ -1,3 +1,4 @@
+import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal"
 export const ResumenVenta = () => {
   const { calcularMontosTotales } = useVentaEstadoGlobal();
   const montos = calcularMontosTotales();

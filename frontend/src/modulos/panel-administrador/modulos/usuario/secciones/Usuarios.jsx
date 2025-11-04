@@ -59,7 +59,6 @@ const Usuarios = () => {
       setUsuarios(usuariosData);
     } catch (error) {
       console.error('Error al cargar usuarios:', error);
-      mostrarAlerta.error('Error al cargar los usuarios');
     } finally {
       setCargando(false);
     }
@@ -75,7 +74,6 @@ const Usuarios = () => {
       }
     } catch (error) {
       console.error("Error al cargar roles:", error);
-      mostrarAlerta.error("Error al cargar los roles");
     }
   };
 
