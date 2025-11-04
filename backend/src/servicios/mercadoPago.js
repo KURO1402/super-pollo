@@ -34,7 +34,7 @@ const crearPreferencia = async (idReservacion) => {
                 failure: "https://superpollohyo.com/usuario/pago-fallido", 
                 pending: "https://superpollohyo.com/usuario/pago-pendiente"  
             },
-            notification_url: "http://localhost:3001/mercadopago/webhook",
+            notification_url: "https://superpollohyo.com/reservaciones/mercadopago/webhook",
             auto_return: "approved",
             payment_methods: {
               installments: 1,             // máximo de cuotas
