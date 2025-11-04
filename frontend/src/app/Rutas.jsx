@@ -51,6 +51,8 @@ import Perfil from "../modulos/panel-administrador/modulos/usuario/secciones/Per
 import PagoExitoso from "../modulos/sitio-publico/paginas/usuario/PagoExitoso";
 import PagoFallido from "../modulos/sitio-publico/paginas/usuario/PagoFallido";
 import PagoPendiente from "../modulos/sitio-publico/paginas/usuario/PagoPendiente";
+import TerminosCondiciones from "../modulos/sitio-publico/paginas/TerminosCondiciones";
+import PoliticasPrivacidad from "../modulos/sitio-publico/paginas/PoliticasPrivacidad";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -69,6 +71,9 @@ const AppRutas = () => {
                 // las demás rutas 
                 { path: '/registro', element: <Registro /> },
                 { path: '/inicio-sesion', element: <InicioSesion /> },
+                { path: 'pago-pendiente', element: <PagoPendiente /> },
+                { path: 'terminos-condiciones', element: <TerminosCondiciones /> },
+                { path: 'politicas-privacidad', element: <PoliticasPrivacidad /> },
             ]
         },
 
@@ -87,7 +92,6 @@ const AppRutas = () => {
                     { path: 'perfil', element: <PerfilUsuario /> }, // Nuevo componente, no reutilizado
                     { path: 'pago-exitoso', element: <PagoExitoso /> },
                     { path: 'pago-fallido', element: <PagoFallido /> },
-                    { path: 'pago-pendiente', element: <PagoPendiente /> },
                 ]
                 }
             ]

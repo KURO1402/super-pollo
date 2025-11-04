@@ -1,4 +1,4 @@
-export const ResumenVentaDetallado = () => {
+export const ResumenVenta = () => {
   const { calcularMontosTotales } = useVentaEstadoGlobal();
   const montos = calcularMontosTotales();
   
