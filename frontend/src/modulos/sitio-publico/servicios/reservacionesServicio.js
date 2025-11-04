@@ -1,4 +1,3 @@
-// servicios/reservaServicio.js
 import API from "../../../app/servicio/axiosConfiguracion";
 
 export const obtenerMesasDisponiblesServicio = async (fecha, hora) => {
