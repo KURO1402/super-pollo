@@ -7,6 +7,7 @@ import BarraNavegacion from "../componentes/BarraNavegacion";
 import BotonIniciarSesion from "../componentes/BotonIniciarSesion";
 import BotonRegistro from "../componentes/BotonRegistro";
 import DropdownUsuario from "../componentes/usuario/DropdownUsuario";
+import DropdownAdmin from "../componentes/usuario/DropdowmAdmin";
 import NombreEmpresa from "../../../assets/imagenes/Nombre_Empresa.png";
 import Logo from "../../../assets/imagenes/Logo.svg";
 import { ROLES } from "../../../app/constantes/roles";
@@ -19,7 +20,7 @@ const Cabecera = () => {
   // Determinar en qué área estamos
   const esAreaUsuario = location.pathname.startsWith('/usuario');
   const esAreaAdmin = location.pathname.startsWith('/admin');
-  
+
   // Logo link dinámico
   const getLogoLink = () => {
     if (esAreaUsuario) return "/usuario";
@@ -29,13 +30,18 @@ const Cabecera = () => {
 
   // Renderizar sección de usuario según el contexto
   const renderSeccionUsuario = () => {
-    // Si hay usuario logueado Y es usuario normal (rol 3)
+    // Si hay usuario logueado y es usuario normal
     if (usuario && usuario.idRol === ROLES.USUARIO) {
       return <DropdownUsuario usuario={usuario} />;
     }
-    
-    // Si no hay usuario Y estamos en sitio público (no admin)
-    if (!usuario && !esAreaAdmin && !esAreaUsuario) {
+
+    // 🔹 Nuevo caso: si hay usuario (por ejemplo admin o empleado)
+    if (usuario && usuario.idRol !== ROLES.USUARIO) {
+      return <DropdownAdmin usuario={usuario} />;
+    }
+
+    // Si no hay usuario (solo visitantes)
+    if (!esAreaAdmin && !esAreaUsuario) {
       return (
         <>
           <BsPerson className="text-3xl text-gray-100" />
@@ -45,38 +51,43 @@ const Cabecera = () => {
         </>
       );
     }
-    
+
     return null;
   };
 
   // Renderizar sección de usuario para móvil
   const renderSeccionUsuarioMobile = () => {
-    if (usuario && usuario.idRol === ROLES.USUARIO) {
-      return (
-        <div className="flex flex-col items-center space-y-3">
-          <span className="text-gray-100 font-medium">
-            Hola, {usuario.nombresUsuario}
-          </span>
-          <DropdownUsuario usuario={usuario} mobile />
+  if (usuario && usuario.idRol === ROLES.USUARIO) {
+    return (
+      <div className="flex flex-col items-center space-y-3">
+        <span className="text-gray-100 font-medium">
+          Hola, {usuario.nombresUsuario}
+        </span>
+        <DropdownUsuario usuario={usuario} mobile />
+      </div>
+    );
+  }
+
+  if (usuario && usuario.idRol !== ROLES.USUARIO) {
+    return <DropdownAdmin usuario={usuario} mobile />;
+  }
+
+  // Visitante (sin sesión)
+  if (!esAreaAdmin && !esAreaUsuario) {
+    return (
+      <div className="flex items-center justify-center space-x-2">
+        <BsPerson className="text-3xl text-gray-100" />
+        <div className="flex space-x-3">
+          <BotonIniciarSesion />
+          <p className="flex items-center text-gray-100">/</p>
+          <BotonRegistro />
         </div>
-      );
-    }
-    
-    if (!usuario && !esAreaAdmin && !esAreaUsuario) {
-      return (
-        <div className="flex items-center justify-center space-x-2">
-          <BsPerson className="text-3xl text-gray-100" />
-          <div className="flex space-x-3">
-            <BotonIniciarSesion />
-            <p className="flex items-center text-gray-100">/</p>
-            <BotonRegistro />
-          </div>
-        </div>
-      );
-    }
-    
-    return null;
-  };
+      </div>
+    );
+  }
+
+  return null;
+};
 
   return (
     <header className="bg-azul-secundario shadow-md fixed top-0 left-0 right-0 z-50">
@@ -119,11 +130,10 @@ const Cabecera = () => {
 
         {/* Menu desplegable para móvil y tablet */}
         <div
-          className={`lg:hidden transition-all duration-300 ease-in-out ${
-            menuAbierto
-              ? "max-h-96 opacity-100"
-              : "max-h-0 opacity-0 overflow-hidden"
-          }`}
+          className={`lg:hidden transition-all duration-300 ease-in-out ${menuAbierto
+            ? "max-h-96 opacity-100"
+            : "max-h-0 opacity-0 overflow-hidden"
+            }`}
         >
           <div className="py-4 px-2 space-y-4 bg-azul-secundario border-t border-azul-primario">
             {/* Misma navegación móvil SIEMPRE */}

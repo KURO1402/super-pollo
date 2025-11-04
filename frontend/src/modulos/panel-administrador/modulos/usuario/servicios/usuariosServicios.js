@@ -101,3 +101,19 @@ export const actualizarClaveUsuarioServicio = async (idUsuario, datos) => {
     throw error;
   }
 };
+
+export const listarRolesServicio = async () => {
+  try {
+    const respuesta = await API.get('/usuarios/roles');
+    
+    if (respuesta.data && respuesta.data.ok) {
+      return respuesta.data;
+    } else {
+      throw new Error(respuesta.data?.mensaje || 'Error al listar los roles');
+    }
+  } catch (error) {
+    console.error('Error en listarRolesServicio:', error);
+    console.error('Error response:', error.response?.data);
+    throw error;
+  }
+};

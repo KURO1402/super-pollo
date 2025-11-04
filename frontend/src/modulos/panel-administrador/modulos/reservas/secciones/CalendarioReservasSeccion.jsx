@@ -20,7 +20,7 @@ const CalendarioReservasSeccion = () => {
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
-  
+
   const calendarioRef = useRef(null);
   const modalNuevaReserva = useModal();
   const modalEditarReserva = useModal();
@@ -33,10 +33,19 @@ const CalendarioReservasSeccion = () => {
     try {
       setCargando(true);
       const reservaciones = await listarReservacionesServicio();
-      setReservas(reservaciones);
+      setReservas(Array.isArray(reservaciones) ? reservaciones : []);
     } catch (error) {
       console.error('Error al cargar reservas:', error);
-      alert("Error al cargar las reservas");
+
+      // Si el backend devuelve 404, interpretamos que no hay reservas (no mostramos alerta)
+      if (error.response?.status === 404) {
+        console.info('No hay reservas registradas actualmente.');
+        setReservas([]);
+        return;
+      }
+
+      // Para cualquier otro error (500, 401, etc), sí mostramos alerta
+      alert('Error al cargar las reservas');
     } finally {
       setCargando(false);
     }
@@ -46,10 +55,10 @@ const CalendarioReservasSeccion = () => {
   const esFechaValida = (fecha) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-    
+
     const fechaComparar = new Date(fecha);
     fechaComparar.setHours(0, 0, 0, 0);
-    
+
     return fechaComparar >= hoy;
   };
 
@@ -57,7 +66,7 @@ const CalendarioReservasSeccion = () => {
   const convertirReservaAEvento = (reserva) => {
     const fecha = new Date(reserva.fechaReservacion);
     const fechaStr = fecha.toISOString().split('T')[0];
-    
+
     return {
       id: reserva.idReservacion.toString(),
       title: `${reserva.nombresUsuario} - Mesa ${reserva.numeroMesa}`,
@@ -121,7 +130,7 @@ const CalendarioReservasSeccion = () => {
   const abrirNuevaReserva = () => {
     // Para nueva reserva, establecer la fecha mínima como hoy
     const hoy = new Date().toISOString().split('T')[0];
-    setReservaSeleccionada({ 
+    setReservaSeleccionada({
       fechaReservacion: hoy,
       horaReservacion: '12:00:00',
       estadoReservacion: 'pendiente'
@@ -140,7 +149,7 @@ const CalendarioReservasSeccion = () => {
       return;
     }
 
-    setReservaSeleccionada({ 
+    setReservaSeleccionada({
       fechaReservacion: info.startStr.split('T')[0],
       horaReservacion: '12:00:00',
       estadoReservacion: 'pendiente'
@@ -172,7 +181,7 @@ const CalendarioReservasSeccion = () => {
       if (!estadosPermitidos.includes(datos.estadoReservacion)) {
         datos.estadoReservacion = 'pendiente';
       }
-      
+
       const nuevaReserva = {
         ...datos,
         idReservacion: Date.now(),
@@ -196,15 +205,15 @@ const CalendarioReservasSeccion = () => {
   const manejarGuardarReservaEditada = async (datosActualizados) => {
     try {
       // Actualizar el estado local con los datos actualizados
-      setReservas((prev) => prev.map((r) => 
-        r.idReservacion === datosActualizados.idReservacion 
+      setReservas((prev) => prev.map((r) =>
+        r.idReservacion === datosActualizados.idReservacion
           ? { ...r, ...datosActualizados, numeroMesa: datosActualizados.idMesa }
           : r
       ));
-      
+
       // Recargar las reservas para asegurar que tenemos los datos más recientes
       await cargarReservas();
-      
+
       modalEditarReserva.cerrar();
       setReservaSeleccionada(null);
     } catch (error) {
@@ -257,7 +266,7 @@ const CalendarioReservasSeccion = () => {
         <p className="text-gray-600 dark:text-gray-400">
           Visualiza y gestiona todas las reservas programadas
         </p>
-        
+
         {/* Leyenda de estados */}
         <div className="flex flex-wrap gap-4 mt-4">
           <div className="flex items-center gap-2">
@@ -304,8 +313,8 @@ const CalendarioReservasSeccion = () => {
                 },
               }}
               // configuración para restringir selección de fechas pasadas
-              validRange={{ 
-                start: fechaMinima 
+              validRange={{
+                start: fechaMinima
               }}
               selectAllow={(selectInfo) => {
                 const fechaSeleccionada = new Date(selectInfo.startStr);
@@ -323,6 +332,12 @@ const CalendarioReservasSeccion = () => {
               dayMaxEvents={3}
               moreLinkContent={(args) => `+${args.num} más`}
             />
+            {!cargando && reservas.length === 0 && (
+              <div className="text-center text-gray-500 py-10">
+                <FiCalendar className="mx-auto mb-2 w-10 h-10 opacity-50" />
+                <p>No hay reservas registradas por el momento</p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -361,7 +376,7 @@ const CalendarioReservasSeccion = () => {
         mostrarFooter={false}
       >
         {reservaSeleccionada && (
-          <ModalEditarReserva 
+          <ModalEditarReserva
             idReservacion={reservaSeleccionada.idReservacion}
             onClose={modalEditarReserva.cerrar}
             onGuardar={manejarGuardarReservaEditada}

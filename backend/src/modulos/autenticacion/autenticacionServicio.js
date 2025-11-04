@@ -8,7 +8,6 @@ const enviarCorreoVerificacion = require("../../helpers/enviarCorreo")
 
 // FUNCION PARA REGISTRAR USUARIO
 const registrarUsuarioService = async (datos) => {
-  console.log(datos);
   //Validaciones
   await registrarUsuarioValidacion(datos);
 
