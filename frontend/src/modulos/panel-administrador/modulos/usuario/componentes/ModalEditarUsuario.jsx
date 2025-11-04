@@ -1,7 +1,7 @@
-import { FiSave, FiX, FiLoader, FiUser, FiPhone } from "react-icons/fi";
+import { FiSave, FiX, FiLoader, FiUser, FiShield } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { actualizarUsuarioServicio, obtenerUsuarioPorIdServicio } from "../servicios/usuariosServicios";
+import { actualizarRolUsuarioServicio, listarRolesServicio, obtenerUsuarioPorIdServicio } from "../servicios/usuariosServicios";
 import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
 export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado }) => {
@@ -9,11 +9,13 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
   const [cargando, setCargando] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [usuario, setUsuario] = useState(null);
+  const [roles, setRoles] = useState([]);
+  const [cargandoRoles, setCargandoRoles] = useState(false);
 
-  // Cargar datos del usuario cuando cambia el idUsuario
   useEffect(() => {
     if (idUsuario) {
       cargarUsuario();
+      cargarRoles();
     }
   }, [idUsuario]);
 
@@ -26,13 +28,8 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
         const usuarioData = respuesta.usuario;
         setUsuario(usuarioData);
         
-        // Precargar solo los campos editables en el formulario
         reset({
-          nombresUsuario: usuarioData.nombresUsuario || '',
-          apellidosUsuario: usuarioData.apellidosUsuario || '',
-          numeroDocumentoUsuario: usuarioData.numeroDocumentoUsuario || '',
-          telefonoUsuario: usuarioData.telefonoUsuario || '',
-          idTipoDocumento: usuarioData.idTipoDocumento?.toString() || ''
+          nuevoRol: usuarioData.idRol?.toString() || ''
         });
       }
     } catch (error) {
@@ -44,41 +41,72 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
     }
   };
 
+  const cargarRoles = async () => {
+    try {
+      setCargandoRoles(true);
+      const respuesta = await listarRolesServicio();
+      
+      if (respuesta.ok && respuesta.roles) {
+        setRoles(respuesta.roles);
+      } else {
+        mostrarAlerta.error(respuesta.mensaje || "No se pudieron cargar los roles");
+        setRoles([]);
+      }
+    } catch (error) {
+      console.error("Error al cargar roles:", error);
+      mostrarAlerta.error("Error al cargar los roles");
+      setRoles([]);
+    } finally {
+      setCargandoRoles(false);
+    }
+  };
+
   const onSubmitUsuario = async (data) => {
     try {
       setGuardando(true);
       
-      // Preparar datos para enviar - solo los campos editables
-      const datosActualizados = {
-        nombresUsuario: data.nombresUsuario,
-        apellidosUsuario: data.apellidosUsuario,
-        numeroDocumentoUsuario: data.numeroDocumentoUsuario,
-        telefonoUsuario: data.telefonoUsuario,
-        idTipoDocumento: parseInt(data.idTipoDocumento)
-      };
+      // Preparar datos según lo que espera el backend
+      const idRolNuevo = parseInt(data.nuevoRol); // Convertir a número
 
-      // Llamar al servicio para actualizar
-      const respuesta = await actualizarUsuarioServicio(idUsuario, datosActualizados);
+      // Validar que se haya seleccionado un rol diferente
+      if (usuario && usuario.idRol === idRolNuevo) {
+        mostrarAlerta.advertencia("El usuario ya tiene asignado este rol");
+        return;
+      }
+
+      // Llamar al servicio específico para cambiar rol
+      const respuesta = await actualizarRolUsuarioServicio(idUsuario, idRolNuevo);
       
       if (respuesta.ok) {
-        mostrarAlerta.exito("Usuario actualizado exitosamente");
+        mostrarAlerta.exito(respuesta.mensaje || "Rol de usuario actualizado exitosamente");
         
         // Llamar al callback con los datos actualizados
         if (onUsuarioActualizado) {
           onUsuarioActualizado({
             ...usuario,
-            ...datosActualizados
+            idRol: idRolNuevo,
+            rol: roles.find(rol => rol.idRol === idRolNuevo) // Actualizar objeto rol completo
           });
         }
         
         onClose();
       } else {
-        throw new Error(respuesta.mensaje || "Error al actualizar usuario");
+        throw new Error(respuesta.mensaje || "Error al actualizar el rol del usuario");
       }
       
     } catch (error) {
-      console.error('Error al actualizar usuario:', error);
-      mostrarAlerta.error(error.message || "Error al actualizar el usuario");
+      console.error('Error al actualizar rol de usuario:', error);
+      
+      // Manejar errores específicos del backend
+      if (error.message.includes("Usted mismo no puede modificar su rol")) {
+        mostrarAlerta.error("No puedes modificar tu propio rol");
+      } else if (error.message.includes("El usuario especificado no existe")) {
+        mostrarAlerta.error("El usuario no existe");
+      } else if (error.message.includes("El rol especificado no existe")) {
+        mostrarAlerta.error("El rol seleccionado no existe");
+      } else {
+        mostrarAlerta.error(error.message || "Error al actualizar el rol del usuario");
+      }
     } finally {
       setGuardando(false);
     }
@@ -98,141 +126,62 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
   return (
     <form onSubmit={handleSubmit(onSubmitUsuario)} className="p-6">
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Nombres */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <div className="flex items-center gap-2">
-              <FiUser size={14} className="text-blue-600 dark:text-blue-400" />
-              Nombres *
-            </div>
-          </label>
-          <input
-            type="text"
-            {...register("nombresUsuario", { 
-              required: "Los nombres son requeridos",
-              minLength: {
-                value: 2,
-                message: "Los nombres deben tener al menos 2 caracteres"
-              }
-            })}
-            className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-            placeholder="Ingresa los nombres"
-            disabled={guardando}
-          />
-          {errors.nombresUsuario && (
-            <p className="mt-1 text-sm text-red-600">{errors.nombresUsuario.message}</p>
-          )}
-        </div>
+      {/* Campo para cambiar el rol */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <div className="flex items-center gap-2">
+            <FiShield className="text-purple-600 dark:text-purple-400" size={16} />
+            Cambiar Rol del Usuario *
+          </div>
+        </label>
+        
+        {cargandoRoles ? (
+          <div className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-4 flex items-center">
+            <FiLoader className="animate-spin mr-2 text-gray-500" size={16} />
+            <span className="text-sm text-gray-500">Cargando roles...</span>
+          </div>
+        ) : (
+          <>
+            <select
+              {...register("nuevoRol", { required: "Debe seleccionar un rol" })} // Cambiado a nuevoRol
+              className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-200"
+              disabled={guardando || cargandoRoles}
+            >
+              <option value="">Selecciona un rol</option>
+              {roles && roles.length > 0 ? (
+                roles.map((rol) => (
+                  <option key={rol.idRol} value={rol.idRol}>
+                    {rol.nombreRol}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>No hay roles disponibles</option>
+              )}
+            </select>
+            
+            {errors.nuevoRol && (
+              <p className="mt-1 text-sm text-red-600">{errors.nuevoRol.message}</p>
+            )}
+          </>
+        )}
+        
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          Selecciona el nuevo rol que tendrá este usuario en el sistema
+        </p>
+      </div>
 
-        {/* Apellidos */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Apellidos *
-          </label>
-          <input
-            type="text"
-            {...register("apellidosUsuario", { 
-              required: "Los apellidos son requeridos",
-              minLength: {
-                value: 2,
-                message: "Los apellidos deben tener al menos 2 caracteres"
-              }
-            })}
-            className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-            placeholder="Ingresa los apellidos"
-            disabled={guardando}
-          />
-          {errors.apellidosUsuario && (
-            <p className="mt-1 text-sm text-red-600">{errors.apellidosUsuario.message}</p>
-          )}
-        </div>
-
-        {/* Tipo de Documento */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <div className="flex items-center gap-2">
-              Tipo de Documento *
-            </div>
-          </label>
-          <select
-            {...register("idTipoDocumento", { required: "El tipo de documento es requerido" })}
-            className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-            disabled={guardando}
-          >
-            <option value="">Selecciona un tipo</option>
-            <option value="1">DNI</option>
-            <option value="2">Pasaporte</option>
-            <option value="3">Carné de extranjería</option>
-            <option value="4">RUC</option>
-          </select>
-          {errors.idTipoDocumento && (
-            <p className="mt-1 text-sm text-red-600">{errors.idTipoDocumento.message}</p>
-          )}
-        </div>
-
-        {/* Número de Documento */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Número de Documento *
-          </label>
-          <input
-            type="text"
-            {...register("numeroDocumentoUsuario", { 
-              required: "El número de documento es requerido",
-              pattern: {
-                value: /^[0-9]+$/,
-                message: "Solo se permiten números"
-              },
-              minLength: {
-                value: 8,
-                message: "El documento debe tener al menos 8 caracteres"
-              }
-            })}
-            className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-            placeholder="Ingresa el número de documento"
-            disabled={guardando}
-          />
-          {errors.numeroDocumentoUsuario && (
-            <p className="mt-1 text-sm text-red-600">{errors.numeroDocumentoUsuario.message}</p>
-          )}
-        </div>
-
-        {/* Teléfono */}
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <div className="flex items-center gap-2">
-              <FiPhone size={14} className="text-amber-600 dark:text-amber-400" />
-              Teléfono
-            </div>
-          </label>
-          <input
-            type="tel"
-            {...register("telefonoUsuario", {
-              pattern: {
-                value: /^[0-9+\-\s()]+$/,
-                message: "Ingresa un número de teléfono válido"
-              },
-              minLength: {
-                value: 9,
-                message: "El teléfono debe tener al menos 9 caracteres"
-              }
-            })}
-            className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-            placeholder="+51 987 654 321"
-            disabled={guardando}
-          />
-          {errors.telefonoUsuario && (
-            <p className="mt-1 text-sm text-red-600">{errors.telefonoUsuario.message}</p>
-          )}
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Formato: +51 987 654 321
-          </p>
-        </div>
+      {/* Nota importante */}
+      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
+        <h4 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-1">
+          Importante
+        </h4>
+        <p className="text-xs text-amber-700 dark:text-amber-300">
+          Al cambiar el rol del usuario, se modificarán sus permisos y acceso a las funciones del sistema.
+        </p>
       </div>
 
       {/* Botones de acción */}
-      <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
         <button
           type="button"
           onClick={onClose}
@@ -244,18 +193,18 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
         </button>
         <button
           type="submit"
-          disabled={guardando}
-          className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={guardando || cargandoRoles}
+          className="flex items-center gap-2 px-6 py-2.5 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {guardando ? (
             <>
               <FiLoader className="animate-spin" size={16} />
-              Guardando...
+              Actualizando...
             </>
           ) : (
             <>
               <FiSave size={16} />
-              Guardar Cambios
+              Actualizar Rol
             </>
           )}
         </button>
