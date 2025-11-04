@@ -17,7 +17,7 @@ const { autenticacionToken, verificarRoles } = require("../../../middlewares/aut
 //ruta para registrar un movimiento
 router.post("/movimiento", autenticacionToken, verificarRoles(1, 2), registrarMovimientoStockController);
 
-router.get("/movimientos", verificarRoles(1, 2), async (req, res, next) => {
+router.get("/movimientos", autenticacionToken, verificarRoles(1, 2), async (req, res, next) => {
   try {
     const { insumo, usuario, fechaInicio, fechaFin, tipo } = req.query;
 

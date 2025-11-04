@@ -106,6 +106,7 @@ CREATE TABLE movimientosStock (
     FOREIGN KEY (idInsumo) REFERENCES insumos(idInsumo),
     FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
 );
+
 CREATE TABLE ventas (
     idVenta INT PRIMARY KEY AUTO_INCREMENT,
     numeroDocumentoCliente VARCHAR(12) NOT NULL,
