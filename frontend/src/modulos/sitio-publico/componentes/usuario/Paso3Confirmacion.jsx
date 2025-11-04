@@ -5,6 +5,7 @@ import MercadoPagoButton from "./MercadoPagoButton";
 import { useState } from "react";
 import { registrarReservacionServicio, generarPreferenciaMercadoPago } from "../../servicios/reservacionesServicio";
 import { useAutenticacionGlobal } from "../../../../app/estado-global/autenticacionGlobal";
+import mostrarAlerta from "../../../../utilidades/toastUtilidades";
 
 const Paso3Confirmacion = () => {
   const { datos, getSubtotal, getAnticipo, getTotal, resetReserva } = reservaEstadoGlobal();
@@ -37,23 +38,18 @@ const Paso3Confirmacion = () => {
         }))
       };
 
-      console.log("Enviando datos de reserva:", reservaData);
-      
       const reservaCreada = await registrarReservacionServicio(reservaData);
-      console.log("Reserva creada:", reservaCreada);
       
-      setReservationId(reservaCreada.id);
-
+      setReservationId(reservaCreada.idReservacion);
       // Generar la preferencia de pago
-      const preferencia = await generarPreferenciaMercadoPago(reservaCreada.id);
-      console.log("Preferencia recibida:", preferencia);
-      
-      setPreferenceId(preferencia.id);
-      return preferencia.id;
+      const preferencia = await generarPreferenciaMercadoPago(reservaCreada.idReservacion);
+      setPreferenceId(preferencia.preference_id);
+    
+      return preferencia.preference_id;
 
     } catch (error) {
       console.error("Error al preparar reserva:", error);
-      alert("Error al preparar la reserva. Intenta nuevamente.");
+      mostrarAlerta.error("Error al preparar la reserva. Intenta nuevamente.");
       throw error;
     } finally {
       setProcesandoPago(false);
@@ -63,12 +59,8 @@ const Paso3Confirmacion = () => {
   const handlePaymentSuccess = async (paymentData) => {
     setProcesandoPago(true);
     try {
-      console.log("Pago exitoso:", paymentData);
-
-      // se deberia crear un end point para confirmar al backend 
-      
       resetReserva();
-      alert("¡Reserva confirmada exitosamente! Recibirás un correo de confirmación.");
+      mostrarAlerta.exito("Reserva realizada de manera exitosa")
       
     } catch (error) {
       console.error("Error al guardar reserva:", error);
