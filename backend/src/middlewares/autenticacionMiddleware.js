@@ -1,4 +1,3 @@
-// middleware/autenticacionMiddleware.js
 const jwt = require('jsonwebtoken');
 
 const autenticacionToken = (req, res, next) => {
@@ -28,7 +27,6 @@ const verificarRoles = (...rolesPermitidos) => {
   };
 };
 
-//Exportamos el modulo
 module.exports = {
   autenticacionToken,
   verificarRoles

@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const { crearCajaModel, cerrarCajaModel, consultarCajaAbiertaModel, registrarIngresoCajaModel, registrarEgresoCajaModel, registrarArqueoCajaModel, obtenerMovimientosPorCajaModel, obtenerMovimientosCajaModel, obtenerCajasModel, obtenerArqueosCaja, obtenerArqueosPorCajaModel } = require("./cajaModelo")
 const { validarDatosAbrirCaja, validarDatosCerrarCaja, validarDatosIngresoCaja, validarDatosEgresoCaja, validarDatosArqueoCaja } = require("./cajaValidaciones");
 
-//Servicio para crear una nueva caja
 const crearCajaService = async (datos, token) => {
     validarDatosAbrirCaja(datos);
 
@@ -26,14 +25,13 @@ const crearCajaService = async (datos, token) => {
     };
 }
 
-//Servicio para cerrar una caja
 const cerrarCajaService = async (token) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
     await validarDatosCerrarCaja(decodedToken.idUsuario);
 
     const resultado = await cerrarCajaModel(decodedToken.idUsuario);
-    //Validar que se haya cerrado la caja
+
     if (resultado.affectedRows === 0) {
         throw new Error("No se pudo cerrar la caja");
     }
@@ -44,7 +42,6 @@ const cerrarCajaService = async (token) => {
     };
 }
 
-// Servicio para registrar un ingreso en caja
 const registrarIngresoCajaService = async (datos, token) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
@@ -57,7 +54,6 @@ const registrarIngresoCajaService = async (datos, token) => {
     };
 }
 
-// Servicio para registrar un egreso en caja
 const registrarEgresoCajaService = async (datos, token) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
@@ -70,7 +66,6 @@ const registrarEgresoCajaService = async (datos, token) => {
     };
 }
 
-// Servicio para registrar un arqueo de caja
 const registrarArqueoCajaService = async (datos, token) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
@@ -81,7 +76,6 @@ const registrarArqueoCajaService = async (datos, token) => {
     const estadoArqueo = diferencia === 0 ? 'cuadra' : diferencia > 0 ? 'sobra' : 'falta';
     const resultado = await registrarArqueoCajaModel(datos, diferencia, estadoArqueo, decodedToken.idUsuario);
 
-    //Validar que se haya creado el arqueo
     if (resultado.affectedRows === 0) {
         throw new Error("No se pudo registrar el arqueo de caja");
     }
@@ -92,7 +86,6 @@ const registrarArqueoCajaService = async (datos, token) => {
     };
 };
 
-// Servicio para obtener los movimientos de una caja específica
 const obtenerMovimientosPorCajaService = async (cajaId) => {
     const movimientos = await obtenerMovimientosPorCajaModel(cajaId);
     if (movimientos.length === 0) {
@@ -101,7 +94,6 @@ const obtenerMovimientosPorCajaService = async (cajaId) => {
     return movimientos;
 }
 
-// Servicio para obtener los últimos movimientos de caja (10 en 10)
 const obtenerMovimientosCajaService = async (limit, offset) => {
     const movimientos = await obtenerMovimientosCajaModel(limit, offset);
     if (movimientos.length === 0) {
@@ -110,7 +102,6 @@ const obtenerMovimientosCajaService = async (limit, offset) => {
     return movimientos;
 }
 
-// Servicio para obtener las cajas cerradas
 const obtenerCajasService = async (limit, offset) => {
     const cajas = await obtenerCajasModel(limit, offset);
     if (cajas.length === 0) {
@@ -119,7 +110,6 @@ const obtenerCajasService = async (limit, offset) => {
     return cajas;
 }
 
-// Servicio para obtener los arqueos de caja
 const obtenerArqueosCajaService = async (limit, offset) => {
     const arqueos = await obtenerArqueosCaja(limit, offset);
     if (arqueos.length === 0) {
@@ -128,7 +118,6 @@ const obtenerArqueosCajaService = async (limit, offset) => {
     return arqueos;
 }
 
-// Servicio para obtener los arqueos de una caja específica
 const obtenerArqueosPorCajaService = async (cajaId) => {
     const arqueos = await obtenerArqueosPorCajaModel(cajaId);
     if (arqueos.length === 0) {

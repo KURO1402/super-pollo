@@ -1,4 +1,3 @@
-// Importamos el modelo de insumos
 const {
     insertarInsumoModel,
     obtenerInsumosModel,
@@ -9,16 +8,14 @@ const {
     eliminarInsumoModel
 } = require("../modelo/insumoModelo");
 
-// Crear un nuevo insumo
-const { validarInsertarInsumo } = require("../validaciones/insumoValidaciones");//validaciones
+const { validarInsertarInsumo } = require("../validaciones/insumoValidaciones");
 
-// Crear un nuevo insumo
 const insertarInsumoService = async (datos) => {
     validarInsertarInsumo(datos);
     const { nombreInsumo, cantidadInicial, unidadMedida } = datos;
     
     const coincidenciasNombre = await obtenerConteoInsumosPorNombreModel(nombreInsumo);
-    if (coincidenciasNombre > 0) {  // Si ya existe un insumo con el mismo nombre
+    if (coincidenciasNombre > 0) { 
         throw Object.assign(
             new Error("El nombre del insumo ya está en uso."),
             { status: 409 }
@@ -33,7 +30,6 @@ const insertarInsumoService = async (datos) => {
     };
 };
 
-// Listar todos los insumos
 const obtenerInsumosService = async () => {
     const insumos = await obtenerInsumosModel();
 
@@ -50,7 +46,6 @@ const obtenerInsumosService = async () => {
     };
 };
 
-//Listar insumos por paginacion
 const obtenerInsumosPaginacionService = async (limit, offset) => {
     const limite = parseInt(limit) || 10;
     const desplazamiento = parseInt(offset) || 0;
@@ -70,9 +65,8 @@ const obtenerInsumosPaginacionService = async (limit, offset) => {
     };
 };
 
-// Obtener un insumo por ID
 const obtenerInsumoIDService = async (idInsumo) => {
-    // Validamos que se reciba el ID
+
     if (!idInsumo || isNaN(Number(idInsumo))) {
         throw Object.assign(
             new Error("Se necesita un ID de insumo valido."),
@@ -80,10 +74,8 @@ const obtenerInsumoIDService = async (idInsumo) => {
         );
     }
 
-    // Consultamos en la BD
     const insumo = await obtenerInsumoIDModel(Number(idInsumo));
 
-    // Si no existe, lanzamos error 404
     if (!insumo || insumo.length === 0) {
         const error = new Error("Este insumo no existe.");
         error.status = 404;
@@ -96,7 +88,6 @@ const obtenerInsumoIDService = async (idInsumo) => {
     };
 };
 
-// Actualizar un insumo
 const actualizarInsumoService = async (idInsumo, datos) => {0.
     if (!idInsumo || isNaN(Number(idInsumo))) {
         throw Object.assign(
@@ -124,14 +115,13 @@ const actualizarInsumoService = async (idInsumo, datos) => {0.
     };
 
     const coincidenciasNombre = await obtenerConteoInsumosPorNombreModel(nombreInsumo);
-    if (coincidenciasNombre > 0) {  // Si ya existe un insumo con el mismo nombre
+    if (coincidenciasNombre > 0) {  
         throw Object.assign(
             new Error("El nombre del insumo ya está en uso."),
             { status: 409 }
         );
     }
 
-    // Actualizamos en la BD
     const respuesta = await actualizarInsumoModel(idInsumo, nombreInsumo, unidadMedida);
 
     return {
@@ -140,43 +130,38 @@ const actualizarInsumoService = async (idInsumo, datos) => {0.
     };
 };
 
-// Eliminar un insumo
 const eliminarInsumoService = async (idInsumo) => {
-    // Validar el parámetro recibido
+
     if (!idInsumo || isNaN(Number(idInsumo))) {
         throw Object.assign(
             new Error("El ID del insumo proporcionado no es válido."),
-            { status: 400 } // Bad Request
+            { status: 400 } 
         );
     }
 
-    // Verificar si el insumo existe
     const insumo = await obtenerInsumoIDModel(idInsumo);
     if (!insumo || insumo.length === 0) {
         throw Object.assign(
             new Error("El insumo no existe"),
-            { status: 404 } // Not Found
+            { status: 404 } 
         );
     }
 
     if(insumo.stockInsumo > 0){
         throw Object.assign(
             new Error("No se puede eliminar un insumo con un stock mayor a 0, vacie el stock primero."),
-            { status: 409 } // Not Found
+            { status: 409 } 
         );
     }
 
-    // Ejecutar la eliminación (actualización lógica)
     const resultado = await eliminarInsumoModel(idInsumo);
 
-    // Retornar respuesta exitosa
     return { 
         ok: true,
         mensaje: resultado
     };
 };
 
-// Exportamos los servicios
 module.exports = {
     insertarInsumoService,
     obtenerInsumosService,

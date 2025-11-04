@@ -1,17 +1,15 @@
 const multer = require('multer');
 const path = require('path');
 
-// Configuración de almacenamiento temporal
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, path.join(__dirname, '../imagenes'));
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // Nombre único
+    cb(null, Date.now() + path.extname(file.originalname)); 
   }
 });
 
-// Filtro para permitir solo imágenes PNG o JPG
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ['image/png', 'image/jpeg'];
 
@@ -22,7 +20,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configurar el middleware multer
 const upload = multer({
   storage,
   fileFilter

@@ -1,7 +1,7 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 
-// Configuración del transporte (usa tu .env)
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,  // Ej: 'mail.tuempresa.com'
   port: process.env.EMAIL_PORT,  // Ej: 465 o 587
