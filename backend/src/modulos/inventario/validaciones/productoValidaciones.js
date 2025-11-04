@@ -1,6 +1,5 @@
 const { obtenerInsumoIDModel } = require("../../inventario/modelo/insumoModelo");
 
-// 🟢 Validar datos para insertar un producto
 const validarInsertarProducto = async (datos) => {
     if (!datos || typeof datos !== 'object') {
         throw Object.assign(new Error("Se necesitan los datos del producto para registrarlo"), { status: 400 });
@@ -8,17 +7,14 @@ const validarInsertarProducto = async (datos) => {
 
     const { nombreProducto, descripcionProducto, precio, usaInsumo, insumos, idCategoria } = datos;
 
-    // 🔸 Nombre
     if (!nombreProducto || typeof nombreProducto !== "string" || !nombreProducto.trim()) {
         throw Object.assign(new Error("El nombre del producto es obligatorio y debe ser texto"), { status: 400 });
     }
 
-    // 🔸 Descripción
     if (!descripcionProducto || typeof descripcionProducto !== "string" || !descripcionProducto.trim()) {
         throw Object.assign(new Error("La descripción del producto es obligatoria y debe ser texto"), { status: 400 });
     }
 
-    // 🔸 Precio
     if (typeof precio !== "number" || isNaN(precio)) {
         throw Object.assign(new Error("El precio del producto debe ser un número válido"), { status: 400 });
     }
@@ -26,7 +22,6 @@ const validarInsertarProducto = async (datos) => {
         throw Object.assign(new Error("El precio del producto debe ser mayor a 0"), { status: 422 });
     }
 
-    // 🔸 usaInsumo
     if (usaInsumo === null || usaInsumo === undefined || typeof usaInsumo !== "number") {
         throw Object.assign(new Error("Debe especificarse si el producto usa insumos"), { status: 400 });
     }
@@ -34,7 +29,6 @@ const validarInsertarProducto = async (datos) => {
         throw Object.assign(new Error("El campo usaInsumo debe ser 0 (no usa) o 1 (usa)"), { status: 422 });
     }
 
-    // 🔸 insumos
     if (!Array.isArray(insumos)) {
         throw Object.assign(new Error("El campo insumos debe ser un arreglo"), { status: 400 });
     }
@@ -46,7 +40,6 @@ const validarInsertarProducto = async (datos) => {
         throw Object.assign(new Error("Se necesita la categoria del producto."), { status: 400 });
     }
 
-    // 🔍 Validar existencia de insumos en la base de datos
     const erroresInsumos = [];
 
     for (const insumo of insumos) {
@@ -64,7 +57,6 @@ const validarInsertarProducto = async (datos) => {
             throw Object.assign(new Error("La cantidad de uso debe ser mayor a 0"), { status: 422 });
         }
 
-        // 🔎 Verificar existencia real del insumo
         try {
             const insumoExistente = await obtenerInsumoIDModel(idInsumo);
             if (!insumoExistente) {
@@ -81,7 +73,6 @@ const validarInsertarProducto = async (datos) => {
 };
 
 
-// 🟢 Validar datos para actualizar un producto
 const validarActualizarProducto = (datos) => {
 
     if (!datos || typeof datos !== 'object') {
@@ -111,7 +102,6 @@ const validarActualizarProducto = (datos) => {
 };
 
 
-// 🟢 Validar datos para actualizar la cantidad de uso de un insumo
 const validarActualizarCantidadesProducto = (datos) => {
     if (!datos || typeof datos !== 'object') {
         throw Object.assign(new Error("Se necesitan el ID del producto, el ID del insumo y la nueva cantidad"), { status: 400 });
@@ -137,7 +127,6 @@ const validarActualizarCantidadesProducto = (datos) => {
 };
 
 
-// 🟢 Validar datos para insertar una nueva relación producto–insumo
 const validarInsertarCantidadesProducto = (datos) => {
     if (!datos || typeof datos !== 'object') {
         throw Object.assign(new Error("Se necesitan el ID del producto, el ID del insumo y la cantidad de uso"), { status: 400 });

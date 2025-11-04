@@ -1,7 +1,7 @@
 const transporter = require("../config/nodemailer");
 
 async function enviarCorreoVerificacion(correo, codigo) {
-  // No hay try/catch — los errores se lanzan hacia el controlador
+
   const info = await transporter.sendMail({
     from: `"Super Pollo" <${process.env.EMAIL_USER}>`,
     to: correo,

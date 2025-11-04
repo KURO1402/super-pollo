@@ -1,34 +1,27 @@
-require('dotenv').config(); // Cargar variables de entorno
+require('dotenv').config(); 
 const helmet = require("helmet");
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
 const limitador = require("./src/middlewares/limitador");
 
-//rutas del modulo de autenticacion
+
 const autenticacionRoutes = require("./src/modulos/autenticacion/autenticacionRutas");
 
-//rutas del modulo de fuente de datos
 const fuenteDatosRouter = require("./src/modulos/fuente-datos/fuenteDatosRutas")
 
-//ruta para ventas
 const ventasRoutes = require("./src/modulos/ventas/rutas/ventasRutas");
 const comprobanteRoutes = require("./src/modulos/ventas/rutas/comprobanteRutas");
 
-//ruta para reservaciones
 const reservacionesRoutes = require("./src/modulos/reservaciones/reservacionesRutas.js");
 
-//rutas para inventario
 const insumoRoutes = require("./src/modulos/inventario/rutas/insumoRutas");
 const inentarioRoutes = require("./src/modulos/inventario/rutas/movimientoRutas.js");
 
-// Rutas para caja
 const cajaRoutes = require("./src/modulos/caja/cajaRutas.js");
 
-//Rutas para imagenes
 const productoRoutes = require("./src/modulos/inventario/rutas/productoRutas");
 
-//Rutas de usuarios
 const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas")
 
 const app = express();
@@ -39,24 +32,23 @@ app.use(express.urlencoded({ extended: true, limit: "50kb" }));
 app.use(helmet());
 
 const corsOptions = {
-  origin: 'http://localhost:5173',  // el origen específico permitido
-  credentials: true,                 // permite el envío de cookies y credenciale
+  origin: 'http://localhost:5173',  
+  credentials: true,                 
 };
 
-// Middlewares
-app.use(cors(corsOptions)); // Permitir peticiones del frontend
-app.use(cookieParser()); //Habilita lectura de cookies
-app.use(express.json()); // Leer JSON en requests
+app.use(cors(corsOptions)); 
+app.use(cookieParser()); 
+app.use(express.json()); 
 
-// Variables de entorno
+
 const PORT = process.env.PORT || 3001;
 
-// Ruta de prueba
+
 app.get('/', (req, res) => {
   res.send('Servidor funcionando');
 });
 
-//usar rutas
+
 app.use('/ventas', ventasRoutes);
 app.use('/comprobantes', comprobanteRoutes);
 app.use('/autenticacion', autenticacionRoutes);
@@ -68,7 +60,7 @@ app.use('/caja', cajaRoutes);
 app.use('/productos', productoRoutes);
 app.use('/usuarios', usuariosRoutes);
 
-// Iniciar servidor
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

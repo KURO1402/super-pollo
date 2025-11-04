@@ -19,14 +19,12 @@ const {
     obtenerCategoriasProductoService
 } = require("../servicio/productoServicio");
 
-// ✅ Insertar un nuevo producto
 const insertarProductoController = async (req, res) => {
     try {
         if (!req.body.datos) {
             throw Object.assign(new Error("Se necesitan los datos del producto."), { status: 400 });
         }
 
-        // Intentar convertir el JSON recibido
         let datos;
         try {
             datos = JSON.parse(req.body.datos);
@@ -42,7 +40,6 @@ const insertarProductoController = async (req, res) => {
         console.error("Error en insertarProductoController:", err.message);
         const statusCode = err.status || 500;
 
-        // Eliminar archivo solo si existe
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
         }
@@ -54,13 +51,11 @@ const insertarProductoController = async (req, res) => {
     }
 };
 
-// ✅ Actualizar datos del producto
 const actualizarProductoController = async (req, res) => {
     try {
         const respuesta = await actualizarProductoService(req.params.idProducto, req.body);
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en actualizarProductoController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -70,13 +65,11 @@ const actualizarProductoController = async (req, res) => {
     }
 };
 
-// ✅ Eliminar un producto
 const eliminarProductoController = async (req, res) => {
     try {
         const respuesta = await eliminarProductoService(req.params.idProducto);
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en eliminarProductoController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -86,17 +79,14 @@ const eliminarProductoController = async (req, res) => {
     }
 };
 
-// ✅ Actualizar imagen de producto
 const actualizarImagenProductoController = async (req, res) => {
     try {
         const file = req.file;
         const respuesta = await actualizarImagenProductoService(req.params.idProducto, file);
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en actualizarImagenProductoController:", err.message);
         const statusCode = err.status || 500;
 
-        // Eliminar archivo solo si existe
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
         }
@@ -108,13 +98,11 @@ const actualizarImagenProductoController = async (req, res) => {
     }
 };
 
-// ✅ Actualizar cantidad de uso de un insumo en producto
 const actualizarCantidadUsoInsumoProductoController = async (req, res) => {
     try {
         const respuesta = await actualizarCantidadUsoInsumoProductoService(req.body);
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en actualizarCantidadUsoInsumoProductoController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -124,13 +112,11 @@ const actualizarCantidadUsoInsumoProductoController = async (req, res) => {
     }
 };
 
-// ✅ Eliminar un insumo asociado a un producto
 const eliminarCantidadInsumoProductoController = async (req, res) => {
     try {
         const respuesta = await eliminarCantidadInsumoProductoService(req.body);
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en eliminarCantidadInsumoProductoController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -140,13 +126,11 @@ const eliminarCantidadInsumoProductoController = async (req, res) => {
     }
 };
 
-// ✅ Insertar cantidad de insumo a un producto
 const insertarCantidadInsumoProductoController = async (req, res) => {
     try {
         const respuesta = await insertarCantidadInsumoProductoService(req.body);
         return res.status(201).json(respuesta);
     } catch (err) {
-        console.error("Error en insertarCantidadInsumoProductoController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -163,7 +147,6 @@ const obtenerProductosController = async (req, res) => {
 
         return res.status(200).json(resultado);
     } catch (err) {
-        console.error("Error en obtenerProductosController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -175,13 +158,12 @@ const obtenerProductosController = async (req, res) => {
 
 const obtenerProductosPaginacionController = async (req, res) => {
     try {
-        const { limit, offset } = req.query; // Se obtienen desde la URL
+        const { limit, offset } = req.query; 
 
         const resultado = await obtenerProductosPaginacionService(limit, offset);
 
         return res.status(200).json(resultado);
     } catch (err) {
-        console.error("Error en obtenerProductosController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -197,7 +179,6 @@ const obtenerProductoPorIdController = async (req, res) => {
         const resultado = await obtenerProductoPorIdService(idProducto);
         return res.status(200).json(resultado);
     } catch (err) {
-        console.error("Error en obtenerProductoPorIdController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -209,11 +190,10 @@ const obtenerProductoPorIdController = async (req, res) => {
 
 const buscarProductosPorNombreController = async (req, res) => {
     try {
-        const { nombre } = req.query; // se busca con ?nombre=valor
+        const { nombre } = req.query; 
         const resultado = await buscarProductosPorNombreService(nombre);
         return res.status(200).json(resultado);
     } catch (err) {
-        console.error("Error en buscarProductosPorNombreController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -229,7 +209,6 @@ const obtenerProductosPorCategoriaController = async (req, res) => {
         const resultado = await obtenerProductosPorCategoriaService(idCategoria);
         return res.status(200).json(resultado);
     } catch (err) {
-        console.error("Error en obtenerProductosPorCategoriaController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -248,7 +227,6 @@ const obtenerInsumosPorProductoControlller = async (req, res) => {
 
         res.status(200).json(resultado);
     } catch (err) {
-        console.error("Error en buscarProductosPorNombreController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -258,14 +236,12 @@ const obtenerInsumosPorProductoControlller = async (req, res) => {
     }
 };
 
-// Controladores para categorias
 const insertarCategoriaProductoController = async (req, res) => {
     try {
         const respuesta = await insertarCategoriaProductoService(req.body);
 
-        return res.status(201).json(respuesta); // 201: recurso creado
+        return res.status(201).json(respuesta); 
     } catch (err) {
-        console.error("Error en insertarCategoriaProductoController:", err.message);
 
         const statusCode = err.status || 500;
 
@@ -284,7 +260,6 @@ const actualizarCategoriaProductoController = async (req, res) => {
 
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en actualizarCategoriaProductoController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -300,7 +275,6 @@ const obtenerCategoriaPorIdController = async (req, res) => {
         const resultado = await obtenerCategoriaPorIdService(idCategoria);
         return res.status(200).json(resultado);
     } catch (err) {
-        console.error("Error en obtenerCategoriaPorIdController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -312,18 +286,12 @@ const obtenerCategoriaPorIdController = async (req, res) => {
 
 const obtenerCategoriasProductoController = async (req, res) => {
     try {
-        // Llamamos al servicio que obtiene las categorías
         const resultado = await obtenerCategoriasProductoService();
 
-        // Respondemos con el resultado
         res.status(200).json(resultado);
     } catch (err) {
-        console.error("Error en obtenerCategoriasController:", err.message);
-
-        // Determinamos el código de estado del error (por defecto 500)
         const statusCode = err.status || 500;
 
-        // Respondemos con un error
         return res.status(statusCode).json({
             ok: false,
             mensaje: err.message || "Error interno del servidor"

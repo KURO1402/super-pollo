@@ -117,12 +117,11 @@ const actualizarUsuarioService = async (datos, idUsuario) => {
     }
 };
 
-//Actualizar correo 
 const actualizarCorreoUsuarioService = async (datos, idUsuario) => {
     validarActualizarCorreoUsuario(datos, idUsuario)
     const { nuevoCorreo, clave } = datos
     const idUsuarioNumerico = Number(idUsuario);
-    // 🔹 Verificar existencia del usuario
+
     const usuario = await consultarClaveUsuarioModel(idUsuarioNumerico);
     if (!usuario || usuario.length === 0) {
         throw Object.assign(
@@ -134,15 +133,14 @@ const actualizarCorreoUsuarioService = async (datos, idUsuario) => {
     if (usuarioCorreo.length > 0) {
         throw Object.assign(new Error("Ya existe un usuario registrado con el correo ingresado."), { status: 409 });
     }
-    //console.log(usuario.clave)
-    // Verificar contraseña con bcrypt (retorna true si las claves coinciden)
+
     const contraseñaValida = await bcrypt.compare(clave, usuario[0].clave);
-    //Si es false es decir que las contraseñas no coinciden
+
     if (!contraseñaValida) {
-        //Lanzamos error
+
         throw Object.assign(new Error("Clave incorrecta."), { status: 401 });
     }
-    // Verificación de correo
+
     const estado = await obtenerEstadoVerificacionCorreoModel(nuevoCorreo);
 
     if (!estado) {
@@ -153,7 +151,6 @@ const actualizarCorreoUsuarioService = async (datos, idUsuario) => {
         throw Object.assign(new Error("El correo aún no ha sido validado. Por favor verifica tu correo."), { status: 400 });
     }
 
-    // 🔹 Actualizar correo
     const respuesta = await actualizarCorreoUsuarioModel(idUsuarioNumerico, nuevoCorreo);
 
     return {
@@ -180,7 +177,6 @@ const actualizarClaveUsuarioService = async (datos, idUsuario) => {
 
     const { clave, nuevaClave } = datos;
 
-    // 🔹 Validar campos
     if (!clave || typeof clave !== "string" || !clave.trim()) {
         throw Object.assign(
             new Error("La clave actual es obligatoria y debe ser una cadena de texto."),
@@ -201,7 +197,6 @@ const actualizarClaveUsuarioService = async (datos, idUsuario) => {
         );
     }
 
-    // 🔹 Verificar existencia del usuario
     const usuario = await consultarClaveUsuarioModel(idUsuarioNumerico);
     if (!usuario || usuario.length === 0) {
         throw Object.assign(
@@ -210,7 +205,6 @@ const actualizarClaveUsuarioService = async (datos, idUsuario) => {
         );
     }
 
-    // 🔹 Verificar clave actual
     const claveCorrecta = await bcrypt.compare(clave, usuario[0].clave);
     if (!claveCorrecta) {
         throw Object.assign(
@@ -219,10 +213,8 @@ const actualizarClaveUsuarioService = async (datos, idUsuario) => {
         );
     }
 
-    // 🔹 Encriptar nueva clave antes de actualizar
     const nuevaClaveEncriptada = await bcrypt.hash(nuevaClave, 10);
 
-    // 🔹 Actualizar clave
     const respuesta = await actualizarClaveUsuarioModel(idUsuarioNumerico, nuevaClaveEncriptada);
 
     return {
@@ -257,7 +249,6 @@ const eliminarUsuarioService = async (idUsuario) => {
     }
 };
 
-// Servicio para obtener todos los usuarios
 const obtenerUsuariosService = async (idUsuario) => {
     const usuarios = await listarUsuariosModel(idUsuario);
     if (!usuarios || usuarios.length === 0) {
@@ -272,7 +263,6 @@ const obtenerUsuariosService = async (idUsuario) => {
     };
 };
 
-// Servicio para obtener usuarios con paginación
 const obtenerUsuariosPaginacionService = async (limit, offset, idUsuario) => {
     const limite = parseInt(limit) || 10;
     const desplazamiento = parseInt(offset) || 0;
@@ -290,9 +280,8 @@ const obtenerUsuariosPaginacionService = async (limit, offset, idUsuario) => {
     };
 };
 
-// Servicio para consultar un usuario por su ID
 const consultarUsuarioPorIdService = async (id) => {
-    // Validar que se envíe un ID numérico válido
+
     if (!id || isNaN(Number(id))) {
         throw Object.assign(
             new Error("Se requiere un ID de usuario válido."),
@@ -315,8 +304,6 @@ const consultarUsuarioPorIdService = async (id) => {
     };
 };
 
-
-// Servicio para buscar usuarios por un valor (nombre, apellido, correo o teléfono)
 const buscarUsuariosPorValorService = async (valor, idUsuario) => {
     if (!valor || typeof valor !== "string") {
         throw Object.assign(
@@ -338,7 +325,6 @@ const buscarUsuariosPorValorService = async (valor, idUsuario) => {
     };
 };
 
-// Servicio para contar usuarios activos
 const contarUsuariosActivosService = async () => {
     const total = await contarUsuariosActivosModel();
     if (total === undefined || total === null) {
@@ -379,7 +365,6 @@ const actualizarRolUsuarioService = async (datos, idUsuario, idActual) => {
         );
     }
 
-    // 🔹 Verificar que el usuario exista
     const usuario = await consultarUsuarioPorIdModel(idUsuario);
     if (!usuario || usuario.length === 0) {
         throw Object.assign(new Error("El usuario especificado no existe."), { status: 404 });
@@ -390,7 +375,6 @@ const actualizarRolUsuarioService = async (datos, idUsuario, idActual) => {
         throw Object.assign(new Error("El rol especificado no existe."), { status: 404 });
     }
 
-    // 🔹 Evitar que se reasigne el mismo rol
     if (usuario[0].idRol === nuevoRol) {
         throw Object.assign(new Error("El usuario ya tiene asignado este rol."), { status: 400 });
     }

@@ -18,7 +18,7 @@ const generarComprobanteNubefact = async (data) => {
         if (error.response) {
             console.error("Error Nubefact - Status:", error.response.status);
             console.error("Error Nubefact - Data:", error.response.data);
-            // Retornamos el error para que el servicio lo maneje
+            
             return error.response.data;
         } else {
             console.error("Error de conexión:", error.message);

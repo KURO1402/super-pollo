@@ -1,8 +1,8 @@
 const rateLimit = require("express-rate-limit");
 
 const limitador = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minuto
-  max: 50, // Máximo 25 peticiones por minuto por IP
+  windowMs: 1 * 60 * 1000, 
+  max: 50, 
   message: {
     ok: false,
     mensaje: "Demasiadas peticiones. Intenta de nuevo en 1 minuto."
