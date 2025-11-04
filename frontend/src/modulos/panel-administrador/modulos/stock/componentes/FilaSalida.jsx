@@ -37,7 +37,7 @@ export const FilaSalida = ({ salida  }) => {
       {/* Hora (solo hora) */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-900 dark:text-white">
-          {salida.fechaMovimiento}
+          {salida.horaMovimiento}
         </div>
       </td>
 

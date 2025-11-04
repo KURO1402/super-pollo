@@ -284,7 +284,7 @@ const SeccionVentas = () => {
   // descargar o imprimir el pdf del comprobante
   const handleDescargarPDF = () => {
     if (urlPDF) {
-      window.print(urlPDF, '_blank');
+      window.open(urlPDF, '_blank');
     }
   };
 
@@ -521,7 +521,7 @@ const SeccionVentas = () => {
                   Procesando...
                 </>
               ) : (
-                "Generar e Imprimir Comprobante"
+                "Generar Comprobante"
               )}
             </button>
           </div>
@@ -552,7 +552,7 @@ const SeccionVentas = () => {
           estaAbierto={mostrarPDF}
           onCerrar={handleCerrarModalPDF}
           titulo={`Comprobante Generado - ${tipoComprobante === 1 ? 'Factura' : 'Boleta'}`}
-          tamaño="xl"
+          tamaño="lg"
           mostrarHeader={true}
           mostrarFooter={false}
         >
@@ -585,33 +585,6 @@ const SeccionVentas = () => {
               >
                 Cerrar y Continuar
               </button>
-            </div>
-
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Vista previa del comprobante:
-                </h4>
-                <button
-                  onClick={handleDescargarPDF}
-                  className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  Abrir en nueva pestaña
-                </button>
-              </div>
-              <iframe
-                src={urlPDF}
-                className="w-full h-[500px] rounded-lg border border-gray-300 dark:border-gray-600"
-                title="Vista previa del comprobante"
-                onLoad={() => console.log("PDF cargado correctamente")}
-                onError={(e) => {
-                  console.error("Error cargando PDF:", e);
-                  mostrarAlerta.error("Error al cargar la vista previa del PDF");
-                }}
-              />
-              <div className="mt-2 text-xs text-gray-500 text-center">
-              Si la vista previa no se carga, use el botón "Abrir en nueva pestaña"
-              </div>
             </div>
           </div>
         </Modal>

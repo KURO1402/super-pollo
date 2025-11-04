@@ -29,7 +29,6 @@ const Registro = () => {
     try {
       // generar código de verificación
       await verificarCorreo(formularioData.correoUsuario);
-      console.log("verificandoCorreo")
       // Guardar datos temporalmente y avanzar a verificación
       setDatosTemporales(formularioData);
       setCorreoVerificacion(formularioData.correoUsuario);
@@ -42,7 +41,6 @@ const Registro = () => {
   };
   // ahora vamos a validar el código y completar el registro
   const handleCodigoValidado = async (codigo) => {
-    console.log("handleCodigoValidado")
     try {
       // Validar código primero
       await validarCodigo({
