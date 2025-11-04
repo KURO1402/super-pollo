@@ -1,60 +1,26 @@
-import { useState, useEffect } from "react";
-import { obtenerProductosServicio } from "../servicios/fuenteDatosServicio";
 import TarjetaProducto from "./TarjetaProducto";
 
-const MenuListado = () => {
-  const [productos, setProductos] = useState([]);
-  const [cargandoProductos, setCargandoProductos] = useState(true);
-  const [errorProductos, setErrorProductos] = useState(null);
-
-  useEffect(() => {
-    const cargarProductos = async () => {
-      try {
-        setCargandoProductos(true);
-        setErrorProductos(null);
-        
-        const respuesta = await obtenerProductosServicio();
-        console.log("en el componente: ", respuesta);
-        
-        if (respuesta && respuesta.productos) {
-          setProductos(respuesta.productos);
-        } else if (respuesta && Array.isArray(respuesta)) {
-          setProductos(respuesta);
-        } else {
-          setProductos([]);
-          setErrorProductos("No se pudieron cargar los productos");
-        }
-      } catch (error) {
-        console.error('Error al cargar productos:', error);
-        setErrorProductos(error.message || "Error al cargar los productos");
-        setProductos([]);
-      } finally {
-        setCargandoProductos(false);
-      }
-    };
-
-    cargarProductos();
-  }, []);
+const MenuListado = ({ productos, cargando, error, categoriaSeleccionada }) => {
 
   // Estado de carga
-  if (cargandoProductos) {
+  if (cargando) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando productos...</p>
+          <p className="text-gray-100">Cargando productos...</p>
         </div>
       </div>
     );
   }
 
   // Estado de error
-  if (errorProductos) {
+  if (error) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="text-center">
           <div className="text-red-500 text-lg mb-2">⚠️</div>
-          <p className="text-gray-600">{errorProductos}</p>
+          <p className="text-gray-100">{error}</p>
           <button 
             onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -67,17 +33,22 @@ const MenuListado = () => {
   }
 
   // Estado sin productos
-  if (productos.length === 0) {
+  if (!productos || productos.length === 0) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="text-center">
           <div className="text-gray-400 text-4xl mb-4">🛒</div>
-          <p className="text-gray-500">No hay productos disponibles</p>
+          <p className="text-gray-100">
+            {categoriaSeleccionada === "Todos" 
+              ? "No hay productos disponibles" 
+              : `No hay productos en la categoría ${categoriaSeleccionada}`
+            }
+          </p>
         </div>
       </div>
     );
   }
-
+  
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
       {productos.map((producto) => (

@@ -1,5 +1,4 @@
 const TarjetaProducto = ({ producto }) => {
-  console.log("tarjeta: ", producto);
   
   // Formatear el precio
   const formatearPrecio = (precio) => {
@@ -41,7 +40,12 @@ const TarjetaProducto = ({ producto }) => {
         
         <div className="flex items-center justify-between pt-3 border-t border-gray-800 mt-auto">
           <span className="text-rojo font-bold text-2xl tracking-wide">
-            {formatearPrecio(producto.precioProducto || producto.precio || 0)}
+            {formatearPrecio(producto.precio || producto.precioProducto || 0)}
+          </span>
+          
+          {/* Mostrar categoría */}
+          <span className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded">
+            {producto.nombreCategoria}
           </span>
         </div>
       </div>

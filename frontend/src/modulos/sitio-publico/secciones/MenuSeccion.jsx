@@ -1,7 +1,77 @@
+import { useState, useEffect } from "react";
 import MenuCategorias from "../componentes/MenuCategorias";
 import MenuListado from "../componentes/MenuListado";
+import { obtenerProductosServicio } from "../servicios/fuenteDatosServicio";
 
 const MenuSeccion = () => {
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
+  const [todosLosProductos, setTodosLosProductos] = useState([]);
+  const [productosFiltrados, setProductosFiltrados] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Cargar productos al montar el componente
+  useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        setCargando(true);
+        setError(null);
+        
+        const respuesta = await obtenerProductosServicio();
+        
+        let productosData = [];
+        
+        if (respuesta && respuesta.productos) {
+          productosData = respuesta.productos;
+        } else if (respuesta && Array.isArray(respuesta)) {
+          productosData = respuesta;
+        } else {
+          throw new Error("Formato de respuesta inválido");
+        }
+        setTodosLosProductos(productosData);
+        
+      } catch (error) {
+        setError(error.message || "Error al cargar los productos");
+        setTodosLosProductos([]);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    cargarProductos();
+  }, []);
+
+  // Filtrar productos cuando cambia la categoría o los productos
+  useEffect(() => {
+    if (categoriaSeleccionada === "Todos") {
+      setProductosFiltrados(todosLosProductos);
+    } else {
+      const filtrados = todosLosProductos.filter(producto => {
+        const categoriaProducto = producto.nombreCategoria?.toLowerCase() || '';
+
+        const mapeoEspecifico = {
+          "Pollos": (cat) => cat.includes("pollo"),
+          "Bebidas": (cat) => cat.includes("bebida") || cat.includes("gaseosa"),
+          "Extras": (cat) => cat.includes("porcion") || cat.includes("extra"),
+          "Postres": (cat) => cat.includes("postre")
+        };
+
+        const filtro = mapeoEspecifico[categoriaSeleccionada];
+        const resultado = filtro ? filtro(categoriaProducto) : false;
+        
+        return resultado;
+      });
+
+      setProductosFiltrados(filtrados);
+    }
+  }, [categoriaSeleccionada, todosLosProductos]);
+
+  // Función para manejar el cambio de categoría
+  const handleCategoriaChange = (categoria) => {
+    setCategoriaSeleccionada(categoria);
+  };
+
+
   return (
     <section
       id="menu"
@@ -20,9 +90,20 @@ const MenuSeccion = () => {
             Productos exquisitos, deliciosos y hechos con calidad y cariño.
           </p>
         </div>
-        {/* Categorías del menú y listado de productos */}
-        <MenuCategorias />
-        <MenuListado />
+        
+        {/* Categorías */}
+        <MenuCategorias 
+          categoriaSeleccionada={categoriaSeleccionada}
+          onCategoriaChange={handleCategoriaChange}
+        />
+        
+        {/* Listado de productos */}
+        <MenuListado 
+          productos={productosFiltrados}
+          cargando={cargando}
+          error={error}
+          categoriaSeleccionada={categoriaSeleccionada}
+        />
       </div>
     </section>
   );
