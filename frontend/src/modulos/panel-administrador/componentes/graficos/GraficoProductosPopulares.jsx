@@ -46,12 +46,12 @@ const GraficoProductosPopulares = () => {
   useEffect(() => {
     const fechaInicioDefault = obtenerFechaInicioPorDefecto();
     const fechaFinDefault = obtenerFechaFinPorDefecto();
-    
+
     setFiltros({
       fechaInicio: fechaInicioDefault,
       fechaFin: fechaFinDefault
     });
-    
+
     cargarDatos(fechaInicioDefault, fechaFinDefault);
   }, []);
 
@@ -79,20 +79,21 @@ const GraficoProductosPopulares = () => {
   const limpiarFiltros = () => {
     const fechaInicioDefault = obtenerFechaInicioPorDefecto();
     const fechaFinDefault = obtenerFechaFinPorDefecto();
-    
+
     setFiltros({
       fechaInicio: fechaInicioDefault,
       fechaFin: fechaFinDefault
     });
-    
+
     cargarDatos(fechaInicioDefault, fechaFinDefault);
   };
 
   return (
     <div className="w-full">
       {/* Filtros */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div className="flex-1">
+      {/* Filtros */}
+      <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div className="flex-1 min-w-[180px]">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Fecha Inicio
           </label>
@@ -103,8 +104,8 @@ const GraficoProductosPopulares = () => {
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
           />
         </div>
-        
-        <div className="flex-1">
+
+        <div className="flex-1 min-w-[180px]">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Fecha Fin
           </label>
@@ -115,25 +116,24 @@ const GraficoProductosPopulares = () => {
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
           />
         </div>
-        
-        <div className="flex items-end gap-2">
+
+        <div className="flex flex-row sm:flex-col md:flex-row flex-wrap items-end gap-2">
           <button
             onClick={aplicarFiltros}
             disabled={cargando}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-md transition-colors duration-200 text-sm font-medium"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-md transition-colors duration-200 text-sm font-medium w-full sm:w-auto"
           >
             {cargando ? "Cargando..." : "Aplicar"}
           </button>
           <button
             onClick={limpiarFiltros}
             disabled={cargando}
-            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white rounded-md transition-colors duration-200 text-sm font-medium"
+            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white rounded-md transition-colors duration-200 text-sm font-medium w-full sm:w-auto"
           >
             Limpiar
           </button>
         </div>
       </div>
-
       {/* Gráfico */}
       <div className="h-64">
         {cargando ? (

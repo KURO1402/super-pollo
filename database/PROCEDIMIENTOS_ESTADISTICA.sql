@@ -6,6 +6,7 @@ DROP PROCEDURE IF EXISTS obtenerCantidadVentasHoyComparacion;
 DROP PROCEDURE IF EXISTS obtenerReservasHoyComparacion;
 DROP PROCEDURE IF EXISTS obtenerBalanceGeneralAnual;
 DROP PROCEDURE IF EXISTS obtenerPorcentajeMediosPago;
+DROP PROCEDURE IF EXISTS obtenerVentasPorMes;
 
 DELIMITER //
 
@@ -207,6 +208,32 @@ BEGIN
     FROM medioPago mp
     LEFT JOIN ventas v ON v.idMedioPago = mp.idMedioPago
     GROUP BY mp.idMedioPago, mp.nombreMedioPago;
+END //
+
+CREATE PROCEDURE obtenerVentasPorMes(IN p_meses INT)
+BEGIN
+    -- Variable para la fecha inicial
+    DECLARE fechaInicio DATE;
+    SET fechaInicio = DATE_SUB(CURDATE(), INTERVAL p_meses-1 MONTH);
+
+    -- Generar lista de meses usando una tabla derivada
+    SELECT 
+        DATE_FORMAT(meses.mes, '%b') AS mes,
+        IFNULL(SUM(v.totalVenta), 0) AS totalVentas
+    FROM (
+        SELECT DATE_ADD(fechaInicio, INTERVAL seq MONTH) AS mes
+        FROM (
+            SELECT 0 AS seq UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3
+            UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7
+            UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11
+        ) AS numeros
+        WHERE DATE_ADD(fechaInicio, INTERVAL seq MONTH) <= CURDATE()
+    ) AS meses
+    LEFT JOIN ventas v 
+        ON YEAR(v.fechaEmision) = YEAR(meses.mes) 
+       AND MONTH(v.fechaEmision) = MONTH(meses.mes)
+    GROUP BY meses.mes
+    ORDER BY meses.mes;
 END //
 
 DELIMITER ;
