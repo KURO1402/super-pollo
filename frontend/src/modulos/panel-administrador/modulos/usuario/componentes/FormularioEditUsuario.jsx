@@ -1,30 +1,71 @@
-
 import { useForm } from "react-hook-form";
 import { obtenerTiposDocumento } from "../../../../sitio-publico/servicios/tiposDocService";
 import { useEffect, useState } from "react";
 
 const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
     const [tiposDocumento, setTiposDocumento] = useState([]);
-    // elementos de react-hook-fom
+    
+    // elementos de react-hook-form
     const{
         register,
         handleSubmit,
         reset,
         formState: { errors, isDirty }
     } = useForm();
-    // cuando el usuario de cargue se reseteara el contonido del usuario
+
+    // Mapear los datos del usuario al formato del formulario
+    const mapearUsuarioAFormulario = (usuarioData) => {
+      if (!usuarioData) return {};
+      
+      return {
+        nombre: usuarioData.nombresUsuario || '',
+        apellido: usuarioData.apellidosUsuario || '',
+        tipoDocumento: usuarioData.nombreTipoDocumento || '',
+        numeroDocumento: usuarioData.numeroDocumentoUsuario || '',
+        telefono: usuarioData.telefonoUsuario || '',
+        // También puedes incluir otros campos si los necesitas
+        idUsuario: usuarioData.idUsuario,
+        idTipoDocumento: usuarioData.idTipoDocumento,
+        idRol: usuarioData.idRol
+      };
+    };
+
+    // cuando el usuario de cargue se reseteara el contenido del usuario
     useEffect(() => {
         if (usuario) {
-            reset(usuario);
+            const datosFormulario = mapearUsuarioAFormulario(usuario);
+            reset(datosFormulario);
         }
-    }, [usuario, reset]);
+    }, [reset]);
+
+    // Función para manejar el envio
+    const manejarEnvio = (datosFormulario) => {
+      const datosParaBackend = {
+        idUsuario: usuario.idUsuario,
+        nombresUsuario: datosFormulario.nombre,
+        apellidosUsuario: datosFormulario.apellido,
+        numeroDocumentoUsuario: datosFormulario.numeroDocumento,
+        telefonoUsuario: datosFormulario.telefono,
+        idTipoDocumento: datosFormulario.idTipoDocumento || usuario.idTipoDocumento,
+        // Mantener los campos que no se editan
+        idRol: usuario.idRol,
+        nombreRol: usuario.nombreRol,
+        nombreTipoDocumento: datosFormulario.tipoDocumento
+      };
+      
+      onSubmit(datosParaBackend);
+    };
 
     // cargar tipos de documento desde el servicio existente
     useEffect(() => {
         const fetchTiposDocumento = async () => {
         try {
             const data = await obtenerTiposDocumento();
-            setTiposDocumento(data);
+            // Filtrar para eliminar RUC y quedarnos con todo lo demás
+            const tiposFiltrados = data.filter(tipo => 
+              tipo.nombreTipoDocumento !== 'RUC'
+            );
+            setTiposDocumento(tiposFiltrados);
         } catch (error) {
             console.error("Error al obtener tipos de documento:", error);
         }
@@ -33,7 +74,7 @@ const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
     }, []);
 
     return ( 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+        <form onSubmit={handleSubmit(manejarEnvio)} className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
@@ -74,7 +115,11 @@ const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
                 >
                   <option value="">Seleccione</option>
                   {tiposDocumento.map((tipo) => (
-                    <option key={tipo.idTipoDocumento} value={tipo.nombreTipoDocumento}>
+                    <option 
+                      key={tipo.idTipoDocumento} 
+                      value={tipo.nombreTipoDocumento}
+                      selected={tipo.nombreTipoDocumento === usuario?.nombreTipoDocumento}
+                    >
                       {tipo.nombreTipoDocumento}
                     </option>
                   ))}
@@ -104,26 +149,6 @@ const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
                 />
                 {errors.numeroDocumento && (
                   <p className="mt-1 text-sm text-red-600">{errors.numeroDocumento.message}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Correo *
-                </label>
-                <input
-                  type="email"
-                  {...register("correo", { 
-                    required: "El correo es requerido",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Ingresa un correo válido"
-                    }
-                  })}
-                  className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-                  placeholder="Ingresa tu correo electrónico"
-                />
-                {errors.correo && (
-                  <p className="mt-1 text-sm text-red-600">{errors.correo.message}</p>
                 )}
               </div>
               <div>
