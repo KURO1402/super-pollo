@@ -3,7 +3,13 @@ import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
 import { useState, useEffect } from "react";
 
 export const DetalleVenta = () => {
-  const { detalle, removerProducto, actualizarCantidad, obtenerId } = useVentaEstadoGlobal();
+  const { 
+    detalle, 
+    removerProducto, 
+    actualizarCantidad, 
+    obtenerId,
+    calcularMontosProducto 
+  } = useVentaEstadoGlobal();
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const [inputValues, setInputValues] = useState({});
 
@@ -129,6 +135,9 @@ export const DetalleVenta = () => {
                   const nombre = item.nombreProducto || item.nombre;
                   const precio = item.precioProducto || item.precio;
                   
+                  // Calcular montos individuales para este producto
+                  const montosProducto = calcularMontosProducto(item, item.cantidad);
+                  
                   return (
                     <tr
                       key={itemId}
@@ -179,14 +188,14 @@ export const DetalleVenta = () => {
                         {nombre}
                       </td>
 
-                      {/* Columna Precio Unitario */}
+                      {/* Columna Precio Unitario - MOSTRAR PRECIO SIN IGV */}
                       <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
-                        S/ {precio}
+                        S/ {montosProducto.valor_unitario.toFixed(2)}
                       </td>
 
-                      {/* Columna Total */}
+                      {/* Columna Total - USAR EL TOTAL CALCULADO */}
                       <td className="px-4 py-3 text-right font-bold text-gray-900 dark:text-white">
-                        S/ {(item.cantidad * precio).toFixed(2)}
+                        S/ {montosProducto.total.toFixed(2)}
                       </td>
 
                       {/* Columna Acciones */}
@@ -238,6 +247,33 @@ export const DetalleVenta = () => {
           </div>
         </>
       )}
+    </div>
+  );
+};
+
+export const ResumenVenta = () => {
+  // Obtener las funciones de cálculo del estado global
+  const { subtotal, impuesto, total } = useVentaEstadoGlobal();
+  
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+        Resumen de Venta
+      </h2>
+      <div className="pt-4 mb-4">
+        <div className="flex justify-between mb-2 text-sm">
+          <span className="text-gray-600 dark:text-gray-400">Base Imponible</span>
+          <span className="font-semibold dark:text-gray-200">S/ {subtotal().toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between mb-2 text-sm">
+          <span className="text-gray-600 dark:text-gray-400">IGV (18%)</span>
+          <span className="font-semibold dark:text-gray-200">S/ {impuesto().toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between text-lg font-bold mt-3 pt-3 border-t border-gray-400">
+          <span className="text-gray-800 dark:text-gray-300">Total</span>
+          <span className="text-gray-800 dark:text-gray-300">S/ {total().toFixed(2)}</span>
+        </div>
+      </div>
     </div>
   );
 };

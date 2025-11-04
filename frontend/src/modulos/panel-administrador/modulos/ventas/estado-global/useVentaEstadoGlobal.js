@@ -5,6 +5,10 @@ export const useVentaEstadoGlobal = create((set, get) => ({ // set para actualiz
     detalle: [], // array donde se guardan los productos agregados a la venta
     cantidades: {}, // objeto donde se guardan las cantidades de cada producto
 
+    // Constantes para los cálculos (deben coincidir con el backend)
+    porcentajeIGV: 18, // 18% de IGV
+    TASA_IGV: 1.18, // 1 + 18%
+
     // Función auxiliar para obtener el ID consistente
     obtenerId: (producto) => {
         return producto.idProducto || producto.id;
@@ -72,14 +76,68 @@ export const useVentaEstadoGlobal = create((set, get) => ({ // set para actualiz
         cantidades: {}
     }),
 
-    // funcion para calcular el subtotal de la venta
+    // Calcular montos individuales del producto
+    calcularMontosProducto: (producto, cantidad) => {
+        const precioConIGV = Number(producto.precio);
+        const valorUnitario = precioConIGV / get().TASA_IGV;
+
+        const subtotal = valorUnitario * cantidad;
+        const total = precioConIGV * cantidad;
+        const igv = total - subtotal;
+
+        return {
+            valor_unitario: Number(valorUnitario.toFixed(2)),
+            subtotal: Number(subtotal.toFixed(2)),
+            igv: Number(igv.toFixed(2)),
+            total: Number(total.toFixed(2))
+        };
+    },
+
+    // funcion para calcular el subtotal de la venta (base imponible)
     subtotal: () => {
-        const {detalle } = get(); // obtenemos el detalle del estado
-        return detalle.reduce((acumulador, item) => acumulador + (item.precio * item.cantidad), 0); // suma precio x cantidad de cada producto
-    }, // reduce es una función que permite reducir un array a un solo valor
+        const { detalle, TASA_IGV } = get();
+        // Sumar todos los subtotales (base imponible) de cada producto
+        const totalConIGV = detalle.reduce((acumulador, item) => 
+            acumulador + (item.precio * item.cantidad), 0);
+        
+        // Calcular base imponible (total sin IGV)
+        const baseImponible = totalConIGV / TASA_IGV;
+        return Number(baseImponible.toFixed(2));
+    },
 
     // funcion para calcular el impuesto de la venta
-    impuesto: () => get().subtotal() * 0.18, // el impuesto es el 18% del subtotal
+    impuesto: () => {
+        const { detalle, TASA_IGV } = get();
+        const totalConIGV = detalle.reduce((acumulador, item) => 
+            acumulador + (item.precio * item.cantidad), 0);
+        
+        const baseImponible = totalConIGV / TASA_IGV;
+        const igv = totalConIGV - baseImponible;
+        return Number(igv.toFixed(2));
+    },
+
     // funcion para calcular el total de la venta
-    total: () => get().subtotal() + get().impuesto(), // el total es el subtotal + el impuesto
-}))
+    total: () => {
+        const { detalle } = get();
+        return Number(detalle.reduce((acumulador, item) => 
+            acumulador + (item.precio * item.cantidad), 0).toFixed(2));
+    },
+
+    // Función adicional para obtener todos los montos como en el backend
+    calcularMontosTotales: () => {
+        const { detalle, porcentajeIGV } = get();
+        
+        const montoTotal = detalle.reduce((suma, producto) => 
+            suma + Number(producto.precio * producto.cantidad || 0), 0);
+
+        const totalGravada = Number((montoTotal / (1 + porcentajeIGV / 100)).toFixed(2));
+        const totalIGV = Number((montoTotal - totalGravada).toFixed(2));
+
+        return {
+            totalGravada,
+            totalIGV,
+            porcentajeIGV,
+            total: Number(montoTotal.toFixed(2))
+        };
+    }
+}));
