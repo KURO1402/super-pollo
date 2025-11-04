@@ -56,10 +56,10 @@ const validarDatosReservacion = async (datos) => {
     throw Object.assign(new Error("No puede reservar con más de 7 días de anticipación"), { status: 400 });
   }
 
-  // Horario permitido: 11:00 a 22:00
+  // Horario permitido
   const hora = fechaHoraISO.getHours();
-  if (hora < 11 || hora >= 22) {
-    throw Object.assign(new Error("Solo se pueden hacer reservaciones entre las 11:00 y 22:00"), { status: 400 });
+  if (hora < 12 || hora >= 20) {
+    throw Object.assign(new Error("Solo se pueden hacer reservaciones entre las 12:00 y 20:00"), { status: 400 });
   }
 
   if (typeof listarMesasDisponiblesModel === "function") {
