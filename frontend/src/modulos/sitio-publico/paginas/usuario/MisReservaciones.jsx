@@ -10,47 +10,17 @@ import {
   FiSearch,
 } from "react-icons/fi";
 import { FaRegCheckCircle, FaRegClock, FaRegTimesCircle } from "react-icons/fa";
+import { obtenerReservacionesPorUsuario } from "../../servicios/reservacionesServicio";
 
 const MisReservaciones = () => {
   const [filtro, setFiltro] = useState("todas");
   const [ reserva, setReserva ] = useState(null);
 
-/*   useEffect(() => {
-    if (idReservacion) {
-      cargarReserva();
-    }
-  }, [idReservacion]);
-
-  const cargarReserva = async () => {
-    try {
-      setCargando(true);
-      const respuesta = await obtenerReservacionPorIdServicio(idReservacion);
-
-      if (respuesta.ok && Array.isArray(respuesta.reservacion) && respuesta.reservacion.length > 0) {
-        const reservaData = respuesta.reservacion[0];
-
-        setReserva(reservaData);
-        // Formatear datos para el formulario
-        setFormData({
-          idReservacion: reservaData.idReservacion,
-          fechaReservacion: reservaData.fechaReservacion
-          ? reservaData.fechaReservacion.split("T")[0]
-          : "",
-          horaReservacion: reservaData.horaReservacion.substring(0, 5),
-          cantidadPersonas: reservaData.cantidadPersonas.toString(),
-          idMesa: reservaData.idMesa.toString(),
-          estadoReservacion: reservaData.estadoReservacion,
-        });
-      }
-    } catch (error) {
-      console.error("Error al cargar reserva:", error);
-      mostrarAlerta.error("Error al cargar los datos de la reserva");
-      onClose();
-    } finally {
-      setCargando(false);
-    }
-  };
-   */
+  useEffect(() => {
+    const reserva = obtenerReservacionesPorUsuario();
+    console.log(reserva)
+  }, []);
+  
   // Datos de ejemplo para reservaciones
   const reservaciones = [
     {

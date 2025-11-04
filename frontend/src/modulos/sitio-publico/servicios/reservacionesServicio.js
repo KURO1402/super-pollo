@@ -57,9 +57,9 @@ export const generarPreferenciaMercadoPago = async (reservationId) => {
   }
 }
 
-export const obtenerReservasIdServicio = async (reservationId) => {
+export const obtenerReservacionesPorUsuario = async () => {
   try {
-    const respuesta = await API.get(`/reservaciones/${reservationId}`);
+    const respuesta = await API.get(`/reservaciones/reservas-usuario${reservationId}`);
     console.log("respuesta del backend :", respuesta.data);
     return respuesta.data;
   } catch (error) {
