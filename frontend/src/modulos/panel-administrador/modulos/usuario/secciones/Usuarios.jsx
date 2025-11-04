@@ -1,10 +1,10 @@
 import { FiUsers } from "react-icons/fi";
 import { Tabla } from '../../../componentes/tabla/Tabla';
 import FilaUsuario from "../componentes/FilaUsuario";
-import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; 
+import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
-import { useBusqueda } from "../../../hooks/useBusqueda"; 
+import { useBusqueda } from "../../../hooks/useBusqueda";
 import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
@@ -12,21 +12,21 @@ import { useConfirmacion } from "../../../hooks/useConfirmacion";
 import Modal from "../../../componentes/modal/Modal";
 import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
 import ModalEditarUsuario from "../componentes/ModalEditarUsuario";
-import { obtenerUsuariosServicio, eliminarUsuarioServicio } from "../servicios/usuariosServicios";
+import { obtenerUsuariosServicio, eliminarUsuarioServicio, listarRolesServicio } from "../servicios/usuariosServicios";
 import { useState, useEffect } from "react";
 import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
 const Usuarios = () => {
-  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); 
+  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
   const { filtro, setFiltro, aplicarFiltros } = useFiltro();
-  const { 
-    paginaActual, 
-    setPaginaActual, 
-    itemsPorPagina, 
-    setItemsPorPagina, 
-    paginar 
+  const {
+    paginaActual,
+    setPaginaActual,
+    itemsPorPagina,
+    setItemsPorPagina,
+    paginar
   } = usePaginacion(5);
-  
+
   const { estaAbierto: modalEditarAbierto, abrir: abrirEditar, cerrar: cerrarEditar } = useModal();
   const {
     confirmacionVisible,
@@ -39,8 +39,9 @@ const Usuarios = () => {
     ocultarConfirmacion,
     confirmarAccion
   } = useConfirmacion();
-  
+
   const [usuarios, setUsuarios] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [usuarioAEliminar, setUsuarioAEliminar] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -48,6 +49,7 @@ const Usuarios = () => {
   // Cargar usuarios al inicializar
   useEffect(() => {
     cargarUsuarios();
+    cargarRoles();
   }, []);
 
   const cargarUsuarios = async () => {
@@ -63,11 +65,26 @@ const Usuarios = () => {
     }
   };
 
+  const cargarRoles = async () => {
+    try {
+      const respuesta = await listarRolesServicio();
+      if (respuesta.ok && respuesta.roles) {
+        setRoles(respuesta.roles);
+      } else {
+        mostrarAlerta.error(respuesta.mensaje || "No se pudieron cargar los roles");
+      }
+    } catch (error) {
+      console.error("Error al cargar roles:", error);
+      mostrarAlerta.error("Error al cargar los roles");
+    }
+  };
+
+
   // Manejador para eliminar usuario
   const handleEliminarUsuario = async (idUsuario) => {
     try {
       const respuesta = await eliminarUsuarioServicio(idUsuario);
-      
+
       if (respuesta.ok) {
         // Eliminar usuario del estado local
         setUsuarios(prev => prev.filter(usuario => usuario.idUsuario !== idUsuario));
@@ -107,7 +124,7 @@ const Usuarios = () => {
 
   // Manejador para cuando se actualiza un usuario
   const handleUsuarioActualizado = (usuarioActualizado) => {
-    setUsuarios(prev => prev.map(usuario => 
+    setUsuarios(prev => prev.map(usuario =>
       usuario.idUsuario === usuarioActualizado.idUsuario ? usuarioActualizado : usuario
     ));
     cerrarEditar();
@@ -137,8 +154,8 @@ const Usuarios = () => {
 
   // Mapear los usuarios para las filas de la tabla
   const filasUsuarios = datosPaginados.map((usuario) => (
-    <FilaUsuario 
-      key={usuario.idUsuario} 
+    <FilaUsuario
+      key={usuario.idUsuario}
       usuario={usuario}
       onEliminarUsuario={handleSolicitarEliminacion}
       onEditarUsuario={handleEditarUsuario}
@@ -147,10 +164,12 @@ const Usuarios = () => {
 
   const opcionesRoles = [
     { value: "todos", label: "Todos los roles" },
-    { value: 1, label: "Superadministrador" },
-    { value: 2, label: "Administrador" },
-    { value: 3, label: "Usuario" }
+    ...roles.map(rol => ({
+      value: rol.idRol,
+      label: rol.nombreRol
+    }))
   ];
+
 
   if (cargando) {
     return (
@@ -185,7 +204,7 @@ const Usuarios = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-2">
               <BarraBusqueda
-                valor={terminoBusqueda} 
+                valor={terminoBusqueda}
                 onChange={setTerminoBusqueda}
                 placeholder="Buscar por nombre, apellido, correo o teléfono..."
               />
@@ -193,7 +212,7 @@ const Usuarios = () => {
             <div>
               <FiltroBusqueda
                 valor={filtro}
-                onChange={setFiltro} 
+                onChange={setFiltro}
                 opciones={opcionesRoles}
                 label="Filtrar por rol"
               />
@@ -222,13 +241,13 @@ const Usuarios = () => {
               encabezados={["Usuario", "Información de Contacto", "Credenciales", "Rol", "Acciones"]}
               registros={filasUsuarios}
             />
-              <Paginacion
-                paginaActual={paginaActual}
-                totalPaginas={totalPaginas}
-                alCambiarPagina={handleCambiarPagina}
-                itemsPorPagina={itemsPorPagina}
-                alCambiarItemsPorPagina={handleCambiarItemsPorPagina}
-                mostrarSiempre={true}
+            <Paginacion
+              paginaActual={paginaActual}
+              totalPaginas={totalPaginas}
+              alCambiarPagina={handleCambiarPagina}
+              itemsPorPagina={itemsPorPagina}
+              alCambiarItemsPorPagina={handleCambiarItemsPorPagina}
+              mostrarSiempre={true}
             />
           </>
         ) : (
@@ -249,7 +268,7 @@ const Usuarios = () => {
         mostrarFooter={false}
       >
         {usuarioSeleccionado && (
-          <ModalEditarUsuario 
+          <ModalEditarUsuario
             idUsuario={usuarioSeleccionado.idUsuario}
             onClose={cerrarEditar}
             onUsuarioActualizado={handleUsuarioActualizado}
