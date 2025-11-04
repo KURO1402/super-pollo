@@ -192,4 +192,59 @@ BEGIN
   ORDER BY m.numeroMesa;
 END //
 
+CREATE PROCEDURE obtenerReservasPorUsuario(IN p_idUsuario INT)
+BEGIN
+    SELECT 
+        r.idReservacion,
+        DATE_FORMAT(r.fechaReservacion, '%d-%m-%Y') AS fecha,
+        DATE_FORMAT(r.horaReservacion, '%H:%i') AS hora,
+        r.cantidadPersonas AS numero_personas,
+        m.numeroMesa AS mesa,
+        r.estadoReservacion AS estado,
+        DATE_FORMAT(r.fechaCreacion, '%d-%m-%Y %H:%i') AS fecha_registro
+    FROM reservaciones r
+    INNER JOIN mesas m ON r.idMesa = m.idMesa
+    WHERE r.idUsuario = p_idUsuario
+    ORDER BY r.fechaReservacion DESC, r.horaReservacion DESC;
+END //
+
+CREATE PROCEDURE cancelarReservacion(IN p_idReservacion INT, IN p_idUsuario INT)
+BEGIN
+    DECLARE v_idMesa INT;
+    DECLARE v_estadoActual VARCHAR(20);
+    DECLARE exit handler for SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error, se revierte todo
+        ROLLBACK;
+        SELECT '❌ Ocurrió un error al cancelar la reservación.' AS mensaje;
+    END;
+
+    START TRANSACTION;
+
+    SELECT idMesa, estadoReservacion 
+    INTO v_idMesa, v_estadoActual
+    FROM reservaciones
+    WHERE idReservacion = p_idReservacion
+    FOR UPDATE;
+
+    IF v_idMesa IS NULL THEN
+        ROLLBACK;
+        SELECT '⚠️ La reservación no existe.' AS mensaje;
+    ELSEIF v_estadoActual = 'cancelado' THEN
+        ROLLBACK;
+        SELECT '⚠️ La reservación ya estaba cancelada.' AS mensaje;
+    ELSE
+        UPDATE reservaciones
+        SET estadoReservacion = 'cancelado'
+        WHERE idReservacion = p_idReservacion;
+
+        UPDATE mesas
+        SET estadoMesa = 'disponible'
+        WHERE idMesa = v_idMesa;
+
+        COMMIT;
+        SELECT CONCAT('Reservación cancelada correctamente y mesa liberada.') AS mensaje;
+    END IF;
+END //
+
 DELIMITER ;
