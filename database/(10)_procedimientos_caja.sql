@@ -52,6 +52,10 @@ BEGIN
     INSERT INTO eventosCaja (tipoEvento, saldoEvento, idCaja, idUsuario)
     VALUES ('Apertura', p_saldoInicial, v_idCaja, p_idUsuario);
 
+    -- Registrar movimiento de ingreso por saldo inicial
+    INSERT INTO movimientosCaja (tipoMovimiento, montoMovimiento, descripcionMovCaja, idCaja, idUsuario, idVenta)
+    VALUES ('Ingreso', p_saldoInicial, 'Saldo inicial de apertura', v_idCaja, p_idUsuario, NULL);
+
     -- Confirmar cambios
     COMMIT;
 

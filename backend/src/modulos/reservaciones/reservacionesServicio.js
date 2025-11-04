@@ -18,6 +18,8 @@ const {
   validarConsultaMesasDisponibles
 } = require("./reservacionesValidaciones.js");
 
+const { registrarIngresoCajaModel } = require("../caja/cajaModelo.js");
+
 // Crear una nueva reservación (reservación + detalles + actualización de mesa)
 const registrarReservacionService = async (datos) => {
   // Validar los datos generales de la reservación
@@ -97,6 +99,11 @@ const insertarPagoService = async (datos) => {
   if (!resultado || resultado.affectedRows === 0) {
     throw Object.assign(new Error("No se pudo registrar el pago"), { status: 500 });
   }
+  // Registrar el ingreso en caja después del pago
+  await registrarIngresoCajaModel(
+    { monto: datos.montoPagado, descripcion: `Pago de reservación con ID ${datos.idReservacion}` },
+    datos.idUsuario
+  );
 
   return {
     ok: true,

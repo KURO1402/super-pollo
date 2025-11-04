@@ -10,7 +10,7 @@ const client = new MercadoPagoConfig({
     accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN
 });
 
-const crearPreferencia = async (idReservacion) => {
+const crearPreferencia = async (idReservacion, idUsuario) => {
     const detalles = await obtenerDetalleReservacionService(idReservacion);
     if (!detalles || detalles.length === 0) throw new Error("Reservación no encontrada");
 
@@ -52,7 +52,8 @@ const crearPreferencia = async (idReservacion) => {
         montoPagado: montoParcial,
         porcentajePago: 50,
         idTransaccion: result.id,
-        estadoPago: "pendiente"
+        estadoPago: "pendiente",
+        idUsuario
     });
 
     // Retornar la URL de pago

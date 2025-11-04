@@ -36,7 +36,7 @@ router.get("/:id", obtenerReservacionController);
 router.put("/:id", actualizarReservacionController);
 
 // Insertar un pago
-router.post("/pago", insertarPagoController);
+router.post("/pago", autenticacionToken, insertarPagoController);
 
 // Obtener pago de una reservación
 router.get("/:idReservacion/pago", obtenerPagoController);
@@ -48,10 +48,11 @@ router.get("/:idReservacion/detalle", obtenerDetalleReservacionController);
 router.get("/mesas/disponibles", listarMesasDisponiblesController);
 
 // Crear preferencia de Mercado Pago para una reservación
-router.post("/:idReservacion/crear-preferencia", async (req, res) => {
+router.post("/:idReservacion/crear-preferencia", autenticacionToken, async (req, res) => {
   try {
     const { idReservacion } = req.params;
-    const result = await crearPreferencia(idReservacion);
+    const { idUsuario } = req.usuario; 
+    const result = await crearPreferencia(idReservacion, idUsuario);
     res.json({ ok: true, ...result });
   } catch (err) {
     console.error("Error al crear preferencia de Mercado Pago:", err);

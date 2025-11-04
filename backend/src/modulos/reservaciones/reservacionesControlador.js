@@ -58,10 +58,14 @@ const actualizarReservacionController = async (req, res) => {
   }
 };
 
-// Controladores de Pagos
 const insertarPagoController = async (req, res) => {
   try {
-    const result = await insertarPagoService(req.body);
+    const datos = { 
+      ...req.body, 
+      idUsuario: req.usuario?.idUsuario 
+    };
+
+    const result = await insertarPagoService(datos);
     return res.status(201).json({ ok: true, ...result });
   } catch (err) {
     console.error("Error en insertarPagoController:", err.message);

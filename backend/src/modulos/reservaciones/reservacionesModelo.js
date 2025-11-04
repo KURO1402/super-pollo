@@ -121,6 +121,7 @@ const insertarPagoModel = async (datos) => {
       estadoPago,
       idReservacion,
     ]);
+
     await conexion.commit();
     return { mensaje: "Pago registrado exitosamente" };
   } catch (err) {

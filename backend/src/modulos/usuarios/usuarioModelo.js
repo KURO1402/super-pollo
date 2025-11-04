@@ -294,7 +294,22 @@ const actualizarRolUsuarioModel = async (idUsuario, idRolNuevo) => {
     }
 };
 
-
+const obtenerTipoDocumentoPorIdModel = async (idTipoDocumento) => {
+    let conexion;
+    try {
+        conexion = await pool.getConnection();
+        const [rows] = await conexion.execute(
+            "CALL obtenerTipoDocumentoPorId(?)",
+            [idTipoDocumento]
+        );
+        return rows[0][0]; // el primer resultset
+    } catch (err) {
+        console.error("Error en obtenerTipoDocumentoPorIdModel:", err.message);
+        throw new Error("Error al obtener tipo de documento.");
+    } finally {
+        if (conexion) conexion.release();
+    }
+};
 
 module.exports = { 
     insertarRolUsuarioModel,
@@ -313,5 +328,6 @@ module.exports = {
     buscarUsuariosPorValorModel,
     contarUsuariosActivosModel,
     contarTipoDocumentoPorIdModel,
-    actualizarRolUsuarioModel
+    actualizarRolUsuarioModel,
+    obtenerTipoDocumentoPorIdModel
 }
