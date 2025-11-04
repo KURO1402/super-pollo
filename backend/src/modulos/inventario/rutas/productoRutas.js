@@ -36,12 +36,12 @@ router.patch("/modificar-cantidad", autenticacionToken, verificarRoles(1, 2), ac
 router.delete("/eliminar-cantidad", autenticacionToken, verificarRoles(1, 2),  eliminarCantidadInsumoProductoController);
 router.post("/agregar-cantidad", autenticacionToken, verificarRoles(1, 2), insertarCantidadInsumoProductoController);
 
-router.get("/", autenticacionToken, verificarRoles(1, 2), obtenerProductosController);
-router.get("/paginacion", autenticacionToken, verificarRoles(1, 2), obtenerProductosPaginacionController);
-router.get("/busqueda", autenticacionToken, verificarRoles(1, 2), buscarProductosPorNombreController);
-router.get("/:idProducto", autenticacionToken, verificarRoles(1, 2), obtenerProductoPorIdController);
-router.get("/insumos-cantidad/:idProducto",  autenticacionToken, verificarRoles(1, 2), obtenerInsumosPorProductoControlller);
-router.get("/filtrar-categoria/:idCategoria",  autenticacionToken, verificarRoles(1, 2), obtenerProductosPorCategoriaController);
+router.get("/", obtenerProductosController);
+router.get("/paginacion", obtenerProductosPaginacionController);
+router.get("/busqueda", buscarProductosPorNombreController);
+router.get("/:idProducto", obtenerProductoPorIdController);
+router.get("/insumos-cantidad/:idProducto", obtenerInsumosPorProductoControlller);
+router.get("/filtrar-categoria/:idCategoria", obtenerProductosPorCategoriaController);
 
 //Rutas para categorias
 router.post("/categorias/agregar", autenticacionToken, verificarRoles(1, 2), insertarCategoriaProductoController);
