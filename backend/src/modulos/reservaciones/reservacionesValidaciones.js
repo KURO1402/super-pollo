@@ -17,8 +17,8 @@ const validarDatosReservacion = async (datos) => {
   }
 
   // Límite máximo de personas
-  if (cantidadPersonas > 10) {
-    throw Object.assign(new Error("No se permiten más de 10 personas por reservación"), { status: 400 });
+  if (cantidadPersonas > 4) {
+    throw Object.assign(new Error("No se permiten más de 4 personas por reservación"), { status: 400 });
   }
 
   if (typeof idUsuario !== "number" || idUsuario <= 0) {
