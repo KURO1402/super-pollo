@@ -1,4 +1,4 @@
-import { FaHome, FaFileContract, FaUserShield, FaShoppingBag, FaExclamationTriangle } from "react-icons/fa";
+import { FaHome } from "react-icons/fa";
 import BotonSecundario from "../componentes/BotonSecundario";
 import NombreEmpresa from "../../../assets/imagenes/Nombre_Empresa.png";
 import Logo from "../../../assets/imagenes/Logo.svg";
@@ -42,9 +42,7 @@ const TerminosCondiciones = () => {
                 Super Pollo ofrece servicios de venta de pollo a la brasa y productos relacionados a través de:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Pedidos en línea para recoger en tienda</li>
                 <li>Reservas de mesas en nuestro restaurante</li>
-                <li>Servicio de catering para eventos</li>
                 <li>Promociones y ofertas especiales</li>
               </ul>
             </div>
@@ -57,7 +55,6 @@ const TerminosCondiciones = () => {
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Tarjetas de crédito y débito</li>
-                <li>Pago en efectivo al recoger</li>
                 <li>Transferencias bancarias</li>
               </ul>
             </div>
@@ -68,7 +65,7 @@ const TerminosCondiciones = () => {
                 <h2 className="text-2xl font-bold text-gray-800">4. Política de Cancelación</h2>
               </div>
               <p className="mb-4">
-                Los pedidos pueden ser cancelados hasta 30 minutos antes de la hora de recogida programada. Después de este tiempo, se podrá aplicar una tarifa de cancelación.
+              Si por algún motivo requiere cancelar su reserva o servicio, por favor comuníquese con nosotros utilizando los datos de contacto que encontrará en el pie de página. Nuestro personal estará disponible para atender su solicitud y orientarlo en los pasos a seguir.
               </p>
             </div>
 
