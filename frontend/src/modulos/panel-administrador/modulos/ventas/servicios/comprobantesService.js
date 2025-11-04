@@ -1,10 +1,8 @@
-import axios from "axios";
-// extraer la url base de nuestras variables de entorno
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
+import API from "../../../../../app/servicio/axiosConfiguracion";
 // función para traer los tipos de comprobante desde el backend
 export const obtenerTiposComprobantes = async () => {
     // hacemos la consulta y lo guardamos en una variable
-    const respuesta = await axios.get(`${apiUrl}/ventas/tipos-comprobantes`)
+    const respuesta = await API.get(`${apiUrl}/ventas/tipos-comprobantes`)
     // si la respuesta ok es diferente a true 
     if(!respuesta.data.ok){
         // mostramos un error

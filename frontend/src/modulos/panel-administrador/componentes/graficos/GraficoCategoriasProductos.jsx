@@ -7,7 +7,7 @@ const data = [
   { name: "Medio Pollo", value: 20 },
   { name: "Cuarto de Pollo", value: 15 },
   { name: "Bebidas", value: 12 },
-  { name: "Entradas", value: 8 },
+  { name: "Entradas", value: 10 },
 ];
 
 const GraficoCategoriasProductos = () => {

@@ -49,7 +49,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
         setInsumosDisponibles(respuestaInsumos);
       } catch (error) {
         console.error('Error al obtener datos:', error);
-        mostrarAlerta.error('Error al cargar los datos iniciales');
       } finally {
         setCargandoInsumos(false);
       }
@@ -201,15 +200,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
       
       // Agregar datos como JSON string al FormData
       formData.append('datos', JSON.stringify(datosProducto));
-      
-      for (let [key, value] of formData.entries()) {
-        if (key === 'image') {
-          console.log(`${key}:`, value.name, value.type, value.size);
-        } else {
-          console.log(`${key}:`, value);
-        }
-      }
-      
       // Llamar al servicio
       await crearProductoServicio(formData);
       
@@ -221,8 +211,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
       
     } catch (error) {
       console.error('Error al crear producto:', error);
-      const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || error.message || 'Error al crear el producto';
-      mostrarAlerta.error(mensajeError);
     }
   };
 

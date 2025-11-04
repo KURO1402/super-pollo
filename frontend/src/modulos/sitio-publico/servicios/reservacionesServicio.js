@@ -41,7 +41,6 @@ export const obtenerMesasDisponiblesServicio = async (fecha, hora) => {
 export const registrarReservacionServicio = async (data) => {
   try {
     const respuesta = await API.post('/reservaciones', data);
-    console.log("respuesta del backend:", respuesta.data);
     return respuesta.data;
   } catch (error) {
     console.error("Error en registrarReservaServicio: ", error);

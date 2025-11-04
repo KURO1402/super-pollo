@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { useSidebar } from "../context/SidebarContext";
 
 import { BotonCambioTema } from "../componentes/BotonCambioTema";
-import DesplegableNotificacion from "../componentes/DesplegableNotificacion";
 import DesplegableUsuario from "../componentes/DesplegableUsuario";
 
 const Cabecera = () => {
@@ -91,8 +90,6 @@ const Cabecera = () => {
           <div className="flex items-center gap-2 2xsm:gap-3">
             {/* <!-- Dark Mode Toggler --> */}
             <BotonCambioTema />
-            {/* <!-- Dark Mode Toggler --> */}
-            <DesplegableNotificacion />
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
