@@ -1,11 +1,9 @@
-// SDK de Mercado Pago
 const { MercadoPagoConfig, Preference } = require('mercadopago');
-// Cargar variable de entorno
+
 require('dotenv').config();
-// Importamos las rutas de reservaciones
+
 const { obtenerDetalleReservacionService, insertarPagoService } = require('../modulos/reservaciones/reservacionesServicio.js')
 
-// Agrega credenciales
 const client = new MercadoPagoConfig({ 
     accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN
 });
@@ -14,9 +12,8 @@ const crearPreferencia = async (idReservacion, idUsuario) => {
     const detalles = await obtenerDetalleReservacionService(idReservacion);
     if (!detalles || detalles.length === 0) throw new Error("Reservación no encontrada");
 
-    // Calcular monto total
     const montoTotal = detalles.reduce((sum, d) => sum + (d.cantidadProductoReservacion * d.precioUnitario), 0);
-    const montoParcial = montoTotal / 2; // solo se paga el 50% en línea
+    const montoParcial = montoTotal / 2; 
 
     const items = [{
         title: "Deuda por reservación",
@@ -24,7 +21,6 @@ const crearPreferencia = async (idReservacion, idUsuario) => {
         unit_price: Number(montoParcial)
     }];
 
-    // Crear preferencia Mercado Pago
     const preference = new Preference(client);
     const result = await preference.create({
         body: {
@@ -37,15 +33,14 @@ const crearPreferencia = async (idReservacion, idUsuario) => {
             notification_url: "https://superpollohyo.com/reservaciones/mercadopago/webhook",
             auto_return: "approved",
             payment_methods: {
-              installments: 1,             // máximo de cuotas
-              default_installments: 1,     // cuota por defecto
-              excluded_payment_types: [],  // excluir tipos(tarjeta de credito, debito, billeteras digitales)
-              excluded_payment_methods: [] // excluir metodos(visa, mastercard, yape)
+              installments: 1,        
+              default_installments: 1,    
+              excluded_payment_types: [], 
+              excluded_payment_methods: [] 
             }
         }
     });
 
-    // Guardar la preference_id en el pago de la reservación
     await insertarPagoService({
         idReservacion,
         montoTotal,
@@ -56,7 +51,6 @@ const crearPreferencia = async (idReservacion, idUsuario) => {
         idUsuario
     });
 
-    // Retornar la URL de pago
     return { init_point: result.init_point, preference_id: result.id };
 };
 

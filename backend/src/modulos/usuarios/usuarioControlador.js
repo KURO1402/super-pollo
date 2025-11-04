@@ -19,7 +19,6 @@ const insertarRolUsuarioController = async (req, res) => {
         const respuesta = await insertarRolUsuarioService(req.body);
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en listarRolesController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -33,7 +32,6 @@ const listarRolesController = async (req, res) => {
         const respuesta = await listarRolesService();
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en listarRolesController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -50,7 +48,6 @@ const actualizarNombreRolUsuarioController = async (req, res) => {
         const respuesta = await actualizarNombreRolUsuarioService(idRol, req.body);
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en actualizarRolUsuarioController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -65,7 +62,6 @@ const actualizarUsuarioController = async (req, res) => {
         const respuesta = await actualizarUsuarioService(req.body, req.params.idUsuario);
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en actualizarUsuarioController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -77,12 +73,11 @@ const actualizarUsuarioController = async (req, res) => {
 
 const actualizarCorreoUsuarioController = async (req, res) => {
     try {
-        const { idUsuario } = req.params; // ID desde la URL
+        const { idUsuario } = req.params; 
         const respuesta = await actualizarCorreoUsuarioService(req.body, idUsuario);
 
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en actualizarCorreoUsuarioController:", err.message);
 
         const statusCode = err.status || 500;
 
@@ -95,12 +90,11 @@ const actualizarCorreoUsuarioController = async (req, res) => {
 
 const actualizarClaveUsuarioController = async (req, res) => {
     try {
-        const { idUsuario } = req.params; // id del usuario en la URL
+        const { idUsuario } = req.params; 
         const respuesta = await actualizarClaveUsuarioService(req.body, idUsuario);
 
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en actualizarClaveUsuarioController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -112,12 +106,11 @@ const actualizarClaveUsuarioController = async (req, res) => {
 
 const eliminarUsuarioController = async (req, res) => {
     try {
-        const { idUsuario } = req.params; // id del usuario en la URL
+        const { idUsuario } = req.params; 
         const respuesta = await eliminarUsuarioService(idUsuario);
 
         return res.status(200).json(respuesta);
     } catch (err) {
-        console.error("Error en eliminarUsuarioController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -127,7 +120,6 @@ const eliminarUsuarioController = async (req, res) => {
     }
 };
 
-// Controlador para obtener todos los usuarios
 const obtenerUsuariosController = async (req, res) => {
     const {idUsuario} = req.usuario;
     try {
@@ -135,7 +127,6 @@ const obtenerUsuariosController = async (req, res) => {
 
         return res.status(200).json(usuarios);
     } catch (err) {
-        console.error("Error en obtenerUsuariosController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -145,7 +136,6 @@ const obtenerUsuariosController = async (req, res) => {
     }
 };
 
-// Controlador para obtener usuarios con paginación
 const obtenerUsuariosPaginacionController = async (req, res) => {
     try {
         const { limit, offset } = req.query;
@@ -156,7 +146,6 @@ const obtenerUsuariosPaginacionController = async (req, res) => {
         return res.status(200).json(usuarios);
 
     } catch (err) {
-        console.error("Error en obtenerUsuariosPaginacionController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -166,7 +155,6 @@ const obtenerUsuariosPaginacionController = async (req, res) => {
     }
 };
 
-// Controlador para buscar usuarios por un valor
 const buscarUsuariosPorValorController = async (req, res) => {
     try {
         const { valor } = req.query;
@@ -176,7 +164,6 @@ const buscarUsuariosPorValorController = async (req, res) => {
         return res.status(200).json(usuarios);
 
     } catch (err) {
-        console.error("Error en buscarUsuariosPorValorController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -186,7 +173,6 @@ const buscarUsuariosPorValorController = async (req, res) => {
     }
 };
 
-// Controlador para consultar un usuario por su ID
 const consultarUsuarioPorIdController = async (req, res) => {
     try {
         const { idUsuario } = req.params;
@@ -195,7 +181,6 @@ const consultarUsuarioPorIdController = async (req, res) => {
 
         return res.status(200).json(usuario);
     } catch (err) {
-        console.error("Error en consultarUsuarioPorIdController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -205,7 +190,6 @@ const consultarUsuarioPorIdController = async (req, res) => {
     }
 };
 
-// Controlador para contar usuarios activos
 const contarUsuariosActivosController = async (req, res) => {
     try {
         const respuesta = await contarUsuariosActivosService();
@@ -213,7 +197,6 @@ const contarUsuariosActivosController = async (req, res) => {
         return res.status(200).json(respuesta);
 
     } catch (err) {
-        console.error("Error en contarUsuariosActivosController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({
@@ -232,7 +215,6 @@ const actualizarRolUsuarioController = async (req, res) => {
         return res.status(200).json(respuesta);
 
     } catch (err) {
-        console.error("Error en actualizarRolUsuarioController:", err.message);
         const statusCode = err.status || 500;
 
         return res.status(statusCode).json({

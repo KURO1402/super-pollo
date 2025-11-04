@@ -1,6 +1,5 @@
 const { CODIGOS_SUNAT } = require('../../config/constantes');
 
-// Calcular montos individuales del producto
 function calcularMontosProducto(producto, cantidad) {
   const precioConIGV = Number(producto.precio);
   const valorUnitario = precioConIGV / (1 + CODIGOS_SUNAT.IGV.TASA);
@@ -22,7 +21,6 @@ function calcularMontosProducto(producto, cantidad) {
   };
 };
 
-// Obtener productos con cálculos de IGV
 function obtenerProductosConDatos(productosSolicitados, catalogo) {
 
   return productosSolicitados.map(({ idProducto, cantidad }) => {

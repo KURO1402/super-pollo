@@ -14,7 +14,6 @@ const {
 const router = express.Router();
 const { autenticacionToken, verificarRoles } = require("../../middlewares/autenticacionMiddleware");
 
-//ruta para obtener los tipos de documento
 router.get("/tipos-documentos", listarTipoDocumentoController);
 
 router.get("/top-productos", autenticacionToken, verificarRoles(1), topProductosMasVendidosController);

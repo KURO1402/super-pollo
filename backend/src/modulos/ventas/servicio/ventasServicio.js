@@ -1,18 +1,16 @@
 const jwt = require("jsonwebtoken");
-//const respuestaNubefact = require("./ejemploRptaNubefact")
-//Importamos validaciones
+
 const { validarDatosVentaBoleta, validarStockInsumos, validarDatosVentaFactura, validarDatosVentaNotaCreditoBoleta } = require("../validaciones/validacionesVenta");
 
-//Importamos el helper de ventas
 const { formatearVenta } = require("../../../helpers/ventas-helpers/formatearDataVenta");
 const { procesarProductosYInsumos, prepararDatosVenta } = require("../../../helpers/ventas-helpers/procesarVenta");
 const restaurarCajaStock = require("../../../helpers/ventas-helpers/restaurarCajaStock")
-// Importamos servicios necesarios
+
 const {
   obtenerDatosComprobanteService,
   actualizarCorrelativoService
 } = require("../servicio/comprobantesServicio");
-// Servicio de nubefact
+
 const { generarComprobanteNubefact } = require("../../../servicios/nubefact");
 const {
   registrarVentaModel,
@@ -31,9 +29,9 @@ const {
 } = require("../modelo/ventasModelo");
 const { consultarCajaAbiertaModel, registrarIngresoCajaModel } = require("../../caja/cajaModelo");
 
-// Función base reutilizable
+
 const registrarVentaBase = async (datosVenta, token, funcionValidacion) => {
-  // Validaciones iniciales
+
   await funcionValidacion(datosVenta);
   const cajaAbierta = await consultarCajaAbiertaModel();
   if (cajaAbierta.length === 0) {
@@ -48,7 +46,6 @@ const registrarVentaBase = async (datosVenta, token, funcionValidacion) => {
 
   await validarStockInsumos(productos);
 
-  // Obtener datos del comprobante y preparar nuevo correlativo
   const datosComprobante = await obtenerDatosComprobanteService(tipoComprobante);
   const nuevoCorrelativo = datosComprobante.ultimoCorrelativo + 1;
 
@@ -58,10 +55,8 @@ const registrarVentaBase = async (datosVenta, token, funcionValidacion) => {
   });
 
 
-  // Enviar a Nubefact
   const respuestaNubefact = await generarComprobanteNubefact(dataFormateada);
 
-  // Si Nubefact devuelve error, retornar inmediatamente
   if (respuestaNubefact.error || respuestaNubefact.codigo) {
     return {
       ok: false,
@@ -70,7 +65,6 @@ const registrarVentaBase = async (datosVenta, token, funcionValidacion) => {
     };
   }
 
-  // Procesar venta exitosa
   await actualizarCorrelativoService(tipoComprobante, nuevoCorrelativo);
 
   const datosRegistrar = prepararDatosVenta(
@@ -82,7 +76,6 @@ const registrarVentaBase = async (datosVenta, token, funcionValidacion) => {
 
   const respuestaVenta = await registrarVentaModel(datosRegistrar);
 
-  // Procesar productos e insumos en paralelo
   const resultadosProcesamiento = await procesarProductosYInsumos(
     productos,
     dataFormateada,
@@ -93,7 +86,6 @@ const registrarVentaBase = async (datosVenta, token, funcionValidacion) => {
 
   const mensajeCaja = await registrarIngresoCajaModel({ monto: dataFormateada.total, descripcion: "venta" }, idUsuario, respuestaVenta.idVenta);
 
-  // Retornar respuesta estructurada
   return {
     ok: true,
     venta: respuestaVenta,
@@ -115,7 +107,6 @@ const registrarVentaBase = async (datosVenta, token, funcionValidacion) => {
   };
 };
 
-// Funciones específicas
 const registrarBoletaVentaService = async (datosVenta, token) => {
   return await registrarVentaBase(datosVenta, token, validarDatosVentaBoleta);
 };

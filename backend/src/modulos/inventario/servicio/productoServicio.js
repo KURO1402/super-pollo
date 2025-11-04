@@ -35,7 +35,6 @@ const {
 } = require("../validaciones/productoValidaciones");
 
 
-// 🟢 Insertar producto
 const insertarProductoService = async (datos, file) => {
     await validarInsertarProducto(datos);
 
@@ -59,7 +58,6 @@ const insertarProductoService = async (datos, file) => {
         throw Object.assign(new Error("Error al insertar producto"), { status: 500 });
     }
 
-    // Si usa insumos, registrar cantidades
     if (usaInsumo === 1) {
         for (const insumo of insumos) {
             try {
@@ -68,13 +66,11 @@ const insertarProductoService = async (datos, file) => {
                     throw Object.assign(new Error("No se pudo registrar la cantidad de insumos del producto"), { status: 500 });
                 }
             } catch (err) {
-                console.error("Error al registrar cantidad de insumo:", err.message);
                 throw Object.assign(new Error("Error al registrar la cantidad de insumos del producto"), { status: 500 });
             }
         }
     }
 
-    // Subir imagen a Cloudinary
     let cloudinaryResult;
     try {
         cloudinaryResult = await cloudinary.uploader.upload(file.path, { folder: 'superpollo' });
@@ -87,13 +83,12 @@ const insertarProductoService = async (datos, file) => {
         throw Object.assign(new Error("No se pudo insertar la imagen del producto"), { status: 500 });
     }
 
-    fs.unlinkSync(file.path); // Eliminar archivo temporal
+    fs.unlinkSync(file.path); 
 
     return { ok: true, mensaje: "Producto insertado correctamente"};
 };
 
 
-// 🟢 Actualizar producto
 const actualizarProductoService = async (idProducto, datos) => {
     if (!idProducto || isNaN(Number(idProducto))) {
         throw Object.assign(
@@ -132,7 +127,6 @@ const actualizarProductoService = async (idProducto, datos) => {
 };
 
 
-// 🟢 Eliminar producto
 const eliminarProductoService = async (idProducto) => {
     if (!idProducto) {
         throw Object.assign(new Error("Se necesita el ID del producto a eliminar"), { status: 400 });
@@ -152,7 +146,6 @@ const eliminarProductoService = async (idProducto) => {
 };
 
 
-// 🟢 Actualizar imagen de producto
 const actualizarImagenProductoService = async (idProducto, file) => {
     if (!idProducto) {
         throw Object.assign(new Error("Se necesita el ID del producto para actualizar su imagen"), { status: 400 });
@@ -180,7 +173,6 @@ const actualizarImagenProductoService = async (idProducto, file) => {
 };
 
 
-// 🟢 Actualizar cantidad de uso de insumos de un producto
 const actualizarCantidadUsoInsumoProductoService = async (datos) => {
     validarActualizarCantidadesProducto(datos);
 
@@ -208,8 +200,6 @@ const actualizarCantidadUsoInsumoProductoService = async (datos) => {
     return { ok: true, mensaje: respuesta };
 };
 
-
-// 🟢 Eliminar relación producto–insumo
 const eliminarCantidadInsumoProductoService = async (datos) => {
     if (!datos || typeof datos !== 'object') {
         throw Object.assign(new Error("Se necesitan tanto el ID del producto como del insumo"), { status: 400 });
@@ -253,8 +243,6 @@ const eliminarCantidadInsumoProductoService = async (datos) => {
     return { ok: true, mensaje: respuesta };
 };
 
-
-// 🟢 Insertar nueva relación producto–insumo
 const insertarCantidadInsumoProductoService = async (datos) => {
     validarInsertarCantidadesProducto(datos);
 
@@ -285,7 +273,6 @@ const insertarCantidadInsumoProductoService = async (datos) => {
     return { ok: true, mensaje: respuesta };
 };
 
-//Servicio para obtener productos por paginacion
 const obtenerProductosService = async () => {
 
     const productos = await obtenerProductosModel();
@@ -302,9 +289,8 @@ const obtenerProductosService = async () => {
     };
 };
 
-//Servicio para obtener productos por paginacion
 const obtenerProductosPaginacionService = async (limit, offset) => {
-    // Asignar valores por defecto si no se envían
+
     const limite = parseInt(limit) || 10;
     const desplazamiento = parseInt(offset) || 0;
 
@@ -322,7 +308,6 @@ const obtenerProductosPaginacionService = async (limit, offset) => {
     };
 };
 
-//Servicio para obtener datos de un producto por id
 const obtenerProductoPorIdService = async (idProducto) => {
     if (!idProducto || isNaN(Number(idProducto))) {
         throw Object.assign(
@@ -343,7 +328,6 @@ const obtenerProductoPorIdService = async (idProducto) => {
     };
 };
 
-// Servicio para buscar un producto
 const buscarProductosPorNombreService = async (nombre) => {
     if (!nombre || typeof nombre !== "string") {
         throw Object.assign(new Error("Se necesita un nombre válido para buscar productos."), { status: 400 });
@@ -384,7 +368,6 @@ const obtenerProductosPorCategoriaService = async (idCategoria) => {
     };
 };
 
-// Servicio para obtener los insumos y su cantidad de un producto
 const obtenerInsumosPorProductoService = async (idProducto) => {
     if (!idProducto || isNaN(Number(idProducto))) {
         throw Object.assign(
@@ -419,7 +402,6 @@ const obtenerInsumosPorProductoService = async (idProducto) => {
     };
 };
 
-//Servicios para categorias
 const insertarCategoriaProductoService = async (datos) => {
     if (!datos || typeof datos !== 'object') {
         throw Object.assign(new Error("Se necesita datos como el nombre de categoria."), { status: 400 });
@@ -432,12 +414,11 @@ const insertarCategoriaProductoService = async (datos) => {
         );
     }
 
-    // Puedes agregar una validación extra si quieres evitar duplicados
     const categoriaExistente = await obtenerCategoriaPorNombreModel(nombreCategoria);
     if (categoriaExistente.length > 0) {
         throw Object.assign(
             new Error("El nombre de categoria ya esta en uso."),
-            { status: 409 } // Conflicto
+            { status: 409 } 
         );
     }
 
@@ -468,7 +449,6 @@ const actualizarCategoriaProductoService = async (idCategoria, datos) => {
         );
     }
 
-    // Verificación de existencia
     const categoria = await obtenerCategoriaPorIdModel(idCategoria);
     if (categoria.length === 0) {
         throw Object.assign(
@@ -481,11 +461,10 @@ const actualizarCategoriaProductoService = async (idCategoria, datos) => {
     if (categoriaExistente.length > 0) {
         throw Object.assign(
             new Error("El nombre de categoria ya esta en uso."),
-            { status: 409 } // Conflicto
+            { status: 409 } 
         );
     }
 
-    // Ejecutar actualización
     const mensaje = await actualizarCategoriaProductoModel(idCategoria, nombreCategoria);
 
     return { ok: true, mensaje: mensaje };

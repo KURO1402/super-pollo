@@ -1,6 +1,5 @@
 const pool = require("../../../config/conexionDB");
 
-// Obtener todos los tipos de comprobante
 const obtenerTiposComprobantesModel = async () => {
   let conexion;
   try {
@@ -9,31 +8,26 @@ const obtenerTiposComprobantesModel = async () => {
 
     return rows[0]; 
   } catch (err) {
-    console.error("Error al obtener los tipos de comprobante:", err.message);
     throw new Error("Error al obtener los tipos de comprobante de la base de datos");
   } finally {
     if (conexion) conexion.release();
   }
 };
 
-//Obtener la serie segun el tipo de comprobante
 const obtenerSerieComprobanteModel = async (idComprobante) => {
   let conexion;
   try {
     conexion = await pool.getConnection();
     const [rows] = await conexion.query(`CALL obtenerSeriePorTipoComprobante(?)`, [idComprobante]);
 
-    // Como CALL devuelve arrays anidados, usamos rows[0]
     return rows[0];
   } catch (err) {
-    console.error("Error en obtenerSerieComprobanteModel", err.message);
     throw new Error("Error al obtener series de los comprobantes de la base de datos");
   } finally {
     if (conexion) conexion.release();
   }
 }
 
-//Obtener el ultimo numero correlativo de un tipo de comprobante
 const obtenerUltimoCorrelativoModel = async (idComprobante) => {
   let conexion;
   try {
@@ -45,28 +39,24 @@ const obtenerUltimoCorrelativoModel = async (idComprobante) => {
 
     return rows[0];
   } catch (err) {
-    console.error("Error en obtenerUltimoCorrelativoModel", err.message);
     throw new Error("Error al obtener el último correlativo de la base de datos");
   } finally {
     if (conexion) conexion.release();
   }
 };
 
-//Actualizar correlativo de venta 
 const actualizarCorrelativoModel = async (idComprobante, nuevoCorrelativo) => {
   let conexion;
   try {
     conexion = await pool.getConnection();
 
-    // Llamar al procedimiento que actualiza el correlativo
     await conexion.query(
       `CALL actualizarCorrelativoSolo(?, ?)`,
       [idComprobante, nuevoCorrelativo]
     );
 
-    return true; // éxito
+    return true; 
   } catch (err) {
-    console.error("Error en actualizarCorrelativoModel", err.message);
     throw new Error("Error al actualizar el correlativo en la base de datos");
   } finally {
     if (conexion) conexion.release();

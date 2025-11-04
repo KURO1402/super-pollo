@@ -1,7 +1,5 @@
-//Importamos la conexion a la base de datos
 const pool = require("../../../config/conexionDB");
 
-//Modelo para insertar una nueva venta usando el procedimiento almacenado
 const registrarVentaModel = async (datos) => {
   let conexion;
   try {
@@ -30,7 +28,6 @@ const registrarVentaModel = async (datos) => {
       sunatResponseCode
     } = datos;
 
-    // Llamada al procedimiento almacenado que devuelve directamente los datos
     const [rows] = await conexion.execute(
       `CALL registrarVentaYComprobante(
         ?,?,?,?,?,?,?,?,?,?,?,?,
@@ -60,7 +57,6 @@ const registrarVentaModel = async (datos) => {
       ]
     );
 
-    // El resultado está en rows[0][0] porque CALL devuelve un array de arrays
     return rows[0][0];
 
   } catch (err) {
@@ -102,7 +98,6 @@ const insertarDetalleVentaModel = async ({
     return result[0][0].mensaje;
 
   } catch (err) {
-    console.error("Error en insertarDetalleVentaModel:", err.message);
     throw new Error("Error al registrar el detalle de venta en la base de datos");
   } finally {
     if (conexion) conexion.release();
@@ -115,10 +110,8 @@ const contarMedioPagoModel = async (idMedioPago) => {
     conexion = await pool.getConnection();
     const [rows] = await conexion.query(`CALL contarMedioPagoPorId(?)`, [idMedioPago]);
 
-    // El resultado viene como un arreglo doble (por el CALL)
     return rows[0][0]?.total;
   } catch (err) {
-    console.error("Error en contarMedioPagoModel:", err.message);
     throw new Error("Error al contar medio de pago por ID");
   } finally {
     if (conexion) conexion.release();
@@ -135,11 +128,9 @@ const obtenerComprobantePorIdModel = async (idComprobante) => {
       [idComprobante]
     );
 
-    // Retorna la primera fila si existe
     return rows[0][0];
 
   } catch (err) {
-    console.error("Error en obtenerComprobantePorIdModel:", err.message);
     throw new Error("Error al obtener comprobante por ID");
   } finally {
     if (conexion) conexion.release();
@@ -172,11 +163,9 @@ const actualizarComprobanteAnuladoModel = async ({
       ]
     );
 
-    // Retorno del SELECT dentro del procedimiento
     return result[0][0]?.mensaje;
 
   } catch (err) {
-    console.error("Error en actualizarComprobanteAnuladoModel:", err.message);
     throw Object.assign(
       new Error("No se pudo actualizar el comprobante en la base de datos."),
       { status: 500 }
@@ -197,7 +186,6 @@ const obtenerResumenVentasModel = async (limit, offset) => {
     );
     return result[0];
   } catch (err) {
-    console.error("Error en obtenerResumenVentasModel:", err.message);
     throw new Error("Error al obtener resumen de ventas.");
   } finally {
     if (conexion) conexion.release();
@@ -214,7 +202,6 @@ const obtenerResumenVentaPorIdModel = async (idVenta) => {
     );
     return result[0][0];
   } catch (err) {
-    console.error("Error en obtenerResumenVentaPorIdModel:", err.message);
     throw new Error("Error al obtener resumen de venta por ID.");
   } finally {
     if (conexion) conexion.release();
@@ -231,7 +218,6 @@ const obtenerResumenVentasPorRangoFechaModel = async (fechaInicio, fechaFin, lim
     );
     return result[0];
   } catch (err) {
-    console.error("Error en obtenerResumenVentasPorRangoFechaModel:", err.message);
     throw new Error("Error al obtener ventas por rango de fecha.");
   } finally {
     if (conexion) conexion.release();
@@ -248,7 +234,6 @@ const obtenerResumenVentasPorNombreUsuarioModel = async (busqueda, limit, offset
     );
     return result[0];
   } catch (err) {
-    console.error("Error en obtenerResumenVentasPorNombreUsuarioModel:", err.message);
     throw new Error("Error al obtener ventas por nombre de usuario.");
   } finally {
     if (conexion) conexion.release();
@@ -265,7 +250,6 @@ const obtenerVentasPorComprobanteModel = async (busqueda, limit, offset) => {
     );
     return result[0];
   } catch (err) {
-    console.error("Error en obtenerVentasPorComprobanteModel:", err.message);
     throw new Error("Error al obtener ventas por comprobante.");
   } finally {
     if (conexion) conexion.release();
@@ -283,7 +267,6 @@ const obtenerResumenVentasPorAceptacionSunatModel = async (aceptadaSunat, limit,
     );
     return result[0];
   } catch (err) {
-    console.error("Error en obtenerResumenVentasPorAceptacionSunatModel:", err.message);
     throw new Error("Error al obtener ventas por aceptación SUNAT.");
   } finally {
     if (conexion) conexion.release();
@@ -300,7 +283,6 @@ const obtenerEstadosSunatModel = async () => {
     return result[0];
 
   } catch (err) {
-    console.error("Error en obtenerEstadosSunatModel:", err.message);
     throw new Error("Error al obtener estados de sunat.");
   } finally {
     if (conexion) conexion.release();
@@ -328,9 +310,8 @@ const obtenerDetalleVentaPorIdVentaModel = async (idVenta) => {
       "CALL obtenerDetalleVentaPorIdVenta(?)",
       [idVenta]
     );
-    return result[0]; // devuelve arreglo con detalles
+    return result[0]; 
   } catch (err) {
-    console.error("Error en obtenerDetalleVentaPorIdVentaModel:", err.message);
     throw new Error("Error al obtener detalle de la venta.");
   } finally {
     if (conexion) conexion.release();
@@ -345,9 +326,8 @@ const obtenerComprobantePorIdVentaModel = async (idVenta) => {
       "CALL obtenerComprobantePorIdVenta(?)",
       [idVenta]
     );
-    return result[0]; // devuelve arreglo con comprobantes
+    return result[0]; 
   } catch (err) {
-    console.error("Error en obtenerComprobantePorIdVentaModel:", err.message);
     throw new Error("Error al obtener comprobante de la venta.");
   } finally {
     if (conexion) conexion.release();

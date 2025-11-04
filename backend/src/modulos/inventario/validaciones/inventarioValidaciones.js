@@ -8,7 +8,6 @@ const validarRegistrarMovimientoStock = (datos) => {
 
     const { idInsumo, cantidadMovimiento, tipoMovimiento } = datos;
 
-    // Validar ID del Insumo
     if (!idInsumo || typeof idInsumo !== "number") {
         throw Object.assign(
             new Error("Se necesita el id del insumo."),
@@ -16,7 +15,6 @@ const validarRegistrarMovimientoStock = (datos) => {
         );
     }
 
-    // Validar cantidad
     if (!cantidadMovimiento || typeof cantidadMovimiento !== "number"){
         throw Object.assign(
             new Error("Se necesita la cantidad de movimiento."),
@@ -36,7 +34,7 @@ const validarRegistrarMovimientoStock = (datos) => {
             { status: 400 }
         );
     }
-    // Validar tipo de movimiento
+    
     const tiposPermitidos = ["entrada", "salida"];
     if (!tiposPermitidos.includes(tipoMovimiento)) {
         throw Object.assign(

@@ -1,4 +1,4 @@
-require('dotenv').config(); // Cargar variables de entorno
+require('dotenv').config(); 
 const helmet = require("helmet");
 const express = require('express');
 const cors = require('cors');
@@ -8,6 +8,7 @@ const limitador = require("./src/middlewares/limitador");
 const autenticacionRoutes = require("./src/modulos/autenticacion/autenticacionRutas");
 
 const fuenteDatosRouter = require("./src/modulos/fuente-datos/fuenteDatosRutas");
+
 
 const ventasRoutes = require("./src/modulos/ventas/rutas/ventasRutas");
 const comprobanteRoutes = require("./src/modulos/ventas/rutas/comprobanteRutas");
@@ -43,9 +44,11 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
 
+
 app.get('/', (req, res) => {
   res.send('Servidor funcionando');
 });
+
 
 app.use('/api/ventas', ventasRoutes);
 app.use('/api/comprobantes', comprobanteRoutes);
@@ -57,6 +60,7 @@ app.use('/api/reservaciones', reservacionesRoutes);
 app.use('/api/caja', cajaRoutes);
 app.use('/api/productos', productoRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

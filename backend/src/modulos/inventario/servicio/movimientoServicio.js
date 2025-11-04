@@ -1,4 +1,3 @@
-//Importamos el modelo
 const jwt = require("jsonwebtoken");
 const {
   registrarMovimientoStockModel,
@@ -11,7 +10,7 @@ const {
 const { obtenerInsumoIDModel } = require("../modelo/insumoModelo")
 
 const { validarRegistrarMovimientoStock } = require("../validaciones/inventarioValidaciones")
-//validaciones
+
 const registrarMovimientoStockService = async (datos, token) => {
   validarRegistrarMovimientoStock(datos);
 
@@ -43,7 +42,6 @@ const registrarMovimientoStockService = async (datos, token) => {
   const idUsuario = decodedToken.idUsuario;
 
 
-  // Ejecutar modelo
   const resultado = await registrarMovimientoStockModel(idInsumo, cantidadMovimiento, tipoMovimiento, detalle, idUsuario);
 
   return {
@@ -152,9 +150,6 @@ const buscarMovimientosPorTipoService = async (tipoMovimiento, limit, offset) =>
     movimientos
   };
 };
-
-
-
 
 module.exports = {
   registrarMovimientoStockService,

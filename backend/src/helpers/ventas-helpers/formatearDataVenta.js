@@ -2,7 +2,6 @@ const { CODIGOS_SUNAT } = require('../../config/constantes');
 const { obtenerProductosModel } = require("../../modulos/inventario/modelo/productoModelo");
 const numeroALetras = require("../convertirNumeroLetras")
 
-// Importamos helpers
 const { generarFechaActual, generarHoraActual } = require("../generarTiempo");
 const { normalizarCliente } = require("./clienteHelpers");
 const { calcularMontosTotales } = require("./calculosFinancieros");

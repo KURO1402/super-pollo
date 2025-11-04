@@ -23,15 +23,12 @@ const {
     obtenerCategoriasProductoController
 } = require("../controlador/productoControlador");
 
-// ✅ Rutas relacionadas a productos
 router.post("/agregar-producto", autenticacionToken, verificarRoles(1, 2), verificarImagen, insertarProductoController);
 router.put("/actualizar-producto/:idProducto", autenticacionToken, verificarRoles(1, 2),  actualizarProductoController);
 router.delete("/eliminar-producto/:idProducto", autenticacionToken, verificarRoles(1, 2), eliminarProductoController);
 
-// ✅ Rutas relacionadas a imágenes
 router.put("/actualizar-imagen/:idProducto", autenticacionToken, verificarRoles(1, 2),  verificarImagen, actualizarImagenProductoController);
 
-// ✅ Rutas relacionadas a insumos y cantidades
 router.patch("/modificar-cantidad", autenticacionToken, verificarRoles(1, 2), actualizarCantidadUsoInsumoProductoController);
 router.delete("/eliminar-cantidad", autenticacionToken, verificarRoles(1, 2),  eliminarCantidadInsumoProductoController);
 router.post("/agregar-cantidad", autenticacionToken, verificarRoles(1, 2), insertarCantidadInsumoProductoController);
@@ -41,7 +38,9 @@ router.get("/paginacion", autenticacionToken, verificarRoles(1, 2), obtenerProdu
 router.get("/busqueda", autenticacionToken, verificarRoles(1, 2), buscarProductosPorNombreController);
 router.get("/:idProducto", autenticacionToken, verificarRoles(1, 2), obtenerProductoPorIdController);
 router.get("/insumos-cantidad/:idProducto",  autenticacionToken, verificarRoles(1, 2), obtenerInsumosPorProductoControlller);
-//Rutas para categorias
+
+router.get("/filtrar-categoria/:idCategoria",  autenticacionToken, verificarRoles(1, 2), obtenerProductosPorCategoriaController);
+
 router.post("/categorias/agregar", autenticacionToken, verificarRoles(1, 2), insertarCategoriaProductoController);
 router.put("/categorias/actualizar/:idCategoria", autenticacionToken, verificarRoles(1, 2), actualizarCategoriaProductoController);
 router.get("/categorias/all", autenticacionToken, verificarRoles(1, 2), obtenerCategoriasProductoController);
