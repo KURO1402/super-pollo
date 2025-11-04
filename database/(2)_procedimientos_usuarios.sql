@@ -18,6 +18,7 @@ DROP PROCEDURE IF EXISTS buscarUsuariosPorValor;
 DROP PROCEDURE IF EXISTS contarUsuariosActivos;
 DROP PROCEDURE IF EXISTS contarTipoDocumentoPorId;
 DROP PROCEDURE IF EXISTS actualizarRolUsuario;
+DROP PROCEDURE IF EXISTS obtenerTipoDocumentoPorId;
 
 DELIMITER //
 
@@ -366,6 +367,17 @@ BEGIN
     COMMIT;
     
     SELECT 'Rol de usuario cambiado exitosamente' AS mensaje;
+END //
+
+CREATE PROCEDURE obtenerTipoDocumentoPorId(
+    IN p_idTipoDocumento INT
+)
+BEGIN
+    SELECT 
+        idTipoDocumento,
+        nombreTipoDocumento
+    FROM tipoDocumento
+    WHERE idTipoDocumento = p_idTipoDocumento;
 END //
 
 DELIMITER ;

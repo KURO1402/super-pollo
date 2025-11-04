@@ -40,9 +40,9 @@ router.get("/", obtenerProductosController);
 router.get("/paginacion", obtenerProductosPaginacionController);
 router.get("/busqueda", buscarProductosPorNombreController);
 router.get("/:idProducto", obtenerProductoPorIdController);
-router.get("/insumos-cantidad/:idProducto", obtenerInsumosPorProductoControlller);
+router.get("/insumos-cantidad/:idProducto", autenticacionToken, verificarRoles(1, 2), obtenerInsumosPorProductoControlller);
 router.get("/filtrar-categoria/:idCategoria", obtenerProductosPorCategoriaController);
-
+router.get("/insumos-cantidad/:idProducto",  autenticacionToken, verificarRoles(1, 2), obtenerInsumosPorProductoControlller);
 //Rutas para categorias
 router.post("/categorias/agregar", autenticacionToken, verificarRoles(1, 2), insertarCategoriaProductoController);
 router.put("/categorias/actualizar/:idCategoria", autenticacionToken, verificarRoles(1, 2), actualizarCategoriaProductoController);

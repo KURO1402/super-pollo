@@ -16,7 +16,7 @@ import { obtenerTiposDocumento } from '../servicios/tiposDocService.js';
 
 // resive dos parametros que le enviamos en Registro.jxs
 const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
-  const [tiposDocumento, setTiposDocumento] = useState([]); 
+  const [tiposDocumento, setTiposDocumento] = useState([]);
   //configura el formulario usando useForm 
   const {
     register, // registrar campos
@@ -36,9 +36,13 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
   useEffect(() => {
     const cargarTiposDocumento = async () => {
       try {
-        // guardamos los tipos de documentos optenidos de esa funcion
-        const tipos = await obtenerTiposDocumento();
-        // lo guardamos en su estado
+        let tipos = await obtenerTiposDocumento();
+
+        // Filtramos para eliminar el RUC (mayúscula o minúscula)
+        tipos = tipos.filter(
+          tipo => tipo.nombreTipoDocumento.toLowerCase() !== 'ruc'
+        );
+
         setTiposDocumento(tipos);
       } catch (error) {
         console.error('Error al cargar tipos de documento:', error);
@@ -48,7 +52,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         ]);
       }
     };
-    // ejecutamos
     cargarTiposDocumento();
   }, []);
 
@@ -58,7 +61,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
       await alEnviar(datos); // Llama a la función que recibe los datos (prop)
       await trigger();
     } catch (error) {
-        // mostrar error si ocurre alguno
+      // mostrar error si ocurre alguno
       console.error('Error al enviar el formulario:', error);
     }
   };
@@ -77,7 +80,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
           registro={register}
           error={errors.nombresUsuario}
         />
-        
+
         <CampoEntrada
           id="apellidosUsuario"
           nombre="apellidosUsuario"
@@ -88,7 +91,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
           error={errors.apellidosUsuario}
         />
       </div>
-      
+
       {/* correo electrónico */}
       <CampoEntrada
         id="correoUsuario"
@@ -100,7 +103,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         registro={register}
         error={errors.correoUsuario}
       />
-      
+
       {/* grid para contraseñas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CampoEntrada
@@ -113,7 +116,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
           registro={register}
           error={errors.clave}
         />
-        
+
         <CampoEntrada
           id="confirmarClave"
           nombre="confirmarClave"
@@ -125,7 +128,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
           error={errors.confirmarClave}
         />
       </div>
-      
+
       {/* grid para documento */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CampoSelect
@@ -138,7 +141,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
           registro={register}
           error={errors.idTipoDocumento}
         />
-        
+
         <CampoEntrada
           id="numeroDocumentoUsuario"
           nombre="numeroDocumentoUsuario"
@@ -148,7 +151,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
           registro={register}
           error={errors.numeroDocumentoUsuario}
         />
-        
+
       </div>
 
       {/* input para agregar teléfono */}
@@ -163,7 +166,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         error={errors.telefonoUsuario}
       />
 
-      
+
       {/* términos y condiciones */}
       <CampoCheckbox
         id="aceptoTerminos"
@@ -183,7 +186,7 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         registro={register}
         error={errors.aceptoTerminos}
       />
-      
+
       {/* botón de registro */}
       <div>
         <button
@@ -191,8 +194,8 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
           disabled={!isValid || estaCargando}
           className={`
             w-full py-3 px-4 rounded-lg font-medium transition-colors duration-200
-            ${isValid && !estaCargando 
-              ? 'bg-azul-primario hover:bg-azul-secundario text-white cursor-pointer' 
+            ${isValid && !estaCargando
+              ? 'bg-azul-primario hover:bg-azul-secundario text-white cursor-pointer'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-azul-primario

@@ -1,6 +1,13 @@
 const { 
   listarTipoDocumentoService,
-  topProductosMasVendidosService 
+  topProductosMasVendidosService,
+  obtenerResumenVentasEgresosMensualService,
+  obtenerVentasHoyComparacionService,
+  obtenerCantidadVentasHoyComparacionService,
+  obtenerReservasHoyComparacionService,
+  obtenerBalanceGeneralAnualService,
+  obtenerPorcentajeMediosPagoService,
+  obtenerVentasPorMesService 
 } = require("./fuenteDatosServicio.js");
 
 // CONTROLADOR PARA LISTAR TIPOS DE DOCUMENTO
@@ -33,15 +40,121 @@ const topProductosMasVendidosController = async (req, res) => {
 
         return res.status(200).json(resultado);
 
-    } catch (error) {
-        return res.status(error.status || 500).json({
+    } catch (err) {
+        return res.status(err.status || 500).json({
             ok: false,
-            mensaje: error.message || "Error interno en el servidor"
+            mensaje: err.message || "Error interno en el servidor"
         });
     }
 };
 
+const obtenerResumenVentasEgresosMensualController = async (req, res) => {
+  try {
+    const { meses } = req.query;
+
+    const resultado = await obtenerResumenVentasEgresosMensualService(meses);
+
+    res.status(200).json(resultado);
+  } catch (err) {
+    console.error("Error en obtenerResumenVentasEgresosMensualController:", err);
+    res.status(err.status || 500).json({
+      ok: false,
+      mensaje: err.message || "Error al obtener resumen de ventas y egresos"
+    });
+  }
+};
+
+const obtenerVentasHoyComparacionController = async (req, res) => {
+  try {
+    const resultado = await obtenerVentasHoyComparacionService();
+
+    res.status(200).json(resultado);
+  } catch (err) {
+    console.error("Error en obtenerVentasHoyComparacionController:", err);
+    res.status(err.status || 500).json({
+      ok: false,
+      mensaje: err.message || "Error al obtener ventas de hoy y comparación"
+    });
+  }
+};
+
+const obtenerCantidadVentasHoyComparacionController = async (req, res) => {
+  try {
+    const resultado = await obtenerCantidadVentasHoyComparacionService();
+
+    res.status(200).json(resultado); // { ok: true, resultado: { totalVentasHoy, totalVentasAyer, porcentajeComparacion } }
+  } catch (err) {
+    console.error("Error en obtenerCantidadVentasHoyComparacionController:", err);
+    res.status(err.status || 500).json({
+      ok: false,
+      mensaje: err.message || "Error al obtener cantidad de ventas de hoy y comparación"
+    });
+  }
+};
+
+const obtenerReservasHoyComparacionController = async (req, res) => {
+  try {
+    const resultado = await obtenerReservasHoyComparacionService();
+    res.status(200).json(resultado);
+  } catch (err) {
+    console.error("Error en obtenerReservasHoyComparacionController:", err);
+    res.status(err.status || 500).json({
+      ok: false,
+      mensaje: err.message || "Error al obtener reservas de hoy y comparación"
+    });
+  }
+};
+
+const obtenerBalanceGeneralAnualController = async (req, res) => {
+  try {
+    const resultado = await obtenerBalanceGeneralAnualService();
+    res.status(200).json(resultado);
+  } catch (err) {
+    console.error("Error en obtenerBalanceGeneralAnualController:", err);
+    res.status(err.status || 500).json({
+      ok: false,
+      mensaje: err.message || "Error al obtener el balance general anual"
+    });
+  }
+};
+
+const obtenerPorcentajeMediosPagoController = async (req, res) => {
+  try {
+    const resultado = await obtenerPorcentajeMediosPagoService();
+    res.status(200).json(resultado);
+  } catch (err) {
+    console.error("Error en obtenerPorcentajeMediosPagoController:", err);
+    res.status(err.status || 500).json({
+      ok: false,
+      mensaje: err.message || "Error al obtener porcentaje de medios de pago"
+    });
+  }
+};
+
+const obtenerVentasPorMesController = async (req, res) => {
+  try {
+    const { meses } = req.query; // recibe la cantidad de meses opcional
+
+    const resultado = await obtenerVentasPorMesService(meses);
+
+    res.status(200).json(resultado);
+  } catch (err) {
+    console.error("Error en obtenerVentasPorMesController:", err);
+    res.status(err.status || 500).json({
+      ok: false,
+      mensaje: err.message || "Error al obtener ventas por mes"
+    });
+  }
+};
+
 module.exports = { 
   listarTipoDocumentoController,
-  topProductosMasVendidosController 
+  topProductosMasVendidosController,
+  obtenerResumenVentasEgresosMensualController,
+  obtenerVentasHoyComparacionController,
+  obtenerCantidadVentasHoyComparacionController,
+  obtenerReservasHoyComparacionController,
+  obtenerBalanceGeneralAnualController,
+  obtenerPorcentajeMediosPagoController,
+  obtenerVentasPorMesController 
 };

@@ -1,6 +1,9 @@
+import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { useTemaParaGraficos } from "../../hooks/useTemaParaGraficos";
+import { obtenerPorcentajeMediosPagoServicio } from "../../servicios/graficosServicio";
 
+<<<<<<< HEAD:frontend/src/modulos/panel-administrador/componentes/graficos/GraficoCategoriasProductos.jsx
 
 const data = [
   { name: "Pollo a la Brasa", value: 45 },
@@ -11,7 +14,12 @@ const data = [
 ];
 
 const GraficoCategoriasProductos = () => {
+=======
+const GraficoMediosPago = () => {
+>>>>>>> feature/graficos-backend:frontend/src/modulos/panel-administrador/componentes/graficos/GraficoMediosPago.jsx
   const { themeColors } = useTemaParaGraficos();
+  const [data, setData] = useState([]);
+  const [cargando, setCargando] = useState(true);
 
   const COLORS = [
     themeColors.primary,
@@ -20,6 +28,34 @@ const GraficoCategoriasProductos = () => {
     themeColors.success,
     themeColors.warning
   ];
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const resultado = await obtenerPorcentajeMediosPagoServicio();
+        // Transformar datos para Recharts
+        const datosFormateados = resultado.map(item => ({
+          name: item.nombreMedioPago,
+          value: parseFloat(item.porcentaje)
+        }));
+        setData(datosFormateados);
+      } catch (error) {
+        console.error("Error al cargar porcentaje de medios de pago:", error);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    cargarDatos();
+  }, []);
+
+  if (cargando) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
+        Cargando gráfico...
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-64">
@@ -47,7 +83,7 @@ const GraficoCategoriasProductos = () => {
               borderRadius: '8px',
               fontSize: '12px'
             }}
-            formatter={(value, name) => [`${value}%`, name]}
+            formatter={(value, name) => [`${value.toFixed(2)}%`, name]}
           />
           <Legend 
             iconSize={8}
@@ -62,4 +98,4 @@ const GraficoCategoriasProductos = () => {
   );
 };
 
-export default GraficoCategoriasProductos;
+export default GraficoMediosPago;
