@@ -24,7 +24,7 @@ const RegistroVentasSeccion = () => {
   // hooks
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); 
   const { filtro, setFiltro, aplicarFiltros } = useFiltro();
-  const { paginaActual, setPaginaActual, paginar } = usePaginacion(5);
+  const { paginaActual, setPaginaActual, itemsPorPagina, setItemsPorPagina, paginar } = usePaginacion(5);
   const { estaAbierto, abrir, cerrar } = useModal();
 
   // Cargar ventas al montar el componente
@@ -33,7 +33,6 @@ const RegistroVentasSeccion = () => {
       try {
         setCargando(true);
         const ventasData = await obtenerVentasServicio();
-        console.log("secciojn", ventasData)
         setVentas(ventasData);
       } catch (error) {
         console.error('Error al cargar ventas:', error);
@@ -97,6 +96,14 @@ const RegistroVentasSeccion = () => {
     });
   }
 
+  const handleCambiarPagina = (nuevaPagina) => {
+    setPaginaActual(nuevaPagina);
+  };
+
+  const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
+    setItemsPorPagina(nuevoItemsPorPagina);
+  };
+
   const { datosPaginados, totalPaginas } = paginar(filtrados);
 
   // Mapear ventas a filas de tabla
@@ -158,7 +165,10 @@ const RegistroVentasSeccion = () => {
           <Paginacion
             paginaActual={paginaActual}
             totalPaginas={totalPaginas}
-            alCambiarPagina={setPaginaActual}
+            alCambiarPagina={handleCambiarPagina}
+            itemsPorPagina={itemsPorPagina}
+            alCambiarItemsPorPagina={handleCambiarItemsPorPagina}
+            mostrarSiempre={true}
           />
         </>
       )}

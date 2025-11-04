@@ -67,7 +67,6 @@ const SeccionVentas = () => {
       try {
         setCargandoMetodoPago(true);
         const respuesta = await obtenerMetodosPagoServicio();
-        console.log("Métodos de pago cargados:", respuesta);
         
         if (respuesta && respuesta.length > 0) {
           setMetodosPago(respuesta);
@@ -285,7 +284,7 @@ const SeccionVentas = () => {
   // descargar o imprimir el pdf del comprobante
   const handleDescargarPDF = () => {
     if (urlPDF) {
-      window.open(urlPDF, '_blank');
+      window.print(urlPDF, '_blank');
     }
   };
 
@@ -607,16 +606,16 @@ const SeccionVentas = () => {
                 onLoad={() => console.log("PDF cargado correctamente")}
                 onError={(e) => {
                   console.error("Error cargando PDF:", e);
-            mostrarAlerta.error("Error al cargar la vista previa del PDF");
-          }}
-        />
-        <div className="mt-2 text-xs text-gray-500 text-center">
-          Si la vista previa no se carga, use el botón "Abrir en nueva pestaña"
-        </div>
-      </div>
-    </div>
-  </Modal>
-)}
+                  mostrarAlerta.error("Error al cargar la vista previa del PDF");
+                }}
+              />
+              <div className="mt-2 text-xs text-gray-500 text-center">
+              Si la vista previa no se carga, use el botón "Abrir en nueva pestaña"
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
       {/* Modal de confirmación */}
       <ModalConfirmacion
         visible={confirmacionVisible}

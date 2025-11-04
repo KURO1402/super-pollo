@@ -15,6 +15,10 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
   const [tiposDocumento, setTiposDocumento] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(null);
+  // nuevos estados para la búsqueda
+  const [buscando, setBuscando] = useState(false);
+  const [mensajeBusqueda, setMensajeBusqueda] = useState("");
+  
   // funciones de react hook form
   const {
     register, handleSubmit, watch, setValue,
@@ -44,6 +48,11 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
 
   // función para ejecutar la busqueda con el microservicio
   const handleBuscar = async () => {
+    if (!busquedaHabilitada) return;
+    
+    setBuscando(true);
+    setMensajeBusqueda("");
+    
     try {
       let data; // nuestra variable 
       let nombreCompleto = ""; // Inicializamos la variable fuera de los condicionales
@@ -51,19 +60,57 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
 
       if (tipo === "1") { // si el tipo es igual a 1 (DNI), se llamará a la función de buscarPorDNI
         data = await buscarPorDNI(numeroDoc);
-        nombreCompleto = data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres; // concatenamos para obtener el nombre completo
-        datosFormateados = nombreCompleto.replace(/\b\w/g, char => char.toUpperCase()).replace(/\B\w/g, char => char.toLowerCase());
+        
+        // Validar si la búsqueda fue exitosa
+        if (data.success === true) {
+          nombreCompleto = data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres; // concatenamos para obtener el nombre completo
+          datosFormateados = nombreCompleto.replace(/\b\w/g, char => char.toUpperCase()).replace(/\B\w/g, char => char.toLowerCase());
+          setValue("nombre", datosFormateados);
+          setMensajeBusqueda("Datos encontrados correctamente");
+        } else {
+          setMensajeBusqueda("No se encontraron resultados");
+          setValue("nombre", ""); // Limpiar el campo nombre
+        }
+        
       } else if (tipo === "3") { // si el tipo es igual a 3 (RUC), se llamará a la función de buscarPorRUC
         data = await buscarPorRUC(numeroDoc);
-        datosFormateados = data.razonSocial;
+        
+        // Validar si la búsqueda fue exitosa - para RUC verificamos que exista el ruc
+        if (data && data.ruc) {
+          // Rellenar razón social en el campo nombre
+          setValue("nombre", data.razonSocial);
+          
+          // Rellenar la dirección si está disponible
+          if (data.direccion) {
+            setValue("direccion", data.direccion);
+          }
+          
+          // También podemos rellenar el nombre comercial si está disponible y no es null
+          if (data.nombreComercial) {
+            setValue("nombreComercial", data.nombreComercial);
+          }
+          
+          setMensajeBusqueda("Datos encontrados correctamente");
+        } else {
+          setMensajeBusqueda("No se encontraron resultados");
+          setValue("nombre", ""); // Limpiar el campo nombre
+          setValue("direccion", ""); // Limpiar la dirección
+          setValue("nombreComercial", ""); // Limpiar nombre comercial
+        }
+        
       } else { // si no cumple ninguno de los casos (Carnet de extranjería)
         console.log("Búsqueda solo disponible para DNI y RUC");
+        setMensajeBusqueda("Búsqueda solo disponible para DNI y RUC");
         return;
       }
-      // Asignamos el valor al campo de formulario
-      setValue("nombre", datosFormateados);
     } catch (err) {
       console.error(err.message);
+      setMensajeBusqueda("Error en la búsqueda: " + err.message);
+      setValue("nombre", ""); // Limpiar el campo nombre en caso de error
+      setValue("direccion", ""); // Limpiar también la dirección
+      setValue("nombreComercial", ""); // Limpiar nombre comercial
+    } finally {
+      setBuscando(false);
     }
   };
 
@@ -108,42 +155,62 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
             Número de Documento *
           </label>
           <div className="relative flex rounded-lg shadow-sm">
-          <input
-            type="text"
-            placeholder={placeholder}
-            {...register("numeroDocumento", {
-              required: "Este campo es obligatorio",
-              validate: (value) => {
-                // hacemos la validación para cada input
-                if (tipo === "1" && value.length !== 8) {
-                  return "El DNI debe tener 8 dígitos";
-                }
-                if (tipo === "3" && value.length !== 11) {
-                  return "El RUC debe tener 11 dígitos";
-                }
-                if (tipo === "2" && !/^[A-Z0-9]{6,12}$/i.test(value)) {
-                  return "Carné de extranjería inválido";
-                }
-                return true; // si no hay ningun error regresamos true
-              },
-            })}
-            className="flex-1 w-full px-3 py-2 border border-gray-300 rounded-l-lg dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button
-            onClick={handleBuscar}
-            type="button"
-            disabled={!busquedaHabilitada}
-            className={`px-3 flex items-center justify-center rounded-r-lg transition-colors duration-200 ${
-              busquedaHabilitada
-                ? "bg-blue-500 hover:bg-blue-600 text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            <FiSearch size={18} />
-          </button>
-        </div>
+            <input
+              type="text"
+              placeholder={placeholder}
+              {...register("numeroDocumento", {
+                required: "Este campo es obligatorio",
+                validate: (value) => {
+                  // hacemos la validación para cada input
+                  if (tipo === "1" && value.length !== 8) {
+                    return "El DNI debe tener 8 dígitos";
+                  }
+                  if (tipo === "3" && value.length !== 11) {
+                    return "El RUC debe tener 11 dígitos";
+                  }
+                  if (tipo === "2" && !/^[A-Z0-9]{6,12}$/i.test(value)) {
+                    return "Carné de extranjería inválido";
+                  }
+                  return true; // si no hay ningun error regresamos true
+                },
+              })}
+              className="flex-1 w-full px-3 py-2 border border-gray-300 rounded-l-lg dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              onClick={handleBuscar}
+              type="button"
+              disabled={!busquedaHabilitada || buscando}
+              className={`px-3 flex items-center justify-center rounded-r-lg transition-colors duration-200 ${
+                busquedaHabilitada && !buscando
+                  ? "bg-blue-500 hover:bg-blue-600 text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              {buscando ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                <FiSearch size={18} />
+              )}
+            </button>
+          </div>
           {errors.numeroDocumento && (
             <span className="text-xs text-red-500">{errors.numeroDocumento.message}</span>
+          )}
+          
+          {/* Mensaje de estado de búsqueda */}
+          {buscando && (
+            <p className="text-xs text-blue-500 mt-1">Buscando información...</p>
+          )}
+          {mensajeBusqueda && !buscando && (
+            <p className={`text-xs mt-1 ${
+              mensajeBusqueda.includes("encontrados") 
+                ? "text-green-500" 
+                : mensajeBusqueda.includes("No se encontraron")
+                ? "text-yellow-500"
+                : "text-red-500"
+            }`}>
+              {mensajeBusqueda}
+            </p>
           )}
         </div>
       </div>
@@ -181,14 +248,19 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
       {/* Tercera fila: Dirección */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Dirección
+          Dirección *
         </label>
         <input
           type="text"
-          {...register("direccion")}
+          {...register("direccion", { 
+            required: tipo === "3" ? "Este campo es obligatorio para RUC" : false 
+          })}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Dirección completa"
+          placeholder={tipo === "3" ? "Dirección fiscal (obligatoria)" : "Dirección completa"}
         />
+        {errors.direccion && (
+          <span className="text-xs text-red-500">{errors.direccion.message}</span>
+        )}
       </div>
 
       {/* Cuarta fila: Teléfono y Correo */}
