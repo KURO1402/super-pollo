@@ -1,55 +1,93 @@
-import polloCuarto from "../../../assets/imagenes/CuartodePollo.png";
+import { useState, useEffect } from "react";
+import { obtenerProductosServicio } from "../servicios/fuenteDatosServicio";
 import TarjetaProducto from "./TarjetaProducto";
 
-// Datos de ejemplo para los productos
-const productos = [
-  {
-    id: 1,
-    nombre: "1/4 de Pollo a la Brasa",
-    descripcion: "Papas + Cremas + Ensalada Fresca",
-    precio: "S/14.00",
-    imagen: polloCuarto,
-  },
-  {
-    id: 2,
-    nombre: "Producto 2",
-    descripcion: "Papas + Cremas + Ensalada Fresca",
-    precio: "S/14.00",
-    imagen: polloCuarto,
-  },
-  {
-    id: 3,
-    nombre: "Producto 3",
-    descripcion: "Papas + Cremas + Ensalada Fresca",
-    precio: "S/14.00",
-    imagen: polloCuarto,
-  },
-  {
-    id: 4,
-    nombre: "Producto 4",
-    descripcion: "Papas + Cremas + Ensalada Fresca",
-    precio: "S/14.00",
-    imagen: polloCuarto,
-  },
-  {
-    id: 5,
-    nombre: "Producto 5",
-    descripcion: "Papas + Cremas + Ensalada Fresca",
-    precio: "S/14.00",
-    imagen: polloCuarto,
-  },
-];
-
 const MenuListado = () => {
+  const [productos, setProductos] = useState([]);
+  const [cargandoProductos, setCargandoProductos] = useState(true);
+  const [errorProductos, setErrorProductos] = useState(null);
+
+  useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        setCargandoProductos(true);
+        setErrorProductos(null);
+        
+        const respuesta = await obtenerProductosServicio();
+        console.log("en el componente: ", respuesta);
+        
+        if (respuesta && respuesta.productos) {
+          setProductos(respuesta.productos);
+        } else if (respuesta && Array.isArray(respuesta)) {
+          setProductos(respuesta);
+        } else {
+          setProductos([]);
+          setErrorProductos("No se pudieron cargar los productos");
+        }
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        setErrorProductos(error.message || "Error al cargar los productos");
+        setProductos([]);
+      } finally {
+        setCargandoProductos(false);
+      }
+    };
+
+    cargarProductos();
+  }, []);
+
+  // Estado de carga
+  if (cargandoProductos) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando productos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Estado de error
+  if (errorProductos) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="text-center">
+          <div className="text-red-500 text-lg mb-2">⚠️</div>
+          <p className="text-gray-600">{errorProductos}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Estado sin productos
+  if (productos.length === 0) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="text-center">
+          <div className="text-gray-400 text-4xl mb-4">🛒</div>
+          <p className="text-gray-500">No hay productos disponibles</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-      {/*Se mapea el array de productos para generar las tarjetas*/} 
-      {productos.map((prod) => (
-        // se usa el spread operator para pasar todas las props de una vez
-        <TarjetaProducto key={prod.id} {...prod} />
+      {productos.map((producto) => (
+        <TarjetaProducto 
+          key={producto.idProducto || producto.id} 
+          producto={producto} 
+        />
       ))}
     </div>
   );
-}
+};
 
 export default MenuListado;
