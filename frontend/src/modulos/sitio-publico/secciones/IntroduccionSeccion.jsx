@@ -1,4 +1,5 @@
 import { useRef } from "react"; // importamos useRef para crear referencias a elementos DOM
+import { Link as ScrollLink } from "react-scroll";
 // importamos tambien las imagenes
 import useAnimacionesIntro from "../hooks/useAnimacionesIntro";
 import CirculoRojo from "../../../assets/decorativos/Mitad_circulo_rojo.png";
@@ -6,10 +7,9 @@ import Lechuga from "../../../assets/decorativos/Lechuga.png";
 import Pollos from "../../../assets/imagenes/Pollos.png";
 import Papas from "../../../assets/imagenes/Papas.png";
 import Ensalada from "../../../assets/imagenes/Ensalada.png";
-// impoertar los botones 
-import BotonPrimario from "../componentes/BotonPrimario";
 import BotonSecundario from "../componentes/BotonSecundario";
 import '../estilos/animaciones.css' // importar las animaciones CSS
+
 
 const IntroduccionSeccion = () => {
   // se crean las referencias a los elementos que se quieren animar
@@ -50,8 +50,27 @@ const IntroduccionSeccion = () => {
           </p>
           {/* Botones */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-            <BotonPrimario>Ver Menú</BotonPrimario>
-            <BotonSecundario>Hacer Reserva</BotonSecundario>
+            <div className="inline-block">
+              <ScrollLink 
+                to="menu"
+                smooth={true}
+                duration={500}
+                offset={-70}
+                className="px-8 py-4 bg-rojo hover:bg-rojo text-white font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/30 block w-fit cursor-pointer"
+              >
+                VER MENU
+              </ScrollLink>
+              
+            </div>
+            <ScrollLink 
+                to="reservaciones"
+                smooth={true}
+                duration={500}
+                offset={-70}
+                className="px-8 py-4 border-2 cursor-pointer border-amarillo text-amarillo hover:bg-amarillo hover:text-gray-900 font-bold rounded-full transition-all duration-300"
+              >
+                RESERVAR
+              </ScrollLink>
           </div>
         </div> 
 

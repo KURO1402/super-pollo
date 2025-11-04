@@ -11,6 +11,7 @@ import BotonSecundario from "../componentes/BotonSecundario";
 import NombreEmpresa from "../../../assets/imagenes/Nombre_Empresa.png";
 import Logo from "../../../assets/imagenes/Logo.svg";
 import UbicacionMapa from "../../../assets/imagenes/UbicacionMapa.png";
+import { Link } from "react-router-dom";
 
 // array de iconos sociales
 const socialIconos = [
@@ -74,18 +75,7 @@ const PiePagina = () => {
               Somos el lugar donde el mejor pollo a la brasa se disfruta entre
               risas, familia y buenos momentos que siempre querrás repetir.
             </p>
-            {/* Iconos sociales */}
-            <div className="flex space-x-4">
-              {socialIconos.map((item, index) => (
-                <a
-                  key={index}
-                  href={item.href}
-                  className="bg-gray-700 text-white rounded-full p-3 hover:bg-gray-100 hover:text-gray-800 transition"
-                >
-                  {item.icon}
-                </a>
-              ))}
-            </div>
+            
           </div>
 
           {/* Ubicación */}
@@ -125,7 +115,9 @@ const PiePagina = () => {
               <br />
               10 am - 9 pm
             </p>
-            <BotonSecundario> Registrarse </BotonSecundario>
+            <Link to='/registro'>
+              <BotonSecundario> Registrarse </BotonSecundario>
+            </Link>
           </div>
         </div>
       </div>
