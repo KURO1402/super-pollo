@@ -1,3 +1,4 @@
+require('dotenv').config(); 
 const { registrarUsuarioService, seleccionarUsuarioService, renovarAccessTokenService, insertarVerificacionCorreoService, validarCodigoVerificacionCorreoService } = require("./autenticacionServicio.js");
 
 const registrarUsuarioController = async (req, res) => {
