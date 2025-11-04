@@ -1,16 +1,11 @@
 import { useState } from "react";
 import { FaCalendarAlt, FaClock, FaInfoCircle, FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { horasDisponibles } from "../mocks/horaReserva";
 
 const FormularioReserva = () => {
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
-
-  const horasDisponibles = [
-    "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", 
-    "2:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM", 
-    "8:00 PM", "8:30 PM", "9:00 PM"
-  ];
 
   return (
     <div className="bg-red-600 rounded-2xl p-6 md:p-8 lg:p-10 shadow-2xl relative overflow-hidden w-full max-w-md lg:max-w-lg">
@@ -54,9 +49,9 @@ const FormularioReserva = () => {
               >
                 <option value="">Seleccione una hora</option>
                 {/*mapear las horas disponibles*/}
-                {horasDisponibles.map((horaOption) => (
-                  <option key={horaOption} value={horaOption}>
-                    {horaOption}
+                {horasDisponibles.map((hora, index) => (
+                  <option key={index} value={hora.value}>
+                    {hora.label}
                   </option>
                 ))}
               </select>
@@ -84,8 +79,7 @@ const FormularioReserva = () => {
             <div className="flex items-start">
               <FaInfoCircle className="text-white mt-1 mr-3 flex-shrink-0" />
               <p className="text-white text-sm">
-                Aquí va la descripción de algunos puntos importantes para que el
-                cliente tenga en cuenta para la reserva.
+                Para realizar una cancelación, comuníquese a través de los datos de contacto indicados en el pie de página.
               </p>
             </div>
           </div>

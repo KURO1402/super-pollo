@@ -41,8 +41,7 @@ const PoliticasPrivacidad = () => {
               <p className="mb-4">Recopilamos la siguiente información:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li><strong>Información personal:</strong> Nombre, correo electrónico, teléfono</li>
-                <li><strong>Información de pedidos:</strong> Historial de compras y preferencias</li>
-                <li><strong>Información de contacto:</strong> Dirección para entregas (si aplica)</li>
+                <li><strong>Información de reservaciones:</strong> Historial de reservaciones y preferencias</li>
                 <li><strong>Datos de navegación:</strong> IP, tipo de dispositivo, páginas visitadas</li>
               </ul>
             </div>
@@ -52,9 +51,8 @@ const PoliticasPrivacidad = () => {
               <h2 className="text-2xl font-bold text-gray-800 mb-4">3. Uso de la Información</h2>
               <p className="mb-4">Utilizamos tu información para:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Procesar y gestionar tus pedidos</li>
+                <li>Procesar y gestionar tus reservaciones</li>
                 <li>Mejorar nuestros servicios y experiencia del cliente</li>
-                <li>Enviar comunicaciones sobre promociones (solo con tu consentimiento)</li>
                 <li>Personalizar tu experiencia en nuestro sitio web</li>
                 <li>Cumplir con obligaciones legales</li>
               </ul>

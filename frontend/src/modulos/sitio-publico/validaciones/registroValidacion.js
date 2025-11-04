@@ -46,10 +46,7 @@ export const registroValidacion = yup.object().shape({
       } // debe tener al menos un numero
       if (!/\d/.test(value)) {
         errors.push('Debe incluir al menos un número.');
-      } // el caracter especial 
-      if (!/[@$!%*?&.\-_\#=+"',;:]/.test(value)) {
-        errors.push('Debe incluir al menos un carácter especial. Ejemplos: @$!%*?&.-_#=+');
-      } // si hay errores, los unimos en un solo mensaje y retornamos el error
+      } // el caracter especial
       if (errors.length > 0) {
         return this.createError({ message: errors.join(' ') });
       }
