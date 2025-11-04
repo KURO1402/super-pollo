@@ -9,7 +9,8 @@ const {
   insertarPagoController,
   obtenerPagoController,
   obtenerDetalleReservacionController,
-  listarMesasDisponiblesController
+  listarMesasDisponiblesController,
+  obtenerReservasPorUsuarioController
 } = require("./reservacionesControlador.js");
 
 // Importamos Mercado Pago
@@ -18,22 +19,23 @@ const { crearPreferencia } = require("../../servicios/mercadoPago.js");
 // Importamos el webhook de Mercado Pago
 const mercadoPagoWebhook = require("../../servicios/mercadoPagoWebhook.js");
 
-const { autenticacionToken } = require("../../middlewares/autenticacionMiddleware");
+const { autenticacionToken, verificarRoles } = require("../../middlewares/autenticacionMiddleware")
 
 // Creamos el enrutador
 const router = express.Router();
 
 // Registrar una reservación 
-router.post("/", registrarReservacionController);
+router.post("/", autenticacionToken, registrarReservacionController);
 
 // Listar reservaciones (paginadas)
-router.get("/", listarReservacionesController);
+router.get("/", autenticacionToken, verificarRoles(1,2), listarReservacionesController);
+router.get("/reservas-usuario", autenticacionToken, verificarRoles(1,2), obtenerReservasPorUsuarioController);
 
 // Obtener una reservación por ID
-router.get("/:id", obtenerReservacionController);
+router.get("/:id", autenticacionToken, verificarRoles(1,2), obtenerReservacionController);
 
 // Actualizar una reservación por ID
-router.put("/:id", actualizarReservacionController);
+router.put("/:id", autenticacionToken, verificarRoles(1,2), actualizarReservacionController);
 
 // Insertar un pago
 router.post("/pago", autenticacionToken, insertarPagoController);
@@ -42,10 +44,10 @@ router.post("/pago", autenticacionToken, insertarPagoController);
 router.get("/:idReservacion/pago", obtenerPagoController);
 
 // Obtener detalles de una reservación
-router.get("/:idReservacion/detalle", obtenerDetalleReservacionController);
+router.get("/:idReservacion/detalle", autenticacionToken, verificarRoles(1,2), obtenerDetalleReservacionController);
 
 // Listar mesas disponibles por fecha y hora (?fecha=YYYY-MM-DD&hora=HH:MM:SS)
-router.get("/mesas/disponibles", listarMesasDisponiblesController);
+router.get("/mesas/disponibles", autenticacionToken, listarMesasDisponiblesController);
 
 // Crear preferencia de Mercado Pago para una reservación
 router.post("/:idReservacion/crear-preferencia", autenticacionToken, async (req, res) => {
@@ -61,7 +63,7 @@ router.post("/:idReservacion/crear-preferencia", autenticacionToken, async (req,
 });
 
 // Webhook de Mercado Pago (para recibir notificaciones)
-router.use("/mercadopago/webhook", mercadoPagoWebhook);
+router.use("/mercadopago/webhook", autenticacionToken, mercadoPagoWebhook);
 
 // Exportamos el enrutador
 module.exports = router;

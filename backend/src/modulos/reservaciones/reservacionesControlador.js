@@ -8,7 +8,8 @@ const {
   actualizarPagoService,
   obtenerPagoService,
   obtenerDetalleReservacionService,
-  listarMesasDisponiblesService
+  listarMesasDisponiblesService,
+  obtenerReservasPorUsuarioService
 } = require("./reservacionesServicio.js");
 
 // Controlador: Registrar una reservación completa
@@ -60,9 +61,9 @@ const actualizarReservacionController = async (req, res) => {
 
 const insertarPagoController = async (req, res) => {
   try {
-    const datos = { 
-      ...req.body, 
-      idUsuario: req.usuario?.idUsuario 
+    const datos = {
+      ...req.body,
+      idUsuario: req.usuario?.idUsuario
     };
 
     const result = await insertarPagoService(datos);
@@ -116,6 +117,24 @@ const listarMesasDisponiblesController = async (req, res) => {
   }
 };
 
+const obtenerReservasPorUsuarioController = async (req, res) => {
+  try {
+    const { idUsuario } = req.usuario;
+    const resultado = await obtenerReservasPorUsuarioService(idUsuario);
+
+    return res.status(200).json(resultado);
+  } catch (err) {
+    console.error("Error en obtenerReservasPorUsuarioController:", err.message);
+    const statusCode = err.status || 500;
+
+    // Devolver el error con código adecuado
+    return res.status(statusCode).json({
+      ok: false,
+      mensaje: err.message || "Error interno del servidor"
+    });
+  }
+};
+
 // Exportamos los controladores
 module.exports = {
   registrarReservacionController,
@@ -126,5 +145,6 @@ module.exports = {
   actualizarPagoController,
   obtenerPagoController,
   obtenerDetalleReservacionController,
-  listarMesasDisponiblesController
+  listarMesasDisponiblesController,
+  obtenerReservasPorUsuarioController
 };

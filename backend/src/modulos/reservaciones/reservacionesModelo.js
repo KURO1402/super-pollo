@@ -197,6 +197,24 @@ const listarMesasDisponiblesModel = async (fechaReservacion, horaReservacion) =>
   }
 };
 
+const obtenerReservasPorUsuarioModel = async (idUsuario) => {
+  let conexion;
+  try {
+      conexion = await pool.getConnection();
+      
+      // Llamar al procedimiento almacenado con el parámetro idUsuario
+      const [rows] = await conexion.execute("CALL obtenerReservasPorUsuario(?)", [idUsuario]);
+      
+      return rows[0]; // Primer resultado del SELECT (reservas)
+  } catch (err) {
+      console.error("Error en obtenerReservasPorUsuarioModel:", err.message);
+      throw new Error("Error al obtener las reservas del usuario");
+  } finally {
+      if (conexion) conexion.release();
+  }
+};
+
+
 // exportamos los modulos
 module.exports = {
   registrarReservacionModel, 
@@ -208,4 +226,5 @@ module.exports = {
   obtenerPagoModel,
   obtenerDetalleReservacionModel,
   listarMesasDisponiblesModel,
+  obtenerReservasPorUsuarioModel
 };

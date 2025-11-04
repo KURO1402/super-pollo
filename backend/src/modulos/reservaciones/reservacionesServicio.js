@@ -8,7 +8,8 @@ const {
   actualizarPagoModel,
   obtenerPagoModel,
   obtenerDetalleReservacionModel,
-  listarMesasDisponiblesModel
+  listarMesasDisponiblesModel,
+  obtenerReservasPorUsuarioModel
 } = require("./reservacionesModelo.js");
 
 const {
@@ -166,6 +167,24 @@ const listarMesasDisponiblesService = async (fechaReservacion, horaReservacion) 
   return mesas;
 };
 
+const obtenerReservasPorUsuarioService = async (idUsuario) => {
+
+  // Obtener las reservas del usuario mediante el modelo
+  const reservas = await obtenerReservasPorUsuarioModel(idUsuario);
+
+  // Verificar si se encontraron reservas
+  if (!reservas || reservas.length === 0) {
+    throw Object.assign(
+      new Error("No existen reservas para este usuario."),
+      { status: 404 }
+    );
+  }
+  return {
+    ok: true,
+    reservas: reservas
+  };
+};
+
 // Exportar servicios
 module.exports = {
   registrarReservacionService,
@@ -176,5 +195,6 @@ module.exports = {
   actualizarPagoService,
   obtenerPagoService,
   obtenerDetalleReservacionService,
-  listarMesasDisponiblesService
+  listarMesasDisponiblesService,
+  obtenerReservasPorUsuarioService
 };
