@@ -49,6 +49,12 @@ const DropdownUsuario = ({ usuario, mobile = false }) => {
       onClick: () => setDropdownAbierto(false)
     },
     {
+      icono: <FaCalendarCheck className="w-4 h-4" />,
+      texto: 'Mis Reservacines',
+      ruta: '/usuario/mis-reservaciones',
+      onClick: () => setDropdownAbierto(false)
+    },
+    {
       icono: <FaSignOutAlt className="w-4 h-4" />,
       texto: 'Cerrar Sesión',
       onClick: handleLogout,

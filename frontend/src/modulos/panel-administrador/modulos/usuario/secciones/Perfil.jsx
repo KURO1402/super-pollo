@@ -4,19 +4,20 @@ import { FaRegUser } from "react-icons/fa";
 import { GoPencil } from "react-icons/go";
 import Modal from "../../../componentes/modal/Modal";
 import { useModal } from "../../../hooks/useModal"
-import ModalEditarUsuario from "../componentes/ModalEditarUsuario";
 import CampoInfo from "../../../componentes/CampoInfo";
 import { BotonSimple } from "../../../componentes/botones/BotonSimple";
 import { useAutenticacionGlobal } from "../../../../../app/estado-global/autenticacionGlobal";
-import { obtenerUsuarioPorIdServicio } from "../servicios/usuariosServicios";
+import { obtenerUsuarioPorIdServicio, actualizarUsuarioServicio } from "../servicios/usuariosServicios";
 import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 import ModalActualizarCorreo from "../componentes/ModalActualizarCorreo";
 import ModalActualizarClave from "../componentes/ModalActualizarClave";
+import FormularioEditUsuario from "../componentes/FormularioEditUsuario";
 
 const Perfil = () => {
   const { usuario: usuarioGlobal } = useAutenticacionGlobal();
   const [usuarioPerfil, setUsuarioPerfil] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [actualizando, setActualizando] = useState(false);
 
   const { 
     estaAbierto: modalEditarAbierto, 
@@ -96,10 +97,41 @@ const Perfil = () => {
     }));
   };
 
-  // Manejador para cuando se actualiza el usuario
-  const handleUsuarioActualizado = (usuarioActualizado) => {
-    setUsuarioPerfil(usuarioActualizado);
-    cerrar();
+  // Manejador para cuando se actualiza el usuario - CONECTADO AL SERVICIO
+  const handleUsuarioActualizado = async (datosActualizados) => {
+    try {
+      setActualizando(true);
+      
+      // Llamar al servicio de actualización
+      const respuesta = await actualizarUsuarioServicio(
+        usuarioPerfil.idUsuario, 
+        datosActualizados
+      );
+      
+      if (respuesta.ok) {
+        // Actualizar el estado local con los nuevos datos
+        setUsuarioPerfil(prev => ({
+          ...prev,
+          ...datosActualizados
+        }));
+        
+        mostrarAlerta.exito('Perfil actualizado correctamente');
+        cerrarEditar();
+        
+        // Recargar los datos completos del servidor para asegurar consistencia
+        const datosCompletos = await obtenerUsuarioPorIdServicio(usuarioPerfil.idUsuario);
+        if (datosCompletos.ok && datosCompletos.usuario) {
+          setUsuarioPerfil(datosCompletos.usuario);
+        }
+      } else {
+        throw new Error(respuesta.mensaje || 'Error al actualizar el perfil');
+      }
+    } catch (error) {
+      console.error('Error al actualizar usuario:', error);
+      mostrarAlerta.error(error.message || 'Error al actualizar el perfil');
+    } finally {
+      setActualizando(false);
+    }
   };
 
   // Función para obtener el texto del tipo de documento
@@ -305,6 +337,7 @@ const Perfil = () => {
         </div>
       </div>
 
+      {/* Modal de Editar Perfil - CONECTADO AL SERVICIO */}
       <Modal
         estaAbierto={modalEditarAbierto}
         onCerrar={cerrarEditar}
@@ -314,13 +347,15 @@ const Perfil = () => {
         mostrarFooter={false}
       >
         {usuarioPerfil && (
-          <ModalEditarUsuario 
-            idUsuario={usuarioPerfil.idUsuario}
-            onClose={cerrarEditar}
-            onUsuarioActualizado={handleUsuarioActualizado}
+          <FormularioEditUsuario 
+            usuario={usuarioPerfil}
+            onSubmit={handleUsuarioActualizado}
+            cerrar={cerrarEditar}
+            cargando={actualizando}
           />
         )}
       </Modal>
+
       <Modal
         estaAbierto={modalCorreoAbierto}
         onCerrar={cerrarCorreo}

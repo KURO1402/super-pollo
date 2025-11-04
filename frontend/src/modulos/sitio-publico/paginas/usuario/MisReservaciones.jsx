@@ -8,13 +8,49 @@ import {
   FiTrash2,
   FiPlus,
   FiSearch,
-  FiFilter
 } from "react-icons/fi";
 import { FaRegCheckCircle, FaRegClock, FaRegTimesCircle } from "react-icons/fa";
 
 const MisReservaciones = () => {
   const [filtro, setFiltro] = useState("todas");
-  
+  const [ reserva, setReserva ] = useState(null);
+
+/*   useEffect(() => {
+    if (idReservacion) {
+      cargarReserva();
+    }
+  }, [idReservacion]);
+
+  const cargarReserva = async () => {
+    try {
+      setCargando(true);
+      const respuesta = await obtenerReservacionPorIdServicio(idReservacion);
+
+      if (respuesta.ok && Array.isArray(respuesta.reservacion) && respuesta.reservacion.length > 0) {
+        const reservaData = respuesta.reservacion[0];
+
+        setReserva(reservaData);
+        // Formatear datos para el formulario
+        setFormData({
+          idReservacion: reservaData.idReservacion,
+          fechaReservacion: reservaData.fechaReservacion
+          ? reservaData.fechaReservacion.split("T")[0]
+          : "",
+          horaReservacion: reservaData.horaReservacion.substring(0, 5),
+          cantidadPersonas: reservaData.cantidadPersonas.toString(),
+          idMesa: reservaData.idMesa.toString(),
+          estadoReservacion: reservaData.estadoReservacion,
+        });
+      }
+    } catch (error) {
+      console.error("Error al cargar reserva:", error);
+      mostrarAlerta.error("Error al cargar los datos de la reserva");
+      onClose();
+    } finally {
+      setCargando(false);
+    }
+  };
+   */
   // Datos de ejemplo para reservaciones
   const reservaciones = [
     {
@@ -27,36 +63,6 @@ const MisReservaciones = () => {
       notas: "Celebración de cumpleaños",
       codigo: "RES-001"
     },
-    {
-      id: 2,
-      fecha: "2024-01-20",
-      hora: "20:30",
-      personas: 2,
-      estado: "pendiente",
-      mesa: "Mesa 5",
-      notas: "Cena romántica",
-      codigo: "RES-002"
-    },
-    {
-      id: 3,
-      fecha: "2024-01-10",
-      hora: "13:00",
-      personas: 6,
-      estado: "cancelada",
-      mesa: "Mesa 8",
-      notas: "Almuerzo familiar",
-      codigo: "RES-003"
-    },
-    {
-      id: 4,
-      fecha: "2024-01-25",
-      hora: "14:30",
-      personas: 3,
-      estado: "confirmada",
-      mesa: "Mesa 3",
-      notas: "Reunión de trabajo",
-      codigo: "RES-004"
-    }
   ];
 
   const getEstadoIcono = (estado) => {
@@ -104,54 +110,10 @@ const MisReservaciones = () => {
           </p>
         </div>
 
-        {/* Estadísticas Rápidas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gray-800 rounded-2xl p-6 text-center shadow-lg border border-gray-700">
-            <div className="w-12 h-12 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-              <FaRegCheckCircle className="w-6 h-6 text-green-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white">2</h3>
-            <p className="text-gray-400 text-sm">Confirmadas</p>
-          </div>
-
-          <div className="bg-gray-800 rounded-2xl p-6 text-center shadow-lg border border-gray-700">
-            <div className="w-12 h-12 bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-              <FaRegClock className="w-6 h-6 text-yellow-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white">1</h3>
-            <p className="text-gray-400 text-sm">Pendientes</p>
-          </div>
-
-          <div className="bg-gray-800 rounded-2xl p-6 text-center shadow-lg border border-gray-700">
-            <div className="w-12 h-12 bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-              <FaRegTimesCircle className="w-6 h-6 text-red-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white">1</h3>
-            <p className="text-gray-400 text-sm">Canceladas</p>
-          </div>
-
-          <div className="bg-gray-800 rounded-2xl p-6 text-center shadow-lg border border-gray-700">
-            <div className="w-12 h-12 bg-azul-primario/10 rounded-full flex items-center justify-center mx-auto mb-3">
-              <FiCalendar className="w-6 h-6 text-azul-primario" />
-            </div>
-            <h3 className="text-2xl font-bold text-white">4</h3>
-            <p className="text-gray-400 text-sm">Total</p>
-          </div>
-        </div>
-
         {/* Barra de Herramientas */}
         <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              {/* Barra de Búsqueda */}
-              <div className="relative flex-1 max-w-md">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Buscar reservación..."
-                  className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-xl focus:ring-2 focus:ring-azul-primario focus:border-transparent transition-all"
-                />
-              </div>
 
               {/* Filtros */}
               <div className="flex gap-2">

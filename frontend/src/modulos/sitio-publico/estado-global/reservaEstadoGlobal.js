@@ -146,7 +146,7 @@ export const reservaEstadoGlobal = create((set, get) => ({
 
   getAnticipo: () => {
     const subtotal = get().getSubtotal();
-    return Math.round(subtotal * 0.6 * 100) / 100; // 60% de anticipo, redondeado a 2 decimales
+    return Math.round(subtotal * 0.5 * 100) / 100; // 60% de anticipo, redondeado a 2 decimales
   },
 
   getTotal: () => {

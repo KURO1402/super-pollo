@@ -4,7 +4,8 @@ import { TiArrowSortedDown, TiArrowSortedUp  } from "react-icons/ti";
 import { MdOutlineTableBar } from "react-icons/md";
 import { reservaEstadoGlobal } from "../../estado-global/reservaEstadoGlobal";
 import { useEffect } from "react";
-
+import { horasDisponibles } from "../../mocks/horaReserva";
+ 
 const Paso1DatosBasicos = () => {
   const { register, formState: { errors }, watch, setValue, trigger } = useFormContext();
   const { mesasDisponibles, updateDatos, datos, buscarMesasDisponibles, cargandoMesas, errorMesas, limpiarMesas } = reservaEstadoGlobal();
@@ -95,13 +96,11 @@ const Paso1DatosBasicos = () => {
                   {...register("hora", { required: "La hora es requerida" })}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                 >
-                  <option value="">Seleccionar hora</option>
-                  <option value="12:00">12:00 PM</option>
-                  <option value="13:00">1:00 PM</option>
-                  <option value="14:00">2:00 PM</option>
-                  <option value="19:00">7:00 PM</option>
-                  <option value="20:00">8:00 PM</option>
-                  <option value="21:00">9:00 PM</option>
+                  {horasDisponibles.map((hora, index) => (
+                    <option key={index} value={hora.value}>
+                      {hora.label}
+                    </option>
+                  ))}
                 </select>
                 {errors.hora && (
                   <p className="text-red-500 text-sm mt-1">{errors.hora.message}</p>
