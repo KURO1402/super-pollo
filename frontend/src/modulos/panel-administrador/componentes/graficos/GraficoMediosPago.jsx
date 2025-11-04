@@ -3,20 +3,8 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recha
 import { useTemaParaGraficos } from "../../hooks/useTemaParaGraficos";
 import { obtenerPorcentajeMediosPagoServicio } from "../../servicios/graficosServicio";
 
-<<<<<<< HEAD:frontend/src/modulos/panel-administrador/componentes/graficos/GraficoCategoriasProductos.jsx
 
-const data = [
-  { name: "Pollo a la Brasa", value: 45 },
-  { name: "Medio Pollo", value: 20 },
-  { name: "Cuarto de Pollo", value: 15 },
-  { name: "Bebidas", value: 12 },
-  { name: "Entradas", value: 10 },
-];
-
-const GraficoCategoriasProductos = () => {
-=======
 const GraficoMediosPago = () => {
->>>>>>> feature/graficos-backend:frontend/src/modulos/panel-administrador/componentes/graficos/GraficoMediosPago.jsx
   const { themeColors } = useTemaParaGraficos();
   const [data, setData] = useState([]);
   const [cargando, setCargando] = useState(true);
