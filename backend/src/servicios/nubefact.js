@@ -21,12 +21,6 @@ const generarComprobanteNubefact = async (data) => {
 
     } catch (error) {
         if (error.response) {
-            console.error("Error Nubefact - Status:", error.response.status);
-            console.error("Error Nubefact - Data:", error.response.data);
-<<<<<<< HEAD
-=======
-            
->>>>>>> refactor/limpieza-codigo-comentarios
             return error.response.data;
         } else {
             console.error("Error de conexión:", error.message);

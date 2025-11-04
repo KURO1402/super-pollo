@@ -38,12 +38,9 @@ router.get("/paginacion", autenticacionToken, verificarRoles(1, 2), obtenerProdu
 router.get("/busqueda", autenticacionToken, verificarRoles(1, 2), buscarProductosPorNombreController);
 router.get("/:idProducto", autenticacionToken, verificarRoles(1, 2), obtenerProductoPorIdController);
 router.get("/insumos-cantidad/:idProducto",  autenticacionToken, verificarRoles(1, 2), obtenerInsumosPorProductoControlller);
-<<<<<<< HEAD
-//Rutas para categorias
-=======
+
 router.get("/filtrar-categoria/:idCategoria",  autenticacionToken, verificarRoles(1, 2), obtenerProductosPorCategoriaController);
 
->>>>>>> refactor/limpieza-codigo-comentarios
 router.post("/categorias/agregar", autenticacionToken, verificarRoles(1, 2), insertarCategoriaProductoController);
 router.put("/categorias/actualizar/:idCategoria", autenticacionToken, verificarRoles(1, 2), actualizarCategoriaProductoController);
 router.get("/categorias/all", autenticacionToken, verificarRoles(1, 2), obtenerCategoriasProductoController);

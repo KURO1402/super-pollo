@@ -16,19 +16,11 @@ const { validarCorreo } = require('../../utilidades/validaciones.js');
 const enviarCorreoVerificacion = require("../../helpers/enviarCorreo")
 
 const registrarUsuarioService = async (datos) => {
-<<<<<<< HEAD
-  //Validaciones
   registrarUsuarioValidacion(datos);
   const tipoDoc = await obtenerTipoDocumentoPorIdModel(datos.idTipoDocumento);
   if(!tipoDoc || tipoDoc.nombreTipoDocumento === "RUC" || tipoDoc.nombreTipoDocumento === "ruc"){
     throw Object.assign(new Error("Tipo de documento invalido."), { status: 409 });
   }
-  // Validar duplicado de correo
-=======
-
-  await registrarUsuarioValidacion(datos);
-
->>>>>>> refactor/limpieza-codigo-comentarios
   const usuarioExistente = await seleccionarUsuarioCorreoModel(datos.correoUsuario);
 
   if (usuarioExistente.length > 0) {

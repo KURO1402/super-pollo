@@ -29,19 +29,11 @@ router.patch("/actualizar-clave/:idUsuario", autenticacionToken, actualizarClave
 router.delete("/:idUsuario", autenticacionToken, verificarRoles(1), eliminarUsuarioController);
 router.patch("/cambiar-rol/:idUser", autenticacionToken, verificarRoles(1), actualizarRolUsuarioController);
 
-<<<<<<< HEAD
-// Rutas de consulta
 router.get("/",autenticacionToken,verificarRoles(1), obtenerUsuariosController); // Obtener todos los usuarios
 router.get("/paginacion",autenticacionToken,verificarRoles(1), obtenerUsuariosPaginacionController); // Usuarios con paginación
 router.get("/buscar", autenticacionToken,verificarRoles(1), buscarUsuariosPorValorController); // Buscar por valor ya sea nombre, apellido, correo o telefono
 router.get("/total-usuarios", autenticacionToken,verificarRoles(1), contarUsuariosActivosController); // Contar usuarios activos
 router.get("/:idUsuario", autenticacionToken, consultarUsuarioPorIdController); // Consultar usuario por ID
-=======
-router.get("/",autenticacionToken,verificarRoles(1), obtenerUsuariosController); 
-router.get("/paginacion",autenticacionToken,verificarRoles(1), obtenerUsuariosPaginacionController); 
-router.get("/buscar", autenticacionToken,verificarRoles(1), buscarUsuariosPorValorController); 
-router.get("/total-usuarios", autenticacionToken,verificarRoles(1), contarUsuariosActivosController); 
-router.get("/:idUsuario", autenticacionToken,verificarRoles(1), consultarUsuarioPorIdController); 
->>>>>>> refactor/limpieza-codigo-comentarios
+
 
 module.exports = router;
