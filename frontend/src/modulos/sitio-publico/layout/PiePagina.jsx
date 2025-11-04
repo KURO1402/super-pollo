@@ -48,7 +48,7 @@ const PiePagina = () => {
               <FaRegEnvelope className="text-gray-800 text-xl mr-2" />
               <h3 className="font-bold text-lg text-gray-800">CORREO</h3>
             </div>
-            <p className="text-white">Super@gmail.com</p>
+            <p className="text-white">superpollohuancayo@gmail.com</p>
           </div>
 
           <div className="flex flex-col items-center md:items-start">
@@ -56,7 +56,7 @@ const PiePagina = () => {
               <FaPhoneAlt className="text-gray-800 text-xl mr-2" />
               <h3 className="font-bold text-lg text-gray-800">TELÉFONO</h3>
             </div>
-            <p className="text-white">987654321</p>
+            <p className="text-white">947932022</p>
           </div>
         </div>
       </div>

@@ -68,7 +68,6 @@ const PerfilUsuario = () => {
         }
       } catch (error) {
         console.error('Error al cargar perfil:', error);
-        mostrarAlerta.error(error.message || 'Error al cargar los datos del perfil');
         
         // Datos de fallback
         setPerfilUsuario({

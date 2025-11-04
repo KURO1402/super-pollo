@@ -80,17 +80,17 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
 
       {/* Cliente */}
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400">
-            <FiUser size={16} />
-          </div>
-          <div>
-            <div className="text-sm font-medium text-gray-900 dark:text-white">
-              {venta.nombreCliente}
-            </div>
+      <div className="flex items-center gap-3">
+        <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400">
+          <FiUser size={16} />
+        </div>
+        <div className="max-w-[160px] overflow-hidden text-ellipsis whitespace-nowrap">
+          <div className="text-sm font-medium text-gray-900 dark:text-white">
+            {venta.nombreCliente}
           </div>
         </div>
-      </td>
+      </div>
+    </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-xs text-gray-500 dark:text-gray-400">
           {venta.usuarioRegistro}
@@ -98,6 +98,9 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
       </td>
       {/* Método de Pago */}
       <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-xs text-gray-500 dark:text-gray-400">
+          S/ {parseFloat(venta.totalVenta).toFixed(2)}  
+        </div>
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorMetodoPago}`}>
           {venta.nombreMedioPago}
         </span>
@@ -110,13 +113,6 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
         </div>
         <div className="text-xs text-gray-500 dark:text-gray-400">
           Vence: {venta.fechaVencimiento}
-        </div>
-      </td>
-
-      {/* Total */}
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-gray-900 dark:text-white">
-          S/ {parseFloat(venta.totalVenta).toFixed(2)}
         </div>
       </td>
 

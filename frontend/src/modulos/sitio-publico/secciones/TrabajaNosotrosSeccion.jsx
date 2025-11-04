@@ -1,4 +1,4 @@
-import PersonasJuntas from "../../../assets/imagenes/Personas_juntas.png";
+import PersonasJuntas from "../../../assets/imagenes/PortadaLocal.jpg";
 import BotonWhatsapp from "../componentes/BotonWhatsapp";
 
 const TrabajaNosotrosSection = () => {
@@ -29,7 +29,7 @@ const TrabajaNosotrosSection = () => {
             </p>
 
             <p className="text-xl text-gray-300 leading-relaxed">
-              SI QUIERES SUMARTE, ESCRIBENOS AL <span className="text-rojo font-semibold">938896062</span> O HAZ CLICK EN EL BOTÓN DE ABAJO 
+              SI QUIERES SUMARTE, ESCRIBENOS AL 947932022 O HAZ CLICK EN EL BOTÓN DE ABAJO 
               PARA HABLAR POR WHATSAPP.
             </p>
 

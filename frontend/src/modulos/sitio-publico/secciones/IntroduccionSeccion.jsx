@@ -4,10 +4,9 @@ import { Link as ScrollLink } from "react-scroll";
 import useAnimacionesIntro from "../hooks/useAnimacionesIntro";
 import CirculoRojo from "../../../assets/decorativos/Mitad_circulo_rojo.png";
 import Lechuga from "../../../assets/decorativos/Lechuga.png";
-import Pollos from "../../../assets/imagenes/Pollos.png";
-import Papas from "../../../assets/imagenes/Papas.png";
-import Ensalada from "../../../assets/imagenes/Ensalada.png";
-import BotonSecundario from "../componentes/BotonSecundario";
+import Pollos from "../../../assets/imagenes/PolloPortada.png";
+import Papas from "../../../assets/imagenes/Chicha.png";
+import Ensalada from "../../../assets/imagenes/Ensalada2.png";
 import '../estilos/animaciones.css' // importar las animaciones CSS
 
 
@@ -77,8 +76,8 @@ const IntroduccionSeccion = () => {
         {/* Imágenes del plato */}
         <div className="hidden lg:relative lg:flex lg:justify-center lg:items-center h-96 lg:h-auto mt-8 lg:mt-0">
           <img ref={polloReferencia} src={Pollos} alt="Pollo a la brasa" className="relative w-64 md:w-auto h-auto z-30 opacity-0 transition-opacity duration-1000"/>
-          <img ref={papasReferencia} src={Papas} alt="Papas fritas" className="absolute bottom-0 left-0 lg:left-10 w-75 h-auto z-40 opacity-0 transition-opacity duration-1000"/>
-          <img ref={ensaladaReferencia} src={Ensalada} alt="Ensalada fresca" className="absolute top-32 lg:top-50 right-0 lg:right-5 translate-y-4 lg:translate-y-10 w-70 h-auto z-40 opacity-0 transition-opacity duration-1000"/>
+          <img ref={papasReferencia} src={Papas} alt="Papas fritas" className="absolute bottom-0 left-0 lg:left-10 w-80 h-auto z-40 opacity-0 transition-opacity duration-1000"/>
+          <img ref={ensaladaReferencia} src={Ensalada} alt="Ensalada fresca" className="absolute top-96 lg:top-60 right-0 lg:right-5 translate-y-4 lg:translate-y-10 w-80 h-auto z-40 opacity-0 transition-opacity duration-1000"/>
         </div>
       </div>
     </section>

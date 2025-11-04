@@ -4,7 +4,7 @@ const BotonWhatsapp = () => {
   // función para manejar el clic del botón
     const handleWhatsappClick = () => {
     // número de teléfono y mensaje predefinido
-    const numeroCelular = "938896062";
+    const numeroCelular = "947932022";
     const mensaje = "Hola, estoy interesado en trabajar con ustedes en SUPER POLLO";
     // se crea la URl de WhatsApp, encodeURIComponent para codificar el mensaje
     const whatsappUrl = `https://wa.me/${numeroCelular}?text=${encodeURIComponent(mensaje)}`;

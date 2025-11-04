@@ -48,6 +48,9 @@ import HistorialReservasSeccion from "../modulos/panel-administrador/modulos/res
 // secciones de usuario y perfil
 import Usuarios from "../modulos/panel-administrador/modulos/usuario/secciones/Usuarios"
 import Perfil from "../modulos/panel-administrador/modulos/usuario/secciones/Perfil";
+import PagoExitoso from "../modulos/sitio-publico/paginas/usuario/PagoExitoso";
+import PagoFallido from "../modulos/sitio-publico/paginas/usuario/PagoFallido";
+import PagoPendiente from "../modulos/sitio-publico/paginas/usuario/PagoPendiente";
 
 const AppRutas = () => {
     // activamos el hook para que haga scroll al inicio en cada cambio de ruta
@@ -82,6 +85,9 @@ const AppRutas = () => {
                     { path: 'nueva-reservacion', element: <NuevaReservacion /> },
                     { path: 'reservaciones', element: <MisReservaciones /> },
                     { path: 'perfil', element: <PerfilUsuario /> }, // Nuevo componente, no reutilizado
+                    { path: 'pago-exitoso', element: <PagoExitoso /> },
+                    { path: 'pago-fallido', element: <PagoFallido /> },
+                    { path: 'pago-pendiente', element: <PagoPendiente /> },
                 ]
                 }
             ]

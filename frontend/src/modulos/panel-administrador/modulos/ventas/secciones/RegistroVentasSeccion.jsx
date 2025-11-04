@@ -159,7 +159,7 @@ const RegistroVentasSeccion = () => {
       ) : (
         <>
           <Tabla
-            encabezados={["Comprobante", "Cliente", "Cajero" , "Método Pago", "Fechas", "Total", "Estado SUNAT", "Acciones"]}
+            encabezados={["Comprobante", "Cliente", "Cajero" , "Total", "Fechas", "Estado SUNAT", "Acciones"]}
             registros={filasComprobantes}
           />
           <Paginacion

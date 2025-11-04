@@ -1,5 +1,6 @@
-import { FaCalendarAlt, FaClock, FaInfoCircle, FaArrowRight } from "react-icons/fa";
 import { useState } from "react";
+import { FaCalendarAlt, FaClock, FaInfoCircle, FaArrowRight } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const FormularioReserva = () => {
   const [fecha, setFecha] = useState("");
@@ -25,7 +26,7 @@ const FormularioReserva = () => {
           TÚ DECIDES CUÁNDO, NOSOTROS TE ESPERAMOS
         </p>
 
-        <form className="space-y-4 md:space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/*campo de fecha */}
           <div className="relative">
             <label className="block text-white font-semibold mb-2">FECHA</label>
@@ -35,7 +36,6 @@ const FormularioReserva = () => {
                 value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
                 className="w-full px-4 py-3 pl-12 bg-white rounded-lg border-none focus:ring-2 focus:ring-red-400 focus:outline-none"
-                required
               />
               <FaCalendarAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
@@ -51,7 +51,6 @@ const FormularioReserva = () => {
                 value={hora}
                 onChange={(e) => setHora(e.target.value)}
                 className="w-full px-4 py-3 pl-12 bg-white rounded-lg border-none focus:ring-2 focus:ring-red-400 focus:outline-none appearance-none"
-                required
               >
                 <option value="">Seleccione una hora</option>
                 {/*mapear las horas disponibles*/}
@@ -91,15 +90,15 @@ const FormularioReserva = () => {
             </div>
           </div>
 
-          {/*boton de continuar */}
-          <button
-            type="submit"
+          {/* Botón de continuar como Link */}
+          <Link 
+            to="/registro"
             className="w-full bg-white text-red-600 font-bold py-3 md:py-4 px-6 rounded-lg hover:bg-gray-100 transition-colors duration-300 flex items-center justify-center space-x-2"
           >
             <span>Continuar</span>
             <FaArrowRight />
-          </button>
-        </form>
+          </Link>
+        </div>
       </div>
     </div>
   );
