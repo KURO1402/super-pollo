@@ -2,15 +2,27 @@ require('dotenv').config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { registrarUsuarioValidacion } = require("./autenticacionValidaciones");
-const { registrarUsuarioModel, seleccionarUsuarioCorreoModel, obtenerEstadoVerificacionCorreoModel, insertarVerificacionCorreoModel, validarCodigoVerificacionCorreoModel, actualizarVerificacionCorreoModel } = require("./autenticacionModelo.js");
+const { 
+  registrarUsuarioModel,
+  seleccionarUsuarioCorreoModel, 
+  obtenerEstadoVerificacionCorreoModel, 
+  insertarVerificacionCorreoModel, 
+  validarCodigoVerificacionCorreoModel, 
+  actualizarVerificacionCorreoModel 
+} = require("./autenticacionModelo.js");
+
+const { obtenerTipoDocumentoPorIdModel } = require("../usuarios/usuarioModelo");
 const { validarCorreo } = require('../../utilidades/validaciones.js');
 const enviarCorreoVerificacion = require("../../helpers/enviarCorreo")
 
 // FUNCION PARA REGISTRAR USUARIO
 const registrarUsuarioService = async (datos) => {
   //Validaciones
-  await registrarUsuarioValidacion(datos);
-
+  registrarUsuarioValidacion(datos);
+  const tipoDoc = await obtenerTipoDocumentoPorIdModel(datos.idTipoDocumento);
+  if(!tipoDoc || tipoDoc.nombreTipoDocumento === "RUC" || tipoDoc.nombreTipoDocumento === "ruc"){
+    throw Object.assign(new Error("Tipo de documento invalido."), { status: 409 });
+  }
   // Validar duplicado de correo
   const usuarioExistente = await seleccionarUsuarioCorreoModel(datos.correoUsuario);
   if (usuarioExistente.length > 0) {

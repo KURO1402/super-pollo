@@ -1,6 +1,6 @@
 const { validarCorreo, validarDocumento, validarTelefono } = require("../../utilidades/validaciones.js");
 
-const registrarUsuarioValidacion = async (datos) => {
+const registrarUsuarioValidacion = (datos) => {
   const lanzarError = (mensaje, status = 400) => {
     throw Object.assign(new Error(mensaje), { status });
   };
