@@ -29,7 +29,7 @@ router.post("/", autenticacionToken, registrarReservacionController);
 
 // Listar reservaciones (paginadas)
 router.get("/", autenticacionToken, verificarRoles(1,2), listarReservacionesController);
-router.get("/reservas-usuario", autenticacionToken, verificarRoles(1,2), obtenerReservasPorUsuarioController);
+router.get("/reservas-usuario", autenticacionToken, obtenerReservasPorUsuarioController);
 
 // Obtener una reservación por ID
 router.get("/:id", autenticacionToken, verificarRoles(1,2), obtenerReservacionController);

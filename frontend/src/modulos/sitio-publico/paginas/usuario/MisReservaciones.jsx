@@ -1,42 +1,60 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   FiCalendar, 
   FiClock, 
   FiUsers, 
   FiMapPin, 
-  FiEdit3,
-  FiTrash2,
-  FiPlus,
-  FiSearch,
+  FiRefreshCw,
+  FiDollarSign
 } from "react-icons/fi";
-import { FaRegCheckCircle, FaRegClock, FaRegTimesCircle } from "react-icons/fa";
+import { FaRegCheckCircle, FaRegClock, FaRegTimesCircle, FaExclamationTriangle } from "react-icons/fa";
 import { obtenerReservacionesPorUsuario } from "../../servicios/reservacionesServicio";
+import { Link } from "react-router-dom";
 
 const MisReservaciones = () => {
   const [filtro, setFiltro] = useState("todas");
-  const [ reserva, setReserva ] = useState(null);
+  const [reservaciones, setReservaciones] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const reserva = obtenerReservacionesPorUsuario();
-    console.log(reserva)
-  }, []);
   
-  // Datos de ejemplo para reservaciones
-  const reservaciones = [
-    {
-      id: 1,
-      fecha: "2024-01-15",
-      hora: "19:00",
-      personas: 4,
-      estado: "confirmada",
-      mesa: "Mesa 12",
-      notas: "Celebración de cumpleaños",
-      codigo: "RES-001"
-    },
-  ];
+  useEffect(() => {
+    cargarReservaciones();
+  }, []);
+
+  const cargarReservaciones = async () => {
+    try {
+      setCargando(true);
+      setError(null);
+      const respuesta = await obtenerReservacionesPorUsuario();
+      
+      if (respuesta.ok && respuesta.reservas) {
+        setReservaciones(respuesta.reservas);
+      } else {
+        setError("No se pudieron cargar las reservaciones");
+        setReservaciones([]);
+      }
+    } catch (err) {
+      console.error("Error al cargar reservaciones: ", err);
+      
+      if (err.response?.status === 403) {
+        setError("No tienes permisos para ver las reservaciones. Por favor, inicia sesión nuevamente.");
+      } else if (err.response?.status === 401) {
+        setError("Sesión expirada. Por favor, inicia sesión nuevamente.");
+      } else {
+        setError("Error al cargar las reservaciones. Por favor, intenta nuevamente.");
+      }
+      
+      setReservaciones([]);
+    } finally {
+      setCargando(false);
+    }
+  };
 
   const getEstadoIcono = (estado) => {
     switch (estado) {
+      case "pagado":
+        return <FiDollarSign className="w-5 h-5 text-green-500" />;
       case "confirmada":
         return <FaRegCheckCircle className="w-5 h-5 text-green-500" />;
       case "pendiente":
@@ -50,6 +68,8 @@ const MisReservaciones = () => {
 
   const getEstadoColor = (estado) => {
     switch (estado) {
+      case "pagado":
+        return "bg-green-900/30 text-green-400";
       case "confirmada":
         return "bg-green-900/30 text-green-400";
       case "pendiente":
@@ -61,9 +81,43 @@ const MisReservaciones = () => {
     }
   };
 
+  const formatearEstado = (estado) => {
+    const estados = {
+      'pagado': 'Pagado',
+      'pendiente': 'Pendiente',
+      'confirmada': 'Confirmada',
+      'cancelada': 'Cancelada'
+    };
+    return estados[estado] || estado;
+  };
+
+  const formatearFecha = (fecha) => {
+    const [day, month, year] = fecha.split('-');
+    return new Date(`${year}-${month}-${day}`);
+  };
+
   const reservacionesFiltradas = filtro === "todas" 
     ? reservaciones 
     : reservaciones.filter(res => res.estado === filtro);
+
+
+  if (cargando) {
+    return (
+      <section className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-700 rounded w-1/3 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto mb-12"></div>
+            <div className="space-y-4">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-32 bg-gray-700 rounded-2xl"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
@@ -84,9 +138,8 @@ const MisReservaciones = () => {
         <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
-
               {/* Filtros */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setFiltro("todas")}
                   className={`px-4 py-3 rounded-xl font-medium transition-all ${
@@ -98,14 +151,14 @@ const MisReservaciones = () => {
                   Todas
                 </button>
                 <button
-                  onClick={() => setFiltro("confirmada")}
+                  onClick={() => setFiltro("pagado")}
                   className={`px-4 py-3 rounded-xl font-medium transition-all ${
-                    filtro === "confirmada" 
+                    filtro === "pagado" 
                       ? "bg-green-500 text-white shadow-lg" 
                       : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                   }`}
                 >
-                  Confirmadas
+                  Pagadas
                 </button>
                 <button
                   onClick={() => setFiltro("pendiente")}
@@ -120,11 +173,16 @@ const MisReservaciones = () => {
               </div>
             </div>
 
-            {/* Botón Nueva Reservación */}
-            <button className="flex items-center gap-2 bg-rojo hover:bg-rojo/90 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg whitespace-nowrap">
-              <FiPlus className="w-5 h-5" />
-              Nueva Reservación
-            </button>
+            <div className="flex gap-2">
+              {/* Botón Recargar */}
+              <button 
+                onClick={cargarReservaciones}
+                className="flex items-center gap-2 bg-azul-primario hover:bg-azul-primario/90 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+              >
+                <FiRefreshCw className="w-5 h-5" />
+                Recargar
+              </button>
+            </div>
           </div>
         </div>
 
@@ -132,7 +190,7 @@ const MisReservaciones = () => {
         <div className="space-y-6">
           {reservacionesFiltradas.map((reserva) => (
             <div 
-              key={reserva.id}
+              key={reserva.idReservacion}
               className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
               <div className="p-6">
@@ -140,15 +198,18 @@ const MisReservaciones = () => {
                   
                   {/* Información Principal */}
                   <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-4">
+                    <div className="flex flex-wrap items-center gap-4 mb-4">
                       <div className="flex items-center gap-2">
                         {getEstadoIcono(reserva.estado)}
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${getEstadoColor(reserva.estado)}`}>
-                          {reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1)}
+                          {formatearEstado(reserva.estado)}
                         </span>
                       </div>
                       <span className="text-sm text-gray-400 font-mono">
-                        {reserva.codigo}
+                        ID: {reserva.idReservacion}
+                      </span>
+                      <span className="text-sm text-gray-400">
+                        Registrada: {reserva.fecha_registro}
                       </span>
                     </div>
 
@@ -160,7 +221,12 @@ const MisReservaciones = () => {
                         <div>
                           <p className="text-sm text-gray-400">Fecha</p>
                           <p className="font-semibold text-white">
-                            {new Date(reserva.fecha).toLocaleDateString('es-ES')}
+                            {formatearFecha(reserva.fecha).toLocaleDateString('es-ES', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
                           </p>
                         </div>
                       </div>
@@ -176,45 +242,25 @@ const MisReservaciones = () => {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-amarillo/20 rounded-lg flex items-center justify-center">
-                          <FiUsers className="w-5 h-5 text-yellow-600" />
+                        <div className="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
+                          <FiUsers className="w-5 h-5 text-yellow-500" />
                         </div>
                         <div>
                           <p className="text-sm text-gray-400">Personas</p>
-                          <p className="font-semibold text-white">{reserva.personas}</p>
+                          <p className="font-semibold text-white">{reserva.numero_personas}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-900/30 rounded-lg flex items-center justify-center">
-                          <FiMapPin className="w-5 h-5 text-green-400" />
+                        <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+                          <FiMapPin className="w-5 h-5 text-green-500" />
                         </div>
                         <div>
                           <p className="text-sm text-gray-400">Mesa</p>
-                          <p className="font-semibold text-white">{reserva.mesa}</p>
+                          <p className="font-semibold text-white">Mesa {reserva.mesa}</p>
                         </div>
                       </div>
                     </div>
-
-                    {reserva.notas && (
-                      <div className="mt-4 p-3 bg-gray-700 rounded-xl">
-                        <p className="text-sm text-gray-400">
-                          <span className="font-semibold">Notas:</span> {reserva.notas}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Acciones */}
-                  <div className="flex gap-2">
-                    <button className="flex items-center gap-2 bg-azul-primario hover:bg-azul-primario/90 text-white px-4 py-2 rounded-xl font-medium transition-all hover:scale-105">
-                      <FiEdit3 className="w-4 h-4" />
-                      Editar
-                    </button>
-                    <button className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-medium transition-all hover:scale-105">
-                      <FiTrash2 className="w-4 h-4" />
-                      Cancelar
-                    </button>
                   </div>
                 </div>
               </div>
@@ -234,11 +280,13 @@ const MisReservaciones = () => {
             <p className="text-gray-400 mb-6">
               {filtro === "todas" 
                 ? "Aún no has realizado ninguna reservación" 
-                : `No hay reservaciones ${filtro}s`}
+                : `No hay reservaciones ${formatearEstado(filtro).toLowerCase()}s`}
             </p>
-            <button className="bg-rojo hover:bg-rojo/90 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105">
-              Realizar mi primera reservación
-            </button>
+            <Link to="/usuario/nueva-reservacion">
+              <button className="bg-rojo hover:bg-rojo/90 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105">
+                Realizar mi primera reservación
+              </button>
+            </Link>
           </div>
         )}
       </div>
