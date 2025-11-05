@@ -172,7 +172,7 @@ const ModalDetalleArqueos = ({
                                 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
                                 : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                             }`}>
-                              {movimiento.tipoMovimiento === "ingreso" ? "Ingreso" : "Egreso"}
+                              {movimiento.tipoMovimiento === "Ingreso" ? "Ingreso" : "Egreso"}
                             </div>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">

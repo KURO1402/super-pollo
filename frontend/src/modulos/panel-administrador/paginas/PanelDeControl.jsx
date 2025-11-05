@@ -1,4 +1,4 @@
-import { FaCashRegister, FaUtensils, FaBoxOpen, FaCalendarAlt, FaDollarSign, FaUsers, FaChartLine } from "react-icons/fa";
+import { FaUtensils, FaCalendarAlt} from "react-icons/fa";
 import { useVentasHoyComparacion } from "../hooks/useVentasHoyComparacion";
 import { useReservasHoyComparacion } from "../hooks//useReservasHoyComparacion";
 import { MetricasCard } from "../componentes/MetricasCard";
@@ -19,7 +19,7 @@ const DashboardSeccion = () => {
       <div className="mb-8">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold dark:text-white bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Panel de Control
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">

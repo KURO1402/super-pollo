@@ -175,16 +175,12 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         etiqueta={
           <>
             Acepto los{' '}
-            <Link to="/terminos-condiciones">
-             <button className="text-azul-primario hover:underline">
+            <Link to="/terminos-condiciones" className="text-azul-primario hover:underline" >
               Términos y Condiciones
-            </button>
             </Link>{' '}
             y la{' '}
-            <Link to="/politicas-privacidad"> 
-              <button className="text-azul-primario hover:underline">
+            <Link to="/politicas-privacidad" className="text-azul-primario hover:underline">
                 Política de Privacidad
-              </button>
             </Link>
           </>
         }

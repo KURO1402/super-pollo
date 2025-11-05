@@ -9,7 +9,6 @@ import Papas from "../../../assets/imagenes/Chicha.png";
 import Ensalada from "../../../assets/imagenes/Ensalada2.png";
 import '../estilos/animaciones.css' // importar las animaciones CSS
 
-
 const IntroduccionSeccion = () => {
   // se crean las referencias a los elementos que se quieren animar
   const textoReferencia = useRef(null);

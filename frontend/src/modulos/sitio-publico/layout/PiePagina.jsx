@@ -130,15 +130,11 @@ const PiePagina = () => {
             reservados.
           </p>
           <div className="mt-2">
-            <Link to="/terminos-condiciones">
-              <button className="hover:underline mx-2">
+            <Link to="/terminos-condiciones" className="hover:underline mx-2">
                 Términos y Condiciones
-              </button>
             </Link>
-            <Link to="/politicas-privacidad">
-              <button className="hover:underline mx-2">
+            <Link to="/politicas-privacidad" className="hover:underline mx-2">
                 Políticas de Privacidad
-              </button>
             </Link>
           </div>
         </div>
