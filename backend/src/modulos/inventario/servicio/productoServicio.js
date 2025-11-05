@@ -182,8 +182,7 @@ const actualizarCantidadUsoInsumoProductoService = async (datos) => {
     if (!producto) {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
     }
-
-    if (producto[0].usaInsumos === 0) {
+    if (producto.usaInsumos === 0) {
         throw Object.assign(new Error("El producto no usa insumos"), { status: 400 });
     }
 
@@ -218,7 +217,7 @@ const eliminarCantidadInsumoProductoService = async (datos) => {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
     }
 
-    if (producto[0].usaInsumos === 0) {
+    if (producto.usaInsumos === 0) {
         throw Object.assign(new Error("El producto no usa insumos"), { status: 400 });
     }
 
@@ -253,7 +252,7 @@ const insertarCantidadInsumoProductoService = async (datos) => {
         throw Object.assign(new Error("El producto especificado no existe"), { status: 404 });
     }
 
-    if (producto[0].usaInsumos === 0) {
+    if (producto.usaInsumos === 0) {
         const actualizar = await actualizarUsaInsumosProductoModel(idProducto, 1);
         if (!actualizar) {
             throw Object.assign(new Error("Error al actualizar el campo de uso de insumos del producto"), { status: 500 });

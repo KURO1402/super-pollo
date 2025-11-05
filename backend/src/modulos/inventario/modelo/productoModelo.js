@@ -163,6 +163,7 @@ const actualizarCantidadUsoInsumoProductoModel = async (idProducto, idInsumo, nu
 };
 
 const actualizarUsaInsumosProductoModel = async (idProducto, usaInsumo) => {
+    console.log(usaInsumo);
     let conexion;
     try {
         conexion = await pool.getConnection();
