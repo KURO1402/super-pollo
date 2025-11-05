@@ -17,9 +17,9 @@ BEGIN
         c.nombreCategoria,
         i.urlImagen
     FROM productos p
-    LEFT JOIN imagenesProductos i 
+    LEFT JOIN imagenesproductos i 
         ON p.idProducto = i.idProducto
-    LEFT JOIN categoriasProducto c
+    LEFT JOIN categoriasproducto c
         ON p.idCategoria = c.idCategoria
     WHERE p.idCategoria = p_idCategoria
       AND p.estadoProducto = 1;
@@ -28,7 +28,7 @@ END //
 
 CREATE PROCEDURE ObtenerCategoriasProducto()
 BEGIN
-    SELECT idCategoria, nombreCategoria FROM categoriasProducto;
+    SELECT idCategoria, nombreCategoria FROM categoriasproducto;
 END //
 
 DELIMITER ;

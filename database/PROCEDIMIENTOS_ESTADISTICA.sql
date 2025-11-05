@@ -66,7 +66,7 @@ BEGIN
         SELECT 
             DATE_FORMAT(fechaMovimiento, '%Y-%m') AS mes, 
             SUM(montoMovimiento) AS totalIngresos
-        FROM movimientosCaja
+        FROM movimientoscaja
         WHERE tipoMovimiento = 'Ingreso'
         GROUP BY DATE_FORMAT(fechaMovimiento, '%Y-%m')
     ) i ON DATE_FORMAT(m.fecha, '%Y-%m') = i.mes
@@ -74,7 +74,7 @@ BEGIN
         SELECT 
             DATE_FORMAT(fechaMovimiento, '%Y-%m') AS mes, 
             SUM(montoMovimiento) AS totalEgresos
-        FROM movimientosCaja
+        FROM movimientoscaja
         WHERE tipoMovimiento = 'Egreso'
         GROUP BY DATE_FORMAT(fechaMovimiento, '%Y-%m')
     ) e ON DATE_FORMAT(m.fecha, '%Y-%m') = e.mes
@@ -189,7 +189,7 @@ BEGIN
         IFNULL(SUM(CASE WHEN m.tipoMovimiento='Egreso' THEN m.montoMovimiento ELSE 0 END),0) AS egresosTotales,
         (IFNULL(SUM(CASE WHEN m.tipoMovimiento='Ingreso' THEN m.montoMovimiento ELSE 0 END),0)
          - IFNULL(SUM(CASE WHEN m.tipoMovimiento='Egreso' THEN m.montoMovimiento ELSE 0 END),0)) AS gananciaNeta
-    FROM movimientosCaja m
+    FROM movimientoscaja m
     WHERE m.fechaMovimiento BETWEEN inicioAnio AND finAnio;
 END //
 
@@ -202,7 +202,7 @@ BEGIN
 
     -- Obtener ventas por medio de pago y porcentaje
     SELECT 
-        mp.nombreMedioPago,
+        mp.nombremediopago,
         IFNULL(SUM(v.totalVenta), 0) AS totalPorMedio,
         IFNULL(SUM(v.totalVenta)/total*100,0) AS porcentaje
     FROM medioPago mp

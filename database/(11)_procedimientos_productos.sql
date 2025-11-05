@@ -43,7 +43,7 @@ CREATE PROCEDURE verificarRelacionProductoInsumo(
 )
 BEGIN
     SELECT COUNT(*) AS contador
-    FROM cantidadInsumoProducto
+    FROM cantidadinsumoproducto
     WHERE idProducto = p_idProducto AND idInsumo = p_idInsumo;
 END //
 
@@ -52,7 +52,7 @@ CREATE PROCEDURE contarInsumosPorProducto(
 )
 BEGIN
     SELECT COUNT(*) AS totalInsumos
-    FROM cantidadInsumoProducto
+    FROM cantidadinsumoproducto
     WHERE idProducto = p_idProducto;
 END //
 
@@ -61,7 +61,7 @@ CREATE PROCEDURE obtenerPublicIDPorProducto(
 )
 BEGIN
     SELECT publicID
-    FROM imagenesProductos
+    FROM imagenesproductos
     WHERE idProducto = p_idProducto;
 END //
 
@@ -122,7 +122,7 @@ BEGIN
     END;
     START TRANSACTION;
 
-    INSERT INTO imagenesProductos (urlImagen, publicID, idProducto)
+    INSERT INTO imagenesproductos (urlImagen, publicID, idProducto)
     VALUES (p_urlImagen, p_publicID, p_idProducto);
 
     COMMIT;
@@ -144,7 +144,7 @@ BEGIN
     END;
     START TRANSACTION;
 
-    INSERT INTO cantidadInsumoProducto (idProducto, idInsumo, cantidadUso)
+    INSERT INTO cantidadinsumoproducto (idProducto, idInsumo, cantidadUso)
     VALUES (p_idProducto, p_idInsumo, p_cantidadUso)
     ON DUPLICATE KEY UPDATE cantidadUso = VALUES(cantidadUso);
 
@@ -196,7 +196,7 @@ BEGIN
     END;
     START TRANSACTION;
 
-    UPDATE imagenesProductos
+    UPDATE imagenesproductos
     SET 
         urlImagen = p_nuevaUrlImagen,
         publicID = p_nuevoPublicID
@@ -221,7 +221,7 @@ BEGIN
     END;
     START TRANSACTION;
 
-    UPDATE cantidadInsumoProducto
+    UPDATE cantidadinsumoproducto
     SET cantidadUso = p_nuevaCantidad
     WHERE idProducto = p_idProducto AND idInsumo = p_idInsumo;
 
@@ -230,7 +230,7 @@ BEGIN
     SELECT 'Cantidad de uso actualizada correctamente' AS mensaje;
 END //
 
-CREATE PROCEDURE actualizarUsaInsumosProducto(
+CREATE PROCEDURE actualizarusaInsumosproducto(
     IN p_idProducto INT,
     IN p_usaInsumo INT
 )
@@ -265,7 +265,7 @@ BEGIN
     END;
     START TRANSACTION;
 
-    DELETE FROM cantidadInsumoProducto
+    DELETE FROM cantidadinsumoproducto
     WHERE idProducto = p_idProducto AND idInsumo = p_idInsumo;
 
     COMMIT;
@@ -305,9 +305,9 @@ BEGIN
         c.nombreCategoria,
         i.urlImagen
     FROM productos p
-    LEFT JOIN imagenesProductos i 
+    LEFT JOIN imagenesproductos i 
         ON p.idProducto = i.idProducto
-    LEFT JOIN categoriasProducto c
+    LEFT JOIN categoriasproducto c
         ON p.idCategoria = c.idCategoria
     WHERE p.estadoProducto = 1
     ORDER BY p.idProducto DESC;
@@ -328,9 +328,9 @@ BEGIN
         c.nombreCategoria,
         i.urlImagen
     FROM productos p
-    LEFT JOIN imagenesProductos i 
+    LEFT JOIN imagenesproductos i 
         ON p.idProducto = i.idProducto
-    LEFT JOIN categoriasProducto c
+    LEFT JOIN categoriasproducto c
         ON p.idCategoria = c.idCategoria
     WHERE p.estadoProducto = 1
     ORDER BY p.idProducto DESC
@@ -350,9 +350,9 @@ BEGIN
         c.nombreCategoria,
         i.urlImagen
     FROM productos p
-    LEFT JOIN imagenesProductos i 
+    LEFT JOIN imagenesproductos i 
         ON p.idProducto = i.idProducto
-    LEFT JOIN categoriasProducto c
+    LEFT JOIN categoriasproducto c
         ON p.idCategoria = c.idCategoria
     WHERE p.idProducto = p_idProducto
       AND p.estadoProducto = 1;
@@ -371,9 +371,9 @@ BEGIN
         c.nombreCategoria,
         i.urlImagen
     FROM productos p
-    LEFT JOIN imagenesProductos i 
+    LEFT JOIN imagenesproductos i 
         ON p.idProducto = i.idProducto
-    LEFT JOIN categoriasProducto c
+    LEFT JOIN categoriasproducto c
         ON p.idCategoria = c.idCategoria
     WHERE p.nombreProducto LIKE CONCAT('%', p_nombre, '%')
       AND p.estadoProducto = 1;
@@ -389,7 +389,7 @@ BEGIN
         i.nombreInsumo,
         i.stockInsumo,
         cip.cantidadUso
-    FROM cantidadInsumoProducto cip
+    FROM cantidadinsumoproducto cip
     INNER JOIN insumos i 
         ON cip.idInsumo = i.idInsumo
     WHERE cip.idProducto = p_idProducto;
@@ -410,7 +410,7 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO categoriasProducto(nombreCategoria)
+    INSERT INTO categoriasproducto(nombreCategoria)
     VALUES(p_nombreCategoria);
 
     COMMIT;
@@ -433,7 +433,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE categoriasProducto
+    UPDATE categoriasproducto
     SET nombreCategoria = p_nombreCategoria
     WHERE idCategoria = p_idCategoria;
 
@@ -449,7 +449,7 @@ BEGIN
     SELECT 
         idCategoria,
         nombreCategoria
-    FROM categoriasProducto
+    FROM categoriasproducto
     WHERE nombreCategoria = p_nombreCategoria;
 END //
 
@@ -460,7 +460,7 @@ BEGIN
     SELECT 
         idCategoria,
         nombreCategoria
-    FROM categoriasProducto
+    FROM categoriasproducto
     WHERE idCategoria = p_idCategoria;
 END //
 
