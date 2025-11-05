@@ -8,7 +8,6 @@ const listarTiposComprobantes = async (req, res) => {
             tiposComprobantes
         });
     } catch (err) {
-        console.error("Error en comprobanteController", err.message);
         return res.status(err.status || 500).json({
             ok: false,
             mensaje: err.message || "Error interno del servidor"

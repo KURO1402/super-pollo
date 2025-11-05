@@ -24,8 +24,6 @@ const registrarUsuarioController = async (req, res) => {
 
   } catch (err) {
 
-    console.error("Error en insertarUsuarioController:", err.message);
-
     const statusCode = err.status || 500;
 
     return res.status(statusCode).json({
@@ -42,7 +40,6 @@ const insertarVerificacionCorreoController = async (req, res) => {
     return res.status(200).json(resultado);
 
   } catch (err) {
-    console.error("Error en insertarVerificacionCorreoController:", err.message);
 
     const statusCode = err.status || 500;
 
@@ -120,7 +117,6 @@ const renovarAccessTokenController = async (req, res) => {
   }
 };
 
-//Exportamos modulo
 module.exports = {
   registrarUsuarioController,
   seleccionarUsuarioController,
