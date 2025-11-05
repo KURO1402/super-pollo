@@ -6,20 +6,19 @@ const useConfiguracionDocumento = (tipo, setValue) => {
 
   useEffect(() => {
     if (tipo === "1") {
-      // DNI
       setPlaceholder("Ejemplo: 87654321");
       setbusquedaHabilitada(true);
-      setValue("numeroDocumento", ""); // reset input
+      setValue("numeroDocumento", ""); 
+
     } else if (tipo === "2") {
-      // Carne de extranjería
       setPlaceholder("Ejemplo: P1234567");
       setbusquedaHabilitada(false);
-      setValue("numeroDocumento", ""); // reset input
+      setValue("numeroDocumento", "");
+      
     } else if (tipo === "3") {
-      // RUC
       setPlaceholder("Ejemplo: 20123456789");
       setbusquedaHabilitada(true);
-      setValue("numeroDocumento", ""); // reset input
+      setValue("numeroDocumento", ""); 
     }
   }, [tipo, setValue]);
 

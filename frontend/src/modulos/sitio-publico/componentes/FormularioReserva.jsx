@@ -9,7 +9,6 @@ const FormularioReserva = () => {
 
   return (
     <div className="bg-red-600 rounded-2xl p-6 md:p-8 lg:p-10 shadow-2xl relative overflow-hidden w-full max-w-md lg:max-w-lg">
-      {/*elementos decorativos */}
       <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-700 rounded-full opacity-30"></div>
       <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-red-700 rounded-full opacity-30"></div>
 
@@ -22,7 +21,6 @@ const FormularioReserva = () => {
         </p>
 
         <div className="space-y-4 md:space-y-6">
-          {/*campo de fecha */}
           <div className="relative">
             <label className="block text-white font-semibold mb-2">FECHA</label>
             <div className="relative">
@@ -35,8 +33,6 @@ const FormularioReserva = () => {
               <FaCalendarAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
           </div>
-
-          {/* Campo de hora */}
           <div className="relative">
             <label className="block text-white font-semibold mb-2">
               SELECCIONE UNA HORA
@@ -48,7 +44,6 @@ const FormularioReserva = () => {
                 className="w-full px-4 py-3 pl-12 bg-white rounded-lg border-none focus:ring-2 focus:ring-red-400 focus:outline-none appearance-none"
               >
                 <option value="">Seleccione una hora</option>
-                {/*mapear las horas disponibles*/}
                 {horasDisponibles.map((hora, index) => (
                   <option key={index} value={hora.value}>
                     {hora.label}
@@ -74,7 +69,6 @@ const FormularioReserva = () => {
             </div>
           </div>
 
-          {/*información importante */}
           <div className="bg-red-700 rounded-lg p-4">
             <div className="flex items-start">
               <FaInfoCircle className="text-white mt-1 mr-3 flex-shrink-0" />
@@ -84,7 +78,6 @@ const FormularioReserva = () => {
             </div>
           </div>
 
-          {/* Botón de continuar como Link */}
           <Link 
             to="/registro"
             className="w-full bg-white text-red-600 font-bold py-3 md:py-4 px-6 rounded-lg hover:bg-gray-100 transition-colors duration-300 flex items-center justify-center space-x-2"

@@ -1,24 +1,18 @@
-// librerías
 import { BsBoxSeam } from "react-icons/bs";
-// hook de react
 import { useState } from 'react';
-// componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import Modal from '../../../componentes/modal/Modal';
 import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
-// custom hooks
 import { useBusqueda } from "../../../hooks/useBusqueda";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
 import { useConfirmacion } from "../../../hooks/useConfirmacion";
 import { useProductos } from "../hooks/useProductos";
-// componentes de la seccion
 import { ModalReceta } from '../componentes/ModalReceta';
 import { ModalNuevoProducto } from '../componentes/ModalNuevoProducto'
 import { FilaProducto } from '../componentes/FilaProductos';
-// servicio
 import { eliminarProductoServicio } from "../servicios/productoServicios";
 import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 import { ModalEditarProducto } from "../componentes/ModalEditarProducto";
@@ -32,53 +26,44 @@ const GestionProductosSeccion = () => {
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [productoAEliminar, setProductoAEliminar] = useState(null);
 
-  // modales
   const modalReceta = useModal(false);
   const modalNuevoProducto = useModal(false);
   const modalEditarProducto = useModal(false);
   const modalGestionCategorias = useModal(false);
   const confirmacionEliminar = useConfirmacion();
 
-  // funcion que escucha el evente de gestionar insumos
   function handleGestionarInsumos(producto) {
     setProductoSeleccionado(producto);
     modalReceta.abrir();
   }
 
-  // funcion para abrir modal nuevo producto
   function handleNuevoProducto() {
     modalNuevoProducto.abrir();
   }
 
-  // funcion para abrir modal editar producto
   function handleEditarProducto(producto) {
     setProductoSeleccionado(producto);
     modalEditarProducto.abrir();
   }
 
-  // Funcion para manejar cambio de página
   const handleCambiarPagina = (nuevaPagina) => {
     setPaginaActual(nuevaPagina);
   };
 
-  // Funciun para manejar cambio de items por página
   const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
     setItemsPorPagina(nuevoItemsPorPagina);
   };
 
-  // funciun para abrir modal de categorias
   function handleAbrirCategorias() {
     modalGestionCategorias.abrir();
   }
 
-  // función para solicitar confirmación de eliminación
   function handleSolicitarEliminar(producto) {
     setProductoAEliminar(producto);
     
     confirmacionEliminar.solicitarConfirmacion(
       `¿Estás seguro de eliminar el producto "${producto.nombreProducto}"? Esta acción no se puede deshacer.`,
       () => {
-        // Esta función se ejecuta cuando el usuario confirma
         handleEliminarProducto(producto.idProducto);
       },
       {
@@ -90,37 +75,30 @@ const GestionProductosSeccion = () => {
     );
   }
 
-  // función para cancelar eliminación
   function cancelarEliminacion() {
     setProductoAEliminar(null);
     confirmacionEliminar.ocultarConfirmacion();
   }
 
-  // función para eliminar producto
   async function handleEliminarProducto(idProducto) {
     try {
       await eliminarProductoServicio(idProducto);
       
-      // Actualizar la lista localmente sin recargar toda la página
       refetch();
-      // Mostrar mensaje de éxito
       mostrarAlerta.exito('Producto eliminado exitosamente');
       
     } catch (error) {
-      console.error('Error al eliminar producto:', error);
+
     } finally {
-      // Limpiar el estado
       setProductoAEliminar(null);
     }
   }
-  // función para recargar productos después de guardar
   function handleGuardarProducto() {
     refetch();
     modalNuevoProducto.cerrar();
     modalEditarProducto.cerrar();
   }
 
-  // Aplicar búsqueda 
   let productosFiltrados = filtrarPorBusqueda(productos, [
     "nombreProducto", 
     "descripcionProducto"
@@ -128,7 +106,6 @@ const GestionProductosSeccion = () => {
 
   const { datosPaginados, totalPaginas } = paginar(productosFiltrados);
 
-  // Mapear los productos para las filas de la tabla
   const filasProductos = datosPaginados.map((producto) => (
     <FilaProducto 
       key={producto.idProducto}
@@ -139,7 +116,6 @@ const GestionProductosSeccion = () => {
     />
   ));
 
-  // Mostrar estado de carga
   if (cargando) {
     return (
       <div className="p-2">
@@ -160,7 +136,6 @@ const GestionProductosSeccion = () => {
         <p className="text-gray-600 dark:text-gray-400">Administra los productos del menú y sus recetas</p>
       </div>
 
-      {/* Barra de busqueda y filtros */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
           <BarraBusqueda
@@ -181,7 +156,6 @@ const GestionProductosSeccion = () => {
         </div>
       </div>
 
-      {/* Tabla de productos */}
       <Tabla
         encabezados={["PRODUCTO", "PRECIO", "CATEGORIA", "USA INSUMOS", "GESTIÓN INSUMOS", "ACCIONES"]}
         registros={filasProductos}
@@ -196,7 +170,6 @@ const GestionProductosSeccion = () => {
         mostrarSiempre={true}
       />
 
-      {/* Modal para gestionar insumos */}
       <Modal
         estaAbierto={modalReceta.estaAbierto}
         onCerrar={modalReceta.cerrar}
@@ -213,7 +186,6 @@ const GestionProductosSeccion = () => {
         )}
       </Modal>
 
-      {/* Modal para agregar un nuevo producto */}
       <Modal
         estaAbierto={modalNuevoProducto.estaAbierto}
         onCerrar={modalNuevoProducto.cerrar}
@@ -228,7 +200,6 @@ const GestionProductosSeccion = () => {
         />
       </Modal>
 
-      {/* Modal para editar producto */}
       <Modal
         estaAbierto={modalEditarProducto.estaAbierto}
         onCerrar={modalEditarProducto.cerrar}
@@ -246,7 +217,6 @@ const GestionProductosSeccion = () => {
         )}
       </Modal>
       <div className="p-2">
-        {/* Modal de confirmación para eliminar */}
         <ModalConfirmacion
           visible={confirmacionEliminar.confirmacionVisible}
           onCerrar={cancelarEliminacion}
@@ -259,7 +229,6 @@ const GestionProductosSeccion = () => {
         />
       </div>
 
-      {/* Modal para agregar un nuevo producto */}
       <Modal
         estaAbierto={modalGestionCategorias.estaAbierto}
         onCerrar={modalGestionCategorias.cerrar}

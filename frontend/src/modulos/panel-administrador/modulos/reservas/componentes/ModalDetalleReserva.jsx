@@ -25,7 +25,6 @@ export const ModalDetalleReserva = ({ reserva, detalle }) => {
     });
   };
 
-  // Calcular total basado en los detalles
   const calcularTotal = () => {
     if (!detalle?.detalles) return 0;
     return detalle.detalles.reduce((total, item) => {
@@ -37,7 +36,6 @@ export const ModalDetalleReserva = ({ reserva, detalle }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -52,9 +50,7 @@ export const ModalDetalleReserva = ({ reserva, detalle }) => {
         </span>
       </div>
 
-      {/* Grid de información */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Cliente */}
         <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
           <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
             <FiUser size={18} />
@@ -65,7 +61,6 @@ export const ModalDetalleReserva = ({ reserva, detalle }) => {
           </div>
         </div>
 
-        {/* Fecha y Hora */}
         <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
             <FiCalendar size={18} />
@@ -82,7 +77,6 @@ export const ModalDetalleReserva = ({ reserva, detalle }) => {
           </div>
         </div>
 
-        {/* Personas */}
         <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
           <div className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
             <FiUsers size={18} />
@@ -93,7 +87,6 @@ export const ModalDetalleReserva = ({ reserva, detalle }) => {
           </div>
         </div>
 
-        {/* Mesa */}
         <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
           <div className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg">
             <FiBox size={18} />
@@ -105,7 +98,6 @@ export const ModalDetalleReserva = ({ reserva, detalle }) => {
         </div>
       </div>
 
-      {/* Productos Reservados */}
       {detalle?.detalles && detalle.detalles.length > 0 && (
         <div>
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
@@ -138,7 +130,6 @@ export const ModalDetalleReserva = ({ reserva, detalle }) => {
         </div>
       )}
 
-      {/* Total */}
       <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">

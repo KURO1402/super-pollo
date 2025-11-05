@@ -1,4 +1,3 @@
-// componentes/GestionImagenesSeccion.jsx
 import { useState } from 'react';
 import { FiImage } from 'react-icons/fi';
 import { useProductos } from '../hooks/useProductos';
@@ -18,7 +17,7 @@ const GestionImagenesSeccion = () => {
   };
 
   const handleGuardarImagen = () => {
-    refetch(); // Recargar productos para mostrar la nueva imagen
+    refetch();
     modalModificarImagen.cerrar();
   };
 
@@ -32,7 +31,6 @@ const GestionImagenesSeccion = () => {
 
   return (
     <div className="p-6">
-      {/* Header */}
       <div className="mb-6">
         <div className="flex items-center mb-2">
           <FiImage className="mr-3 text-2xl text-gray-900 dark:text-white" />
@@ -45,7 +43,6 @@ const GestionImagenesSeccion = () => {
         </p>
       </div>
 
-      {/* Grid de productos */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {productos.map((producto) => (
           <TarjetaProducto
@@ -56,7 +53,6 @@ const GestionImagenesSeccion = () => {
         ))}
       </div>
 
-      {/* Modal para modificar imagen */}
       <Modal
         estaAbierto={modalModificarImagen.estaAbierto}
         onCerrar={modalModificarImagen.cerrar}

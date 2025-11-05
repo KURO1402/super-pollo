@@ -1,52 +1,41 @@
-// importamos librerías externas
 import { useForm } from "react-hook-form";
 import { FiSearch } from "react-icons/fi";
-// hooks de react
 import { useEffect, useState } from "react";
-// servicios
 import { obtenerTiposDocumento } from "../../../../sitio-publico/servicios/tiposDocService";
 import { buscarPorDNI, buscarPorRUC } from "../servicios/consultarClienteService";
-// custom hooks
 import useConfiguracionDocumento from "../hooks/useConfiguracionDocumento";
 
-// formulario para el cliente, que resibe como parametro la función de submit y oncancelar
 export const FormularioCliente = ({ onSubmit, onCancelar }) => {
-  // estados para el tipo de Documento, la carga y el error al momento de traer los tipo de la base de datos
   const [tiposDocumento, setTiposDocumento] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(null);
-  // nuevos estados para la búsqueda
   const [buscando, setBuscando] = useState(false);
   const [mensajeBusqueda, setMensajeBusqueda] = useState("");
   
-  // funciones de react hook form
   const {
     register, handleSubmit, watch, setValue,
     formState: { errors },
   } = useForm();
 
-  // función para rellenar el select de tipo de documento, con la base de datos
   useEffect(() => {
-    const cargarTipos = async () => { // la función es asincrónica
+    const cargarTipos = async () => { 
       try {
-        const data = await obtenerTiposDocumento(); // obtenemos los tipos de comprobante
-        setTiposDocumento(data); // actualizamos nuestro estado
+        const data = await obtenerTiposDocumento(); 
+        setTiposDocumento(data); 
       } catch (error) { 
-        setErrorCarga(error.message); // actualizamos nuestro estado de error con el error que se a producido
+        setErrorCarga(error.message); 
       } finally {
-        setCargando(false); // actualizamos el estado para la carga a falso para que desaparesca
+        setCargando(false);
       }
     };
-    cargarTipos(); // llamamos a la función
+    cargarTipos();
   }, []);
   
-  const tipo = watch("tipoDocumento"); // Observa el valor del select
-  const numeroDoc = watch("numeroDocumento") // ver el valor del numero de documento
+  const tipo = watch("tipoDocumento"); 
+  const numeroDoc = watch("numeroDocumento")
 
-  // Usamos el custom hook para mostrar el placeholder dependiendo del tipo de documento, además de 
-  const { placeholder, busquedaHabilitada } = useConfiguracionDocumento(tipo, setValue); // Obtenemos el placeholder y busquedaHabilitada del hook
+  const { placeholder, busquedaHabilitada } = useConfiguracionDocumento(tipo, setValue);
 
-  // función para ejecutar la busqueda con el microservicio
   const handleBuscar = async () => {
     if (!busquedaHabilitada) return;
     
@@ -54,38 +43,33 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
     setMensajeBusqueda("");
     
     try {
-      let data; // nuestra variable 
-      let nombreCompleto = ""; // Inicializamos la variable fuera de los condicionales
+      let data; 
+      let nombreCompleto = "";
       let datosFormateados = ""
 
-      if (tipo === "1") { // si el tipo es igual a 1 (DNI), se llamará a la función de buscarPorDNI
+      if (tipo === "1") { 
         data = await buscarPorDNI(numeroDoc);
         
-        // Validar si la búsqueda fue exitosa
         if (data.success === true) {
-          nombreCompleto = data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres; // concatenamos para obtener el nombre completo
+          nombreCompleto = data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres;
           datosFormateados = nombreCompleto.replace(/\b\w/g, char => char.toUpperCase()).replace(/\B\w/g, char => char.toLowerCase());
           setValue("nombre", datosFormateados);
           setMensajeBusqueda("Datos encontrados correctamente");
         } else {
           setMensajeBusqueda("No se encontraron resultados");
-          setValue("nombre", ""); // Limpiar el campo nombre
+          setValue("nombre", ""); 
         }
         
-      } else if (tipo === "3") { // si el tipo es igual a 3 (RUC), se llamará a la función de buscarPorRUC
+      } else if (tipo === "3") {
         data = await buscarPorRUC(numeroDoc);
         
-        // Validar si la búsqueda fue exitosa - para RUC verificamos que exista el ruc
         if (data && data.ruc) {
-          // Rellenar razón social en el campo nombre
           setValue("nombre", data.razonSocial);
           
-          // Rellenar la dirección si está disponible
           if (data.direccion) {
             setValue("direccion", data.direccion);
           }
           
-          // También podemos rellenar el nombre comercial si está disponible y no es null
           if (data.nombreComercial) {
             setValue("nombreComercial", data.nombreComercial);
           }
@@ -93,35 +77,31 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
           setMensajeBusqueda("Datos encontrados correctamente");
         } else {
           setMensajeBusqueda("No se encontraron resultados");
-          setValue("nombre", ""); // Limpiar el campo nombre
-          setValue("direccion", ""); // Limpiar la dirección
-          setValue("nombreComercial", ""); // Limpiar nombre comercial
+          setValue("nombre", "");
+          setValue("direccion", "");
+          setValue("nombreComercial", "");
         }
         
-      } else { // si no cumple ninguno de los casos (Carnet de extranjería)
-        console.log("Búsqueda solo disponible para DNI y RUC");
+      } else {
         setMensajeBusqueda("Búsqueda solo disponible para DNI y RUC");
         return;
       }
     } catch (err) {
-      console.error(err.message);
       setMensajeBusqueda("Error en la búsqueda: " + err.message);
-      setValue("nombre", ""); // Limpiar el campo nombre en caso de error
-      setValue("direccion", ""); // Limpiar también la dirección
-      setValue("nombreComercial", ""); // Limpiar nombre comercial
+      setValue("nombre", "");
+      setValue("direccion", ""); 
+      setValue("nombreComercial", "");
     } finally {
       setBuscando(false);
     }
   };
 
-  // enviamos los datos registrados o insertados
   const manejarEnviar = (data) => {
-    onSubmit(data); // mandamos todos los datos del cliente
+    onSubmit(data);
   };
 
   return (
     <form onSubmit={handleSubmit(manejarEnviar)} className="space-y-4">
-      {/* Primera fila tipo Documento y numero */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -161,7 +141,6 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
               {...register("numeroDocumento", {
                 required: "Este campo es obligatorio",
                 validate: (value) => {
-                  // hacemos la validación para cada input
                   if (tipo === "1" && value.length !== 8) {
                     return "El DNI debe tener 8 dígitos";
                   }
@@ -171,7 +150,7 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
                   if (tipo === "2" && !/^[A-Z0-9]{6,12}$/i.test(value)) {
                     return "Carné de extranjería inválido";
                   }
-                  return true; // si no hay ningun error regresamos true
+                  return true;
                 },
               })}
               className="flex-1 w-full px-3 py-2 border border-gray-300 rounded-l-lg dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -197,7 +176,6 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
             <span className="text-xs text-red-500">{errors.numeroDocumento.message}</span>
           )}
           
-          {/* Mensaje de estado de búsqueda */}
           {buscando && (
             <p className="text-xs text-blue-500 mt-1">Buscando información...</p>
           )}
@@ -215,7 +193,6 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
         </div>
       </div>
 
-      {/* Segunda fila: Nombre y Nombre Comercial */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -245,7 +222,6 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
         </div>
       </div>
 
-      {/* Tercera fila: Dirección */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Dirección *
@@ -263,7 +239,6 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
         )}
       </div>
 
-      {/* Cuarta fila: Teléfono y Correo */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -317,7 +292,6 @@ export const FormularioCliente = ({ onSubmit, onCancelar }) => {
         </ul>
       </div>
 
-      {/* Botones de acción */}
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
         <button
           type="button"

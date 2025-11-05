@@ -10,18 +10,15 @@ export const Paginacion = ({
   const opcionesItems = [5, 10, 15, 20];
 
   if (!alCambiarItemsPorPagina || typeof alCambiarItemsPorPagina !== 'function') {
-    console.warn('alCambiarItemsPorPagina no es una función');
     return null;
   }
 
-  // Si no hay paginación y no se fuerza a mostrar, no renderizar
   if (totalPaginas <= 1 && !mostrarSiempre) {
     return null;
   }
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 gap-4">
-      {/* Select de registros por página */}
       <div className="flex items-center gap-2">
         <label className="text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
           Mostrar:
@@ -42,7 +39,6 @@ export const Paginacion = ({
         </span>
       </div>
 
-      {/* Solo mostrar navegación si hay más de una página */}
       {totalPaginas > 1 && (
         <>
           <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">

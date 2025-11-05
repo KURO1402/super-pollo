@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { alertasCRUD } from '../../../../../utilidades/toastUtilidades';
 import { crearInsumoServicio } from '../servicios/insumosServicios';
 
-export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las funciones para cerrar y guardar
+export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { 
   const {
     register, handleSubmit, formState: { errors }, reset
   } = useForm({
@@ -13,16 +13,13 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
       cantidadInicial: '',
     }
   });
-  // funcion que se ejecuta al enviar el formulario
   const onSubmit = async (data) => {
     const cantidadInicialDecimal = parseFloat(data.cantidadInicial);
 
-    // Verificar si la conversión fue exitosa
     if (isNaN(cantidadInicialDecimal)) {
       alertasCRUD.error('El valor de stock no es válido');
       return;
     }
-    // Actualizar el valor de cantidadInicial a número
     data.cantidadInicial = cantidadInicialDecimal;
 
     try {
@@ -31,11 +28,9 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
       reset();
       alertasCRUD.creado()
     } catch (error) {
-      console.error("Error al crear un nuevo producto", error);
       alertasCRUD.error("Error al crear el insumo");
     }
   };
-  // funcion para cancelar y cerrar el modal
   const handleCancelar = () => {
     reset();
     onClose();
@@ -55,7 +50,6 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Nombre del Insumo */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Nombre del Insumo *
@@ -83,7 +77,6 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
           )}
         </div>
 
-        {/* Categoría y Unidad de Medida */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -142,8 +135,6 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
         </div>
         </div>
 
-
-        {/* Descripcion*/}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Descripción (Opcional)
@@ -156,7 +147,6 @@ export const ModalNuevoInsumo = ({ onClose, onGuardar }) => { // recibe las func
           />
         </div>
 
-        {/* Botones de accion */}
         <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"

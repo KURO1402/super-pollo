@@ -12,16 +12,15 @@ const GraficoVentasEgresos = ({ cantidadMeses = 6 }) => {
       try {
         const respuesta = await obtenerResumenVentasEgresosMensualServicio(cantidadMeses);
 
-        // Formatear para Recharts
         const formateo = respuesta.map(item => ({
           mes: item.mes,
-          ingresos: parseFloat(item.ingresos), // propiedad en minúscula
+          ingresos: parseFloat(item.ingresos),
           egresos: parseFloat(item.egresos)
         }));
 
         setData(formateo);
       } catch (error) {
-        console.error("Error cargando ventas y egresos:", error);
+
       }
     };
 
@@ -55,9 +54,9 @@ const GraficoVentasEgresos = ({ cantidadMeses = 6 }) => {
           />
           <Legend />
           <Bar
-            dataKey="ingresos"  // coincide con la propiedad
+            dataKey="ingresos"
             fill={themeColors.primary}
-            name="Ingresos"     // este es solo el nombre mostrado en la leyenda
+            name="Ingresos"
             radius={[2, 2, 0, 0]}
           />
           <Bar

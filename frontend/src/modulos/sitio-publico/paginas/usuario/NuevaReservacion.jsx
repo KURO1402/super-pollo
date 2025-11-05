@@ -14,7 +14,6 @@ const NuevaReservacion = () => {
     updateDatos
   } = reservaEstadoGlobal();
 
-  // Formulario solo para el Paso 1
   const methods = useForm({
     defaultValues: {
       fecha: datos.fecha || '',
@@ -28,13 +27,11 @@ const NuevaReservacion = () => {
 
   const { handleSubmit, formState: { isValid } } = methods;
 
-  // Solo para el Paso 1 - manejar envío del formulario
   const onSubmitPaso1 = (data) => {
     updateDatos(data);
     setPaso(2);
   };
 
-  // Para avanzar desde el Paso 2 (sin formulario)
   const handleAvanzarPaso2 = () => {
     if (datos.productos.length > 0) {
       setPaso(3);
@@ -48,7 +45,6 @@ const NuevaReservacion = () => {
     <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         
-        {/* Header Principal */}
         <header className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
             NUEVA <span className="text-red-600">RESERVACIÓN</span>
@@ -58,10 +54,8 @@ const NuevaReservacion = () => {
 
         <PasosNavegacion />
 
-        {/* Contenido del Paso Actual */}
         <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-8">
           
-          {/* PASO 1 - CON FORMULARIO */}
           {pasoActual === 1 && (
             <FormProvider {...methods}>
               <form onSubmit={handleSubmit(onSubmitPaso1)}>
@@ -70,14 +64,11 @@ const NuevaReservacion = () => {
             </FormProvider>
           )}
           
-          {/* PASO 2 - SIN FORMULARIO */}
           {pasoActual === 2 && <Paso2Productos />}
           
-          {/* PASO 3 - SIN FORMULARIO */}
           {pasoActual === 3 && <Paso3Confirmacion />}
         </div>
 
-        {/* Navegación entre Pasos */}
         {pasoActual !== 3 && (
           <div className="flex justify-between mt-8">
             <button
@@ -95,9 +86,8 @@ const NuevaReservacion = () => {
             </button>
 
             {pasoActual === 1 ? (
-              // Botón para Paso 1 (submit del formulario)
               <button
-                type="button" // Cambiado a type="button" para mejor control
+                type="button"
                 onClick={handleSubmit(onSubmitPaso1)}
                 disabled={!puedeAvanzarPaso1}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer ${
@@ -110,7 +100,6 @@ const NuevaReservacion = () => {
                 <FiArrowRight className="w-5 h-5" />
               </button>
             ) : (
-              // Botón para Paso 2 (sin formulario)
               <button
                 type="button"
                 onClick={handleAvanzarPaso2}
@@ -128,7 +117,6 @@ const NuevaReservacion = () => {
           </div>
         )}
 
-        {/* Navegación para Paso 3 */}
         {pasoActual === 3 && (
           <div className="flex justify-between mt-8">
             <button

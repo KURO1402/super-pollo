@@ -17,23 +17,19 @@ export const reservaEstadoGlobal = create((set, get) => ({
   cargandoMesas: false,
   errorMesas: null,
 
-  // funciones que almacena el estado global
   setPaso: (paso) => set({ 
-    pasoActual: Math.max(1, Math.min(3, paso)) // Limitar entre 1-3
+    pasoActual: Math.max(1, Math.min(3, paso)) 
   }),
-  // accion para cargar productos desde lo que manda el backend
   setProductosMenu: (producto) => set({ productoMenu : producto}),
   
   updateDatos: (nuevosDatos) => set((state) => ({ 
     datos: { 
       ...state.datos, 
       ...nuevosDatos,
-      // Asegurar que productos no se sobreescriba accidentalmente
       productos: nuevosDatos.productos !== undefined ? nuevosDatos.productos : state.datos.productos
     } 
   })),
 
-  // Buscar mesas disponibles
   buscarMesasDisponibles: async (fecha, hora) => {
     if (!fecha || !hora) {
       set({ 
@@ -48,7 +44,6 @@ export const reservaEstadoGlobal = create((set, get) => ({
     try {
       const respuesta = await obtenerMesasDisponiblesServicio(fecha, hora);
       
-      // Transformar la respuesta - todas tienen capacidad 4
       const mesasTransformadas = respuesta.mesas.map(mesa => ({
         id: mesa.idMesa,
         numero: `Mesa ${mesa.numeroMesa}`,
@@ -62,7 +57,6 @@ export const reservaEstadoGlobal = create((set, get) => ({
       });
 
     } catch (error) {
-      console.error('Error al buscar mesas:', error);
       set({ 
         mesasDisponibles: [],
         cargandoMesas: false,
@@ -71,7 +65,6 @@ export const reservaEstadoGlobal = create((set, get) => ({
     }
   },
 
-  // Limpiar mesas
   limpiarMesas: () => set({ 
     mesasDisponibles: [],
     datos: { ...get().datos, mesa: '' }
@@ -112,7 +105,6 @@ export const reservaEstadoGlobal = create((set, get) => ({
   })),
 
   actualizarCantidad: (productoId, nuevaCantidad) => set((state) => {
-    // Validar que nuevaCantidad sea un número válido
     const cantidad = Math.max(0, parseInt(nuevaCantidad) || 0);
     
     if (cantidad === 0) {
@@ -134,7 +126,6 @@ export const reservaEstadoGlobal = create((set, get) => ({
     }
   }),
 
-  // Calculados
   getSubtotal: () => {
     const { datos } = get();
     return datos.productos.reduce((total, producto) => {
@@ -146,26 +137,23 @@ export const reservaEstadoGlobal = create((set, get) => ({
 
   getAnticipo: () => {
     const subtotal = get().getSubtotal();
-    return Math.round(subtotal * 0.5 * 100) / 100; // 60% de anticipo, redondeado a 2 decimales
+    return Math.round(subtotal * 0.5 * 100) / 100; 
   },
 
   getTotal: () => {
     return get().getSubtotal();
   },
 
-  // Helper para verificar si puede avanzar al paso 2
   puedeAvanzarPaso1: () => {
     const { datos } = get();
     return datos.fecha && datos.hora && datos.mesa && datos.personas > 0;
   },
 
-  // Helper para verificar si puede avanzar al paso 3
   puedeAvanzarPaso2: () => {
     const { datos } = get();
     return datos.productos.length > 0;
   },
 
-  // Reset para nueva reserva
   resetReserva: () => set({
     pasoActual: 1,
     datos: {

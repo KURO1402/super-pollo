@@ -1,19 +1,13 @@
-// librerias 
 import { MdHistory } from "react-icons/md";
-// hook de react
 import { useEffect, useState } from "react";
-// importar componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; 
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import Modal from "../../../componentes/modal/Modal";
-// importar custom hooks
 import { useBusqueda } from "../../../hooks/useBusqueda"; 
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
-// importar componentes de su propio módulo
 import { FilaEntrada } from "../componentes/FilaEntrada";
-// servicios del backend 
 import { listarMovimientosServicio } from "../servicios/movientosStockServicio";
 import { BsPlusLg } from "react-icons/bs";
 import { ModalMovimientoStock } from "../componentes/ModalMovimientoStock";
@@ -33,20 +27,19 @@ const HistorialEntradasSeccion = () => {
 
   const modalMovimientoStock = useModal(false);
 
-  // Obtener movimientos del backend
   const obtenerMovimientos = async () => {
     try {
       setCargando(true);
       const data = await listarMovimientosServicio();
       const movimientosConId = data.map((mov, index) => ({
         ...mov,
-        idMovimientoStock: `mov-${index}-${Date.now()}`, // ID temporal único
-        idMovimiento: `mov-${index}-${Date.now()}` // ID temporal único
+        idMovimientoStock: `mov-${index}-${Date.now()}`,
+        idMovimiento: `mov-${index}-${Date.now()}`
       }));
 
       setMovimientos(movimientosConId);
     } catch (error) {
-      console.error("Error al obtener movimientos:", error);
+
     } finally {
       setCargando(false);
     }
@@ -56,31 +49,24 @@ const HistorialEntradasSeccion = () => {
     obtenerMovimientos();
   }, []);
 
-  // Filtrar solo entradas
   const entradas = movimientos.filter(mov => mov.nombreMovimiento === 'entrada');
 
-  // Función para abrir modal de movimiento de stock
   const handleMovimientoStock = () => {
     modalMovimientoStock.abrir();
   };
 
-  // CORREGIDO: Esta función se ejecuta cuando se crea un nuevo movimiento
   const handleMovimientoCreado = async () => {
     try {
-      // Dar tiempo al backend para procesar
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Recargamos la lista completa desde el backend
       await obtenerMovimientos();
       
-      // Cerrar modal
       modalMovimientoStock.cerrar();
     } catch (error) {
-      console.error("Error al actualizar la lista:", error);
+      
     }
   };
 
-  // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(entradas, [
     "nombreInsumo",
     "cantidadMovimiento",
@@ -90,17 +76,14 @@ const HistorialEntradasSeccion = () => {
 
   const { datosPaginados, totalPaginas } = paginar(filtrados);
 
-  // Función para manejar cambio de página
   const handleCambiarPagina = (nuevaPagina) => {
     setPaginaActual(nuevaPagina);
   };
 
-  // Función para manejar cambio de items por página
   const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
     setItemsPorPagina(nuevoItemsPorPagina);
   };
 
-  // Mapear las entradas para las filas de la tabla
   const filasEntradas = datosPaginados.map((entrada) => (
     <FilaEntrada 
       key={entrada.idMovimientoStock} 
@@ -164,7 +147,6 @@ const HistorialEntradasSeccion = () => {
         </>
       )}
       
-      {/* Modal para movimiento de stock */}
       <Modal
         estaAbierto={modalMovimientoStock.estaAbierto}
         onCerrar={modalMovimientoStock.cerrar}

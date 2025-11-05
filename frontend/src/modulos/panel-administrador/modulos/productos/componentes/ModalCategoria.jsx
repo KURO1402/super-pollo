@@ -26,10 +26,8 @@ const ModalCategoria = ({
     }
   });
 
-  // Observar el valor del campo para validación en tiempo real
   const nombreActual = watch("nombreCategoria");
 
-  // Resetear form cuando se abre/cierra o cambia la categoría a editar
   useEffect(() => {
     if (estaAbierto) {
       const nombreInicial = categoriaEditar?.nombreCategoria || "";
@@ -37,7 +35,6 @@ const ModalCategoria = ({
     }
   }, [estaAbierto, categoriaEditar, reset]);
 
-  // función para validar si el nombre ya existe (excluyendo la categoría actual en edición)
   const validarNombreUnico = (nombre) => {
     if (!nombre || nombre.trim().length < 2) return true;
     
@@ -95,7 +92,6 @@ const ModalCategoria = ({
                 nombreUnico: validarNombreUnico
               },
               onChange: (e) => {
-                // Capitalizar primera letra automáticamente
                 const value = e.target.value;
                 if (value.length === 1) {
                   setValue("nombreCategoria", value.toUpperCase(), { shouldValidate: true });
@@ -112,7 +108,6 @@ const ModalCategoria = ({
             autoComplete="off"
           />
           
-          {/* Mensajes de error */}
           {errors.nombreCategoria && (
             <div className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
               <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -122,7 +117,6 @@ const ModalCategoria = ({
             </div>
           )}
 
-          {/* Indicador de validación en tiempo real */}
           {nombreActual && nombreActual.length >= 2 && !errors.nombreCategoria && (
             <div className="mt-1 text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
               <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -133,7 +127,6 @@ const ModalCategoria = ({
           )}
         </div>
 
-        {/* Información contextual */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
           <div className="text-sm text-blue-700 dark:text-blue-300">
             <strong>Requisitos:</strong>
@@ -148,7 +141,6 @@ const ModalCategoria = ({
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-3 pt-4">
           <button
             type="button"

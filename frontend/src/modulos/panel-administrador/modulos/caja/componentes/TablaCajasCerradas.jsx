@@ -15,7 +15,6 @@ const TablasCajasCerradas = ({
   onVerDetalle,
   loading 
 }) => {
-  // encabezados para la tabla
   const encabezados = ["Fecha", "Usuario", "Saldo Esperado", "Saldo Contado", "Diferencia", "Estado", "Acciones"];
 
   const registros = cajasCerradas.map((cajaCerrada) => (

@@ -1,7 +1,6 @@
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import { SiMercadopago } from "react-icons/si";
 
-// Inicializamos Mercado Pago con el public key
 initMercadoPago(import.meta.env.VITE_PUBLIC_KEY_MERCADOPAGO);
 
 const MercadoPagoButton = ({ 
@@ -10,7 +9,7 @@ const MercadoPagoButton = ({
   onPaymentSuccess, 
   onPaymentError,
   disabled,
-  preferenceId // Ahora viene del componente padre
+  preferenceId
 }) => {
   const customization = {
     visual: {
@@ -40,12 +39,7 @@ const MercadoPagoButton = ({
       <Wallet 
         initialization={{ preferenceId: preferenceId }}
         customization={customization}
-        onSubmit={() => console.log("Iniciando pago...")}
-        onReady={() => console.log("Wallet ready")}
-        onError={(error) => {
-          console.error("Error en Mercado Pago:", error);
-          onPaymentError?.(error);
-        }}
+        onError={(error) => onPaymentError?.(error)}
       />
     </div>
   );

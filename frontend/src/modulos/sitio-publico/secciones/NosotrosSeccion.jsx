@@ -1,9 +1,7 @@
 import { FaLocationDot } from "react-icons/fa6";
-// importar las imagenes
 import UbicacionMapa from "../../../assets/imagenes/UbicacionMapa.png";
 import LocalSuperPollo from "../../../assets/imagenes/LocalSuperPollo.png";
 import PolloHorno from "../../../assets/imagenes/PollosHorno.png";
-// importar componentes
 import TarjetaCompacta from "../componentes/TarjetaCompacta";
 import TarjetaImagen from "../componentes/TarjetaImagen";
 import TarjetaInformativa from "../componentes/TarjetaInformativa";
@@ -13,12 +11,9 @@ const NosotrosSeccion = () => {
     <section id="nosotros" className="bg-azul-secundario w-full py-16 md:py-20 lg:py-24 px-4 md:px-8 lg:px-16" aria-labelledby="nosotros-cabecera">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          {/* Columna izquierda */}
           <div className="order-2 lg:order-1 relative">
-            {/* Marco decorativo alrededor del mapa */}
             <div className="absolute -inset-4 border-2 border-red-500/30 rounded-2xl z-0 hidden md:block"></div>
             
-            {/* imagen de mapa */}
             <div className="relative rounded-2xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500 z-20">
               <img 
                 src={UbicacionMapa} 
@@ -26,11 +21,8 @@ const NosotrosSeccion = () => {
                 className="w-full h-auto object-cover"
               />
             </div>
-            {/* Tarjeta informativa */}
             <TarjetaInformativa icono={<FaLocationDot />} titulo="VISÍTANOS"  descripcion="Jr. Ica 324, Huancayo" detalles="Lun-Dom: 10:00 AM - 9:00 PM"/>
           </div>
-
-          {/* Columna derecha */}
           <div className="order-1 lg:order-2">
             <div className="text-center lg:text-left mb-10">
               <span className="inline-block bg-red-600 text-white text-sm font-semibold px-4 py-1 rounded-full mb-4">
@@ -57,7 +49,6 @@ const NosotrosSeccion = () => {
                 <TarjetaCompacta titulo="500+" descripcion="Clientes satisfechos" />
               </div>
             </div>
-            {/* Galería de imágenes */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <TarjetaImagen imagen={LocalSuperPollo} titulo="Nuestro local" />
               <TarjetaImagen imagen={PolloHorno} titulo="Nuestro Producto" />

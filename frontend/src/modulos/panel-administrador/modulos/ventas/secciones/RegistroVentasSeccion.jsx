@@ -5,29 +5,24 @@ import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusque
 import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import Modal from "../../../componentes/modal/Modal";
-// importamos los hooks que vamos a utilizar
 import { useBusqueda } from "../../../hooks/useBusqueda"; 
 import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
-// servicios
 import { obtenerVentasServicio, obtenerComprobanteServicio, obtenerDetalleVentaServicio } from "../servicios/ventasServicio";
 import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 
 const RegistroVentasSeccion = () => {
-  // estados
   const [ventas, setVentas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [detalleVenta, setDetalleVenta] = useState(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
 
-  // hooks
   const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); 
   const { filtro, setFiltro, aplicarFiltros } = useFiltro();
   const { paginaActual, setPaginaActual, itemsPorPagina, setItemsPorPagina, paginar } = usePaginacion(5);
   const { estaAbierto, abrir, cerrar } = useModal();
 
-  // Cargar ventas al montar el componente
   useEffect(() => {
     const cargarVentas = async () => {
       try {
@@ -35,7 +30,6 @@ const RegistroVentasSeccion = () => {
         const ventasData = await obtenerVentasServicio();
         setVentas(ventasData);
       } catch (error) {
-        console.error('Error al cargar ventas:', error);
         setVentas([]);
       } finally {
         setCargando(false);
@@ -45,7 +39,6 @@ const RegistroVentasSeccion = () => {
     cargarVentas();
   }, []);
 
-  // Función para ver detalle de venta
   const handleVerDetalle = async (idVenta) => {
     try {
       setCargandoDetalle(true);
@@ -53,14 +46,12 @@ const RegistroVentasSeccion = () => {
       setDetalleVenta(detalles);
       abrir();
     } catch (error) {
-      console.error('Error al cargar detalle:', error);
       mostrarAlerta.error("Error al cargar el detalle de la venta");
     } finally {
       setCargandoDetalle(false);
     }
   };
 
-  // Función para descargar comprobante
   const handleDescargarComprobante = async (idVenta) => {
     try {
       const comprobante = await obtenerComprobanteServicio(idVenta);
@@ -71,19 +62,16 @@ const RegistroVentasSeccion = () => {
         mostrarAlerta.error("No se encontró el comprobante PDF");
       }
     } catch (error) {
-      console.error('Error al descargar comprobante:', error);
       mostrarAlerta.error("Error al descargar el comprobante");
     }
   };
 
-  // Filtrar y paginar datos
   let filtrados = filtrarPorBusqueda(ventas, [
     "comprobante",
     "nombreCliente",
     "nombreTipoComprobante",
   ]);
 
-  // Aplicar filtro por estado SUNAT
   if (filtro !== "todos") {
     filtrados = filtrados.filter(venta => {
       if (filtro === "aceptado") {
@@ -105,7 +93,6 @@ const RegistroVentasSeccion = () => {
 
   const { datosPaginados, totalPaginas } = paginar(filtrados);
 
-  // Mapear ventas a filas de tabla
   const filasComprobantes = datosPaginados.map((venta) => (
     <FilaComprobante 
       key={venta.idVenta} 
@@ -122,7 +109,6 @@ const RegistroVentasSeccion = () => {
         <p className="text-gray-600 dark:text-gray-400">Historial de comprobantes electrónicos</p>
       </div>
 
-      {/* Barra de búsqueda y filtros */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
           <BarraBusqueda
@@ -143,7 +129,6 @@ const RegistroVentasSeccion = () => {
         </div>
       </div>
 
-      {/* Tabla de ventas */}
       {cargando ? (
         <div className="flex justify-center items-center h-32">
           <div className="text-center">
@@ -172,7 +157,6 @@ const RegistroVentasSeccion = () => {
         </>
       )}
 
-      {/* Modal de detalle de venta */}
       <Modal
         estaAbierto={estaAbierto}
         onCerrar={cerrar}

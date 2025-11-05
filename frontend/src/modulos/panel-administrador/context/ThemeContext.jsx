@@ -7,7 +7,6 @@ export const ThemeProvider = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Solo en cliente
     if (typeof window === "undefined") return;
     const savedTheme = localStorage.getItem("theme");
     const systemPrefersDark = window.matchMedia(
@@ -18,7 +17,6 @@ export const ThemeProvider = ({ children }) => {
     setTheme(initialTheme);
     setIsInitialized(true);
 
-    // Aplicar inmediatamente
     if (initialTheme === "dark") {
       document.documentElement.classList.add("dark");
     } else {

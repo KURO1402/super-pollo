@@ -14,7 +14,7 @@ export const usePaginacion = (itemsPorPaginaInicial = 5) => {
 
   const cambiarItemsPorPagina = (nuevoItemsPorPagina) => {
     setItemsPorPagina(nuevoItemsPorPagina);
-    setPaginaActual(1); // Reiniciar a la primera página al cambiar el límite
+    setPaginaActual(1);
   };
 
   return { 

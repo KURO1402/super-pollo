@@ -33,7 +33,6 @@ const DropdownAdmin = ({ usuario, mobile = false }) => {
     setDropdownAbierto(false);
   };
 
-  // Opciones especiales SOLO para admins y empleados
   const opciones = [
     {
       icono: <FaTachometerAlt className="w-4 h-4" />,
@@ -51,7 +50,6 @@ const DropdownAdmin = ({ usuario, mobile = false }) => {
     },
   ];
 
-  // ----- MOBILE -----
   if (mobile) {
     return (
       <div className="w-full">
@@ -79,7 +77,6 @@ const DropdownAdmin = ({ usuario, mobile = false }) => {
     );
   }
 
-  // ----- DESKTOP -----
   return (
     <div className="relative" ref={dropdownRef}>
       <button

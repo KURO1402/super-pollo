@@ -1,13 +1,11 @@
 export const BotonSimple = ({ icono: Icono, funcion, etiqueta, variante = "primario", tamaño = "md", disabled = false, tipo = "button" }) => {
     
-    // Clases base según variante
     const clasesBase = {
         primario: "bg-blue-600 text-white hover:bg-blue-700 border-blue-600",
         secundario: "bg-white text-gray-800 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700",
         peligro: "bg-red-600 text-white hover:bg-red-700 border-red-600"
     };
 
-    // Tamaños
     const tamanos = {
         sm: "px-3 py-1.5 text-xs",
         md: "px-4 py-2 text-sm", 
@@ -33,7 +31,6 @@ export const BotonSimple = ({ icono: Icono, funcion, etiqueta, variante = "prima
             className={clases}
             disabled={disabled}
         >
-            {/* Renderizar icono solo si existe */}
             {Icono && <Icono className={`${tamaño === 'sm' ? 'w-4 h-4' : 'w-5 h-5'}`} />}
             <span>{etiqueta}</span>
         </button>

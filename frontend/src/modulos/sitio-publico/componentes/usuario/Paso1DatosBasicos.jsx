@@ -5,7 +5,7 @@ import { MdOutlineTableBar } from "react-icons/md";
 import { reservaEstadoGlobal } from "../../estado-global/reservaEstadoGlobal";
 import { useEffect } from "react";
 import { horasDisponibles } from "../../mocks/horaReserva";
- 
+
 const Paso1DatosBasicos = () => {
   const { register, formState: { errors }, watch, setValue, trigger } = useFormContext();
   const { mesasDisponibles, updateDatos, datos, buscarMesasDisponibles, cargandoMesas, errorMesas, limpiarMesas } = reservaEstadoGlobal();
@@ -13,9 +13,8 @@ const Paso1DatosBasicos = () => {
   const fechaForm = watch('fecha');
   const horaForm = watch('hora');
   const personas = watch('personas') || datos.personas;
-  const mesaForm = watch('mesa'); // Observar el valor del formulario para la mesa
+  const mesaForm = watch('mesa'); 
 
-  // Buscar mesas cuando cambia fecha u hora
   useEffect(() => {
     if (fechaForm && horaForm) {
       buscarMesasDisponibles(fechaForm, horaForm);
@@ -24,7 +23,6 @@ const Paso1DatosBasicos = () => {
     }
   }, [fechaForm, horaForm]);
 
-  // Suncronizar forumlario con estado global
   useEffect(() => {
     if (datos.mesa && datos.mesa !== mesaForm) {
       setValue('mesa', datos.mesa, { shouldValidate: true });
@@ -32,13 +30,22 @@ const Paso1DatosBasicos = () => {
   }, [datos.mesa, mesaForm, setValue]);
 
   const handleSeleccionarMesa = (mesa) => {
-    // Actualizar tanto el store como el formulario
     updateDatos({ mesa: mesa.numero });
     setValue('mesa', mesa.numero, { shouldValidate: true });
-    trigger('mesa'); // Forzar validación
+    trigger('mesa');
   };
 
+  // Fechas para validación
   const hoy = new Date().toISOString().split("T")[0];
+  
+  // Calcular fecha máxima (hoy + 7 días)
+  const calcularFechaMaxima = () => {
+    const fechaMax = new Date();
+    fechaMax.setDate(fechaMax.getDate() + 7);
+    return fechaMax.toISOString().split("T")[0];
+  };
+  
+  const fechaMaxima = calcularFechaMaxima();
 
   return (
     <div className="space-y-8">
@@ -52,7 +59,6 @@ const Paso1DatosBasicos = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Fecha y Hora */}
         <div className="space-y-6">
           <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
             <div className="flex items-center gap-3 mb-4">
@@ -70,12 +76,19 @@ const Paso1DatosBasicos = () => {
                 <input
                   type="date"
                   min={hoy}
+                  max={fechaMaxima} // ✅ MÁXIMO 7 DÍAS
                   {...register("fecha", { 
                     required: "La fecha es requerida",
                     validate: {
                       fechaFutura: (value) => {
                         if (value < hoy) {
                           return "La fecha debe ser hoy o en el futuro";
+                        }
+                        return true;
+                      },
+                      fechaMaxima: (value) => {
+                        if (value > fechaMaxima) {
+                          return `La reserva no puede ser con más de 7 días de anticipación`;
                         }
                         return true;
                       }
@@ -86,6 +99,9 @@ const Paso1DatosBasicos = () => {
                 {errors.fecha && (
                   <p className="text-red-500 text-sm mt-1">{errors.fecha.message}</p>
                 )}
+                <p className="text-gray-400 text-xs mt-1">
+                  Máximo 7 días de anticipación
+                </p>
               </div>
               
               <div>
@@ -115,7 +131,7 @@ const Paso1DatosBasicos = () => {
                   <input
                     type="number"
                     min="2"
-                    max="20"
+                    max="10" // ✅ MÁXIMO 10 USUARIOS
                     {...register("personas", { 
                       required: "El número de personas es requerido",
                       min: { 
@@ -123,21 +139,20 @@ const Paso1DatosBasicos = () => {
                         message: "Mínimo 2 personas" 
                       },
                       max: { 
-                        value: 20, 
-                        message: "Máximo 20 personas" 
+                        value: 10, 
+                        message: "Máximo 10 personas por reserva" 
                       },
                       valueAsNumber: true
                     })}
                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     placeholder="Ej: 4"
                   />
-                  {/* Controles personalizados de incremento/decremento */}
                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col space-y-1">
                     <button
                       type="button"
                       onClick={() => {
                         const currentValue = parseInt(watch("personas") || 2);
-                        if (currentValue < 20) {
+                        if (currentValue < 10) { // ✅ MÁXIMO 10
                           setValue("personas", currentValue + 1, { shouldValidate: true });
                         }
                       }}
@@ -162,6 +177,9 @@ const Paso1DatosBasicos = () => {
                 {errors.personas && (
                   <p className="text-red-500 text-sm mt-1">{errors.personas.message}</p>
                 )}
+                <p className="text-gray-400 text-xs mt-1">
+                  Mínimo 2, máximo 10 personas por reserva
+                </p>
               </div>
 
               <input
@@ -174,7 +192,6 @@ const Paso1DatosBasicos = () => {
           </div>
         </div>
 
-        {/* Selección de Mesa - SIMPLIFICADO */}
         <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-red-600/10 rounded-xl flex items-center justify-center">

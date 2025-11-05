@@ -5,7 +5,7 @@ export const Tabla = ({ encabezados ,registros }) => {
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-            {encabezados.map((encabezado, index) => ( // mapeamos los registros para mostrar en cada fila
+            {encabezados.map((encabezado, index) => (
               <th key={index} comprobante={encabezado} className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {encabezado}
               </th>

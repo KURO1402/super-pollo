@@ -1,39 +1,35 @@
 
-import { useTheme } from "../context/ThemeContext"; // o donde tengas tu contexto de tema
+import { useTheme } from "../context/ThemeContext"; 
 
 export const useTemaParaGraficos = () => {
-  const { theme } = useTheme(); // Asumiendo que tienes un contexto de tema
+  const { theme } = useTheme();
 
-  // Paleta de colores elegante y moderna
   const elegantColors = {
-    // Colores principales - escala de azules sofisticados
-    primary: '#2563eb',     // blue-600 - más profesional que blue-500
-    primaryLight: '#3b82f6', // blue-500
-    primaryDark: '#1d4ed8',  // blue-700
+    primary: '#2563eb',
+    primaryLight: '#3b82f6',
+    primaryDark: '#1d4ed8', 
     
-    // Colores neutros para temas
     dark: {
-      background: '#111827',    // gray-900 - más oscuro y elegante
-      card: '#1f2937',         // gray-800
-      text: '#f9fafb',         // gray-50 - mejor contraste
-      textSecondary: '#d1d5db', // gray-300
-      grid: '#374151',         // gray-700
-      border: '#4b5563'        // gray-600
+      background: '#111827',  
+      card: '#1f2937', 
+      text: '#f9fafb',   
+      textSecondary: '#d1d5db',
+      grid: '#374151',   
+      border: '#4b5563'   
     },
     light: {
-      background: '#f8fafc',    // gray-50 - fondo más suave
+      background: '#f8fafc',   
       card: '#ffffff',
-      text: '#1e293b',         // slate-800 - más elegante que gray-700
-      textSecondary: '#64748b', // slate-500
-      grid: '#e2e8f0',         // slate-200
-      border: '#cbd5e1'        // slate-300
+      text: '#1e293b',        
+      textSecondary: '#64748b', 
+      grid: '#e2e8f0',         
+      border: '#cbd5e1'  
     },
     
-    // Colores funcionales sutiles
-    success: '#059669',     // emerald-600 - más sofisticado
-    warning: '#d97706',     // amber-600
-    danger: '#dc2626',      // red-600
-    info: '#0369a1'         // sky-700
+    success: '#059669',   
+    warning: '#d97706', 
+    danger: '#dc2626',
+    info: '#0369a1' 
   };
 
   const themeColors = theme === 'dark' ? {

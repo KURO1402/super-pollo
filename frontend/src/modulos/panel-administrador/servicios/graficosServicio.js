@@ -20,8 +20,6 @@ export const obtenerTopProductosMasVendidosServicio = async (fechaInicio, fechaF
     }
 
   } catch (error) {
-    console.error('Error en obtenerTopProductosMasVendidosServicio:', error);
-    console.error('Error response:', error.response?.data);
     throw error;
   }
 };
@@ -30,7 +28,6 @@ export const obtenerResumenVentasEgresosMensualServicio = async (cantidadMeses) 
   try {
     let url = `/fuente-datos/ingresos-egresos`;
 
-    // Agregar parámetro de cantidad de meses si viene
     if (cantidadMeses) {
       url += `?meses=${cantidadMeses}`;
     }
@@ -38,20 +35,18 @@ export const obtenerResumenVentasEgresosMensualServicio = async (cantidadMeses) 
     const respuesta = await API.get(url);
 
     if (respuesta.data && respuesta.data.ok) {
-      return respuesta.data.resultado; // <- directamente usable en Recharts
+      return respuesta.data.resultado;
     } else {
       throw new Error(respuesta.data?.mensaje || "Error al obtener resumen de ventas y egresos");
     }
   } catch (error) {
-    console.error("Error en obtenerResumenVentasEgresosMensualServicio:", error);
-    console.error("Error response:", error.response?.data);
     throw error;
   }
 };
 
 export const obtenerPorcentajeMediosPagoServicio = async () => {
   try {
-    const url = "/fuente-datos/porcentaje-medios-pago"; // define tu ruta en backend
+    const url = "/fuente-datos/porcentaje-medios-pago"; 
     const respuesta = await API.get(url);
 
     if (respuesta.data && respuesta.data.ok) {
@@ -60,7 +55,6 @@ export const obtenerPorcentajeMediosPagoServicio = async () => {
       throw new Error(respuesta.data?.mensaje || "Error al obtener porcentaje de medios de pago");
     }
   } catch (error) {
-    console.error("Error en obtenerPorcentajeMediosPagoServicio:", error);
     throw error;
   }
 };
@@ -82,8 +76,6 @@ export const obtenerVentasPorMesServicio = async (cantidadMeses) => {
       throw new Error(respuesta.data?.mensaje || "Error al obtener ventas por mes");
     }
   } catch (error) {
-    console.error("Error en obtenerVentasPorMesServicio:", error);
-    console.error("Error response:", error.response?.data);
     throw error;
   }
 };

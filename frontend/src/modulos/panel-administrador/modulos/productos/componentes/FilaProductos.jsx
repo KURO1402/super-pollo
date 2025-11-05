@@ -9,7 +9,6 @@ export const FilaProducto = ({ producto, onGestionarInsumos, onEditarProducto, o
     return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
   };
 
-  // Determinar el texto y icono segun si ya tiene insumos o no
   const getConfiguracionInsumos = (usaInsumos) => {
     if (usaInsumos === 1) {
       return {
@@ -30,7 +29,6 @@ export const FilaProducto = ({ producto, onGestionarInsumos, onEditarProducto, o
 
   return (
     <tr className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-      {/* IMAGEN Y PRODUCTO */}
       <td className="px-4 py-3">
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0 h-10 w-10">

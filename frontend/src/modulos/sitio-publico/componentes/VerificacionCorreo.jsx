@@ -8,7 +8,7 @@ const VerificacionCorreo = ({
   estaCargando = false 
 }) => {
   const [codigo, setCodigo] = useState(['', '', '', '', '', '']);
-  const [tiempoRestante, setTiempoRestante] = useState(300); // 5 minutos
+  const [tiempoRestante, setTiempoRestante] = useState(300);
   const [puedeReenviar, setPuedeReenviar] = useState(false);
   const inputsRef = useRef([]);
 
@@ -21,7 +21,6 @@ const VerificacionCorreo = ({
     }
   }, [tiempoRestante]);
 
-  // Focus en el primer input al montar
   useEffect(() => {
     if (inputsRef.current[0]) {
       inputsRef.current[0].focus();
@@ -29,31 +28,26 @@ const VerificacionCorreo = ({
   }, []);
 
   const manejarCambioCodigo = (index, valor) => {
-    // Solo permitir números
     if (!/^\d?$/.test(valor)) return;
     
     const nuevoCodigo = [...codigo];
     nuevoCodigo[index] = valor;
     setCodigo(nuevoCodigo);
 
-    // Auto-focus al siguiente input si hay valor
     if (valor && index < 5) {
       inputsRef.current[index + 1].focus();
     }
 
-    // Auto-enviar si el código está completo
     if (nuevoCodigo.every(digito => digito !== '') && index === 5) {
       handleSubmit();
     }
   };
 
   const manejarKeyDown = (index, e) => {
-    // Manejar tecla backspace
     if (e.key === 'Backspace' && !codigo[index] && index > 0) {
       inputsRef.current[index - 1].focus();
     }
     
-    // Manejar Enter para enviar
     if (e.key === 'Enter' && codigo.every(digito => digito !== '')) {
       handleSubmit();
     }
@@ -73,7 +67,6 @@ const VerificacionCorreo = ({
     
     setCodigo(nuevoCodigo);
     
-    // Focus en el último input con datos
     const ultimoIndex = Math.min(numeros.length, 5);
     if (inputsRef.current[ultimoIndex]) {
       inputsRef.current[ultimoIndex].focus();
@@ -116,7 +109,6 @@ const VerificacionCorreo = ({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-        {/* Inputs del código */}
         <div className="flex justify-center gap-2 sm:gap-3 mb-2">
           {codigo.map((digito, index) => (
             <input
@@ -135,7 +127,6 @@ const VerificacionCorreo = ({
           ))}
         </div>
 
-        {/* Tiempo restante */}
         <div className="text-center text-sm text-gray-600 mb-2">
           <FaClock className="inline mr-2 mb-1" />
           El código expira en: 
@@ -144,7 +135,6 @@ const VerificacionCorreo = ({
           </span>
         </div>
 
-        {/* Botones */}
         <div className="space-y-3 sm:space-y-4">
           <button
             type="submit"
@@ -176,8 +166,6 @@ const VerificacionCorreo = ({
             </button>
           </div>
         </div>
-
-        {/* Información adicional */}
         <div className="text-center text-xs sm:text-sm text-gray-500 mt-4 sm:mt-6">
           <p>¿No recibiste el código? Revisa tu carpeta de spam</p>
         </div>

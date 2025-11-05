@@ -12,14 +12,13 @@ const GraficoVentasMes = ({ cantidadMeses }) => {
     const cargarDatos = async () => {
       try {
         const resultado = await obtenerVentasPorMesServicio(cantidadMeses);
-        // Formatear totalVentas a número
         const datosFormateados = resultado.map(item => ({
           mes: item.mes,
           totalVentas: parseFloat(item.totalVentas)
         }));
         setData(datosFormateados);
       } catch (error) {
-        console.error("Error al cargar ventas por mes:", error);
+        
       } finally {
         setCargando(false);
       }

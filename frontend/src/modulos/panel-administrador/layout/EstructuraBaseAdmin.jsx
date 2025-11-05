@@ -19,7 +19,6 @@ const LayoutContent = () => {
         } ${isMobileOpen ? "ml-0" : ""}`}
       >
         <Cabecera />
-        {/* Contenido principal con fondo */}
         <div className="p-1 mx-auto max-w-(--breakpoint-2xl) md:p-2">
           <Outlet />
         </div>

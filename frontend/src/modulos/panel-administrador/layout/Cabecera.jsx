@@ -55,7 +55,6 @@ const Cabecera = () => {
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-50 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
       <div className="flex items-center justify-between w-full px-3 py-3 lg:px-6 lg:py-4">
-        {/* Lado izquierdo - Botón menú */}
         <div className="flex items-center gap-2 lg:gap-4">
           <button
             className="flex items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
@@ -96,12 +95,8 @@ const Cabecera = () => {
           </button>
         </div>
 
-        {/* Lado derecho - Controles de usuario */}
         <div className="flex items-center gap-3">
-          {/* Botón de cambio de tema */}
           <BotonCambioTema />
-          
-          {/* Desplegable de usuario */}
           <DesplegableUsuario />
         </div>
       </div>

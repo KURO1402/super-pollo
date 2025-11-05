@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 
 const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
     const [tiposDocumento, setTiposDocumento] = useState([]);
-    
-    // elementos de react-hook-form
     const{
         register,
         handleSubmit,
@@ -13,7 +11,6 @@ const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
         formState: { errors, isDirty }
     } = useForm();
 
-    // Mapear los datos del usuario al formato del formulario
     const mapearUsuarioAFormulario = (usuarioData) => {
       if (!usuarioData) return {};
       
@@ -23,14 +20,12 @@ const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
         tipoDocumento: usuarioData.nombreTipoDocumento || '',
         numeroDocumento: usuarioData.numeroDocumentoUsuario || '',
         telefono: usuarioData.telefonoUsuario || '',
-        // También puedes incluir otros campos si los necesitas
         idUsuario: usuarioData.idUsuario,
         idTipoDocumento: usuarioData.idTipoDocumento,
         idRol: usuarioData.idRol
       };
     };
 
-    // cuando el usuario de cargue se reseteara el contenido del usuario
     useEffect(() => {
         if (usuario) {
             const datosFormulario = mapearUsuarioAFormulario(usuario);
@@ -38,7 +33,6 @@ const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
         }
     }, [reset]);
 
-    // Función para manejar el envio
     const manejarEnvio = (datosFormulario) => {
       const datosParaBackend = {
         idUsuario: usuario.idUsuario,
@@ -47,7 +41,6 @@ const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
         numeroDocumentoUsuario: datosFormulario.numeroDocumento,
         telefonoUsuario: datosFormulario.telefono,
         idTipoDocumento: datosFormulario.idTipoDocumento || usuario.idTipoDocumento,
-        // Mantener los campos que no se editan
         idRol: usuario.idRol,
         nombreRol: usuario.nombreRol,
         nombreTipoDocumento: datosFormulario.tipoDocumento
@@ -56,18 +49,15 @@ const FormularioEditUsuario = ({ usuario, onSubmit, cerrar }) => {
       onSubmit(datosParaBackend);
     };
 
-    // cargar tipos de documento desde el servicio existente
     useEffect(() => {
         const fetchTiposDocumento = async () => {
         try {
             const data = await obtenerTiposDocumento();
-            // Filtrar para eliminar RUC y quedarnos con todo lo demás
             const tiposFiltrados = data.filter(tipo => 
               tipo.nombreTipoDocumento !== 'RUC'
             );
             setTiposDocumento(tiposFiltrados);
         } catch (error) {
-            console.error("Error al obtener tipos de documento:", error);
         }
         };
         fetchTiposDocumento();

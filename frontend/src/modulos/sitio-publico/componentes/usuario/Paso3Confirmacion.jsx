@@ -18,13 +18,11 @@ const Paso3Confirmacion = () => {
   const anticipo = getAnticipo();
   const total = getTotal();
 
-  // funcion para preparar la reserva y generar la preferencia
   const prepararReservaYPreferencia = async () => {
-    if (preferenceId) return preferenceId; // Si ya existe, no generar otra
+    if (preferenceId) return preferenceId;
 
     setProcesandoPago(true);
     try {
-      // Primero registrar la reservación
       const reservaData = {
         fechaReservacion: datos.fecha,
         horaReservacion: datos.hora + ':00',
@@ -41,14 +39,12 @@ const Paso3Confirmacion = () => {
       const reservaCreada = await registrarReservacionServicio(reservaData);
       
       setReservationId(reservaCreada.idReservacion);
-      // Generar la preferencia de pago
       const preferencia = await generarPreferenciaMercadoPago(reservaCreada.idReservacion);
       setPreferenceId(preferencia.preference_id);
     
       return preferencia.preference_id;
 
     } catch (error) {
-      console.error("Error al preparar reserva:", error);
       mostrarAlerta.error("Error al preparar la reserva. Intenta nuevamente.");
       throw error;
     } finally {
@@ -63,7 +59,6 @@ const Paso3Confirmacion = () => {
       mostrarAlerta.exito("Reserva realizada de manera exitosa")
       
     } catch (error) {
-      console.error("Error al guardar reserva:", error);
       alert("Error al guardar la reserva. Contacta con soporte.");
     } finally {
       setProcesandoPago(false);
@@ -71,24 +66,20 @@ const Paso3Confirmacion = () => {
   };
 
   const handlePaymentError = (error) => {
-    console.error("Error en el pago:", error);
     alert("Error en el proceso de pago. Intenta nuevamente.");
   };
 
-  // extraer id de la mesa
   const obtenerIdMesa = (mesaTexto) => {
     const match = mesaTexto?.match(/Mesa (\d+)/);
     return match ? parseInt(match[1]) : null;
   };
 
-  // Formatear fecha para mejor visualización
   const formatearFecha = (fecha) => {
     if (!fecha) return "No especificada";
     const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(fecha).toLocaleDateString('es-ES', opciones);
   };
 
-  // Formatear moneda
   const formatearMoneda = (monto) => {
     return `S/ ${monto.toFixed(2)}`;
   };
@@ -98,7 +89,6 @@ const Paso3Confirmacion = () => {
       await prepararReservaYPreferencia();
 
     } catch (error) {
-      console.error("Error al iniciar pago:", error);
     }
   };
 
@@ -108,7 +98,6 @@ const Paso3Confirmacion = () => {
     }
   };
 
-  // Verificar si puede procesar el pago
   const puedeProcesarPago = datos.productos.length > 0 && datos.mesa && !procesandoPago;
 
   return (
@@ -123,7 +112,6 @@ const Paso3Confirmacion = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Resumen de la Reserva */}
         <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-blue-600/10 rounded-xl flex items-center justify-center">
@@ -166,7 +154,6 @@ const Paso3Confirmacion = () => {
             </div>
           </div>
 
-          {/* Productos Seleccionados */}
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
               <FaUtensils className="w-5 h-5 text-yellow-500" />
@@ -204,7 +191,6 @@ const Paso3Confirmacion = () => {
           </div>
         </div>
 
-        {/* Información de Pago */}
         <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-green-600/10 rounded-xl flex items-center justify-center">

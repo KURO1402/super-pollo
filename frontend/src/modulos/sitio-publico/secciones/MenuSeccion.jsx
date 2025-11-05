@@ -10,7 +10,6 @@ const MenuSeccion = () => {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
-  // Cargar productos al montar el componente
   useEffect(() => {
     const cargarProductos = async () => {
       try {
@@ -41,7 +40,6 @@ const MenuSeccion = () => {
     cargarProductos();
   }, []);
 
-  // Filtrar productos cuando cambia la categoría o los productos
   useEffect(() => {
     if (categoriaSeleccionada === "Todos") {
       setProductosFiltrados(todosLosProductos);
@@ -66,7 +64,6 @@ const MenuSeccion = () => {
     }
   }, [categoriaSeleccionada, todosLosProductos]);
 
-  // Función para manejar el cambio de categoría
   const handleCategoriaChange = (categoria) => {
     setCategoriaSeleccionada(categoria);
   };
@@ -91,13 +88,11 @@ const MenuSeccion = () => {
           </p>
         </div>
         
-        {/* Categorías */}
         <MenuCategorias 
           categoriaSeleccionada={categoriaSeleccionada}
           onCategoriaChange={handleCategoriaChange}
         />
         
-        {/* Listado de productos */}
         <MenuListado 
           productos={productosFiltrados}
           cargando={cargando}

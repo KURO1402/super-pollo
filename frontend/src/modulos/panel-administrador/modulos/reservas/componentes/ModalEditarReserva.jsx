@@ -17,7 +17,6 @@ export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
   const [cargando, setCargando] = useState(false);
   const [guardando, setGuardando] = useState(false);
 
-  // Cargar datos de la reserva cuando cambia el idReservacion
   useEffect(() => {
     if (idReservacion) {
       cargarReserva();
@@ -33,7 +32,7 @@ export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
         const reservaData = respuesta.reservacion[0];
 
         setReserva(reservaData);
-        // Formatear datos para el formulario
+        
         setFormData({
           idReservacion: reservaData.idReservacion,
           fechaReservacion: reservaData.fechaReservacion
@@ -46,7 +45,6 @@ export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
         });
       }
     } catch (error) {
-      console.error("Error al cargar reserva:", error);
       mostrarAlerta.error("Error al cargar los datos de la reserva");
       onClose();
     } finally {
@@ -54,7 +52,6 @@ export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
     }
   };
 
-  // Manejo de cambios en el formulario principal
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -63,11 +60,9 @@ export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
     }));
   };
 
-  // Manejo de envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validaciones básicas
     if (!formData.fechaReservacion || !formData.horaReservacion || !formData.cantidadPersonas || !formData.idMesa) {
       mostrarAlerta.error('Por favor, complete todos los campos obligatorios');
       return;
@@ -83,7 +78,6 @@ export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
       return;
     }
 
-    // Validar que la fecha sea hoy o posterior
     const fechaReservacion = new Date(formData.fechaReservacion);
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
@@ -96,7 +90,6 @@ export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
     try {
       setGuardando(true);
 
-      // Preparar datos en el formato que espera el backend
       const datosActualizados = {
         fechaReservacion: formData.fechaReservacion,
         horaReservacion: formData.horaReservacion + ':00',
@@ -106,13 +99,12 @@ export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
         estadoReservacion: formData.estadoReservacion
       };
 
-      // Llamar al servicio para actualizar
       const respuesta = await actualizarReservacionServicio(idReservacion, datosActualizados);
       
       if (respuesta.ok) {
         mostrarAlerta.exito("Reserva actualizada exitosamente");
         if (onGuardar) {
-          onGuardar({ ...datosActualizados, idReservacion }); // Pasar los datos actualizados al callback
+          onGuardar({ ...datosActualizados, idReservacion });
         }
         onClose();
       } else {
@@ -120,7 +112,6 @@ export const ModalEditarReserva = ({ idReservacion, onClose, onGuardar }) => {
       }
 
     } catch (error) {
-      console.error('Error al guardar reserva:', error);
       mostrarAlerta.error("Error al guardar la reserva");
     } finally {
       setGuardando(false);

@@ -12,7 +12,6 @@ import ModalActualizarCorreo from "../../componentes/usuario/ModalActualizarCorr
 import ModalCambiarClave from "../../componentes/usuario/ModalCambiarClave";
 import { useAutenticacionGlobal } from "../../../../app/estado-global/autenticacionGlobal";
 
-// Importar servicios
 import { 
   obtenerUsuarioActualServicio,
   actualizarPerfilUsuarioServicio,
@@ -24,7 +23,6 @@ const PerfilUsuario = () => {
   const [cargando, setCargando] = useState(true);
   const { usuario } = useAutenticacionGlobal();
   
-  // Múltiples modales
   const { 
     estaAbierto: modalEditarAbierto, 
     abrir: abrirEditar, 
@@ -43,7 +41,6 @@ const PerfilUsuario = () => {
     cerrar: cerrarClave 
   } = useModal();
 
-  // Cargar datos reales del perfilUsuario
   useEffect(() => {
     const cargarUsuario = async () => {
       try {
@@ -51,7 +48,6 @@ const PerfilUsuario = () => {
         const respuesta = await obtenerUsuarioActualServicio(usuario.idUsuario);
         
         if (respuesta.ok && respuesta.usuario) {
-          // Mapear los datos del backend a la estructura que espera el frontend
           const usuarioMapeado = {
             idUsuario: usuario.idUsuario,
             nombre: respuesta.usuario.nombresUsuario,
@@ -67,9 +63,7 @@ const PerfilUsuario = () => {
           throw new Error("No se pudieron cargar los datos del perfilUsuario");
         }
       } catch (error) {
-        console.error('Error al cargar perfil:', error);
         
-        // Datos de fallback
         setPerfilUsuario({
           idUsuario: 1,
           nombre: "Usuario",
@@ -89,7 +83,6 @@ const PerfilUsuario = () => {
     cargarUsuario();
   }, []);
 
-  // Función helper para convertir ID de tipo documento a texto
   const obtenerTipoDocumentoTexto = (idTipoDocumento) => {
     const tipos = {
       1: "DNI",
@@ -100,7 +93,6 @@ const PerfilUsuario = () => {
     return tipos[idTipoDocumento] || "DNI";
   };
 
-  // Función helper para convertir texto a ID de tipo documento
   const obtenerIdTipoDocumento = (tipoDocumento) => {
     const tipos = {
       "DNI": 1,
@@ -111,10 +103,8 @@ const PerfilUsuario = () => {
     return tipos[tipoDocumento] || 1;
   };
 
-  // Manejadores para actualizaciones
   const handlePerfilActualizado = async (datosActualizados) => {
     try {
-      // Preparar datos para el backend
       const datosParaBackend = {
         nombresUsuario: datosActualizados.nombre,
         apellidosUsuario: datosActualizados.apellido,
@@ -134,7 +124,6 @@ const PerfilUsuario = () => {
         mostrarAlerta.exito(respuesta.mensaje || "Perfil actualizado exitosamente");
       }
     } catch (error) {
-      console.error('Error al actualizar perfil:', error);
       mostrarAlerta.error(error.message || "Error al actualizar el perfil");
     }
   };
@@ -152,9 +141,8 @@ const PerfilUsuario = () => {
         mostrarAlerta.exito(respuesta.mensaje || "Correo actualizado exitosamente");
       }
     } catch (error) {
-      console.error('Error al actualizar correo:', error);
       mostrarAlerta.error(error.message || "Error al actualizar el correo");
-      throw error; // Re-lanzar para que el modal maneje el error
+      throw error;
     }
   };
 
@@ -167,9 +155,8 @@ const PerfilUsuario = () => {
         mostrarAlerta.exito(respuesta.mensaje || "Contraseña actualizada exitosamente");
       }
     } catch (error) {
-      console.error('Error al actualizar contraseña:', error);
-      mostrarAlerta.error(error.message || "Error al actualizar la contraseña");
-      throw error; // Re-lanzar para que el modal maneje el error
+      mostrarAlerta.error("Error al actualizar la contraseña");
+      throw error;
     }
   };
 
@@ -210,7 +197,6 @@ const PerfilUsuario = () => {
     <section className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         
-        {/* Header Estilo Sitio Público */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
             MI <span className="text-rojo">PERFIL</span>
@@ -223,11 +209,9 @@ const PerfilUsuario = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Tarjeta de Perfil Lateral */}
           <div className="lg:col-span-1">
             <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
               
-              {/* Header con gradiente */}
               <div className="bg-gradient-to-r from-azul-secundario to-azul-primario py-8 px-6 text-center">
                 <div className="relative inline-block">
                   <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30">
@@ -249,7 +233,6 @@ const PerfilUsuario = () => {
                 </div>
               </div>
 
-              {/* Información de Contacto */}
               <div className="p-6 space-y-6">
                 <div 
                   className="flex items-center gap-4 p-4 bg-gray-700 rounded-2xl hover:bg-gray-600 transition-colors cursor-pointer"
@@ -282,11 +265,9 @@ const PerfilUsuario = () => {
             </div>
           </div>
 
-          {/* Información Principal */}
           <div className="lg:col-span-2">
             <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 overflow-hidden">
               
-              {/* Header de Información Personal */}
               <div className="bg-gradient-to-r from-gray-700 to-gray-600 px-8 py-6 border-b border-gray-600">
                 <div className="flex items-center justify-between">
                   <div>
@@ -306,11 +287,9 @@ const PerfilUsuario = () => {
                 </div>
               </div>
 
-              {/* Campos de Información */}
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   
-                  {/* Columna Izquierda */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
                       <div className="bg-gray-700 rounded-2xl p-6 hover:shadow-md transition-shadow">
@@ -363,7 +342,6 @@ const PerfilUsuario = () => {
                     </div>
                   </div>
 
-                  {/* Columna Derecha */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
                       <div className="bg-gray-700 rounded-2xl p-6 hover:shadow-md transition-shadow">
@@ -427,7 +405,6 @@ const PerfilUsuario = () => {
         </div>
       </div>
 
-      {/* Modales */}
       <Modal
         estaAbierto={modalEditarAbierto}
         onCerrar={cerrarEditar}

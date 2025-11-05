@@ -15,7 +15,7 @@ export const useVentasHoyComparacion = () => {
         const resultado = await obtenerCantidadVentasHoyComparacionServicio();
         setVentas(resultado);
       } catch (error) {
-        console.error("Error al obtener ventas hoy:", error);
+        
       } finally {
         setCargando(false);
       }

@@ -2,22 +2,21 @@ import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { GoPencil, GoCheck } from "react-icons/go";
 
-const InputContraseñaEditable = ({ usuario, setUsuario }) => { // revicibos el estado del usuario para modificarlo
-  const [mostrarClave, setMostrarClave] = useState(false); // estado para mostrar la clave
-  const [editandoClave, setEditandoClave] = useState(false); // estado para ver si sigue editando, para el manejo de los botones
+const InputContraseñaEditable = ({ usuario, setUsuario }) => {
+  const [mostrarClave, setMostrarClave] = useState(false); 
+  const [editandoClave, setEditandoClave] = useState(false);
 
   return (
     <div className="flex items-center gap-2">
       <div className="flex items-center gap-2 w-full">
         <div className="relative w-full">
-            {/* para hacer visible a la contraseña */}
           <input
             type={mostrarClave ? "text" : "password"}
             value={usuario.clave}
             onChange={(e) =>
               setUsuario({ ...usuario, clave: e.target.value })
             }
-            readOnly={!editandoClave} // para modificar
+            readOnly={!editandoClave}
             className={`w-full h-11 rounded-lg border 
                         ${
                           editandoClave
@@ -31,7 +30,7 @@ const InputContraseñaEditable = ({ usuario, setUsuario }) => { // revicibos el 
           />
           <button
             type="button"
-            onClick={() => setMostrarClave(!mostrarClave)} // para hacer visible
+            onClick={() => setMostrarClave(!mostrarClave)}
             className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           >
             {mostrarClave ? <FiEyeOff size={18} /> : <FiEye size={18} />}
@@ -39,10 +38,6 @@ const InputContraseñaEditable = ({ usuario, setUsuario }) => { // revicibos el 
         </div>
         <button
           onClick={() => {
-            if (editandoClave) {
-              // Aquí se debe hacer la llamada al backend para poder modificar la contraseña 
-              console.log("Guardando nueva contraseña:", usuario.clave);
-            }
             setEditandoClave(!editandoClave);
           }}
           className={`px-2 py-2 rounded-xl border-transparent transition-colors duration-200 cursor-pointer 

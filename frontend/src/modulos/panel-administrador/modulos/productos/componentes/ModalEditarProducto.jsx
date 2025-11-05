@@ -5,7 +5,6 @@ import { actualizarProductoServicio } from '../servicios/productoServicios';
 import { useCategorias } from '../hooks/useCategorias';
 
 export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
-  // Hook de categorías
   const { categorias, loading: cargandoCategorias, cargarCategorias } = useCategorias();
   const [categoriasCargadas, setCategoriasCargadas] = useState(false);
 
@@ -24,7 +23,6 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
     }
   });
 
-  // Cargar categorías solo una vez al abrir el modal
   useEffect(() => {
     const inicializar = async () => {
       if (!categoriasCargadas) {
@@ -36,10 +34,8 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
     inicializar();
   }, [cargarCategorias, categoriasCargadas]);
 
-  // Establecer la categoria cuando las categorias estén cargadas
   useEffect(() => {
     if (categoriasCargadas && categorias.length > 0 && producto.nombreCategoria) {
-      // Buscar el id de categoria basado en el nombreCategoria del producto
       const categoriaEncontrada = categorias.find(
         cat => cat.nombreCategoria === producto.nombreCategoria
       );
@@ -52,31 +48,25 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
 
   const onSubmit = async (data) => {
     try {
-      // Validar categoria
       if (!data.idCategoria) {
         mostrarAlerta.advertencia('Debe seleccionar una categoría para el producto');
         return;
       }
 
-      // Preparar datos para el backend
       const datosActualizados = {
         nombreProducto: data.nombreProducto,
         descripcionProducto: data.descripcionProducto,
         precio: parseFloat(data.precio),
         idCategoria: parseInt(data.idCategoria)
       };
-      
-      // Llamar al servicio de actualización
+
       await actualizarProductoServicio(producto.idProducto, datosActualizados);
       
-      // Mostrar éxito
       mostrarAlerta.exito('Producto actualizado exitosamente');
-      onGuardar(); // Recargar la lista
+      onGuardar(); 
       
     } catch (error) {
-      console.error('Error al actualizar producto:', error);
-      const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || error.message || 'Error al actualizar el producto';
-      mostrarAlerta.error(mensajeError);
+      mostrarAlerta.error("No se subió el productos");
     }
   };
 
@@ -88,7 +78,6 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Nombre del Producto */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Nombre del Producto *
@@ -116,7 +105,6 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
           )}
         </div>
 
-        {/* Categoría */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Categoría del Producto *
@@ -157,7 +145,6 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
           )}
         </div>
 
-        {/* Precio */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Precio de Venta (S/) *
@@ -187,7 +174,6 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
           )}
         </div>
 
-        {/* Descripción */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Descripción del Producto
@@ -200,7 +186,6 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
           />
         </div>
 
-        {/* Información de solo lectura */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <h4 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
             Información del Producto
@@ -231,7 +216,6 @@ export const ModalEditarProducto = ({ producto, onClose, onGuardar }) => {
           </div>
         </div>
 
-        {/* Botones de acción */}
         <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"

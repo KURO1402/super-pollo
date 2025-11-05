@@ -55,7 +55,6 @@ const ModalCambiarClave = ({ usuario, onClose, onClaveActualizada }) => {
     setCargando(true);
 
     try {
-      // Preparar datos para el servicio
       const datosParaServicio = {
         clave: formData.clave,
         nuevaClave: formData.nuevaClave
@@ -63,7 +62,6 @@ const ModalCambiarClave = ({ usuario, onClose, onClaveActualizada }) => {
 
       await onClaveActualizada(datosParaServicio);
     } catch (error) {
-      // El error ya se maneja en el componente principal
     } finally {
       setCargando(false);
     }
@@ -71,7 +69,7 @@ const ModalCambiarClave = ({ usuario, onClose, onClaveActualizada }) => {
 
   const renderCampoContraseña = (label, name, mostrarCampo) => (
     <div>
-      <label htmlFor={name} className="block text-sm font-medium text-gray-300 mb-2">
+      <label htmlFor={name} className="block text-sm font-medium text-red-300 mb-2">
         {label}
       </label>
       <div className="relative">
@@ -110,7 +108,6 @@ const ModalCambiarClave = ({ usuario, onClose, onClaveActualizada }) => {
         {renderCampoContraseña("Nueva contraseña", "nuevaClave", mostrar.nuevaClave)}
         {renderCampoContraseña("Confirmar nueva contraseña", "confirmarClave", mostrar.confirmarClave)}
 
-        {/* Requisitos de contraseña */}
         <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
           <p className="text-sm font-medium text-gray-300 mb-2">
             Requisitos de la nueva contraseña:
@@ -125,7 +122,6 @@ const ModalCambiarClave = ({ usuario, onClose, onClaveActualizada }) => {
           </ul>
         </div>
 
-        {/* Botones */}
         <div className="flex justify-end space-x-3 pt-4">
           <BotonSimple
             funcion={onClose}

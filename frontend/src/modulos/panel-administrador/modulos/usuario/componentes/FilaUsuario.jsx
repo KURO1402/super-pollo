@@ -5,16 +5,12 @@ const FilaUsuario = ({ usuario, onEliminarUsuario, onEditarUsuario }) => {
   const handleEditar = () => {
     if (onEditarUsuario) {
       onEditarUsuario(usuario);
-    } else {
-      console.log("Editar usuario:", usuario);
     }
   };
 
   const handleEliminar = () => {
     if (onEliminarUsuario) {
       onEliminarUsuario(usuario);
-    } else {
-      console.log("Eliminar usuario:", usuario);
     }
   };
 

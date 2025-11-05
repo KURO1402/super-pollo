@@ -4,7 +4,6 @@ export const FilaEntrada = ({ entrada  }) => {
 
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
-      {/* Insumo */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
@@ -16,7 +15,6 @@ export const FilaEntrada = ({ entrada  }) => {
         </div>
       </td>
 
-      {/* Cantidad */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
@@ -25,21 +23,18 @@ export const FilaEntrada = ({ entrada  }) => {
         </div>
       </td>
 
-      {/* Fecha (solo fecha) */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-900 dark:text-white">
           {entrada.fechaMovimiento}
         </div>
       </td>
 
-      {/* Hora (solo hora) */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-900 dark:text-white">
           {entrada.horaMovimiento}
         </div>
       </td>
 
-      {/* Usuario*/}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-1 text-sm text-gray-900 dark:text-white">
           <FiUser size={14} className="text-gray-400" />
@@ -47,7 +42,6 @@ export const FilaEntrada = ({ entrada  }) => {
         </div>
       </td>
 
-      {/* detalle */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-900 dark:text-white">
           {entrada.detallesMovimiento == "-" ? "No hay detalle": entrada.detallesMovimiento}

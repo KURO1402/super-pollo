@@ -7,8 +7,8 @@ import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacion
 import { FiBox, FiCalendar, FiUser } from "react-icons/fi";
 
 export default function DesplegableUsuario() {
-  const [estaAbierto, setEstaAbierto] = useState(false); // El estado para el desplegable
-  const { usuario, logout } = useAutenticacionGlobal(); // traemos el usuario para extraer sus datos, y la función de cerrar sesión
+  const [estaAbierto, setEstaAbierto] = useState(false);
+  const { usuario, logout } = useAutenticacionGlobal(); 
 
   function alternarDesplegable() {
     setEstaAbierto(!estaAbierto);
@@ -67,7 +67,7 @@ export default function DesplegableUsuario() {
             <DesplegableItem
               onItemClick={cerrarDesplegable}
               tag="a"
-              to="/admin/perfil" // se cambio la ruta
+              to="/admin/perfil"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <FiUser size={20}/>

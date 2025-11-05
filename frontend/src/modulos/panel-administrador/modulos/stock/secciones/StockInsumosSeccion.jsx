@@ -1,22 +1,14 @@
-// librerías
 import { BsBoxSeam } from "react-icons/bs";
-// hook de react
 import { useState, useEffect } from "react";
-// servicios
 import { eliminarInsumoServicio, listarInsumoServicio } from "../servicios/insumosServicios";
-// importar componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
-import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda"; // La barra de busqueda del componente reutilizable
-import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda"; // otro componente reutilizable
-import { Paginacion } from "../../../componentes/tabla/Paginacion"; // la paginación para la tabla
+import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda";
+import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import Modal from "../../../componentes/modal/Modal";
-// custom hooks
-import { useBusqueda } from "../../../hooks/useBusqueda"; // hook para la la busqueda 
-import { useFiltro } from "../../../hooks/useFiltro"; // hook para filtrar por tipo
-import { usePaginacion } from "../../../hooks/usePaginacion"; // hook para la paginas de nuestra tabla
+import { useBusqueda } from "../../../hooks/useBusqueda";
+import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
-// componentes de la seccion
-import { FilaInsumo } from "../componentes/FilaInsumo"; // nuestras filsa personalizadas
+import { FilaInsumo } from "../componentes/FilaInsumo";
 import { ModalNuevoInsumo } from "../componentes/ModalNuevoInsumo";
 import { ModalMovimientoStock } from "../componentes/ModalMovimientoStock";
 import { ModalEditarStock } from "../componentes/ModalEditarStock";
@@ -25,7 +17,7 @@ import { useConfirmacion } from "../../../hooks/useConfirmacion";
 import mostrarAlerta, { alertasCRUD } from "../../../../../utilidades/toastUtilidades";
 
 const StockInsumosSeccion = () => {
-  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda(); // utilizamos nuestro hook de busqueda, lo desestructuramos
+  const { terminoBusqueda, setTerminoBusqueda, filtrarPorBusqueda } = useBusqueda();
   const { 
     paginaActual, 
     setPaginaActual, 
@@ -33,31 +25,26 @@ const StockInsumosSeccion = () => {
     setItemsPorPagina, 
     paginar 
   } = usePaginacion(5);
-  const [insumoSeleccionado, setInsumoSeleccionado] = useState(null); // estado para insumo seleccionado
+  const [insumoSeleccionado, setInsumoSeleccionado] = useState(null);
   const [insumoAEliminar, setInsumoAEliminar] = useState(null);
-  const [ insumos, setInsumos ] = useState([]) // estado para los insumos
-  const [ error, setError ] = useState(null); // estado para errores
-  // Modal para nuevo insumo
+  const [ insumos, setInsumos ] = useState([])
+  const [ error, setError ] = useState(null);
   const modalNuevoInsumo = useModal(false);
   const modalMovimientoStock = useModal(false);
-  const modalEditarStock = useModal(false); // modal para editar stock
+  const modalEditarStock = useModal(false);
   const confirmacionEliminar = useConfirmacion();
-  // obtener los insumos
   const obtenerInsumos = async () => {
     try {
       const respuesta = await listarInsumoServicio();
       setInsumos(respuesta);
     } catch (error) {
       setError("Error al obtener los insumos");
-      console.error(error);
     }
   };
-  // useEffect para cargar los insumos solo al montar el componente
   useEffect(() => {
-    obtenerInsumos(); // Cargar los insumos cuando se monta el componente
-  }, []); // Solo se ejecuta una vez al montar el componente
+    obtenerInsumos();
+  }, []);
 
-  // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(insumos, [
     "nombreInsumo",
     "unidadMedida",
@@ -65,50 +52,38 @@ const StockInsumosSeccion = () => {
   ]);
   const { datosPaginados, totalPaginas } = paginar(filtrados);
   
-  // Función para manejar cambio de página
   const handleCambiarPagina = (nuevaPagina) => {
     setPaginaActual(nuevaPagina);
   };
 
-  // Función para manejar cambio de items por página
   const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
     setItemsPorPagina(nuevoItemsPorPagina);
   };
 
-  // Función para abrir modal de nuevo insumo
   const handleNuevoInsumo = () => {
     modalNuevoInsumo.abrir();
   };
-  // Función para abrir modal de movimiento de stock
+
   const handleMovimientoStock = () => {
     modalMovimientoStock.abrir();
   };
-  // funciones para actulizar el estado desde los modales
+
   const handleInsumoCreado = async () => {
-    // Dar tiempo al backend para procesar
     await new Promise(resolve => setTimeout(resolve, 100));
-    // Recargar la lista completa desde el backend
     await obtenerInsumos();
-    // Cerrar modal
     modalNuevoInsumo.cerrar();
   };
 
   const handleInsumoActualizado = async () => {
-    // Dar tiempo al backend para procesar
     await new Promise(resolve => setTimeout(resolve, 100));
-    // Recargar la lista completa desde el backend
     await obtenerInsumos();
-    // Cerrar modal y limpiar selección
     modalEditarStock.cerrar();
     setInsumoSeleccionado(null);
   };
 
   const handleMovimientoCreado = async () => {
-    // Dar tiempo al backend para procesar
     await new Promise(resolve => setTimeout(resolve, 100));
-    // Recargar la lista completa desde el backend
     await obtenerInsumos();
-    // Cerrar modal
     modalMovimientoStock.cerrar();
   };
 
@@ -118,7 +93,6 @@ const StockInsumosSeccion = () => {
   confirmacionEliminar.solicitarConfirmacion(
     `¿Estás seguro de eliminar el insumo "${insumo.nombreInsumo}"? Esta acción no se puede deshacer.`,
     () => {
-      // Esta función se ejecuta cuando el usuario confirma
       handleEliminarInsumo(insumo.idInsumo);
     },
     {
@@ -144,16 +118,13 @@ const handleEliminarInsumo = async (idInsumo) => {
   } catch (error) {
     mostrarAlerta.error('No se puede eliminar un insumo con stock.')
   } finally {
-    // Limpiar el estado
     setInsumoAEliminar(null);
   }
 };
-  // Función para abrir modal de edición
   const handleEditarStock = (insumo) => {
     setInsumoSeleccionado(insumo);
     modalEditarStock.abrir();
   };
-  // Mapear los insumos para las filas de la tabla
   const filasInsumos = datosPaginados.map((insumo) => (
     <FilaInsumo 
       key={insumo.idInsumo} 
@@ -172,7 +143,6 @@ const handleEliminarInsumo = async (idInsumo) => {
         </div>
         <p className="text-gray-600 dark:text-gray-400">Gestión de materia prima y bebidas</p>
       </div>
-      {/* Barra de búsqueda y filtros */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
           <BarraBusqueda
@@ -181,7 +151,6 @@ const handleEliminarInsumo = async (idInsumo) => {
             placeholder="Buscar por nombre de insumo, unidad o categoría..."
           />
           <div className="flex flex-wrap gap-2">
-            {/* Botón para movimiento de stock */}
             <button 
               onClick={handleMovimientoStock}
               className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 cursor-pointer text-sm sm:text-base flex-1 sm:flex-none min-w-0"
@@ -190,7 +159,6 @@ const handleEliminarInsumo = async (idInsumo) => {
               <span className="truncate">Movimiento Stock</span>
             </button>
             
-            {/* Botón para nuevo insumo */}
             <button 
               onClick={handleNuevoInsumo}
               className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-medium transition-colors flex items-center gap-1 cursor-pointer text-sm sm:text-base flex-1 sm:flex-none min-w-0"
@@ -201,7 +169,6 @@ const handleEliminarInsumo = async (idInsumo) => {
           </div>
         </div>
       </div>
-      {/* Tabla de insumos */}
       <Tabla
         encabezados={["Insumo", "Categoría", "Stock Actual", "Unidad", "Estado Stock", "Acciones"]}
         registros={filasInsumos}
@@ -214,7 +181,6 @@ const handleEliminarInsumo = async (idInsumo) => {
         alCambiarItemsPorPagina={handleCambiarItemsPorPagina}
         mostrarSiempre={true}
       />
-      {/* Modal para nuevo insumo */}
       <Modal
         estaAbierto={modalNuevoInsumo.estaAbierto}
         onCerrar={modalNuevoInsumo.cerrar}
@@ -228,7 +194,6 @@ const handleEliminarInsumo = async (idInsumo) => {
           onGuardar={handleInsumoCreado}
         />
       </Modal>
-      {/* Modal para movimiento de stock */}
       <Modal
         estaAbierto={modalMovimientoStock.estaAbierto}
         onCerrar={modalMovimientoStock.cerrar}
@@ -242,12 +207,11 @@ const handleEliminarInsumo = async (idInsumo) => {
           onGuardar={handleMovimientoCreado}
         />
       </Modal>
-      {/* Modal para editar stock */}
       <Modal
         estaAbierto={modalEditarStock.estaAbierto}
         onCerrar={() => {
           modalEditarStock.cerrar();
-          setInsumoSeleccionado(null); // Limpiar selección al cerrar
+          setInsumoSeleccionado(null);
         }}
         titulo={`Editar Insumo: ${insumoSeleccionado?.nombreInsumo || ''}`}
         tamaño="md"
@@ -266,7 +230,6 @@ const handleEliminarInsumo = async (idInsumo) => {
         )}
       </Modal>
       <div className="p-2">
-        {/*  modal de confirmación*/}
         <ModalConfirmacion
           visible={confirmacionEliminar.confirmacionVisible}
           onCerrar={cancelarEliminacion}

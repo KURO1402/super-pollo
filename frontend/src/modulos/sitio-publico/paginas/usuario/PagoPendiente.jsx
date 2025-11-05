@@ -10,14 +10,12 @@ const PagoPendiente = () => {
       <div className="bg-white py-12 px-8 rounded-2xl mx-4 md:mx-20 shadow-lg">
         <div className="max-w-4xl mx-auto text-center">
           
-          {/* Icono de pendiente */}
           <div className="flex justify-center mb-6">
             <div className="bg-yellow-100 p-6 rounded-full">
               <FaClock className="text-yellow-500 text-6xl" />
             </div>
           </div>
 
-          {/* Título principal */}
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             Pago Pendiente
           </h1>
@@ -26,7 +24,6 @@ const PagoPendiente = () => {
             Estamos procesando tu pago. Te notificaremos cuando se complete la transacción.
           </p>
 
-          {/* Información detallada */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center mb-3">
@@ -45,7 +42,6 @@ const PagoPendiente = () => {
             </div>
           </div>
 
-          {/* Tiempo estimado */}
           <div className="bg-blue-50 py-4 px-6 rounded-lg mb-8 border border-blue-200">
             <h3 className="font-bold text-blue-800 text-lg mb-2">Tiempo de procesamiento</h3>
             <p className="text-blue-600">
@@ -53,7 +49,6 @@ const PagoPendiente = () => {
             </p>
           </div>
 
-          {/* Botón de inicio */}
           <div className="flex justify-center mb-8">
             <Link to="/">
               <BotonSecundario className="flex items-center bg-yellow-600 hover:bg-yellow-700">
@@ -63,7 +58,6 @@ const PagoPendiente = () => {
             </Link>
           </div>
 
-          {/* Información adicional */}
           <div className="bg-gray-100 py-4 px-6 rounded-lg">
             <p className="text-gray-600">
               <strong>¿Tienes dudas sobre tu pago?</strong> Contáctanos al{" "}
@@ -73,7 +67,6 @@ const PagoPendiente = () => {
         </div>
       </div>
 
-      {/* Logo de la empresa */}
       <div className="text-center mt-8">
         <div className="flex items-center justify-center mb-4">
           <img src={Logo} alt="Super Pollo Logo" className="h-16 mr-3" />

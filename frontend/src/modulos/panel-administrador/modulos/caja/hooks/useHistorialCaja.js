@@ -17,7 +17,6 @@ export const useHistorialCajas = () => {
   const [errorArqueos, setErrorArqueos] = useState(null);
   const [errorMovimientos, setErrorMovimientos] = useState(null);
 
-  // Cargar cajas cerradas al inicializar
   useEffect(() => {
     cargarCajasCerradas();
   }, []);
@@ -30,13 +29,11 @@ export const useHistorialCajas = () => {
       setCajasCerradas(cajas);
     } catch (error) {
       setErrorCajas(error.message);
-      console.error('Error al cargar cajas cerradas:', error);
     } finally {
       setLoadingCajas(false);
     }
   };
 
-  // funcion para cargar arqueos de una caja específica
   const cargarArqueosCaja = async (idCaja) => {
     setLoadingArqueos(true);
     setErrorArqueos(null);
@@ -52,7 +49,6 @@ export const useHistorialCajas = () => {
     }
   };
 
-  // funcion para cargar movimientos de una caja específica
   const cargarMovimientosCaja = async (idCaja) => {
     setLoadingMovimientos(true);
     setErrorMovimientos(null);
@@ -67,7 +63,6 @@ export const useHistorialCajas = () => {
     }
   };
 
-  // funcion para cargar todos los datos de una caja 
   const cargarDetallesCompletosCaja = async (idCaja) => {
     try {
       await Promise.all([
@@ -75,7 +70,6 @@ export const useHistorialCajas = () => {
         cargarMovimientosCaja(idCaja)
       ]);
     } catch (error) {
-      console.error('Error al cargar detalles completos:', error);
       throw error;
     }
   };
@@ -107,7 +101,6 @@ export const useHistorialCajas = () => {
   }
 
   return {
-    // Estados
     cajasCerradas,
     arqueosCaja,
     movimientosCaja,
@@ -117,8 +110,6 @@ export const useHistorialCajas = () => {
     errorCajas,
     errorArqueos,
     errorMovimientos,
-    
-    // Funciones
     cargarCajasCerradas,
     cargarArqueosCaja,
     cargarMovimientosCaja,

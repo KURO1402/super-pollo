@@ -15,7 +15,7 @@ const DashboardSeccion = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6">
-      {/* Header Principal */}
+
       <div className="mb-8">
         <div className="flex justify-between items-start">
           <div>
@@ -30,11 +30,8 @@ const DashboardSeccion = () => {
         </div>
       </div>
 
-      {/* Grid Principal */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Columna Izquierda - Métricas y Gráficos Principales */}
         <div className="xl:col-span-2 space-y-6">
-          {/* Cards de Métricas */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="transform hover:scale-105 transition-all duration-300">
               <MetricasCard
@@ -54,7 +51,6 @@ const DashboardSeccion = () => {
             </div>
           </div>
 
-          {/* Gráfico Principal - Ventas vs Egresos */}
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -75,14 +71,10 @@ const DashboardSeccion = () => {
           </div>
         </div>
 
-        {/* Columna Derecha - Estadísticas y Métricas Adicionales */}
         <div className="space-y-6">
-          {/* Balance General */}
           <div className="transform hover:scale-105 transition-all duration-300">
             <BalanceGeneralCard />
           </div>
-
-          {/* Distribución de Ventas */}
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
               Distribución de medios de pago
@@ -92,7 +84,6 @@ const DashboardSeccion = () => {
         </div>
       </div>
 
-      {/* Fila horizontal de gráficos secundarios - RESPONSIVA */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">

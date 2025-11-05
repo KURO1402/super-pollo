@@ -1,13 +1,9 @@
-// librerías externas
 import { useForm } from 'react-hook-form';
 import { FiUpload, FiX, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
-// servicios
 import { listarInsumoServicio } from '../../stock/servicios/insumosServicios';
 import { crearProductoServicio } from '../servicios/productoServicios';
-// hooks
 import { useCategorias } from '../hooks/useCategorias';
-// utilidades
 import mostrarAlerta from '../../../../../utilidades/toastUtilidades';
 
 export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
@@ -16,7 +12,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
   const [cargandoInsumos, setCargandoInsumos] = useState(true);
   const [nuevaCategoria, setNuevaCategoria] = useState('');
 
-  // Hook de categorías
   const { categorias, loading: cargandoCategorias, cargarCategorias, crearCategoria } = useCategorias();
 
   const {
@@ -37,18 +32,17 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
     }
   });
 
-  // Cargar insumos y categorías al inicializar
   useEffect(() => {
     const cargarDatos = async () => {
       try { 
         setCargandoInsumos(true);
         const [respuestaInsumos] = await Promise.all([
           listarInsumoServicio(),
-          cargarCategorias() // Cargar categorías también
+          cargarCategorias()
         ]);
         setInsumosDisponibles(respuestaInsumos);
       } catch (error) {
-        console.error('Error al obtener datos:', error);
+
       } finally {
         setCargandoInsumos(false);
       }
@@ -57,26 +51,22 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
     cargarDatos();
   }, [cargarCategorias]);
 
-  // función para cancelar y cerrar el modal
   const handleCancelar = () => {
     reset();
     setInsumosSeleccionados([]);
     onClose();
   };
 
-  // funcion para manejar el cambio de imagen
   const handleImagenChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validar formato de imagen
       const formatosPermitidos = ['image/png', 'image/jpeg'];
       if (!formatosPermitidos.includes(file.type)) {
         mostrarAlerta.advertencia('Formato de imagen no válido. Solo se permiten PNG o JPEG');
-        e.target.value = ''; // Limpiar el input
+        e.target.value = ''; 
         return;
       }
       
-      // Validar tamaño (máximo 5MB)
       if (file.size > 5 * 1024 * 1024) {
         mostrarAlerta.advertencia('La imagen es demasiado grande. Máximo 5MB permitido');
         e.target.value = '';
@@ -87,7 +77,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
     }
   };
 
-  // Función para agregar un insumo
   const agregarInsumo = () => {
     setInsumosSeleccionados([
       ...insumosSeleccionados,
@@ -95,13 +84,11 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
     ]);
   };
 
-  // Función para eliminar un insumo
   const eliminarInsumo = (index) => {
     const nuevosInsumos = insumosSeleccionados.filter((_, i) => i !== index);
     setInsumosSeleccionados(nuevosInsumos);
   };
 
-  // Función para actualizar un insumo
   const actualizarInsumo = (index, campo, valor) => {
     const nuevosInsumos = [...insumosSeleccionados];
     
@@ -125,42 +112,35 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
   const imagenActual = watch('imagen');
   const usaInsumo = watch('usaInsumo');
 
-  // Función onSubmit
   const onSubmit = async (data) => {
     try {
-      // Validaciones basicas
       if (!data.nombreProducto || !data.precio) {
         mostrarAlerta.advertencia('Nombre y precio son requeridos');
         return;
       }
 
-      // Validar categoría
       if (!data.idCategoria) {
         mostrarAlerta.advertencia('Debe seleccionar una categoría para el producto');
         return;
       }
 
-      // Validar que haya imagen
       if (!data.imagen) {
         mostrarAlerta.advertencia('La imagen del producto es requerida');
         return;
       }
 
-      // Validar formato de imagen
       const formatosPermitidos = ['image/png', 'image/jpeg'];
       if (!formatosPermitidos.includes(data.imagen.type)) {
         mostrarAlerta.advertencia('Formato de imagen no válido. Solo se permiten PNG o JPEG');
         return;
       }
 
-      // Validar insumos si usaInsumo está activado
       if (data.usaInsumo) {
         if (insumosSeleccionados.length === 0) {
           mostrarAlerta.advertencia('Debe agregar al menos un insumo cuando activa "usa sistema de insumos"');
           return;
         }
         
-        // Validar que todos los insumos tengan id y cantidad válida
         const insumosInvalidos = insumosSeleccionados.some(insumo => 
           !insumo.idInsumo || !insumo.cantidad || parseFloat(insumo.cantidad) <= 0
         );
@@ -171,18 +151,15 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
         }
       }
 
-      //Crear FormData
       const formData = new FormData();
       
-      //imagen
       formData.append('image', data.imagen);
       
-      //Preparar el objeto de datos para el backend
       const datosProducto = {
         nombreProducto: data.nombreProducto,
         descripcionProducto: data.descripcionProducto || '',
         precio: parseFloat(data.precio),
-        idCategoria: parseInt(data.idCategoria), // Agregar categoría
+        idCategoria: parseInt(data.idCategoria),
         usaInsumo: data.usaInsumo ? 1 : 0,
         insumos: data.usaInsumo ? insumosSeleccionados
           .filter(insumo => insumo.idInsumo && insumo.cantidad)
@@ -192,32 +169,27 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
           })) : []
       };
 
-      // Validacion final de insumos
       if (data.usaInsumo && datosProducto.insumos.length === 0) {
         mostrarAlerta.advertencia('Debe agregar al menos un insumo válido cuando activa "usa sistema de insumos"');
         return;
       }
       
-      // Agregar datos como JSON string al FormData
       formData.append('datos', JSON.stringify(datosProducto));
-      // Llamar al servicio
       await crearProductoServicio(formData);
       
-      // Mostrar éxito y limpiar
       mostrarAlerta.exito('Producto creado exitosamente');
       onGuardar();
       reset();
       setInsumosSeleccionados([]);
       
     } catch (error) {
-      console.error('Error al crear producto:', error);
+
     }
   };
 
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Nombre */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Nombre del Producto *
@@ -244,8 +216,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
             </p>
           )}
         </div>
-
-        {/* Categoría */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Categoría del Producto *
@@ -280,7 +250,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
           )}
         </div>
 
-        {/* Precio */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Precio de Venta (S/) *
@@ -310,7 +279,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
           )}
         </div>
 
-        {/* Switch usaInsumo */}
         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -330,7 +298,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
           </label>
         </div>
 
-        {/* Sección de Insumos - Solo visible cuando usaInsumo es true */}
         {usaInsumo && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
@@ -408,8 +375,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
             )}
           </div>
         )}
-
-        {/* Descripción */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Descripción del Producto
@@ -422,7 +387,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
           />
         </div>
 
-        {/* Imagen del Producto */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Imagen del Producto *
@@ -465,7 +429,6 @@ export const ModalNuevoProducto = ({ onClose, onGuardar }) => {
           )}
         </div>
 
-        {/* Botones de acción */}
         <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"

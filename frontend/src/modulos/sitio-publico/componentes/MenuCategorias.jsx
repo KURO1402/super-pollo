@@ -4,7 +4,6 @@ import { RiDrinks2Fill } from "react-icons/ri";
 import { LuSalad } from "react-icons/lu";
 import { LuDessert } from "react-icons/lu";
 
-// Array de categorías con sus respectivos iconos
 const categorias = [
   { nombre: "Todos", icono: <FaBorderAll /> },
   { nombre: "Pollos", icono: <GiChickenOven /> },
@@ -29,12 +28,10 @@ const MenuCategorias = ({ categoriaSeleccionada, onCategoriaChange }) => {
                 : 'hover:bg-rojo text-gray-100'
             }`}
           >
-            {/* Efecto de fondo con animación */}
             <div className={`absolute inset-0 bg-rojo rounded-xl transition-opacity duration-300 ${
               estaSeleccionada ? 'opacity-100' : 'opacity-0 group-hover:opacity-10'
             }`}></div>
 
-            {/* Icono con efecto de aumento */}
             <div className={`text-3xl md:text-4xl transition-colors duration-300 transform ${
               estaSeleccionada 
                 ? 'text-white scale-110' 
@@ -43,14 +40,12 @@ const MenuCategorias = ({ categoriaSeleccionada, onCategoriaChange }) => {
               {cat.icono}
             </div>
 
-            {/* Texto con transición suave */}
             <span className={`text-xs md:text-sm font-semibold transition-colors duration-300 whitespace-nowrap ${
               estaSeleccionada ? 'text-white' : 'text-gray-100 group-hover:text-white'
             }`}>
               {cat.nombre}
             </span>
 
-            {/* Indicador de selección */}
             <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1 bg-white rounded-t-full transition-all duration-300 ${
               estaSeleccionada ? 'w-8' : 'w-0 group-hover:w-8'
             }`}></div>

@@ -1,21 +1,17 @@
 import { FaCalendarAlt } from "react-icons/fa";
 import { useState, useEffect } from "react";
-// componentes reutilizables
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda";
 import { FiltroBusqueda } from "../../../componentes/busqueda-filtros/FiltroBusqueda";
 import { Paginacion } from "../../../componentes/tabla/Paginacion";
 import Modal from "../../../componentes/modal/Modal";
-// custom hooks
 import { useBusqueda } from "../../../hooks/useBusqueda";
 import { useFiltro } from "../../../hooks/useFiltro";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
-// componentes del modulo
 import { ModalDetalleReserva } from "../componentes/ModalDetalleReserva";
 import { ModalEditarReserva } from "../componentes/ModalEditarReserva";
 import { FilaReserva } from "../componentes/FilaReserva";
-// servicios
 import { 
   listarReservacionesServicio,
   obtenerDetalleReservacionServicio,
@@ -41,7 +37,6 @@ const HistorialReservasSeccion = () => {
   const modalDetalle = useModal(false);
   const modalEditar = useModal(false);
 
-  // Cargar reservaciones al inicializar
   useEffect(() => {
     cargarReservaciones();
   }, []);
@@ -52,13 +47,12 @@ const HistorialReservasSeccion = () => {
       const reservaciones = await listarReservacionesServicio();
       setReservas(reservaciones);
     } catch (error) {
-      console.error('Error al cargar reservaciones:', error);
+
     } finally {
       setCargando(false);
     }
   };
 
-  // Cargar detalle completo de la reservación
   const cargarDetalleReserva = async (idReservacion) => {
     try {
       setCargandoDetalle(true);
@@ -70,35 +64,29 @@ const HistorialReservasSeccion = () => {
         });
       }
     } catch (error) {
-      console.error("Error al cargar detalle de la reserva:", error);
       mostrarAlerta.error("Error al obtener el detalle de la reserva");
     } finally {
       setCargandoDetalle(false);
     }
   };
 
-  // Aplicar búsqueda
   let filtrados = filtrarPorBusqueda(reservas, [
     "nombresUsuario",
     "numeroMesa",
     "estadoReservacion"
   ]);
 
-  // Aplicar filtros por estado
   filtrados = aplicarFiltros(filtrados, "estadoReservacion");
   const { datosPaginados, totalPaginas } = paginar(filtrados);
 
-  // Funcion para actualizar reserva
   const handleActualizarReserva = async (datosActualizados) => {
     try {
-      // Usar el servicio real para actualizar
       const respuesta = await actualizarReservacionServicio(
         datosActualizados.idReservacion, 
         datosActualizados
       );
       
       if (respuesta.ok) {
-        // Actualizar el estado local con los datos actualizados
         setReservas(prevReservas => 
           prevReservas.map(reserva => 
             reserva.idReservacion === datosActualizados.idReservacion 
@@ -112,15 +100,13 @@ const HistorialReservasSeccion = () => {
       }
       
     } catch (error) {
-      console.error('Error al actualizar reserva:', error);
+
     }
   };
 
-  // Función para cancelar reserva
   const handleCancelarReserva = async (reserva) => {
     if (confirm(`¿Estás seguro de cancelar la reserva #${reserva.idReservacion}?`)) {
       try {
-        // Actualizar el estado en el backend
         const datosActualizados = {
           ...reserva,
           estadoReservacion: 'cancelado'
@@ -132,7 +118,6 @@ const HistorialReservasSeccion = () => {
         );
         
         if (respuesta.ok) {
-          // Actualizar el estado local
           setReservas(prevReservas => 
             prevReservas.map(r => 
               r.idReservacion === reserva.idReservacion 
@@ -147,18 +132,15 @@ const HistorialReservasSeccion = () => {
         }
         
       } catch (error) {
-        console.error('Error al cancelar reserva:', error);
         alert('Error al cancelar la reserva: ' + error.message);
       }
     }
   };
 
-  // Función para manejar cambio de página
   const handleCambiarPagina = (nuevaPagina) => {
     setPaginaActual(nuevaPagina);
   };
 
-  // Función para manejar cambio de items por página
   const handleCambiarItemsPorPagina = (nuevoItemsPorPagina) => {
     setItemsPorPagina(nuevoItemsPorPagina);
   };
@@ -196,7 +178,6 @@ const HistorialReservasSeccion = () => {
         </p>
       </div>
 
-      {/* Barra de busqueda y filtros */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
           <BarraBusqueda
@@ -224,7 +205,6 @@ const HistorialReservasSeccion = () => {
         </div>
       ) : (
         <>
-          {/* Tabla de reservas */}
           <Tabla
             encabezados={["Reserva", "Cliente", "Detalles", "Estado", "Acciones"]}
             registros={filasReservas}
@@ -247,7 +227,6 @@ const HistorialReservasSeccion = () => {
         </>
       )}
 
-      {/* Modal de detalle */}
       <Modal
         estaAbierto={modalDetalle.estaAbierto}
         onCerrar={modalDetalle.cerrar}
@@ -271,7 +250,6 @@ const HistorialReservasSeccion = () => {
         )}
       </Modal>
 
-      {/* Modal de edicionn */}
       <Modal
         estaAbierto={modalEditar.estaAbierto}
         onCerrar={modalEditar.cerrar}

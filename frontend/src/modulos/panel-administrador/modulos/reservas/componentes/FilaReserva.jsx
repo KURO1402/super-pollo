@@ -1,4 +1,4 @@
-import { FiEye, FiEdit, FiTrash2, FiUser, FiCalendar, FiClock, FiUsers } from "react-icons/fi";
+import { FiEye, FiEdit, FiUser, FiCalendar, FiClock, FiUsers } from "react-icons/fi";
 
 export const FilaReserva = ({ reserva, onVerDetalle, onEditar }) => {
   const getEstadoColor = (estado) => {
@@ -38,7 +38,6 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar }) => {
 
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
-      {/* Reserva */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
@@ -55,7 +54,6 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar }) => {
         </div>
       </td>
 
-      {/* Cliente */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
@@ -67,7 +65,6 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar }) => {
         </div>
       </td>
 
-      {/* Detalles */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
@@ -84,14 +81,12 @@ export const FilaReserva = ({ reserva, onVerDetalle, onEditar }) => {
         </div>
       </td>
 
-      {/* Estado */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${estado.bg} ${estado.text}`}>
           {reserva.estadoReservacion.charAt(0).toUpperCase() + reserva.estadoReservacion.slice(1)}
         </div>
       </td>
-
-      {/* Acciones */}
+      
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <button 

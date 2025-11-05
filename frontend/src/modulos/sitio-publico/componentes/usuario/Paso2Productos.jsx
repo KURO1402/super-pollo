@@ -20,19 +20,16 @@ const Paso2Productos = () => {
   const subtotal = getSubtotal();
   const total = getTotal();
 
-  // Sincronizar productos del hook con el estado global
   useEffect(() => {
     if (productos.length > 0) {
       setProductosMenu(productos);
     }
   }, [productos, setProductosMenu]);
 
-  // Verificar si un producto ya está en el carrito
   const productoEnCarrito = (productoId) => {
     return datos.productos.some(p => p.idProducto === productoId);
   };
 
-  // Obtener cantidad de un producto en el carrito
   const getCantidadEnCarrito = (productoId) => {
     const producto = datos.productos.find(p => p.idProducto === productoId);
     return producto ? producto.cantidad : 0;
@@ -50,7 +47,6 @@ const Paso2Productos = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Menú de Productos */}
         <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-yellow-600/20 rounded-xl flex items-center justify-center">
@@ -120,7 +116,6 @@ const Paso2Productos = () => {
           )}
         </div>
 
-        {/* Carrito de Productos (se mantiene igual) */}
         <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-green-600/10 rounded-xl flex items-center justify-center">
@@ -201,7 +196,6 @@ const Paso2Productos = () => {
                 ))}
               </div>
 
-              {/* Resumen del Pedido */}
               <div className="mt-6 p-4 bg-gray-700 rounded-xl border border-gray-600">
                 <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-600">
                   <span className="text-gray-400">Subtotal:</span>
@@ -216,7 +210,6 @@ const Paso2Productos = () => {
                 </div>
               </div>
 
-              {/* Indicador de progreso */}
               <div className="mt-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
                 <p className="text-yellow-500 text-sm text-center">
                   Listo para continuar - {datos.productos.length} {datos.productos.length === 1 ? 'producto' : 'productos'} seleccionados

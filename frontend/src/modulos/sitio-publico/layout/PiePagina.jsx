@@ -13,14 +13,12 @@ import Logo from "../../../assets/imagenes/Logo.svg";
 import UbicacionMapa from "../../../assets/imagenes/UbicacionMapa.png";
 import { Link } from "react-router-dom";
 
-// array de iconos sociales
 const socialIconos = [
   { icon: <FaFacebook size={16} />, href: "#" },
   { icon: <FaInstagram size={16} />, href: "#" },
   { icon: <FaXTwitter size={16} />, href: "#" },
 ];
 
-// array de enlaces de navegación
 const navEnlaces = [
   { nombre: "Inicio", href: "#introduccion" },
   { nombre: "Sobre nosotros", href: "#nosotros" },
@@ -32,7 +30,6 @@ const navEnlaces = [
 const PiePagina = () => {
   return (
     <footer className="w-full bg-azul-secundario ">
-      {/* Sección amarilla de información de contacto */}
       <div className="bg-amarillo py-8 px-12 rounded-2xl mx-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           <div className="flex flex-col items-center md:items-start">
@@ -61,10 +58,8 @@ const PiePagina = () => {
         </div>
       </div>
 
-      {/* Sección principal del footer */}
       <div className="bg-azul-secundario text-white py-10 px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Logo y descripción */}
           <div className="flex flex-col">
             <div className="flex items-center mb-4">
               <img src={Logo} alt="Super Pollo Logo" className="h-20 mr-3" />
@@ -78,7 +73,6 @@ const PiePagina = () => {
             
           </div>
 
-          {/* Ubicación */}
           <div className="flex flex-col">
             <h3 className="text-gray-100 text-xl font-semibold mb-4 pb-2 border-b-2 border-yellow-400 inline-block">
               UBICACIÓN
@@ -86,13 +80,11 @@ const PiePagina = () => {
             <img src={UbicacionMapa} alt="" />
           </div>
 
-          {/* Navegación */}
           <div className="flex flex-col">
             <h3 className="text-gray-100 text-xl font-semibold mb-4 pb-2 border-b-2 border-yellow-400 inline-block">
               NAVEGACIÓN
             </h3>
 
-            {/* enlaces */}
             <ul className="space-y-2 mt-2">
               {navEnlaces.map((enlace, index) => (
                 <li key={index}>
@@ -105,7 +97,6 @@ const PiePagina = () => {
             </ul>
           </div>
 
-          {/* Atención y registro */}
           <div className="flex flex-col">
             <h3 className="text-gray-100 text-xl font-semibold mb-4 pb-2 border-b-2 border-yellow-400 inline-block">
               ATENCIÓN
@@ -122,7 +113,6 @@ const PiePagina = () => {
         </div>
       </div>
 
-      {/* Sección de copyright */}
       <div className="bg-red-600 text-white py-4 px-4 text-center text-sm">
         <div className="max-w-6xl mx-auto">
           <p>

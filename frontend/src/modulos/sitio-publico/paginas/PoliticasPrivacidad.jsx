@@ -10,7 +10,6 @@ const PoliticasPrivacidad = () => {
       <div className="bg-white py-12 px-8 rounded-2xl mx-4 md:mx-20 shadow-lg">
         <div className="max-w-4xl mx-auto">
           
-          {/* Encabezado */}
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               Políticas de Privacidad
@@ -20,10 +19,8 @@ const PoliticasPrivacidad = () => {
             </p>
           </div>
 
-          {/* Contenido */}
           <div className="prose prose-lg max-w-none text-gray-700">
             
-            {/* Introducción */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <div className="flex items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">1. Introducción</h2>
@@ -33,7 +30,6 @@ const PoliticasPrivacidad = () => {
               </p>
             </div>
 
-            {/* Información recopilada */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <div className="flex items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">2. Información que Recopilamos</h2>
@@ -45,8 +41,6 @@ const PoliticasPrivacidad = () => {
                 <li><strong>Datos de navegación:</strong> IP, tipo de dispositivo, páginas visitadas</li>
               </ul>
             </div>
-
-            {/* Uso de la información */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">3. Uso de la Información</h2>
               <p className="mb-4">Utilizamos tu información para:</p>
@@ -58,7 +52,6 @@ const PoliticasPrivacidad = () => {
               </ul>
             </div>
 
-            {/* Protección de datos */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <div className="flex items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">4. Protección de Datos</h2>
@@ -68,7 +61,6 @@ const PoliticasPrivacidad = () => {
               </p>
             </div>
 
-            {/* Cookies */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <div className="flex items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">5. Uso de Cookies</h2>
@@ -86,7 +78,6 @@ const PoliticasPrivacidad = () => {
               </p>
             </div>
 
-            {/* Compartir información */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">6. Compartir Información</h2>
               <p className="mb-4">
@@ -99,7 +90,6 @@ const PoliticasPrivacidad = () => {
               </ul>
             </div>
 
-            {/* Tus derechos */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">7. Tus Derechos</h2>
               <p className="mb-4">Tienes derecho a:</p>
@@ -112,7 +102,6 @@ const PoliticasPrivacidad = () => {
               </ul>
             </div>
 
-            {/* Cambios en la política */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">8. Cambios en la Política</h2>
               <p className="mb-4">
@@ -120,7 +109,6 @@ const PoliticasPrivacidad = () => {
               </p>
             </div>
 
-            {/* Contacto */}
             <div className="mb-8 p-6 bg-red-50 rounded-lg border border-red-200">
               <h2 className="text-2xl font-bold text-red-800 mb-4">Contacto</h2>
               <p className="mb-2">
@@ -139,7 +127,6 @@ const PoliticasPrivacidad = () => {
 
           </div>
 
-          {/* Botón de inicio */}
           <div className="flex justify-center mt-12">
             <Link to="/">
               <BotonSecundario className="flex items-center">
@@ -152,7 +139,6 @@ const PoliticasPrivacidad = () => {
         </div>
       </div>
 
-      {/* Logo de la empresa */}
       <div className="text-center mt-8">
         <div className="flex items-center justify-center mb-4">
           <img src={Logo} alt="Super Pollo Logo" className="h-16 mr-3" />

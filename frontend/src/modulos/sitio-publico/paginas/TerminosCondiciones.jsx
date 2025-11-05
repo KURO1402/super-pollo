@@ -10,7 +10,6 @@ const TerminosCondiciones = () => {
       <div className="bg-white py-12 px-8 rounded-2xl mx-4 md:mx-20 shadow-lg">
         <div className="max-w-4xl mx-auto">
           
-          {/* Encabezado */}
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               Términos y Condiciones
@@ -20,10 +19,8 @@ const TerminosCondiciones = () => {
             </p>
           </div>
 
-          {/* Contenido */}
           <div className="prose prose-lg max-w-none text-gray-700">
             
-            {/* Aceptación de términos */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <div className="flex items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">1. Aceptación de los Términos</h2>
@@ -33,7 +30,6 @@ const TerminosCondiciones = () => {
               </p>
             </div>
 
-            {/* Servicios */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <div className="flex items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">2. Servicios Ofrecidos</h2>
@@ -47,7 +43,6 @@ const TerminosCondiciones = () => {
               </ul>
             </div>
 
-            {/* Pedidos y pagos */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">3. Pedidos y Pagos</h2>
               <p className="mb-4">
@@ -59,7 +54,6 @@ const TerminosCondiciones = () => {
               </ul>
             </div>
 
-            {/* Política de cancelación */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <div className="flex items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">4. Política de Cancelación</h2>
@@ -69,7 +63,6 @@ const TerminosCondiciones = () => {
               </p>
             </div>
 
-            {/* Propiedad intelectual */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">5. Propiedad Intelectual</h2>
               <p className="mb-4">
@@ -77,7 +70,6 @@ const TerminosCondiciones = () => {
               </p>
             </div>
 
-            {/* Limitación de responsabilidad */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">6. Limitación de Responsabilidad</h2>
               <p className="mb-4">
@@ -85,7 +77,6 @@ const TerminosCondiciones = () => {
               </p>
             </div>
 
-            {/* Cambios en los términos */}
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">7. Modificaciones de los Términos</h2>
               <p className="mb-4">
@@ -93,7 +84,6 @@ const TerminosCondiciones = () => {
               </p>
             </div>
 
-            {/* Contacto */}
             <div className="mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
               <h2 className="text-2xl font-bold text-blue-800 mb-4">Contacto</h2>
               <p className="mb-2">
@@ -106,7 +96,6 @@ const TerminosCondiciones = () => {
 
           </div>
 
-          {/* Botón de inicio */}
           <div className="flex justify-center mt-12">
             <Link to="/">
               <BotonSecundario className="flex items-center">
@@ -119,7 +108,6 @@ const TerminosCondiciones = () => {
         </div>
       </div>
 
-      {/* Logo de la empresa */}
       <div className="text-center mt-8">
         <div className="flex items-center justify-center mb-4">
           <img src={Logo} alt="Super Pollo Logo" className="h-16 mr-3" />

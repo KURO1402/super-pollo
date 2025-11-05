@@ -1,12 +1,10 @@
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
 
 export const TarjetaProducto = ({ producto }) => {
-  // extraemos las funciones y el estado global de useVentaEstadoGlobal
   const { agregarProducto } = useVentaEstadoGlobal((state) => state);
 
   return (
     <button
-      // para agregar el producto al detalle de la venta
       onClick={() => {
         agregarProducto(producto);
       }}
