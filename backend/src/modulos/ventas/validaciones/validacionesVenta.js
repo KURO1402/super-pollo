@@ -3,7 +3,6 @@ const { contarTipoDocumentoPorIdModel } = require("../../usuarios/usuarioModelo"
 const { obtenerProductoPorIdModel, obtenerInsumosPorProductoModel } = require("../../inventario/modelo/productoModelo");
 const { contarMedioPagoModel } = require("../modelo/ventasModelo");
 
-// Función de validación principal reutilizable
 const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requiereDireccion = false) => {
   if (!datosVenta || typeof datosVenta !== "object") {
     throw Object.assign(
@@ -14,7 +13,6 @@ const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requi
 
   const { tipoComprobante, datosCliente, productos, idMetodoPago} = datosVenta;
 
-  // Validar tipo de comprobante
   if (!tipoComprobante || typeof tipoComprobante !== "number") {
     throw Object.assign(
       new Error("El tipo de comprobante es obligatorio."),
@@ -28,7 +26,6 @@ const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requi
     );
   }
 
-  // Validar datos del cliente
   if (!datosCliente || typeof datosCliente !== "object") {
     throw Object.assign(
       new Error("Se necesitan datos del cliente."),
@@ -36,7 +33,6 @@ const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requi
     );
   }
 
-  // Validar método de pago
   if (!idMetodoPago || typeof idMetodoPago !== "number") {
     throw Object.assign(
       new Error("Se necesita el metodo de pago."),
@@ -53,7 +49,6 @@ const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requi
 
   const { tipoDoc, numeroDoc, nombreCliente, direccionCliente, correoCliente } = datosCliente;
 
-  // Validar tipo de documento
   if (tipoDoc === undefined || tipoDoc === null || typeof tipoDoc !== "number") {
     throw Object.assign(
       new Error("Se necesita el tipo de documento del cliente."),
@@ -61,7 +56,6 @@ const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requi
     );
   }
 
-  // Validación específica para factura
   if (tipoEsperado === 1 && tipoDoc !== 3) {
     throw Object.assign(
       new Error("Solo se puede generar factura con RUC."),
@@ -69,7 +63,6 @@ const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requi
     );
   }
 
-  // Validar número de documento
   if (!numeroDoc || typeof numeroDoc !== "string" || !numeroDoc.trim()) {
     throw Object.assign(
       new Error("Se necesita numero de documento del cliente."),
@@ -78,13 +71,11 @@ const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requi
   }
   validarDocumento(tipoDoc, numeroDoc);
 
-  // Validar nombre del cliente
   const mensajeNombre = tipoEsperado === 1 ? "Se necesita un nombre o razon social del cliente." : "Se necesita el nombre del cliente.";
   if (!nombreCliente || typeof nombreCliente !== "string" || !nombreCliente.trim()) {
     throw Object.assign(new Error(mensajeNombre), { status: 400 });
   }
 
-  // Validar dirección
   if (requiereDireccion) {
     if (!direccionCliente || typeof direccionCliente !== "string" || !direccionCliente.trim()) {
       throw Object.assign(
@@ -101,12 +92,10 @@ const validarDatosVentaBase = async (datosVenta, tipoEsperado, tipoNombre, requi
     }
   }
 
-  // Validar correo si se envía
   if (correoCliente) {
     validarCorreo(correoCliente);
   }
 
-  // Validar productos
   if (!productos || !Array.isArray(productos) || productos.length === 0) {
     throw Object.assign(
       new Error("Se necesitan los productos para generar la venta."),
@@ -175,7 +164,6 @@ const validarStockInsumos = async (productos) => {
   }
 };
 
-// Funciones específicas que utilizan la función base
 const validarDatosVentaBoleta = async (datosVenta) => {
   await validarDatosVentaBase(datosVenta, 2, "boleta", false);
 };

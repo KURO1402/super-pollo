@@ -3,14 +3,11 @@ const fs = require('fs');
 
 const cloudinaryService = async (req, res) => {
     try {
-        // Subir la imagen a Cloudinary
         const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'superpollo', // Carpeta en Cloudinary
+            folder: 'superpollo', 
         });
-        // Eliminar el archivo temporal del servidor
         fs.unlinkSync(req.file.path);
 
-        // Retornar la URL pública de Cloudinary
         res.json({
             ok: true,
             mensaje: 'Imagen subida correctamente',

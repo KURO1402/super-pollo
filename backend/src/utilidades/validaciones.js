@@ -1,4 +1,3 @@
-// Funcion para validar correo electrónico tiene el formato correcto
 const validarCorreo = (correo) => {
 
   if (!correo || typeof correo !== "string") {
@@ -12,25 +11,24 @@ const validarCorreo = (correo) => {
   }
 };
 
-// Función para validar documentos según tipo numérico
 const validarDocumento = (tipo, valor) => {
   switch (Number(tipo)) {
-    case 0: // CLIENTES VARIOS ES DNI
+    case 0: 
       if (!/^\d{8}$/.test(valor)) {
         throw Object.assign(new Error("El numero de documento debe tener exactamente 8 dígitos"), { status: 400 });
       }
       break;
-    case 1: // DNI
+    case 1: 
       if (!/^\d{8}$/.test(valor)) {
         throw Object.assign(new Error("El DNI debe tener exactamente 8 dígitos"), { status: 400 });
       }
       break;
-    case 2: // Carné de Extranjería
+    case 2: 
       if (!/^[A-Za-z0-9]{9,12}$/.test(valor)) {
         throw Object.assign(new Error("El Carné de Extranjería debe tener entre 9 y 12 caracteres alfanuméricos"), { status: 400 });
       }
       break;
-    case 3: // RUC
+    case 3: 
       if (!/^\d{11}$/.test(valor)) {
         throw Object.assign(new Error("El RUC debe tener exactamente 11 dígitos"), { status: 400 });
       }
@@ -40,14 +38,13 @@ const validarDocumento = (tipo, valor) => {
   }
 }
 
-// Función para validar números telefónicos
 const validarTelefono = (valor) => {
   if (!valor) {
     throw Object.assign(new Error("El número de teléfono es obligatorio"), { status: 400 });
   }
-  // Quitar espacios en blanco
+
   const limpio = valor.replace(/\s+/g, "");
-  // Validar que tenga números y opcionalmente un + al inicio
+
   const formatoTelefono = /^\+?\d+$/;
   if (!formatoTelefono.test(limpio)) {
     throw Object.assign(new Error("El número de teléfono no tiene un formato válido"), { status: 400 });
@@ -55,6 +52,4 @@ const validarTelefono = (valor) => {
 }
 
 
-
-//Exportamos funciones
 module.exports = { validarCorreo, validarDocumento, validarTelefono };

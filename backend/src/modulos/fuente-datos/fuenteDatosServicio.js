@@ -13,7 +13,6 @@ const {
 const listarTipoDocumentoService = async () => {
   const tipos = await listarTipoDocumentoModel();
 
-  //verificar si existe al menos 1 tipo documento
   if (!tipos || tipos.length === 0) {
     throw Object.assign(new Error("No se encontraron tipos de documento"), { status: 404 });
   }
@@ -42,7 +41,6 @@ const topProductosMasVendidosService = async (fechaInicio, fechaFin) => {
 
 const obtenerResumenVentasEgresosMensualService = async (cantidadMeses) => {
 
-  // Validación opcional
   const cantidadMes = cantidadMeses || 6;
 
   const resultado = await obtenerResumenVentasEgresosMensualModel(cantidadMes);
@@ -67,7 +65,7 @@ const obtenerCantidadVentasHoyComparacionService = async () => {
 
   return {
     ok: true,
-    resultado: resultado // { totalVentasHoy, totalVentasAyer, porcentajeComparacion }
+    resultado: resultado 
   };
 };
 
@@ -88,7 +86,6 @@ const obtenerPorcentajeMediosPagoService = async () => {
 };
 
 const obtenerVentasPorMesService = async (cantidadMeses) => {
-  // Validación opcional, por defecto 6 meses
   const meses = cantidadMeses || 6;
   const resultado = await obtenerVentasPorMesModel(meses);
 

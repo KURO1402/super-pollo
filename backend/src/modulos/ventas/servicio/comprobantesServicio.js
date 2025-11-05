@@ -1,6 +1,5 @@
 const { obtenerTiposComprobantesModel, obtenerSerieComprobanteModel, obtenerUltimoCorrelativoModel, actualizarCorrelativoModel } = require("../modelo/comprobantesModelo")
 
-//Obtener todos los tipos de comprobante
 const obtenerTiposComprobanteService = async () => {
     const tiposComprobantes = await obtenerTiposComprobantesModel();
     
@@ -13,7 +12,6 @@ const obtenerTiposComprobanteService = async () => {
     return tiposComprobantes;
 }
 
-// Obtener datos del comprobante (solo lectura)
 const obtenerDatosComprobanteService = async (tipoComprobante) => {
   const [serieDB, correlativoDB] = await Promise.all([
     obtenerSerieComprobanteModel(tipoComprobante),
@@ -34,11 +32,10 @@ const obtenerDatosComprobanteService = async (tipoComprobante) => {
 
   return {
     serie: serieDB[0].serie,
-    ultimoCorrelativo: correlativoDB[0].ultimoNumero // Aquí lo cambié
+    ultimoCorrelativo: correlativoDB[0].ultimoNumero 
   };
 };
 
-//Actualizar numero correlativo 
 const actualizarCorrelativoService = async (idComprobante, nuevoCorrelativo) => {
     const tiposComprobante = await obtenerTiposComprobantesModel();
 

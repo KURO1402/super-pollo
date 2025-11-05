@@ -1,4 +1,4 @@
-// Códigos SUNAT
+
 const CODIGOS_SUNAT = {
   TIPOS_DOCUMENTO: {
     DNI: "1",
@@ -17,7 +17,7 @@ const CODIGOS_SUNAT = {
   IGV: {
     TASA: 0.18,
     PORCENTAJE: 18.00,
-    TIPO: 1 // Gravado - Operación Onerosa
+    TIPO: 1 
   },
   
   UNIDAD_MEDIDA: "NIU"

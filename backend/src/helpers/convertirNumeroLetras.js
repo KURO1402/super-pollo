@@ -11,14 +11,12 @@ function numeroALetras(num) {
 
     let texto = '';
 
-    // Centenas
     if (num > 99) {
       const c = Math.floor(num / 100);
       texto += centenas[c] + ' ';
       num %= 100;
     }
 
-    // Decenas y unidades
     if (num >= 10 && num < 20) {
       texto += especiales[num - 10];
     } else if (num >= 20) {

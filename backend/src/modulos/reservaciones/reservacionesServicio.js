@@ -1,4 +1,3 @@
-// Importar modelos y validaciones
 const {
   registrarReservacionModel,
   listarReservacionesModel,
@@ -21,22 +20,17 @@ const {
 
 const { registrarIngresoCajaModel } = require("../caja/cajaModelo.js");
 
-// Crear una nueva reservación (reservación + detalles + actualización de mesa)
 const registrarReservacionService = async (datos) => {
-  // Validar los datos generales de la reservación
   await validarDatosReservacion(datos);
 
-  // Validar los detalles de la reservación
   if (!datos.detalles || !Array.isArray(datos.detalles) || datos.detalles.length === 0) {
     throw Object.assign(new Error("Debe incluir al menos un detalle de reservación"), { status: 400 });
   }
 
-  // Validar cada detalle individualmente
   for (const detalle of datos.detalles) {
     await validarDetalleReservacion(detalle);
   }
 
-  // Registrar todo
   const resultado = await registrarReservacionModel(datos);
 
   if (!resultado || !resultado.idReservacion) {
@@ -50,7 +44,6 @@ const registrarReservacionService = async (datos) => {
   };
 };
 
-// Listar reservaciones con paginación
 const listarReservacionesService = async (pagina = 1) => {
   const reservaciones = await listarReservacionesModel(pagina);
   if (!reservaciones || reservaciones.length === 0) {
@@ -59,7 +52,6 @@ const listarReservacionesService = async (pagina = 1) => {
   return reservaciones;
 };
 
-// Obtener una reservación por su ID
 const obtenerReservacionService = async (idReservacion) => {
   if (!idReservacion) {
     throw Object.assign(new Error("El idReservacion es obligatorio"), { status: 400 });
@@ -73,7 +65,6 @@ const obtenerReservacionService = async (idReservacion) => {
   return reservacion;
 };
 
-// Actualizar datos de una reservación
 const actualizarReservacionService = async (datos) => {
   if (!datos.idReservacion) {
     throw Object.assign(new Error("Falta el idReservacion"), { status: 400 });
@@ -90,7 +81,6 @@ const actualizarReservacionService = async (datos) => {
   };
 };
 
-// Insertar pago de una reservación
 const insertarPagoService = async (datos) => {
   if (!datos.idReservacion) {
     throw Object.assign(new Error("Falta el idReservacion"), { status: 400 });
@@ -100,7 +90,7 @@ const insertarPagoService = async (datos) => {
   if (!resultado || resultado.affectedRows === 0) {
     throw Object.assign(new Error("No se pudo registrar el pago"), { status: 500 });
   }
-  // Registrar el ingreso en caja después del pago
+
   await registrarIngresoCajaModel(
     { monto: datos.montoPagado, descripcion: `Pago de reservación con ID ${datos.idReservacion}` },
     datos.idUsuario
@@ -112,7 +102,6 @@ const insertarPagoService = async (datos) => {
   };
 };
 
-// Actualizar el estado del pago
 const actualizarPagoService = async (datos) => {
   await validarActualizacionPago(datos);
 
@@ -127,7 +116,6 @@ const actualizarPagoService = async (datos) => {
   };
 };
 
-// Obtener información del pago asociado a una reservación
 const obtenerPagoService = async (idReservacion) => {
   if (!idReservacion) {
     throw Object.assign(new Error("Falta el idReservacion"), { status: 400 });
@@ -141,7 +129,6 @@ const obtenerPagoService = async (idReservacion) => {
   return pago;
 };
 
-// Obtener los detalles de una reservación específica
 const obtenerDetalleReservacionService = async (idReservacion) => {
   if (!idReservacion) {
     throw Object.assign(new Error("Falta el idReservacion"), { status: 400 });
@@ -155,7 +142,6 @@ const obtenerDetalleReservacionService = async (idReservacion) => {
   return detalles;
 };
 
-// Servicio para listar mesas disponibles
 const listarMesasDisponiblesService = async (fechaReservacion, horaReservacion) => {
   await validarConsultaMesasDisponibles(fechaReservacion, horaReservacion);
 
@@ -169,10 +155,8 @@ const listarMesasDisponiblesService = async (fechaReservacion, horaReservacion) 
 
 const obtenerReservasPorUsuarioService = async (idUsuario) => {
 
-  // Obtener las reservas del usuario mediante el modelo
   const reservas = await obtenerReservasPorUsuarioModel(idUsuario);
 
-  // Verificar si se encontraron reservas
   if (!reservas || reservas.length === 0) {
     throw Object.assign(
       new Error("No existen reservas para este usuario."),
@@ -185,7 +169,6 @@ const obtenerReservasPorUsuarioService = async (idUsuario) => {
   };
 };
 
-// Exportar servicios
 module.exports = {
   registrarReservacionService,
   listarReservacionesService,

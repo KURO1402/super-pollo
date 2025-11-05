@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-//Importamos lso controladores
 const {
   registrarMovimientoStockController,
   obtenerMovimientosPaginacionController,
@@ -14,7 +13,6 @@ const {
 
 const { autenticacionToken, verificarRoles } = require("../../../middlewares/autenticacionMiddleware");
 
-//ruta para registrar un movimiento
 router.post("/movimiento", autenticacionToken, verificarRoles(1, 2), registrarMovimientoStockController);
 
 router.get("/movimientos", autenticacionToken, verificarRoles(1, 2), async (req, res, next) => {
@@ -34,7 +32,6 @@ router.get("/movimientos", autenticacionToken, verificarRoles(1, 2), async (req,
       return buscarMovimientosPorTipoController(req, res);
     }
 
-    // Si no hay filtros, devuelve todos los movimientos paginados
     return obtenerMovimientosPaginacionController(req, res);
 
   } catch (err) {
@@ -42,5 +39,4 @@ router.get("/movimientos", autenticacionToken, verificarRoles(1, 2), async (req,
   }
 });
 
-//importamos las rutas
 module.exports = router;

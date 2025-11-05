@@ -13,7 +13,6 @@ const procesarProductosYInsumos = async (productos, dataFormateada, respuestaVen
       const { idProducto, cantidad } = producto;
       const item = dataFormateada.items[index];
 
-      // Registrar detalle de venta
       const rptaDetalle = await insertarDetalleVentaModel({
         cantidadProducto: cantidad,
         valorUnitario: item.valor_unitario,
@@ -30,13 +29,14 @@ const procesarProductosYInsumos = async (productos, dataFormateada, respuestaVen
         detalleVenta: rptaDetalle
       });
 
-      // Procesar insumos si el producto los usa
       const productoInfo = await obtenerProductoPorIdModel(idProducto);
       if (productoInfo.usaInsumos === 1) {
         const insumos = await obtenerInsumosPorProductoModel(idProducto);
+
         const operacionesInsumos = insumos.map(async (insumo) => {
-          // Multiplicar la cantidad vendida por la cantidad de uso del insumo
+
           const cantidadTotalInsumo = cantidad * insumo.cantidadUso;
+
           const respuestaMovimiento = await registrarMovimientoStockModel(
             insumo.idInsumo,
             cantidadTotalInsumo,
@@ -65,7 +65,7 @@ const procesarProductosYInsumos = async (productos, dataFormateada, respuestaVen
         idProducto: producto.idProducto,
         error: error.message
       });
-      throw error; // Relanzar el error para que Promise.all falle
+      throw error; 
     }
   });
 
@@ -73,7 +73,6 @@ const procesarProductosYInsumos = async (productos, dataFormateada, respuestaVen
   return resultados;
 };
 
-// Función para preparar datos de venta
 const prepararDatosVenta = (dataFormateada, datosVenta, respuestaNubefact, idUsuario) => {
   return {
     numeroDocumentoCliente: dataFormateada.cliente_numero_de_documento,

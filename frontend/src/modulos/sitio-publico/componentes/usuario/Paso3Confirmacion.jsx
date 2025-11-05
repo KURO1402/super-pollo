@@ -221,8 +221,8 @@ const Paso3Confirmacion = () => {
             
             <div className="flex justify-between items-center p-4 bg-yellow-600/10 rounded-xl border border-yellow-500/20">
               <div>
-                <span className="text-gray-400">Anticipo</span>
-                <p className="text-xs text-gray-500">(60% del total)</p>
+                <span className="text-gray-400">Anticipo:</span>
+                <p className="text-xs text-gray-500">(50% del total)</p>
               </div>
               <span className="font-bold text-yellow-500">{formatearMoneda(anticipo)}</span>
             </div>
