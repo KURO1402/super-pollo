@@ -148,7 +148,7 @@ CREATE PROCEDURE insertarDetalleReservacion(
     IN p_idProducto INT
 )
 BEGIN
-    INSERT INTO detalleReservaciones(
+    INSERT INTO detallereservaciones(
         cantidadProductoReservacion, precioUnitario,
         idReservacion, idProducto
     )
@@ -166,7 +166,7 @@ BEGIN
     SELECT 
         dr.idDetalleReservacion, dr.cantidadProductoReservacion,
         dr.precioUnitario, p.nombreProducto
-    FROM detalleReservaciones dr
+    FROM detallereservaciones dr
     INNER JOIN productos p ON dr.idProducto = p.idProducto
     WHERE dr.idReservacion = p_idReservacion;
 END //

@@ -27,7 +27,7 @@ DELIMITER //
     CREATE PROCEDURE obtenerTiposComprobante()
     BEGIN
         SELECT idTipoComprobante, nombreTipoComprobante, serie
-        FROM tipoComprobantes;
+        FROM tipocomprobantes;
     END //
 
     /* PROCEDIMIENTO ALMACENADO para obtener la serie segun el id del tipo de comprobante */
@@ -36,7 +36,7 @@ DELIMITER //
     )
     BEGIN
         SELECT serie
-        FROM tipoComprobantes
+        FROM tipocomprobantes
         WHERE idTipoComprobante = p_idTipoComprobante;
     END //
 
@@ -192,7 +192,7 @@ DELIMITER //
 
         START TRANSACTION;
 
-        INSERT INTO detalleVentas(
+        INSERT INTO detalleventas(
             cantidadProducto,
             valorUnitario,
             precioUnitario,
@@ -232,7 +232,7 @@ DELIMITER //
             dv.cantidad,
             dv.precioUnitario,
             dv.subtotal
-        FROM detalleVentas dv
+        FROM detalleventas dv
         INNER JOIN productos p ON dv.idProducto = p.idProducto
         WHERE dv.idVenta = p_idVenta;
     END //
@@ -242,7 +242,7 @@ DELIMITER //
     )
     BEGIN
         SELECT COUNT(*) AS total
-        FROM medioPago
+        FROM mediopago
         WHERE idMedioPago = p_idMedioPago;
     END //
 
@@ -267,7 +267,7 @@ DELIMITER //
             c.sunatResponseCode,
             c.fechaEnvio
         FROM comprobantes c
-        INNER JOIN tipoComprobantes tc 
+        INNER JOIN tipocomprobantes tc 
             ON c.idTipoComprobante = tc.idTipoComprobante
         WHERE c.idComprobante = p_idComprobante;
     END //
@@ -331,7 +331,7 @@ DELIMITER //
         FROM ventas v
         LEFT JOIN comprobantes c ON c.idVenta = v.idVenta
         LEFT JOIN tipoComprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
-        LEFT JOIN medioPago mp ON mp.idMedioPago = v.idMedioPago
+        LEFT JOIN mediopago mp ON mp.idMedioPago = v.idMedioPago
         LEFT JOIN usuarios u ON u.idUsuario = v.idUsuario
         ORDER BY v.idVenta DESC
         LIMIT p_limit OFFSET p_offset;
@@ -357,8 +357,8 @@ DELIMITER //
             END AS estadoSunat
         FROM ventas v
         LEFT JOIN comprobantes c ON c.idVenta = v.idVenta
-        LEFT JOIN tipoComprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
-        LEFT JOIN medioPago mp ON mp.idMedioPago = v.idMedioPago
+        LEFT JOIN tipocomprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
+        LEFT JOIN mediopago mp ON mp.idMedioPago = v.idMedioPago
         LEFT JOIN usuarios u ON u.idUsuario = v.idUsuario
         WHERE v.idVenta = p_idVenta;
     END //
@@ -388,8 +388,8 @@ DELIMITER //
             END AS estadoSunat
         FROM ventas v
         LEFT JOIN comprobantes c ON c.idVenta = v.idVenta
-        LEFT JOIN tipoComprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
-        LEFT JOIN medioPago mp ON mp.idMedioPago = v.idMedioPago
+        LEFT JOIN tipocomprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
+        LEFT JOIN mediopago mp ON mp.idMedioPago = v.idMedioPago
         LEFT JOIN usuarios u ON u.idUsuario = v.idUsuario
         WHERE v.fechaEmision BETWEEN p_fechaInicio AND p_fechaFin
         ORDER BY v.idVenta DESC
@@ -420,8 +420,8 @@ DELIMITER //
             END AS estadoSunat
         FROM ventas v
         LEFT JOIN comprobantes c ON c.idVenta = v.idVenta
-        LEFT JOIN tipoComprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
-        LEFT JOIN medioPago mp ON mp.idMedioPago = v.idMedioPago
+        LEFT JOIN tipocomprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
+        LEFT JOIN mediopago mp ON mp.idMedioPago = v.idMedioPago
         LEFT JOIN usuarios u ON u.idUsuario = v.idUsuario
         WHERE u.nombresUsuario LIKE CONCAT('%', p_busqueda, '%')
         OR u.apellidosUsuario LIKE CONCAT('%', p_busqueda, '%')
@@ -453,8 +453,8 @@ DELIMITER //
             END AS estadoSunat
         FROM ventas v
         LEFT JOIN comprobantes c ON c.idVenta = v.idVenta
-        LEFT JOIN tipoComprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
-        LEFT JOIN medioPago mp ON mp.idMedioPago = v.idMedioPago
+        LEFT JOIN tipocomprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
+        LEFT JOIN mediopago mp ON mp.idMedioPago = v.idMedioPago
         LEFT JOIN usuarios u ON u.idUsuario = v.idUsuario
         WHERE CONCAT(tc.serie, '-', LPAD(c.numeroCorrelativo, 8, '0')) LIKE CONCAT('%', p_busqueda, '%')
         ORDER BY v.idVenta DESC
@@ -485,8 +485,8 @@ DELIMITER //
             END AS estadoSunat
         FROM ventas v
         LEFT JOIN comprobantes c ON c.idVenta = v.idVenta
-        LEFT JOIN tipoComprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
-        LEFT JOIN medioPago mp ON mp.idMedioPago = v.idMedioPago
+        LEFT JOIN tipocomprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
+        LEFT JOIN mediopago mp ON mp.idMedioPago = v.idMedioPago
         LEFT JOIN usuarios u ON u.idUsuario = v.idUsuario
         WHERE c.aceptadaPorSunat = p_aceptadaSunat
         ORDER BY v.idVenta DESC
@@ -510,7 +510,7 @@ BEGIN
     SELECT 
         idMedioPago,
         nombreMedioPago
-    FROM medioPago
+    FROM mediopago
     ORDER BY idMedioPago ASC;
 END //
 
@@ -527,7 +527,7 @@ BEGIN
         dv.igv,
         dv.totalProducto,
         p.nombreProducto
-    FROM detalleVentas dv
+    FROM detalleventas dv
     INNER JOIN productos p ON p.idProducto = dv.idProducto
     WHERE dv.idVenta = p_idVenta
     ORDER BY dv.idDetalleVenta ASC;
@@ -547,7 +547,7 @@ BEGIN
         c.aceptadaPorSunat,
         DATE_FORMAT(c.fechaEnvio, '%d-%m-%Y %H:%i:%s') AS fechaEnvio
     FROM comprobantes c
-    INNER JOIN tipoComprobantes tc ON tc.idTipoComprobante = c.idTipoComprobante
+    INNER JOIN tipocomprobantes tc ON tc.idTipoComprobante = c.idTipoComprobante
     WHERE c.idVenta = 1
     ORDER BY c.idComprobante DESC;
 END //
