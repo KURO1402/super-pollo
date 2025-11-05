@@ -77,18 +77,18 @@ BEGIN
     START TRANSACTION;
 
     SELECT COUNT(*) INTO v_existente
-    FROM verificacionCorreos
+    FROM verificacioncorreos
     WHERE correoVerificacion = p_correo AND verificado = 0;
 
     IF v_existente > 0 THEN
-        UPDATE verificacionCorreos
+        UPDATE verificacioncorreos
         SET 
             codigoVerificacion = p_codigo,
             expiracionVerificacion = DATE_ADD(NOW(), INTERVAL 5 MINUTE),
             registroVerificacion = NOW()
         WHERE correoVerificacion = p_correo AND verificado = 0;
     ELSE
-        INSERT INTO verificacionCorreos (
+        INSERT INTO verificacioncorreos (
             correoVerificacion,
             codigoVerificacion,
             expiracionVerificacion
@@ -117,7 +117,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE verificacionCorreos
+    UPDATE verificacioncorreos
     SET verificado = 1
     WHERE correoVerificacion = p_correo
       AND codigoVerificacion = p_codigo;
@@ -132,7 +132,7 @@ CREATE PROCEDURE obtenerEstadoVerificacionCorreo(
 )
 BEGIN
     SELECT verificado
-    FROM verificacionCorreos
+    FROM verificacioncorreos
     WHERE correoVerificacion = p_correo
     ORDER BY registroVerificacion DESC
     LIMIT 1;
@@ -163,7 +163,7 @@ BEGIN
         idVerificacion,
         expiracionVerificacion,
         verificado
-    FROM verificacionCorreos
+    FROM verificacioncorreos
     WHERE correoVerificacion = p_correo
       AND codigoVerificacion = p_codigo
     LIMIT 1;

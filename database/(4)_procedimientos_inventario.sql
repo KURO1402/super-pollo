@@ -183,7 +183,7 @@ BEGIN
     START TRANSACTION;
 
     -- Registrar movimiento con usuario
-    INSERT INTO movimientosStock (
+    INSERT INTO movimientosstock (
         idInsumo,
         cantidadMovimiento,
         tipoMovimiento,
@@ -231,7 +231,7 @@ BEGIN
         DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
         m.detallesMovimiento,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM movimientosStock m
+    FROM movimientosstock m
     INNER JOIN insumos i ON m.idInsumo = i.idInsumo
     INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
     ORDER BY m.fechaMovimiento DESC
@@ -253,7 +253,7 @@ BEGIN
         DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
         m.detallesMovimiento,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM movimientosStock m
+    FROM movimientosstock m
     INNER JOIN insumos i ON m.idInsumo = i.idInsumo
     INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
     WHERE i.nombreInsumo LIKE CONCAT('%', p_nombreInsumo, '%')
@@ -275,7 +275,7 @@ BEGIN
         DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
         m.detallesMovimiento,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM movimientosStock m
+    FROM movimientosstock m
     INNER JOIN insumos i ON m.idInsumo = i.idInsumo
     INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
     WHERE u.nombresUsuario LIKE CONCAT('%', p_nombreApellido, '%')
@@ -299,7 +299,7 @@ BEGIN
         DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
         m.detallesMovimiento,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM movimientosStock m
+    FROM movimientosstock m
     INNER JOIN insumos i ON m.idInsumo = i.idInsumo
     INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
     WHERE DATE(m.fechaMovimiento) BETWEEN p_fechaInicio AND p_fechaFin
@@ -321,7 +321,7 @@ BEGIN
         DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
         m.detallesMovimiento,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM movimientosStock m
+    FROM movimientosstock m
     INNER JOIN insumos i ON m.idInsumo = i.idInsumo
     INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
     WHERE m.tipoMovimiento = p_tipoMovimiento
@@ -342,7 +342,7 @@ BEGIN
         DATE_FORMAT(m.fechaMovimiento, '%H:%i:%s') AS horaMovimiento,
         m.detallesMovimiento,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM movimientosStock m
+    FROM movimientosstock m
     INNER JOIN insumos i ON m.idInsumo = i.idInsumo
     INNER JOIN usuarios u ON m.idUsuario = u.idUsuario
     WHERE m.idVenta = p_idVenta
