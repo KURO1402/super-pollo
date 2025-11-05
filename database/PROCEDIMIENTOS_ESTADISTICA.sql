@@ -26,7 +26,7 @@ BEGIN
     SELECT 
         p.nombreProducto,
         SUM(dv.cantidadProducto) AS totalVendido
-    FROM detalleVentas dv
+    FROM detalleventas dv
     INNER JOIN ventas v ON dv.idVenta = v.idVenta
     INNER JOIN productos p ON p.idProducto = dv.idProducto
     WHERE v.fechaEmision BETWEEN p_fechaInicio AND p_fechaFin
@@ -205,7 +205,7 @@ BEGIN
         mp.nombremediopago,
         IFNULL(SUM(v.totalVenta), 0) AS totalPorMedio,
         IFNULL(SUM(v.totalVenta)/total*100,0) AS porcentaje
-    FROM medioPago mp
+    FROM mediopago mp
     LEFT JOIN ventas v ON v.idMedioPago = mp.idMedioPago
     GROUP BY mp.idMedioPago, mp.nombreMedioPago;
 END //
