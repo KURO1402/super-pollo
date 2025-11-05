@@ -1,8 +1,5 @@
-// librerias externas
 import { useForm } from 'react-hook-form';
-// hook propios de react
 import { useEffect } from 'react';
-// servicios
 import mostrarAlerta, { alertasCRUD } from '../../../../../utilidades/toastUtilidades';
 import { actualizarInsumoServicio } from '../servicios/insumosServicios';
 
@@ -16,13 +13,11 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
     watch
   } = useForm();
 
-  // Cargar datos del insumo cuando se abre el modal
   useEffect(() => {
     if (insumo) {
       const now = new Date();
       const fechaActual = now.toISOString().split('T')[0];
       
-      // Precargar todos los datos del insumo
       setValue('nombreInsumo', insumo.nombreInsumo || '');
       setValue('stockInsumo', insumo.stockActual || insumo.stockInsumo || '');
       setValue('unidadMedida', insumo.unidadMedida || '');
@@ -33,31 +28,25 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
   const onSubmit = async (data) => {
     
     try {
-      // Preparar datos para el backend
       const datosParaBackend = {
         nombreInsumo: data.nombreInsumo,
         cantidadInicial: parseFloat(data.stockInsumo).toFixed(2),
         unidadMedida: data.unidadMedida,
       };
 
-      console.log("datos par el back: ", datosParaBackend)
-      // Llamar al servicio de actualización
       const resultado = await actualizarInsumoServicio(insumo.idInsumo, datosParaBackend);
 
       if (resultado && resultado.ok) {
         alertasCRUD.actualizado();
         
-        // Obtener el insumo actualizado de la respuesta
         const insumoActualizado = resultado.data?.data || {
           ...insumo,
           ...datosParaBackend,
           idInsumo: insumo.idInsumo
         };
-        // Pasar el insumo actualizado al componente principal
         onGuardar(insumoActualizado);
       }
     } catch (error) {
-      console.error('Error al actualizar insumo:', error);
       mostrarAlerta.error('Ya existe un insumo son el mismo nombre');
     }
   };
@@ -72,7 +61,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
   const nombreInsumo = watch('nombreInsumo');
   const descripcion = watch('descripcion');
 
-  // Calcular estado del stock basado en valores fijos
   const calcularEstadoStock = () => {
     const actual = parseFloat(stockInsumo) || 0;
     const stockMinimo = 5; 
@@ -123,7 +111,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
 
   return (
     <div className="space-y-6">
-      {/* Información del Insumo - Parte Superior */}
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
         <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
           Editando Insumo: <span className="text-blue-900 dark:text-blue-100">{insumo.nombreInsumo}</span>
@@ -143,7 +130,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Nombre del Insumo */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Nombre del Insumo *
@@ -171,7 +157,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
           )}
         </div>
 
-        {/* Categoría y Unidad de Medida */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           
           <div>
@@ -201,7 +186,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
               </p>
             )}
           </div>
-          {/* Stock Actual */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Stock Actual *
@@ -245,7 +229,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
           </div>
         </div>
 
-        {/* Estado del Stock (Calculado) */}
         <div className={`p-4 rounded-lg border ${getBgColorEstado(estadoActual)}`}>
           <div className="flex items-center gap-3">
             <div>
@@ -267,7 +250,6 @@ export const ModalEditarStock = ({ insumo, onClose, onGuardar }) => {
           </div>
         </div>
 
-        {/* Botones de acción */}
         <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"

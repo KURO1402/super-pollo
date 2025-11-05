@@ -10,7 +10,6 @@ export const useCategorias = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Cargar categorías
   const cargarCategorias = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -24,14 +23,12 @@ export const useCategorias = () => {
     }
   }, []);
 
-  // Crear categoría
   const crearCategoria = useCallback(async (nombreCategoria) => {
     setLoading(true);
     setError(null);
     try {
       const response = await crearCategoriaServicio(nombreCategoria);
       
-      // Agregar la nueva categoría al estado local
       const nuevaCategoria = {
         idCategoria: response.data?.idCategoria || Date.now(),
         nombreCategoria: nombreCategoria
@@ -47,14 +44,12 @@ export const useCategorias = () => {
     }
   }, []);
 
-  // Actualizar categoría
   const actualizarCategoria = useCallback(async (idCategoria, nombreCategoria) => {
     setLoading(true);
     setError(null);
     try {
       const response = await actualizarCategoriaServicio(idCategoria, nombreCategoria);
       
-      // Actualizar en el estado local
       setCategorias(prev => 
         prev.map(cat =>
           cat.idCategoria === idCategoria 
@@ -72,18 +67,14 @@ export const useCategorias = () => {
     }
   }, []);
 
-  // Limpiar error
   const limpiarError = useCallback(() => {
     setError(null);
   }, []);
 
   return {
-    // Estado
     categorias,
     loading,
     error,
-    
-    // Acciones
     cargarCategorias,
     crearCategoria,
     actualizarCategoria,

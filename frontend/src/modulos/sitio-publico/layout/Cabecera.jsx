@@ -17,30 +17,24 @@ const Cabecera = () => {
   const usuario = useAutenticacionGlobal((state) => state.usuario);
   const location = useLocation();
 
-  // Determinar en qué área estamos
   const esAreaUsuario = location.pathname.startsWith('/usuario');
   const esAreaAdmin = location.pathname.startsWith('/admin');
 
-  // Logo link dinámico
   const getLogoLink = () => {
     if (esAreaUsuario) return "/usuario";
     if (esAreaAdmin) return "/admin";
     return "/";
   };
 
-  // Renderizar sección de usuario según el contexto
   const renderSeccionUsuario = () => {
-    // Si hay usuario logueado y es usuario normal
     if (usuario && usuario.idRol === ROLES.USUARIO) {
       return <DropdownUsuario usuario={usuario} />;
     }
 
-    // 🔹 Nuevo caso: si hay usuario (por ejemplo admin o empleado)
     if (usuario && usuario.idRol !== ROLES.USUARIO) {
       return <DropdownAdmin usuario={usuario} />;
     }
 
-    // Si no hay usuario (solo visitantes)
     if (!esAreaAdmin && !esAreaUsuario) {
       return (
         <>
@@ -55,7 +49,6 @@ const Cabecera = () => {
     return null;
   };
 
-  // Renderizar sección de usuario para móvil
   const renderSeccionUsuarioMobile = () => {
   if (usuario && usuario.idRol === ROLES.USUARIO) {
     return (
@@ -72,7 +65,6 @@ const Cabecera = () => {
     return <DropdownAdmin usuario={usuario} mobile />;
   }
 
-  // Visitante (sin sesión)
   if (!esAreaAdmin && !esAreaUsuario) {
     return (
       <div className="flex items-center justify-center space-x-2">
@@ -93,7 +85,6 @@ const Cabecera = () => {
     <header className="bg-azul-secundario shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo y título */}
           <Link to={getLogoLink()} className="flex items-center space-x-3">
             <img
               src={NombreEmpresa}
@@ -103,17 +94,14 @@ const Cabecera = () => {
             <img src={Logo} alt="logo" className="w-10 h-10 md:w-12 md:h-12" />
           </Link>
 
-          {/* Misma barra de navegación SIEMPRE (no cambia en área usuario) */}
           <div className="hidden lg:block flex-1 mx-8">
             <BarraNavegacion />
           </div>
 
-          {/* Sección de usuario desktop - SOLO cambia aquí */}
           <div className="hidden lg:flex items-center space-x-3">
             {renderSeccionUsuario()}
           </div>
 
-          {/* Botón menú móvil */}
           <button
             className="lg:hidden p-2 rounded-md text-gray-100 hover:bg-azul-primario focus:outline-none"
             onClick={() => setMenuAbierto(!menuAbierto)}
@@ -127,8 +115,6 @@ const Cabecera = () => {
             )}
           </button>
         </div>
-
-        {/* Menu desplegable para móvil y tablet */}
         <div
           className={`lg:hidden transition-all duration-300 ease-in-out ${menuAbierto
             ? "max-h-96 opacity-100"
@@ -136,10 +122,9 @@ const Cabecera = () => {
             }`}
         >
           <div className="py-4 px-2 space-y-4 bg-azul-secundario border-t border-azul-primario">
-            {/* Misma navegación móvil SIEMPRE */}
+
             <BarraNavegacion />
 
-            {/* Sección de usuario móvil - SOLO cambia aquí */}
             <div className="flex flex-col space-y-3 pt-2">
               {renderSeccionUsuarioMobile()}
             </div>

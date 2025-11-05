@@ -1,10 +1,3 @@
-// src/validations/validacionesReservas.js
-
-/**
- * Validaciones de lógica de negocio para reservas
- */
-
-// Validar disponibilidad de mesa
 export const validarDisponibilidadMesa = (
   reservas,
   fechaReserva,
@@ -22,7 +15,6 @@ export const validarDisponibilidadMesa = (
   );
 };
 
-// Validar capacidad de la mesa
 export const validarCapacidadMesa = (numeroMesa, cantidadPersonas, configuracionMesas) => {
   const mesa = configuracionMesas.mesas.find(m => m.numero === Number(numeroMesa));
   if (!mesa) return false;
@@ -30,7 +22,6 @@ export const validarCapacidadMesa = (numeroMesa, cantidadPersonas, configuracion
   return Number(cantidadPersonas) <= mesa.capacidad;
 };
 
-// Convertir datos de reserva al formato de FullCalendar
 export const convertirReservaAEvento = (reserva) => {
   return {
     id: reserva.id,

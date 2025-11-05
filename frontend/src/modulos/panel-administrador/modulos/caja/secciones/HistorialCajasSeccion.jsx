@@ -1,8 +1,5 @@
-// hooks de react
-import { useState } from "react";
-import { FiRefreshCw } from "react-icons/fi";
+import { useState } from "react";import { FiRefreshCw } from "react-icons/fi";
 
-// Nuestros hooks 
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
 import { useHistorialCajas } from "../hooks/useHistorialCaja";
@@ -26,16 +23,16 @@ const HistorialCajasSeccion = () => {
     formatHora
   } = useHistorialCajas();
 
-  const [filtros, setFiltros] = useState({ fechaInicio: "", fechaFin: "",}); // estado para los filtros
+  const [filtros, setFiltros] = useState({ fechaInicio: "", fechaFin: "",});
   const { 
     paginaActual, 
     setPaginaActual, 
     itemsPorPagina,
     setItemsPorPagina,
     paginar  
-  } = usePaginacion(7); // para la paginación
+  } = usePaginacion(7);
 
-  const { estaAbierto: modalDetalleAbierto, abrir: abrirDetalle, cerrar: cerrarDetalle } = useModal(); // uso del modal
+  const { estaAbierto: modalDetalleAbierto, abrir: abrirDetalle, cerrar: cerrarDetalle } = useModal();
 
   const parseFecha = (fechaStr) => {
     const [dia, mes, anio] = fechaStr.split('/');
@@ -52,16 +49,13 @@ const HistorialCajasSeccion = () => {
   });
 
   historialFiltrado = aplicarFiltros(historialFiltrado, "estadoCaja");
-  // Paginar resultados filtrados
   const { datosPaginados: cajasPaginadas, totalPaginas } = paginar(historialFiltrado);
 
-  // Manejar cambio de filtros
   const handleFiltroChange = (campo, valor) => {
     setFiltros(prev => ({ ...prev, [campo]: valor }));
     setPaginaActual(1);
   };
 
-  // Opciones predefinidas de fechas
   const opcionesFechas = [
     { label: "Esta semana", value: "semana" },
     { label: "Este mes", value: "mes" },
@@ -102,16 +96,13 @@ const HistorialCajasSeccion = () => {
     setPaginaActual(1);
   };
 
-  // funcion para manejar el click del ver detlle
   const handleVerDetalle = async (idCaja) => {
     try {
       await cargarDetallesCompletosCaja(idCaja);
       abrirDetalle();
     } catch (error) {
-      console.error("Error al cargar detalles:", error);
     }
   };
-  // para limpiar toodos los filtros
   const handleLimpiarFiltros = () => {
     setFiltros({
       fechaInicio: "",
@@ -131,7 +122,6 @@ const HistorialCajasSeccion = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
-      {/* Header */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -144,9 +134,7 @@ const HistorialCajasSeccion = () => {
           </div>
         </div>
 
-        {/* Filtros Avanzados */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          {/* Rango de Fechas */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rango de Fechas
@@ -164,7 +152,6 @@ const HistorialCajasSeccion = () => {
             </select>
           </div>
 
-          {/* Fecha Inicio Personalizada */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Fecha Inicio
@@ -177,7 +164,6 @@ const HistorialCajasSeccion = () => {
             />
           </div>
 
-          {/* Fecha Fin Personalizada */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Fecha Fin

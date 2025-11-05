@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import { usePaginacion } from "../../../hooks/usePaginacion";
 import { useModal } from "../../../hooks/useModal";
 import { useCaja } from "../hooks/useCaja";
-
-// Componentes modulares
 import ResumenCaja from "../componentes/ResumenCaja";
 import AccionesCaja from "../componentes/AccionesCaja";
 import TablaMovimientos from "../componentes/TablaMovimientos";
@@ -28,7 +26,6 @@ const CajaActualSeccion = () => {
     cajaAbierta
   } = useCaja();
 
-  // Hooks
   const { paginaActual, setPaginaActual, paginar } = usePaginacion(5);
   const modalAbrirCaja = useModal();
   const modalIngreso = useModal();
@@ -41,7 +38,6 @@ const CajaActualSeccion = () => {
     }
   }, [cajaAbierta, caja.idCaja]);
 
-  // Funciones de utilidad
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-PE', {
       style: 'currency',
@@ -49,13 +45,12 @@ const CajaActualSeccion = () => {
     }).format(amount);
   };
 
-  // Funciones principales
   const onAbrirCaja = async (data) => {
     try {
       await handleAbrirCaja(data.montoInicial);
       modalAbrirCaja.cerrar();
     } catch (error) {
-      console.error("Error al abrir caja:", error);
+
     }
   };
 
@@ -64,7 +59,7 @@ const CajaActualSeccion = () => {
       await handleCerrarCaja();
       mostrarAlerta.exito("Caja cerrada con éxito")
     } catch (error) {
-      console.error("Error al cerrar caja:", error);
+
     }
   };
 
@@ -73,7 +68,7 @@ const CajaActualSeccion = () => {
       await handleRegistrarIngreso(data);
       modalIngreso.cerrar();
     } catch (error) {
-      console.error("Error al registrar ingreso:", error);
+
     }
   };
 
@@ -82,7 +77,7 @@ const CajaActualSeccion = () => {
       await handleRegistrarEgreso(data);
       modalEgreso.cerrar();
     } catch (error) {
-      console.error("Error al registrar egreso:", error);
+
     }
   };
 
@@ -91,11 +86,10 @@ const CajaActualSeccion = () => {
       await handleRegistrarArqueo(data);
       modalArqueo.cerrar();
     } catch (error) {
-      console.error("Error al registrar arqueo:", error);
+
     }
   };
 
-  // Paginación
   const { datosPaginados: movimientosPaginados, totalPaginas } = paginar(caja.movimientos);
 
   if (loading) {
@@ -109,7 +103,6 @@ const CajaActualSeccion = () => {
   return (
     <div className="w-full mx-auto p-2 space-y-6">
 
-      {/* Componentes modulares */}
       <ResumenCaja
         caja={caja}
         formatCurrency={formatCurrency}
@@ -135,7 +128,6 @@ const CajaActualSeccion = () => {
         loading={loading}
       />
 
-      {/* Modales */}
       <ModalAbrirCaja
         estaAbierto={modalAbrirCaja.estaAbierto}
         onCerrar={modalAbrirCaja.cerrar}

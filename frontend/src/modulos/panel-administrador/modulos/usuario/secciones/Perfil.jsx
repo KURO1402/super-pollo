@@ -37,7 +37,6 @@ const Perfil = () => {
     cerrar: cerrarClave 
   } = useModal();
 
-  // Cargar datos del usuario cuando el componente se monta
   useEffect(() => {
     const cargarPerfilUsuario = async () => {
       try {
@@ -52,7 +51,6 @@ const Perfil = () => {
             throw new Error("No se pudieron cargar los datos del perfil");
           }
         } else {
-          // Si no hay usuario global, usar datos mock temporalmente
           setUsuarioPerfil({
             idUsuario: 1,
             nombresUsuario: "Juan",
@@ -66,10 +64,8 @@ const Perfil = () => {
           });
         }
       } catch (error) {
-        console.error('Error al cargar perfil:', error);
         mostrarAlerta.error('Error al cargar los datos del perfil');
         
-        // Datos mock como fallback
         setUsuarioPerfil({
           idUsuario: usuarioGlobal?.idUsuario || 1,
           nombresUsuario: "Usuario",
@@ -89,7 +85,6 @@ const Perfil = () => {
     cargarPerfilUsuario();
   }, [usuarioGlobal]);
 
-  // Manejador para cuando se actualiza el correo
   const handleCorreoActualizado = (nuevoCorreo) => {
     setUsuarioPerfil(prev => ({
       ...prev,
@@ -97,19 +92,16 @@ const Perfil = () => {
     }));
   };
 
-  // Manejador para cuando se actualiza el usuario - CONECTADO AL SERVICIO
   const handleUsuarioActualizado = async (datosActualizados) => {
     try {
       setActualizando(true);
       
-      // Llamar al servicio de actualización
       const respuesta = await actualizarUsuarioServicio(
         usuarioPerfil.idUsuario, 
         datosActualizados
       );
       
       if (respuesta.ok) {
-        // Actualizar el estado local con los nuevos datos
         setUsuarioPerfil(prev => ({
           ...prev,
           ...datosActualizados
@@ -118,7 +110,6 @@ const Perfil = () => {
         mostrarAlerta.exito('Perfil actualizado correctamente');
         cerrarEditar();
         
-        // Recargar los datos completos del servidor para asegurar consistencia
         const datosCompletos = await obtenerUsuarioPorIdServicio(usuarioPerfil.idUsuario);
         if (datosCompletos.ok && datosCompletos.usuario) {
           setUsuarioPerfil(datosCompletos.usuario);
@@ -127,14 +118,12 @@ const Perfil = () => {
         throw new Error(respuesta.mensaje || 'Error al actualizar el perfil');
       }
     } catch (error) {
-      console.error('Error al actualizar usuario:', error);
       mostrarAlerta.error(error.message || 'Error al actualizar el perfil');
     } finally {
       setActualizando(false);
     }
   };
 
-  // Función para obtener el texto del tipo de documento
   const obtenerTipoDocumento = (idTipoDocumento) => {
     const tipos = {
       1: "DNI",
@@ -145,7 +134,6 @@ const Perfil = () => {
     return tipos[idTipoDocumento] || "No especificado";
   };
 
-  // Función para obtener el texto del rol
   const obtenerRol = (idRol) => {
     const roles = {
       1: "Superadministrador",
@@ -155,7 +143,6 @@ const Perfil = () => {
     return roles[idRol] || "No especificado";
   };
 
-  // Hallar las iniciales 
   const getIniciales = (nombres, apellidos) => {
     return `${nombres?.charAt(0) || ''}${apellidos?.charAt(0) || ''}`.toUpperCase();
   };
@@ -190,7 +177,6 @@ const Perfil = () => {
         <FaRegUser className="text-2xl mb-2 text-gray-800 dark:text-gray-100" />
       </div>
 
-      {/* Header del Perfil */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm mb-6">
         <div className="px-8 py-8 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-6">
@@ -220,7 +206,6 @@ const Perfil = () => {
           </div>
         </div>
 
-        {/* Información de Contacto */}
         <div className="px-8 py-6">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-3">
@@ -245,7 +230,6 @@ const Perfil = () => {
         </div>
       </div>
 
-      {/* Información Personal */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="px-8 py-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white text-left">
@@ -260,7 +244,6 @@ const Perfil = () => {
         
         <div className="p-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Columna Izquierda */}
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <CampoInfo 
@@ -274,7 +257,6 @@ const Perfil = () => {
                   valor={usuarioPerfil.apellidosUsuario}
                 />
               </div>
-              {/* Correo con botón de edición */}
               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-3">
                   <FiMail className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -296,7 +278,6 @@ const Perfil = () => {
                 valor={usuarioPerfil.telefonoUsuario || 'No especificado'}
               />
             </div>
-            {/* Columna Derecha */}
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <CampoInfo 
@@ -316,7 +297,6 @@ const Perfil = () => {
                 valor={obtenerRol(usuarioPerfil.idRol)}
               />
 
-              {/* Contraseña con botón de edición */}
               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-3">
                   <FiShield className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -337,7 +317,6 @@ const Perfil = () => {
         </div>
       </div>
 
-      {/* Modal de Editar Perfil - CONECTADO AL SERVICIO */}
       <Modal
         estaAbierto={modalEditarAbierto}
         onCerrar={cerrarEditar}

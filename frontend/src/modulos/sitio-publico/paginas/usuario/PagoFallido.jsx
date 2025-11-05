@@ -10,14 +10,12 @@ const PagoFallido = () => {
       <div className="bg-white py-12 px-8 rounded-2xl mx-4 md:mx-20 shadow-lg">
         <div className="max-w-4xl mx-auto text-center">
           
-          {/* Icono de error */}
           <div className="flex justify-center mb-6">
             <div className="bg-red-100 p-6 rounded-full">
               <FaTimesCircle className="text-red-500 text-6xl" />
             </div>
           </div>
 
-          {/* Título principal */}
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             Pago Fallido
           </h1>
@@ -26,7 +24,6 @@ const PagoFallido = () => {
             Lo sentimos, no pudimos procesar tu pago. Por favor, intenta nuevamente.
           </p>
 
-          {/* Información detallada */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center mb-3">
@@ -54,7 +51,6 @@ const PagoFallido = () => {
             </div>
           </div>
 
-          {/* Botón de inicio */}
           <div className="flex justify-center mb-8">
             <Link to="/">
               <BotonSecundario className="flex items-center bg-red-600 hover:bg-red-700">
@@ -64,7 +60,6 @@ const PagoFallido = () => {
             </Link>
           </div>
 
-          {/* Información adicional */}
           <div className="bg-gray-100 py-4 px-6 rounded-lg">
             <p className="text-gray-600">
               <strong>¿Necesitas ayuda?</strong> Contáctanos al{" "}
@@ -74,7 +69,6 @@ const PagoFallido = () => {
         </div>
       </div>
 
-      {/* Logo de la empresa */}
       <div className="text-center mt-8">
         <div className="flex items-center justify-center mb-4">
           <img src={Logo} alt="Super Pollo Logo" className="h-16 mr-3" />

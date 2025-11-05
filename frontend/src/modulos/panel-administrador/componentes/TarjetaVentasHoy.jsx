@@ -13,12 +13,11 @@ const TarjetaVentasHoy = () => {
       try {
         setCargando(true);
         const resultado = await obtenerVentasHoyComparacionServicio();
-        console.log(resultado);
         setVentasHoy(parseFloat(resultado.totalVentasHoy));
         setVentasAyer(parseFloat(resultado.totalVentasAyer));
         setPorcentaje(parseFloat(resultado.porcentajeComparacion));
       } catch (error) {
-        console.error("Error cargando ventas de hoy:", error);
+
       } finally {
         setCargando(false);
       }

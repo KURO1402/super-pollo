@@ -1,4 +1,3 @@
-// componentes/ModalModificarImagen.jsx
 import { useForm } from 'react-hook-form';
 import { FiUpload, FiX, FiImage } from 'react-icons/fi';
 import { actualizarImagenProductoServicio } from '../servicios/productoServicios';
@@ -18,19 +17,15 @@ export const ModalModificarImagen = ({ producto, onClose, onGuardar }) => {
     }
   });
 
-  // Función para manejar el cambio de imagen
   const handleImagenChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validar formato de imagen
       const formatosPermitidos = ['image/png', 'image/jpeg'];
       if (!formatosPermitidos.includes(file.type)) {
         mostrarAlerta.advertencia('Formato de imagen no válido. Solo se permiten PNG o JPG');
         e.target.value = '';
         return;
       }
-
-      // Validar tamaño 
       if (file.size > 5 * 1024 * 1024) {
         mostrarAlerta.advertencia('La imagen es demasiado grande. Máximo 5MB permitido');
         e.target.value = '';
@@ -48,22 +43,17 @@ export const ModalModificarImagen = ({ producto, onClose, onGuardar }) => {
         return;
       }
 
-      // Crear FormData
       const formData = new FormData();
       formData.append('image', data.imagen);
       
-      // Llamar al servicio
       await actualizarImagenProductoServicio(producto.idProducto, formData);
       
-      // Mostrar éxito
       mostrarAlerta.exito('Imagen actualizada correctamente');
       
-      // Ejecutar callback y cerrar
       onGuardar();
       onClose();
       
     } catch (error) {
-      console.error('Error al actualizar imagen:', error);
       const mensajeError = error.response?.data?.mensaje || error.message || 'Error al actualizar la imagen';
       mostrarAlerta.error(mensajeError);
     }
@@ -79,7 +69,6 @@ export const ModalModificarImagen = ({ producto, onClose, onGuardar }) => {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Información del producto */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div className="flex items-center space-x-3">
             <img
@@ -100,8 +89,6 @@ export const ModalModificarImagen = ({ producto, onClose, onGuardar }) => {
             </div>
           </div>
         </div>
-
-        {/* Imagen Actual */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Imagen Actual
@@ -117,8 +104,6 @@ export const ModalModificarImagen = ({ producto, onClose, onGuardar }) => {
             />
           </div>
         </div>
-
-        {/* Nueva Imagen */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Nueva Imagen *
@@ -170,8 +155,6 @@ export const ModalModificarImagen = ({ producto, onClose, onGuardar }) => {
             </p>
           )}
         </div>
-
-        {/* Botones de acción */}
         <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"

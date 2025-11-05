@@ -7,7 +7,6 @@ const FilaCajasCerradas = ({
 }) => {
   
   const handleVerDetalle = () => {
-    // Solo pasamos el idCaja a la función onVerDetalle
     onVerDetalle(cajaCerrada.idCaja);
   };
 

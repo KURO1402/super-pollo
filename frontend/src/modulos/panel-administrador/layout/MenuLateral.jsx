@@ -16,23 +16,20 @@ import { FaCashRegister } from "react-icons/fa";
 import { IoFastFoodOutline } from "react-icons/io5";
 
 import { useSidebar } from "../context/SidebarContext";
-// estado global
 import { useAutenticacionGlobal } from "../../../app/estado-global/autenticacionGlobal";
-// Llamar a la constante donde estan los roles
 import { ROLES } from "../../../app/constantes/roles";
 
-// Estructura completa del menú con roles permitidos
 const navItems = [
   {
     icon: <FiGrid size={20} />,
     name: "Dashboard",
     path: "/admin",
-    rolesPermitidos: [ROLES.SUPERADMIN], // Solo SuperAdmin
+    rolesPermitidos: [ROLES.SUPERADMIN],
   },
   {
     icon: <FiShoppingCart size={20} />,
     name: "Ventas",
-    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN], // Ambos
+    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN],
     subItems: [
       { name: "Generar Venta", path: "/admin/generar-venta" },
       { name: "Historial de Comprobantes", path: "/admin/registro-ventas" },
@@ -41,7 +38,7 @@ const navItems = [
   {
     icon: <IoFastFoodOutline size={22} />,
     name: "Productos",
-    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN], // Ambos
+    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN],
     subItems: [
       { name: "Gestión Productos", path: "/admin/gestion-productos" },
       { name: "Gestión Imagenes", path: "/admin/gestion-imagenes" },
@@ -50,7 +47,7 @@ const navItems = [
   {
     icon: <FiArchive size={20} />,
     name: "Stock",
-    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN], // Ambos
+    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN],
     subItems: [
       { name: "Stock Insumos", path: "/admin/stock-insumos" },
       { name: "Historial Entradas", path: "/admin/historial-entradas" },
@@ -60,7 +57,7 @@ const navItems = [
   {
     icon: <FaCashRegister size={20} />,
     name: "Caja",
-    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN], // Ambos
+    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN],
     subItems: [
       { name: "Caja Actual", path: "/admin/caja-actual" },
       { name: "Historial", path: "/admin/historial-cajas" }
@@ -69,7 +66,7 @@ const navItems = [
   {
     icon: <FiCalendar size={20} />,
     name: "Reservas",
-    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN], // Ambos
+    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN],
     subItems: [
       { name: "Calendario", path: "/admin/calendario-reservas" },
       { name: "Historial de Reservaciones", path: "/admin/historial-reservas" },
@@ -79,31 +76,27 @@ const navItems = [
     icon: <FiUsers size={20} />,
     name: "Usuarios",
     path: "/admin/usuarios",
-    rolesPermitidos: [ROLES.SUPERADMIN], // Solo SuperAdmin
+    rolesPermitidos: [ROLES.SUPERADMIN],
   },
   {
     icon: <FiUser size={20} />,
     name: "Perfil",
     path: "/admin/perfil",
-    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN], // Ambos
+    rolesPermitidos: [ROLES.SUPERADMIN, ROLES.ADMIN],
   },
 ];
 
 const MenuLateral = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
-  // traer los datos del usuario 
   const usuario = useAutenticacionGlobal((state) => state.usuario);
 
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [subMenuHeight, setSubMenuHeight] = useState({});
   const subMenuRefs = useRef({});
 
-  // Filtrar items del menú según el rol del usuario
   const menuItemsFiltrados = navItems.filter((item) => {
-    // Si no tiene restricción de roles, mostrarlo
     if (!item.rolesPermitidos) return true;
-    // Si tiene restricción, verificar si el rol está permitido
     return item.rolesPermitidos.includes(usuario?.idRol);
   });
 

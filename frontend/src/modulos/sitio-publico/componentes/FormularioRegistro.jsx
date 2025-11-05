@@ -1,53 +1,44 @@
-import { useForm } from 'react-hook-form';// manejar estados de componentes
-import { yupResolver } from '@hookform/resolvers/yup'; // Importa el resolver de yup para integrarlo con react hook form
-import { FaUser, FaEnvelope, FaLock, FaIdCard, FaPhone } from 'react-icons/fa'; // importamos iconos 
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup'; 
+import { FaUser, FaEnvelope, FaLock, FaIdCard, FaPhone } from 'react-icons/fa';
 
-//importa componentes personalisados para los campos de entrada y checkbox
 import CampoEntrada from './CampoEntrada';
 import CampoCheckbox from './CampoCheckbox';
-import CampoSelect from './CampoSelect'; // importamos nuestro componente reutilizable 
+import CampoSelect from './CampoSelect';
 
-//Importa el esquema de validacion definido con Yup
 import { registroValidacion } from '../validaciones/registroValidacion';
-import { useEffect, useState } from 'react'; // manejo de estados
+import { useEffect, useState } from 'react'; 
 
-//Importamos el servico que trae los tipos de docuemento
 import { obtenerTiposDocumento } from '../servicios/tiposDocService.js';
 import { Link } from 'react-router-dom';
 
-// resive dos parametros que le enviamos en Registro.jxs
 const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
   const [tiposDocumento, setTiposDocumento] = useState([]);
-  //configura el formulario usando useForm 
   const {
-    register, // registrar campos
-    handleSubmit, // manejar el envio
-    formState: { errors, isValid }, // errores y estado de validez
-    reset, // para limpiar el formulario
-    trigger, // para validar manualmente
+    register, 
+    handleSubmit,
+    formState: { errors, isValid },
+    reset, 
+    trigger, 
   } = useForm({
-    resolver: yupResolver(registroValidacion), // usamos la validación con yup
-    mode: 'onChange', // Validación en tiempo real
+    resolver: yupResolver(registroValidacion),
+    mode: 'onChange',
     defaultValues: {
-      idTipoDocumento: 1, // DNI por defecto
+      idTipoDocumento: 1,
     },
   });
 
-  // Funcion para cargar los tipos de documentos
   useEffect(() => {
     const cargarTiposDocumento = async () => {
       try {
         let tipos = await obtenerTiposDocumento();
 
-        // Filtramos para eliminar el RUC (mayúscula o minúscula)
         tipos = tipos.filter(
           tipo => tipo.nombreTipoDocumento.toLowerCase() !== 'ruc'
         );
 
         setTiposDocumento(tipos);
       } catch (error) {
-        console.error('Error al cargar tipos de documento:', error);
-        // En caso de error usar datos por defecto
         setTiposDocumento([
           { idTipoDocumento: 1, nombreTipoDocumento: 'DNI' }
         ]);
@@ -56,21 +47,16 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
     cargarTiposDocumento();
   }, []);
 
-  // Funcion que se ejecuta cuando se envia el formulario
   const manejarEnvioFormulario = async (datos) => {
     try {
-      await alEnviar(datos); // Llama a la función que recibe los datos (prop)
+      await alEnviar(datos);
       await trigger();
     } catch (error) {
-      // mostrar error si ocurre alguno
-      console.error('Error al enviar el formulario:', error);
     }
   };
 
   return (
-    //renderizar el formulario
     <form onSubmit={handleSubmit(manejarEnvioFormulario)} className="space-y-6">
-      {/* Grid para nombres y apellidos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CampoEntrada
           id="nombresUsuario"
@@ -93,7 +79,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         />
       </div>
 
-      {/* correo electrónico */}
       <CampoEntrada
         id="correoUsuario"
         nombre="correoUsuario"
@@ -105,7 +90,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         error={errors.correoUsuario}
       />
 
-      {/* grid para contraseñas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CampoEntrada
           id="clave"
@@ -130,7 +114,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         />
       </div>
 
-      {/* grid para documento */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CampoSelect
           id="idTipoDocumento"
@@ -155,7 +138,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
 
       </div>
 
-      {/* input para agregar teléfono */}
       <CampoEntrada
         id="telefonoUsuario"
         nombre="telefonoUsuario"
@@ -167,8 +149,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         error={errors.telefonoUsuario}
       />
 
-
-      {/* términos y condiciones */}
       <CampoCheckbox
         id="aceptoTerminos"
         nombre="aceptoTerminos"
@@ -188,7 +168,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
         error={errors.aceptoTerminos}
       />
 
-      {/* botón de registro */}
       <div>
         <button
           type="submit"

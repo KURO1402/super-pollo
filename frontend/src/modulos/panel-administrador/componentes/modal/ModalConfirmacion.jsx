@@ -1,5 +1,5 @@
 import Modal from "./Modal";
-// componente de modal de confirmacion
+
 export const ModalConfirmacion = ({
   visible,
   onCerrar,
@@ -10,7 +10,7 @@ export const ModalConfirmacion = ({
   textoCancelar = "Cancelar",
   tipo = "default",
 }) => {
-  const getColorBoton = () => { // determina el color del boton segun el tipo
+  const getColorBoton = () => {
     switch (tipo) {
       case "peligro":
         return "bg-red-500 hover:bg-red-600";

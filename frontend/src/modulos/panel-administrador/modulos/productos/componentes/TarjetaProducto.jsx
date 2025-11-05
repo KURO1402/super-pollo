@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiEdit, FiImage } from 'react-icons/fi';
+import { FiEdit } from 'react-icons/fi';
 
 export const TarjetaProducto = ({ producto, onModificarImagen }) => {
   const [mostrarBoton, setMostrarBoton] = useState(false);
@@ -10,7 +10,6 @@ export const TarjetaProducto = ({ producto, onModificarImagen }) => {
       onMouseEnter={() => setMostrarBoton(true)}
       onMouseLeave={() => setMostrarBoton(false)}
     >
-      {/* Imagen del producto */}
       <div className="relative h-48 bg-gray-200 dark:bg-gray-700">
         <img
           src={producto.urlImagen}
@@ -21,7 +20,6 @@ export const TarjetaProducto = ({ producto, onModificarImagen }) => {
           }}
         />
         
-        {/* Botón de modificar imagen*/}
         {mostrarBoton && (
           <div className="absolute inset-0 bg-gray-300/80 bg-opacity-40 dark:bg-gray-900/50 flex items-center justify-center">
             <button
@@ -35,7 +33,6 @@ export const TarjetaProducto = ({ producto, onModificarImagen }) => {
         )}
       </div>
       
-      {/* Información del producto */}
       <div className="p-4">
         <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1 truncate">
           {producto.nombreProducto}

@@ -9,13 +9,11 @@ const useScrollParaSecciones = () => {
     const section = locacionRuta.state?.scrollTo;
     
     if (section) {
-      // Pequeño delay para asegurar que la página esté cargada
       const timer = setTimeout(() => {
         scroller.scrollTo(section, {
           smooth: true,
           duration: 500,
           offset: -70,
-          // Añadir opciones de fallback
           ignoreCancelEvents: false,
         });
       }, 100);
@@ -24,7 +22,6 @@ const useScrollParaSecciones = () => {
     }
   }, [locacionRuta]);
 
-  // Función auxiliar para hacer scroll manualmente
   const scrollToSection = (section) => {
     scroller.scrollTo(section, {
       smooth: true,

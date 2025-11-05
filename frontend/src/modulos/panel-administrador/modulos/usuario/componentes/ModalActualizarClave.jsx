@@ -1,4 +1,3 @@
-// ModalActualizarClave.jsx - VERSIÓN SIMPLIFICADA
 import { useState } from "react";
 import { FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { actualizarClaveUsuarioServicio } from "../servicios/usuariosServicios";
@@ -72,7 +71,6 @@ const ModalActualizarClave = ({ idUsuario, onClose }) => {
     onClose();
 
   } catch (error) {
-    console.error("Error al actualizar contraseña:", error);
 
     const mensajeBackend =
       error.response?.data?.mensaje ||
@@ -131,7 +129,6 @@ const ModalActualizarClave = ({ idUsuario, onClose }) => {
         {renderCampoContraseña("Nueva contraseña", "nuevaClave", mostrar.nuevaClave)}
         {renderCampoContraseña("Confirmar nueva contraseña", "confirmarClave", mostrar.confirmarClave)}
 
-        {/* Requisitos de contraseña */}
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Requisitos de la nueva contraseña:
@@ -146,7 +143,6 @@ const ModalActualizarClave = ({ idUsuario, onClose }) => {
           </ul>
         </div>
 
-        {/* Botones */}
         <div className="flex justify-end space-x-3 pt-4">
           <BotonSimple
             funcion={onClose}

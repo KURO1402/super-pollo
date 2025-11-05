@@ -12,7 +12,6 @@ const PasosNavegacion = () => {
 
   return (
     <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-4 md:p-6 mb-6 md:mb-8">
-      {/* Versión Desktop - Horizontal */}
       <div className="hidden md:block">
         <div className="flex justify-between items-center">
           {pasos.map((paso, index) => (
@@ -56,7 +55,6 @@ const PasosNavegacion = () => {
         </div>
       </div>
 
-      {/* Versión Mobile - Vertical */}
       <div className="md:hidden">
         <div className="flex flex-col space-y-4">
           {pasos.map((paso, index) => (
@@ -109,7 +107,6 @@ const PasosNavegacion = () => {
         </div>
       </div>
 
-      {/* Indicador de progreso mobile */}
       <div className="md:hidden mt-4 pt-4 border-t border-gray-700">
         <div className="flex justify-between items-center text-sm">
           <span className="text-gray-400">Progreso:</span>

@@ -12,12 +12,10 @@ const enlaces = [
 const BarraNavegacion = () => {
   const locacionRuta = useLocation();
 
-  // Determinar si estamos en una página donde funciona el scroll
   const esPaginaConScroll = () => {
     return locacionRuta.pathname === "/" || locacionRuta.pathname === "/usuario";
   };
 
-  // Determinar la ruta de destino para redirección
   const obtenerRutaDestino = () => {
     if (locacionRuta.pathname.startsWith('/admin')) {
       return "/";
@@ -32,7 +30,6 @@ const BarraNavegacion = () => {
         {enlaces.map(({ nombre, enlace }) => (
           <li key={nombre}>
             {esPaginaConScroll() ? (
-              // Si estamos en página con scroll, usar react-scroll
               <ScrollLink
                 to={enlace}
                 smooth={true}
@@ -49,7 +46,6 @@ const BarraNavegacion = () => {
                 {nombre}
               </ScrollLink>
             ) : (
-              // Si estamos en otra ruta, redirigir al inicio con scroll
               <RouterLink
                 to={{
                   pathname: obtenerRutaDestino(),

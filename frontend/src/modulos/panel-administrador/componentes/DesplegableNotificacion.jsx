@@ -260,8 +260,6 @@ export default function DesplegableNotificacion() {
               </span>
             </DesplegableItem>
           </li>
-
-          {/* Add more items as needed */}
         </ul>
         <Link
           to="/"

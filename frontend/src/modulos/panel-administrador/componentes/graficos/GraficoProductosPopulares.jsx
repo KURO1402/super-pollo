@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useTemaParaGraficos } from "../../hooks/useTemaParaGraficos";
 import { obtenerTopProductosMasVendidosServicio } from "../../servicios/graficosServicio";
+import mostrarAlerta from "../../../../utilidades/toastUtilidades";
 
 const GraficoProductosPopulares = () => {
   const { themeColors } = useTemaParaGraficos();
@@ -12,19 +13,16 @@ const GraficoProductosPopulares = () => {
     fechaFin: ""
   });
 
-  // Función para obtener la fecha de hace 30 días como valor por defecto
   const obtenerFechaInicioPorDefecto = () => {
     const fecha = new Date();
     fecha.setDate(fecha.getDate() - 30);
     return fecha.toISOString().split('T')[0];
   };
 
-  // Función para obtener la fecha actual como valor por defecto
   const obtenerFechaFinPorDefecto = () => {
     return new Date().toISOString().split('T')[0];
   };
 
-  // Cargar datos con filtros
   const cargarDatos = async (fechaInicio = null, fechaFin = null) => {
     setCargando(true);
     try {
@@ -35,14 +33,12 @@ const GraficoProductosPopulares = () => {
       }));
       setData(formateo);
     } catch (error) {
-      console.error("Error cargando productos más vendidos", error);
       setData([]);
     } finally {
       setCargando(false);
     }
   };
 
-  // Cargar datos iniciales
   useEffect(() => {
     const fechaInicioDefault = obtenerFechaInicioPorDefecto();
     const fechaFinDefault = obtenerFechaFinPorDefecto();
@@ -55,7 +51,6 @@ const GraficoProductosPopulares = () => {
     cargarDatos(fechaInicioDefault, fechaFinDefault);
   }, []);
 
-  // Manejar cambio de filtros
   const manejarCambioFiltro = (campo, valor) => {
     const nuevosFiltros = {
       ...filtros,
@@ -64,18 +59,16 @@ const GraficoProductosPopulares = () => {
     setFiltros(nuevosFiltros);
   };
 
-  // Aplicar filtros
   const aplicarFiltros = () => {
     if (filtros.fechaInicio && filtros.fechaFin) {
       if (filtros.fechaInicio > filtros.fechaFin) {
-        alert("La fecha de inicio no puede ser mayor a la fecha fin");
+        mostrarAlerta.advertencia("La fecha de inicio no puede ser mayor a la fecha fin");
         return;
       }
       cargarDatos(filtros.fechaInicio, filtros.fechaFin);
     }
   };
 
-  // Limpiar filtros
   const limpiarFiltros = () => {
     const fechaInicioDefault = obtenerFechaInicioPorDefecto();
     const fechaFinDefault = obtenerFechaFinPorDefecto();
@@ -90,8 +83,6 @@ const GraficoProductosPopulares = () => {
 
   return (
     <div className="w-full">
-      {/* Filtros */}
-      {/* Filtros */}
       <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
         <div className="flex-1 min-w-[180px]">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -134,7 +125,6 @@ const GraficoProductosPopulares = () => {
           </button>
         </div>
       </div>
-      {/* Gráfico */}
       <div className="h-64">
         {cargando ? (
           <div className="flex items-center justify-center h-full">

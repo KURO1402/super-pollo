@@ -1,23 +1,16 @@
-// librerías externas
 import { FiShoppingCart, FiUser, FiEdit2, FiCheck, FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
-// hooks de react
 import { useState, useEffect } from "react";
-// servicios
 import { generarBoletaServicio, generarFacturaServicio, obtenerMetodosPagoServicio } from "../servicios/ventasServicio";
 import { obtenerProductosServicio } from "../../productos/servicios/productoServicios"
-// Estado global o manejo de contexto
 import { useVentaEstadoGlobal } from "../estado-global/useVentaEstadoGlobal";
-// componentes reutilizables
 import Modal from "../../../componentes/modal/Modal";
 import { ModalConfirmacion } from "../../../componentes/modal/ModalConfirmacion";
 import { BarraBusqueda } from "../../../componentes/busqueda-filtros/BarraBusqueda";
 import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
-// custom hooks
 import { useModal } from "../../../hooks/useModal";
 import { useConfirmacion } from "../../../hooks/useConfirmacion";
 import { useBusqueda } from "../../../hooks/useBusqueda";
-// componentes de la seccion
 import { TarjetaProducto } from "../componentes/TarjetaProducto";
 import { DetalleVenta } from "../componentes/DetalleVenta";
 import { ResumenVenta } from "../componentes/ResumenVenta";
@@ -29,8 +22,7 @@ const SeccionVentas = () => {
   const { estaAbierto, abrir, cerrar } = useModal();
   const { confirmacionVisible, mensajeConfirmacion, tituloConfirmacion, solicitarConfirmacion, ocultarConfirmacion, confirmarAccion} = useConfirmacion();
   
-  // guardar los datos en estados locales
-  const [tipoComprobante, setTipoComprobante] = useState(2); // 2=Boleta, 1=Factura
+  const [tipoComprobante, setTipoComprobante] = useState(2);
   const [tipoPago, setTipoPago] = useState("contado");
   const [cargandoMetodoPago, setCargandoMetodoPago] = useState(true);
   const [metodosPago, setMetodosPago] = useState([]);
@@ -43,7 +35,6 @@ const SeccionVentas = () => {
   const [productos, setProductos] = useState([]);
   const [cargandoProductos, setCargandoProductos] = useState(true);
 
-  // Cargar productos del backend al inicializar
   useEffect(() => {
     const cargarProductos = async () => {
       try {
@@ -51,7 +42,6 @@ const SeccionVentas = () => {
         const productosData = await obtenerProductosServicio();
         setProductos(productosData.productos);
       } catch (error) {
-        console.error('Error al cargar productos:', error);
         setProductos([]);
       } finally {
         setCargandoProductos(false);
@@ -61,7 +51,6 @@ const SeccionVentas = () => {
     cargarProductos();
   }, []);
 
-  // Cargar métodos de pago
   useEffect(() => {
     const cargarMetodosPago = async () => {
       try {
@@ -76,7 +65,6 @@ const SeccionVentas = () => {
           setMetodoPagoSeleccionado("");
         }
       } catch (error) {
-        console.error('Error al cargar métodos de pago:', error);
         setMetodosPago([]);
         setMetodoPagoSeleccionado("");
       } finally {
@@ -89,25 +77,20 @@ const SeccionVentas = () => {
 
   const handleTipoComprobante = (tipo) => {
     setTipoComprobante(tipo);
-    // Si cambia de factura a boleta y el cliente tiene tipoDoc 3 (RUC), limpiar datos
     if (tipo === 2 && datosCliente && datosCliente.tipoDocumento === "3") {
       setDatosCliente(null);
     }
   };
 
-  // Abrir modal para agregar/editar cliente
   const handleAbrirModalCliente = () => {
     abrir();
   };
 
-  // Cerrar modal del cliente
   const handleCerrarModalCliente = () => {
     cerrar();
   };
 
-  // guardar datos del cliente desde el formulario
   const handleClienteGuardado = (cliente) => {
-    // Validar que para factura el cliente tenga RUC (tipoDoc = 3) y dirección
     if (tipoComprobante === 1) {
       if (cliente.tipoDocumento !== "3") {
         mostrarAlerta.error("Para factura se requiere RUC (Tipo de documento 3)");
@@ -128,7 +111,6 @@ const SeccionVentas = () => {
     cerrar();
   };
 
-  // eliminar cleinte de la venta
   const handleEliminarCliente = () => {
     solicitarConfirmacion(
       "¿Desea quitar el cliente de esta venta?",
@@ -139,8 +121,6 @@ const SeccionVentas = () => {
       "Quitar cliente"
     );
   };
-
-  // Validar cliente para factura
   const validarClienteFactura = (cliente) => {
     if (!cliente) return "Cliente es obligatorio para factura";
     if (cliente.tipoDocumento !== "3") return "Para factura se requiere RUC (Tipo de documento 3)";
@@ -149,17 +129,13 @@ const SeccionVentas = () => {
     return null;
   };
 
-  // generar el comprobante, aqui se llama al servicio
   const handleGenerarComprobante = async () => {
-    console.log("Iniciando generación de comprobante...");
     
-    // Validaciones
     if (detalle.length === 0) {
       mostrarAlerta.advertencia("Debe agregar al menos un producto");
       return;
     }
 
-    // Validaciones específicas para factura
     if (tipoComprobante === 1) {
       const errorCliente = validarClienteFactura(datosCliente);
       if (errorCliente) {
@@ -168,7 +144,6 @@ const SeccionVentas = () => {
       }
     }
 
-    // Validar método de pago seleccionado
     if (!metodoPagoSeleccionado) {
       mostrarAlerta.advertencia("Debe seleccionar un método de pago");
       return;
@@ -177,20 +152,17 @@ const SeccionVentas = () => {
     setCargando(true);
 
     try {
-      // Mapear productos
       const productosVenta = detalle.map((item) => ({
         idProducto: item.id,
         cantidad: item.cantidad,
       }));
 
-      // Armar objeto de venta según la estructura requerida
       const venta = {
-        tipoComprobante: Number(tipoComprobante), // 2=Boleta, 1=Factura
+        tipoComprobante: Number(tipoComprobante),
         productos: productosVenta,
         idMetodoPago: Number(metodoPagoSeleccionado),
       };
 
-      // Agregar datos del cliente si existe
       if (datosCliente) {
         venta.datosCliente = {
           tipoDoc: Number(datosCliente.tipoDocumento),
@@ -200,9 +172,8 @@ const SeccionVentas = () => {
           direccionCliente: datosCliente.direccion || ""
         };
       } else if (tipoComprobante === 2) {
-        // Para boleta sin cliente, usar datos por defecto
         venta.datosCliente = {
-          tipoDoc: 1, // DNI por defecto para boleta
+          tipoDoc: 1, 
           numeroDoc: "00000000",
           nombreCliente: "Clientes Varios",
           correoCliente: "",
@@ -210,56 +181,39 @@ const SeccionVentas = () => {
         };
       }
 
-      // Agregar observaciones si existen
       if (observaciones.trim() !== "") {
         venta.observaciones = observaciones;
       }
 
-      // mostramos los datos que se envian al backend
-      console.log("Datos enviados al backend:", venta);
-      console.log("Tipo de comprobante:", tipoComprobante === 1 ? "Factura" : "Boleta");
-      
-      // Llamar al servicio correspondiente según el tipo de comprobante
       let respuestaCompleta;
       if (tipoComprobante === 1) {
-        // Factura
         respuestaCompleta = await generarFacturaServicio(venta);
       } else {
-        // Boleta
         respuestaCompleta = await generarBoletaServicio(venta);
       }
       
-      // mostrar resultado
       if (respuestaCompleta) {
-        console.log("Respuesta completa del backend:", respuestaCompleta);
         
-        // Guardar URL del PDF y mostrar modal - CORREGIDO
         if (respuestaCompleta.comprobanteNubefact && respuestaCompleta.comprobanteNubefact.enlacePDF) {
           setUrlPDF(respuestaCompleta.comprobanteNubefact.enlacePDF);
           setMostrarPDF(true);
-          console.log("URL del PDF:", respuestaCompleta.comprobanteNubefact.enlacePDF);
-          console.log("Modal PDF debería abrirse ahora");
           mostrarAlerta.exito("¡Venta registrada con éxito! Comprobante generado.");
         } else {
-          console.error("No se encontró enlace PDF en la respuesta:", respuestaCompleta);
           mostrarAlerta.error("No se pudo generar el comprobante PDF");
           return;
         }
-        
-        // Limpiar todo DESPUÉS de mostrar el modal
+
         limpiarVenta();
         setObservaciones("");
         setDatosCliente(null);
       }
     } catch (error) {
-      console.error("Error al generar comprobante:", error);
       mostrarAlerta.error(error.message || "Error al generar el comprobante");
     } finally {
       setCargando(false);
     }
   };
 
-  // limpiar toda la venta
   const handleLimpiarVenta = () => {
     if (detalle.length > 0 || datosCliente) {
       solicitarConfirmacion(
@@ -275,20 +229,17 @@ const SeccionVentas = () => {
     }
   };
 
-  // cerrar modal de pdf
   const handleCerrarModalPDF = () => {
     setMostrarPDF(false);
     setUrlPDF(null);
   };
 
-  // descargar o imprimir el pdf del comprobante
   const handleDescargarPDF = () => {
     if (urlPDF) {
       window.open(urlPDF, '_blank');
     }
   };
 
-  // Obtener texto del tipo de documento
   const getTipoDocumentoTexto = (tipoDoc) => {
     switch(tipoDoc) {
       case "1": return "DNI";
@@ -298,7 +249,6 @@ const SeccionVentas = () => {
     }
   };
 
-  // filtrar productos por busqueda
   let filtrados = filtrarPorBusqueda(productos, ["nombreProducto", "descripcionProducto"]);
 
   return (
@@ -311,7 +261,6 @@ const SeccionVentas = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Panel Izquierdo - Productos */}
         <div className="lg:col-span-1">
           <div className="mb-3">
             <BarraBusqueda
@@ -321,7 +270,6 @@ const SeccionVentas = () => {
             />
           </div>
           
-          {/* Estado de carga de productos */}
           {cargandoProductos ? (
             <div className="flex items-center justify-center h-32">
               <div className="text-center">
@@ -348,21 +296,21 @@ const SeccionVentas = () => {
             <div className="flex w-full lg:w-auto">
               <button
                 className={`flex-1 lg:flex-none px-4 lg:px-8 py-3 font-medium cursor-pointer border-b-2 lg:border-b-3 transition-colors duration-200 text-sm lg:text-base ${
-                  tipoComprobante === 2 // Boleta = 2
+                  tipoComprobante === 2 
                     ? "border-blue-500 text-blue-600 dark:text-blue-400"
                     : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 }`}
-                onClick={() => handleTipoComprobante(2)} // Boleta = 2
+                onClick={() => handleTipoComprobante(2)}
               >
                 Boleta
               </button>
               <button
                 className={`flex-1 lg:flex-none px-4 lg:px-8 py-3 font-medium cursor-pointer border-b-2 lg:border-b-3 transition-colors duration-200 text-sm lg:text-base ${
-                  tipoComprobante === 1 // Factura = 1
+                  tipoComprobante === 1 
                     ? "border-blue-500 text-blue-600 dark:text-blue-400"
                     : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 }`}
-                onClick={() => handleTipoComprobante(1)} // Factura = 1
+                onClick={() => handleTipoComprobante(1)}
               >
                 Factura
               </button>
@@ -370,7 +318,7 @@ const SeccionVentas = () => {
             <div className="w-full lg:w-auto lg:ml-auto">
               <input
                 className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full lg:w-48 xl:w-56"
-                value={tipoComprobante === 2 ? "B001" : "F001"} // Boleta = B001, Factura = F001
+                value={tipoComprobante === 2 ? "B001" : "F001"}
                 disabled
               />
             </div>
@@ -378,12 +326,11 @@ const SeccionVentas = () => {
           <div className="py-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Cliente 
-              {tipoComprobante === 1 && <span className="text-red-500"> *</span>} {/* Factura obliga cliente */}
-              {tipoComprobante === 2 && <span className="text-gray-500 text-xs ml-1">(Opcional)</span>} {/* Boleta opcional */}
+              {tipoComprobante === 1 && <span className="text-red-500"> *</span>} 
+              {tipoComprobante === 2 && <span className="text-gray-500 text-xs ml-1">(Opcional)</span>}
             </label>
 
             {datosCliente ? (
-              // Cliente guardado para boleta o factura
               <div className="flex items-center gap-2 p-3 border border-green-300 dark:border-green-600 rounded-lg bg-green-50 dark:bg-green-900/20">
                 <FiCheck className="text-green-600 dark:text-green-400 flex-shrink-0" size={20} />
                 <div className="flex-1">
@@ -411,7 +358,6 @@ const SeccionVentas = () => {
                 </button>
               </div>
             ) : (
-              // Sin cliente
               <div className="flex gap-2 w-full">
                 <div className="flex-grow flex items-center gap-2 px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
                   <FiUser className="text-gray-400" />
@@ -528,7 +474,6 @@ const SeccionVentas = () => {
         </div>
       </div>
 
-      {/* Modal de Cliente */}
       {estaAbierto && (
         <Modal
           estaAbierto={estaAbierto}
@@ -541,12 +486,11 @@ const SeccionVentas = () => {
           <FormularioCliente
             onSubmit={handleClienteGuardado}
             onCancelar={cerrar}
-            tipoComprobante={tipoComprobante} // Pasar el tipo de comprobante al formulario
+            tipoComprobante={tipoComprobante} 
           />
         </Modal>
       )}
 
-      {/* Modal de PDF */}
       {mostrarPDF && urlPDF && (
         <Modal
           estaAbierto={mostrarPDF}
@@ -589,7 +533,6 @@ const SeccionVentas = () => {
           </div>
         </Modal>
       )}
-      {/* Modal de confirmación */}
       <ModalConfirmacion
         visible={confirmacionVisible}
         onCerrar={ocultarConfirmacion}

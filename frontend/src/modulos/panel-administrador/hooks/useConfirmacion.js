@@ -38,7 +38,6 @@ export const useConfirmacion = () => {
   };
 
   return {
-    // Estados
     confirmacionVisible: estadoConfirmacion.visible,
     mensajeConfirmacion: estadoConfirmacion.mensaje,
     tituloConfirmacion: estadoConfirmacion.titulo,
@@ -46,7 +45,6 @@ export const useConfirmacion = () => {
     textoConfirmar: estadoConfirmacion.textoConfirmar,
     textoCancelar: estadoConfirmacion.textoCancelar,
     
-    // Acciones
     solicitarConfirmacion,
     ocultarConfirmacion,
     confirmarAccion,

@@ -11,7 +11,7 @@ export const useReservasHoyComparacion = () => {
         const resultado = await obtenerReservasHoyComparacionServicio();
         setReservas(resultado);
       } catch (error) {
-        console.error("Error al obtener reservas:", error);
+        
       } finally {
         setCargando(false);
       }

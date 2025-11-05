@@ -13,7 +13,6 @@ export const DetalleVenta = () => {
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const [inputValues, setInputValues] = useState({});
 
-  // Sincronizar inputValues cuando cambia el detalle
   useEffect(() => {
     const nuevosInputs = {};
     detalle.forEach((item) => {
@@ -24,10 +23,8 @@ export const DetalleVenta = () => {
   }, [detalle, obtenerId]);
 
   const handleCantidadChange = (itemId, valor) => {
-    // Permitir campo vacío temporalmente
     setInputValues({ ...inputValues, [itemId]: valor });
     
-    // Solo actualizar si es un número válido
     const cantidad = parseInt(valor);
     if (!isNaN(cantidad) && cantidad > 0 && cantidad <= 999) {
       actualizarCantidad(itemId, cantidad);
@@ -35,7 +32,6 @@ export const DetalleVenta = () => {
   };
 
   const handleCantidadBlur = (itemId, cantidadActual) => {
-    // Al perder el foco, si está vacío o inválido, restaurar al valor anterior
     const valor = inputValues[itemId];
     const cantidad = parseInt(valor);
     
@@ -47,7 +43,6 @@ export const DetalleVenta = () => {
     }
   };
 
-  // función para aumentar la cantidad desde el detalle
   const aumentarCantidad = (itemId, cantidadActual) => {
     if (cantidadActual < 999) {
       const nuevaCantidad = cantidadActual + 1;
@@ -56,7 +51,6 @@ export const DetalleVenta = () => {
     }
   };
 
-  // de igual forma para disminuir
   const disminuirCantidad = (itemId, cantidadActual) => {
     if (cantidadActual > 1) {
       const nuevaCantidad = cantidadActual - 1;
@@ -65,12 +59,10 @@ export const DetalleVenta = () => {
     }
   };
 
-  // para confirmar el cambio
   const confirmarEliminacion = (itemId) => {
     setProductoAEliminar(itemId);
   };
 
-  // para eliminar el Producto
   const eliminarProducto = () => {
     if (productoAEliminar) {
       removerProducto(productoAEliminar);
@@ -78,7 +70,6 @@ export const DetalleVenta = () => {
     }
   };
 
-  // cancelar la eliminación
   const cancelarEliminacion = () => {
     setProductoAEliminar(null);
   };
@@ -135,7 +126,6 @@ export const DetalleVenta = () => {
                   const nombre = item.nombreProducto || item.nombre;
                   const precio = item.precioProducto || item.precio;
                   
-                  // Calcular montos individuales para este producto
                   const montosProducto = calcularMontosProducto(item, item.cantidad);
                   
                   return (
@@ -149,7 +139,6 @@ export const DetalleVenta = () => {
                         ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-800/50'}
                       `}
                     >
-                      {/* Columna Cantidad */}
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">
                           <button
@@ -183,22 +172,18 @@ export const DetalleVenta = () => {
                         </div>
                       </td>
 
-                      {/* Columna Producto */}
                       <td className="px-4 py-3 text-gray-900 dark:text-gray-200 font-medium">
                         {nombre}
                       </td>
 
-                      {/* Columna Precio Unitario - MOSTRAR PRECIO SIN IGV */}
                       <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
                         S/ {montosProducto.valor_unitario.toFixed(2)}
                       </td>
 
-                      {/* Columna Total - USAR EL TOTAL CALCULADO */}
                       <td className="px-4 py-3 text-right font-bold text-gray-900 dark:text-white">
                         S/ {montosProducto.total.toFixed(2)}
                       </td>
 
-                      {/* Columna Acciones */}
                       <td className="px-4 py-3 text-center">
                         {productoAEliminar === itemId ? (
                           <div className="flex items-center justify-center gap-1">
@@ -252,7 +237,6 @@ export const DetalleVenta = () => {
 };
 
 export const ResumenVenta = () => {
-  // Obtener las funciones de cálculo del estado global
   const { subtotal, impuesto, total } = useVentaEstadoGlobal();
   
   return (

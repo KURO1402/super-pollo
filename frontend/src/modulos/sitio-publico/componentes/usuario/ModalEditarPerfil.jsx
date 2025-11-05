@@ -36,7 +36,6 @@ const ModalEditarPerfil = ({ usuario, onClose, onPerfilActualizado }) => {
     try {
       await onPerfilActualizado(formData);
     } catch (error) {
-      // El error ya se maneja en el componente principal
     } finally {
       setCargando(false);
     }
@@ -46,9 +45,7 @@ const ModalEditarPerfil = ({ usuario, onClose, onPerfilActualizado }) => {
     <div className="p-6">
       <form onSubmit={handleSubmit} className="space-y-6">
         
-        {/* Campos directamente en el form sin componentes intermedios */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Nombre */}
           <div className="space-y-2">
             <label htmlFor="nombre" className="block text-sm font-medium text-gray-300">
               Nombre <span className="text-rojo">*</span>
@@ -70,7 +67,6 @@ const ModalEditarPerfil = ({ usuario, onClose, onPerfilActualizado }) => {
             </div>
           </div>
 
-          {/* Apellido */}
           <div className="space-y-2">
             <label htmlFor="apellido" className="block text-sm font-medium text-gray-300">
               Apellido <span className="text-rojo">*</span>
@@ -93,7 +89,6 @@ const ModalEditarPerfil = ({ usuario, onClose, onPerfilActualizado }) => {
           </div>
         </div>
 
-        {/* Teléfono */}
         <div className="space-y-2">
           <label htmlFor="telefono" className="block text-sm font-medium text-gray-300">
             Teléfono
@@ -115,7 +110,7 @@ const ModalEditarPerfil = ({ usuario, onClose, onPerfilActualizado }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Tipo Documento */}
+          
           <div className="space-y-2">
             <label htmlFor="tipoDocumento" className="block text-sm font-medium text-gray-300">
               Tipo de Documento
@@ -144,7 +139,6 @@ const ModalEditarPerfil = ({ usuario, onClose, onPerfilActualizado }) => {
             </div>
           </div>
 
-          {/* Número Documento */}
           <div className="space-y-2">
             <label htmlFor="numeroDocumento" className="block text-sm font-medium text-gray-300">
               Número de Documento
@@ -166,7 +160,6 @@ const ModalEditarPerfil = ({ usuario, onClose, onPerfilActualizado }) => {
           </div>
         </div>
 
-        {/* Botones */}
         <div className="flex justify-end space-x-4 pt-6 border-t border-gray-700">
           <BotonSimple
             funcion={onClose}

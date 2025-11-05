@@ -1,4 +1,3 @@
-// componentes/categorias/ModalGestionCategorias.jsx
 import { useState, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
 import { useCategorias } from "../hooks/useCategorias";
@@ -17,19 +16,15 @@ const ModalGestionCategorias = () => {
     eliminarCategoria,
   } = useCategorias();
 
-  // Modales internos
   const modalCategoria = useModal();
   const modalConfirmacion = useModal();
 
-  // Estado para categoría en edición
   const [categoriaEditar, setCategoriaEditar] = useState(null);
 
-  // Cargar categorías cuando se monta el componente
   useEffect(() => {
     cargarCategorias();
   }, [cargarCategorias]);
 
-  // Handlers
   const handleAbrirCrear = () => {
     setCategoriaEditar(null);
     modalCategoria.abrir();
@@ -49,7 +44,6 @@ const ModalGestionCategorias = () => {
       }
       modalCategoria.cerrar();
     } catch (error) {
-      // El error ya se maneja en el hook
     }
   };
 
@@ -58,13 +52,11 @@ const ModalGestionCategorias = () => {
       await eliminarCategoria(idCategoria);
       modalConfirmacion.cerrar();
     } catch (error) {
-      // El error ya se maneja en el hook
     }
   };
 
   return (
     <div className="w-full">
-      {/* Header interno */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -81,7 +73,6 @@ const ModalGestionCategorias = () => {
         </button>
       </div>
 
-      {/* Tabla de categorías */}
       <TablaCategorias
         categorias={categorias}
         loading={loading}
@@ -89,7 +80,6 @@ const ModalGestionCategorias = () => {
         onEditar={handleAbrirEditar}
       />
 
-      {/* Modales internos */}
       <ModalCategoria
         estaAbierto={modalCategoria.estaAbierto}
         onCerrar={modalCategoria.cerrar}

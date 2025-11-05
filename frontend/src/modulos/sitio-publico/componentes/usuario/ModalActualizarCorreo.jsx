@@ -4,7 +4,6 @@ import { BotonSimple } from "../../../panel-administrador/componentes/botones/Bo
 import mostrarAlerta from "../../../../utilidades/toastUtilidades";
 
 const ModalActualizarCorreo = ({ usuario, onClose, onCorreoActualizado }) => {
-  console.log(usuario)
   const [formData, setFormData] = useState({
     nuevoCorreo: "",
     clave: ""
@@ -37,7 +36,6 @@ const ModalActualizarCorreo = ({ usuario, onClose, onCorreoActualizado }) => {
     try {
       await onCorreoActualizado(formData);
     } catch (error) {
-      // El error ya se maneja en el componente principal
     } finally {
       setCargando(false);
     }
@@ -46,7 +44,6 @@ const ModalActualizarCorreo = ({ usuario, onClose, onCorreoActualizado }) => {
   return (
     <div className="p-6">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Correo Actual */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Correo actual
@@ -56,7 +53,6 @@ const ModalActualizarCorreo = ({ usuario, onClose, onCorreoActualizado }) => {
           </div>
         </div>
 
-        {/* Nuevo Correo */}
         <div>
           <label htmlFor="nuevoCorreo" className="block text-sm font-medium text-gray-300 mb-2">
             Nuevo correo electrónico
@@ -78,7 +74,6 @@ const ModalActualizarCorreo = ({ usuario, onClose, onCorreoActualizado }) => {
           </div>
         </div>
 
-        {/* Contraseña Actual */}
         <div>
           <label htmlFor="clave" className="block text-sm font-medium text-gray-300 mb-2">
             Contraseña actual
@@ -100,14 +95,12 @@ const ModalActualizarCorreo = ({ usuario, onClose, onCorreoActualizado }) => {
           </div>
         </div>
 
-        {/* Nota importante */}
         <div className="bg-azul-primario/10 border border-azul-primario/30 rounded-lg p-4">
           <p className="text-sm text-azul-primario">
             <strong>Importante:</strong> Debes verificar el nuevo correo electrónico antes de que sea activado.
           </p>
         </div>
 
-        {/* Botones */}
         <div className="flex justify-end space-x-3 pt-4">
           <BotonSimple
             funcion={onClose}

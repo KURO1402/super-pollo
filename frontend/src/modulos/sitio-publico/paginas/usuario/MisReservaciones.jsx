@@ -35,7 +35,6 @@ const MisReservaciones = () => {
         setReservaciones([]);
       }
     } catch (err) {
-      console.error("Error al cargar reservaciones: ", err);
       
       if (err.response?.status === 403) {
         setError("No tienes permisos para ver las reservaciones. Por favor, inicia sesión nuevamente.");
@@ -123,7 +122,6 @@ const MisReservaciones = () => {
     <section className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         
-        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
             MIS <span className="text-rojo">RESERVACIONES</span>
@@ -134,11 +132,9 @@ const MisReservaciones = () => {
           </p>
         </div>
 
-        {/* Barra de Herramientas */}
         <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              {/* Filtros */}
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setFiltro("todas")}
@@ -174,7 +170,6 @@ const MisReservaciones = () => {
             </div>
 
             <div className="flex gap-2">
-              {/* Botón Recargar */}
               <button 
                 onClick={cargarReservaciones}
                 className="flex items-center gap-2 bg-azul-primario hover:bg-azul-primario/90 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
@@ -186,7 +181,6 @@ const MisReservaciones = () => {
           </div>
         </div>
 
-        {/* Lista de Reservaciones */}
         <div className="space-y-6">
           {reservacionesFiltradas.map((reserva) => (
             <div 
@@ -196,7 +190,6 @@ const MisReservaciones = () => {
               <div className="p-6">
                 <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
                   
-                  {/* Información Principal */}
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-4 mb-4">
                       <div className="flex items-center gap-2">
@@ -268,7 +261,6 @@ const MisReservaciones = () => {
           ))}
         </div>
 
-        {/* Mensaje si no hay reservaciones */}
         {reservacionesFiltradas.length === 0 && (
           <div className="text-center py-12">
             <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">

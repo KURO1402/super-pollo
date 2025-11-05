@@ -46,7 +46,6 @@ const Usuarios = () => {
   const [usuarioAEliminar, setUsuarioAEliminar] = useState(null);
   const [cargando, setCargando] = useState(true);
 
-  // Cargar usuarios al inicializar
   useEffect(() => {
     cargarUsuarios();
     cargarRoles();
@@ -58,7 +57,6 @@ const Usuarios = () => {
       const usuariosData = await obtenerUsuariosServicio();
       setUsuarios(usuariosData);
     } catch (error) {
-      console.error('Error al cargar usuarios:', error);
     } finally {
       setCargando(false);
     }
@@ -73,36 +71,30 @@ const Usuarios = () => {
         mostrarAlerta.error(respuesta.mensaje || "No se pudieron cargar los roles");
       }
     } catch (error) {
-      console.error("Error al cargar roles:", error);
     }
   };
 
 
-  // Manejador para eliminar usuario
   const handleEliminarUsuario = async (idUsuario) => {
     try {
       const respuesta = await eliminarUsuarioServicio(idUsuario);
 
       if (respuesta.ok) {
-        // Eliminar usuario del estado local
         setUsuarios(prev => prev.filter(usuario => usuario.idUsuario !== idUsuario));
         mostrarAlerta.exito('Usuario eliminado correctamente');
       } else {
         throw new Error(respuesta.mensaje || "Error al eliminar usuario");
       }
     } catch (error) {
-      console.error('Error al eliminar usuario:', error);
       mostrarAlerta.error(error.message || 'Error al eliminar el usuario');
     }
   };
 
-  // Manejador para solicitar eliminación
   const handleSolicitarEliminacion = (usuario) => {
     setUsuarioAEliminar(usuario);
     solicitarConfirmacion(
       `¿Estás seguro de eliminar al usuario ${usuario.nombresUsuario} ${usuario.apellidosUsuario}? Esta acción no se puede deshacer.`,
       () => {
-        // Ejecutar la eliminación cuando se confirma
         handleEliminarUsuario(usuario.idUsuario);
       },
       {
@@ -114,13 +106,11 @@ const Usuarios = () => {
     );
   };
 
-  // Manejador para editar usuario
   const handleEditarUsuario = (usuario) => {
     setUsuarioSeleccionado(usuario);
     abrirEditar();
   };
 
-  // Manejador para cuando se actualiza un usuario
   const handleUsuarioActualizado = (usuarioActualizado) => {
     setUsuarios(prev => prev.map(usuario =>
       usuario.idUsuario === usuarioActualizado.idUsuario ? usuarioActualizado : usuario
@@ -128,7 +118,6 @@ const Usuarios = () => {
     cerrarEditar();
   };
 
-  // Aplicar busqueda
   let filtrados = filtrarPorBusqueda(usuarios, [
     "nombresUsuario",
     "apellidosUsuario",
@@ -137,7 +126,6 @@ const Usuarios = () => {
     "telefonoUsuario"
   ]);
 
-  // Aplicar filtros por rol y estado
   filtrados = aplicarFiltros(filtrados, "idRol");
 
   const { datosPaginados, totalPaginas } = paginar(filtrados);
@@ -150,7 +138,6 @@ const Usuarios = () => {
     setItemsPorPagina(nuevoItemsPorPagina);
   };
 
-  // Mapear los usuarios para las filas de la tabla
   const filasUsuarios = datosPaginados.map((usuario) => (
     <FilaUsuario
       key={usuario.idUsuario}
@@ -184,7 +171,6 @@ const Usuarios = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
-      {/* Header */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -197,7 +183,6 @@ const Usuarios = () => {
           </div>
         </div>
 
-        {/* Barra de Búsqueda y Filtros */}
         <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-2">
@@ -219,7 +204,6 @@ const Usuarios = () => {
         </div>
       </div>
 
-      {/* Tabla de Usuarios */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
@@ -256,7 +240,6 @@ const Usuarios = () => {
         )}
       </div>
 
-      {/* Modal para Editar Usuario */}
       <Modal
         estaAbierto={modalEditarAbierto}
         onCerrar={cerrarEditar}
@@ -274,7 +257,6 @@ const Usuarios = () => {
         )}
       </Modal>
 
-      {/* Modal de Confirmación para Eliminar */}
       <ModalConfirmacion
         visible={confirmacionVisible}
         onCerrar={ocultarConfirmacion}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { obtenerBalanceAnualServicio } from "../servicios/datosServicio";
 
 export const BalanceGeneralCard = () => {
@@ -15,7 +15,7 @@ export const BalanceGeneralCard = () => {
         const resultado = await obtenerBalanceAnualServicio();
         setBalance(resultado);
       } catch (error) {
-        console.error("Error al obtener balance anual:", error);
+
       } finally {
         setCargando(false);
       }

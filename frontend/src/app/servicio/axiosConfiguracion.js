@@ -6,7 +6,6 @@ const API = axios.create({
     withCredentials: true,
 });
 
-// Interceptor para requests
 API.interceptors.request.use(
     (config) => {
         const authStorage = localStorage.getItem('auth-storage');
@@ -17,7 +16,6 @@ API.interceptors.request.use(
                 const parsed = JSON.parse(authStorage);
                 accessToken = parsed.state.accessToken;
             } catch (error) {
-                console.error('Error parsing auth storage:', error);
             }
         }
         
@@ -31,7 +29,6 @@ API.interceptors.request.use(
     }
 );
 
-// Interceptor para responses
 API.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -44,27 +41,25 @@ API.interceptors.response.use(
             originalRequest._retry = true;
             
             try {
-                console.log('Intentando renovar token...');
                 const refreshResponse = await axios.post(
                     `${import.meta.env.VITE_BACKEND_URL}/autenticacion/renovar-token`,
                     {},
                     { withCredentials: true }
                 );
                 const nuevoAccessToken = refreshResponse.data.accessToken;
-                console.log('Token renovado exitosamente');
-                // actualizar el token en el store o estado que tenemos
+
                 useAutenticacionGlobal.getState().setAccessToken(nuevoAccessToken)
-                // actualizar el header de la peticion original
+                
                 originalRequest.headers['Authorization'] = `Bearer ${nuevoAccessToken}`;
-                // reintentar la petición con el nuevo token
+
                 return API(originalRequest);
 
             } catch (refreshError) {
-                console.error('Error al renovar token:', refreshError);
-                // utilizar el logout del estado global para limpiar todo
+
                 useAutenticacionGlobal.getState().logout();
-                // eedirigir al login
+
                 window.location.href = '/inicio-sesion';
+                
                 return Promise.reject(refreshError);
             }
         }

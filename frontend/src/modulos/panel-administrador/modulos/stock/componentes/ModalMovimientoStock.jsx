@@ -1,11 +1,7 @@
-// librerías externas
 import { useForm } from 'react-hook-form';
-// hooks de react
 import { useEffect, useState } from 'react';
-// servicios
 import { crearMovimientoServicio } from '../servicios/movientosStockServicio';
 import { listarInsumoServicio } from '../servicios/insumosServicios';
-// utilidades
 import { alertasCRUD } from '../../../../../utilidades/toastUtilidades';
 
 export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
@@ -25,21 +21,18 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
   const [insumos, setInsumos] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  // Obtener insumos del backend
   const obtenerInsumos = async () => {
     try {
       const respuesta = await listarInsumoServicio();
       setInsumos(respuesta?.data || respuesta || []);
     } catch (error) {
-      console.error('Error al obtener insumos:', error);
       alertasCRUD.error('Error al cargar los insumos');
-      setInsumos([]); // Asegurar que siempre sea un array
+      setInsumos([]); 
     } finally {
       setCargando(false);
     }
   };
 
-  // Establecer fecha y hora actual por defecto
   useEffect(() => {
     const now = new Date();
     const fechaActual = now.toISOString().split('T')[0];
@@ -50,30 +43,26 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
     obtenerInsumos();
   }, [setValue]);
 
-  // función que se ejecuta al enviar el formulario
   const onSubmit = async (data) => {
     try {
-      // Preparar datos para el backend
       const movimientoData = {
         idInsumo: parseInt(data.idInsumo),
         tipoMovimiento: data.tipoMovimiento,
         cantidadMovimiento: parseFloat(data.cantidadMovimiento),
-        detallesMovimiento: data.detalle || '', // Incluir el detalle
+        detallesMovimiento: data.detalle || '',
       };
       
       await crearMovimientoServicio(movimientoData);
       
       alertasCRUD.creado();
-      onGuardar(); // Recargar la lista
+      onGuardar(); 
       reset();
       onClose();
     } catch (error) {
-      console.error('Error al registrar movimiento:', error);
       alertasCRUD.error('Error al registrar el movimiento');
     }
   };
 
-  // función para cancelar y cerrar el modal
   const handleCancelar = () => {
     reset();
     onClose();
@@ -82,13 +71,11 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
   const tipoMovimiento = watch('tipoMovimiento');
   const insumoSeleccionado = watch('idInsumo');
 
-  // Obtener el insumo seleccionado para mostrar detalles (con validación)
   const insumoActual = insumos?.find(insumo => insumo.idInsumo === parseInt(insumoSeleccionado));
 
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Selección de Insumo */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Insumo *
@@ -118,7 +105,6 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
             </p>
           )}
           
-          {/* Información del insumo seleccionado */}
           {insumoActual && (
             <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <p className="text-xs text-blue-700 dark:text-blue-300">
@@ -131,7 +117,6 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
           )}
         </div>
 
-        {/* Tipo de Movimiento y Cantidad */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -185,7 +170,6 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
           </div>
         </div>
 
-        {/* Campo Detalle */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Detalle (Opcional)
@@ -201,7 +185,6 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
           </p>
         </div>
 
-        {/* Resumen del Movimiento */}
         {insumoActual && (
           <div className={`p-4 rounded-lg border ${
             tipoMovimiento === 'entrada' 
@@ -237,7 +220,6 @@ export const ModalMovimientoStock = ({ onClose, onGuardar }) => {
           </div>
         )}
 
-        {/* Botones de acción */}
         <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"

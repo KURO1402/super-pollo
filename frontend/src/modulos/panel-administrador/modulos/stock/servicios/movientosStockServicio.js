@@ -11,7 +11,6 @@ export const crearMovimientoServicio = async (data) => {
       throw new Error(respuesta.data?.mensaje || "Error al registrar el movimiento");
     }
   } catch (error) {
-    console.error('Error en crearMovimientoServicio:', error);
     throw error;
   }
 };
@@ -24,7 +23,6 @@ export const listarMovimientosServicio = async () => {
     }
     return respuesta.data.movimientos;
   } catch (error) {
-    console.error('Error al listar movimientos:', error.message);
     throw error;
   }
 };
@@ -38,7 +36,6 @@ export const obtenerMovimientoIdServicio = async (id) => {
     }
     return respuesta.data;
   } catch (error) {
-    console.error('Error al obtener el movimiento:', error.message);
     throw error;
   }
 };

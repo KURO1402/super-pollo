@@ -20,10 +20,8 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
   const [error, setError] = useState(null);
   const [insumoAEliminar, setInsumoAEliminar] = useState(null);
 
-  // Hook de confirmación
   const confirmacionEliminar = useConfirmacion();
 
-  // Cargar insumos del producto y insumos disponibles
   useEffect(() => {
     cargarDatos();
   }, [producto.idProducto]);
@@ -33,23 +31,19 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
       setCargando(true);
       setError(null);
       
-      // Cargar insumos del producto
       const respuestaInsumosProducto = await obtenerInsumosProductoServicio(producto.idProducto);
       setInsumosProducto(respuestaInsumosProducto.insumos || []);
       
-      // Cargar todos los insumos disponibles
       const respuestaInsumosDisponibles = await listarInsumoServicio();
       setInsumosDisponibles(respuestaInsumosDisponibles || []);
       
     } catch (err) {
-      console.error('Error cargando datos:', err);
       setError(err.message);
     } finally {
       setCargando(false);
     }
   };
 
-  // Agregar nuevo insumo al producto
   const handleAgregarInsumo = async () => {
 
     const cantidad = parseFloat(nuevoInsumo.cantidadUso);
@@ -68,28 +62,22 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
 
       await agregarInsumoProductoServicio(datos);
       
-      // Recargar los insumos del producto
       await cargarDatos();
       
-      // Limpiar formulario
       setNuevoInsumo({ idInsumo: "", cantidadUso: "" });
       
       mostrarAlerta.exito('Insumo agregado correctamente');
       
     } catch (error) {
-      console.error('Error al agregar insumo:', error);
-      const mensajeError = error.response?.data?.mensaje || error.message || 'Error al agregar insumo';
-      mostrarAlerta.error(mensajeError);
+      mostrarAlerta.error("No se puedo agregar el insumo");
     }
   };
 
-  // Iniciar edición de cantidad
   const iniciarEdicion = (insumo) => {
     setEditandoInsumo(insumo.idInsumo);
     setNuevaCantidad(insumo.cantidaUso || insumo.cantidadUso);
   };
 
-  // Guardar cantidad editada
   const guardarCantidad = async (idInsumo) => {
     if (nuevaCantidad <= 0) {
       mostrarAlerta.advertencia('La cantidad debe ser mayor a 0');
@@ -102,32 +90,26 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
         idInsumo: idInsumo,
         nuevaCantidad: parseFloat(nuevaCantidad)
       };
-      console.log("lo que se envía", datos)
       await modificarCantidadInsumoServicio(datos);
       
-      // Recargar los insumos del producto
       await cargarDatos();
       
-      // Salir del modo edición
       setEditandoInsumo(null);
       setNuevaCantidad(0);
       
       mostrarAlerta.exito('Cantidad actualizada correctamente');
       
     } catch (error) {
-      console.error('Error al modificar cantidad:', error);
       const mensajeError = error.response?.data?.mensaje || error.message || 'Error al modificar cantidad';
       mostrarAlerta.error(mensajeError);
     }
   };
 
-  // Cancelar edición
   const cancelarEdicion = () => {
     setEditandoInsumo(null);
     setNuevaCantidad(0);
   };
 
-  // Solicitar confirmación para eliminar insumo
   const solicitarEliminarInsumo = (insumo) => {
     const nombreInsumo = obtenerNombreInsumo(insumo.idInsumo);
     setInsumoAEliminar(insumo);
@@ -135,7 +117,6 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
     confirmacionEliminar.solicitarConfirmacion(
       `¿Estás seguro de eliminar el insumo "${nombreInsumo}" de este producto? Esta acción no se puede deshacer.`,
       () => {
-        // Esta función se ejecuta cuando el usuario confirma
         handleEliminarInsumo(insumo.idInsumo);
       },
       {
@@ -147,13 +128,11 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
     );
   };
 
-  // Cancelar eliminación
   const cancelarEliminacion = () => {
     setInsumoAEliminar(null);
     confirmacionEliminar.ocultarConfirmacion();
   };
 
-  // Eliminar insumo del producto 
   const handleEliminarInsumo = async (idInsumo) => {
     try {
       const datos = {
@@ -163,28 +142,23 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
 
       await eliminarInsumoProductoServicio(datos);
       
-      // Recargar los insumos del producto
       await cargarDatos();
       
       mostrarAlerta.exito('Insumo eliminado correctamente');
       
     } catch (error) {
-      console.error('Error al eliminar insumo:', error);
       const mensajeError = error.response?.data?.mensaje || error.message || 'Error al eliminar insumo';
       mostrarAlerta.error(mensajeError);
     } finally {
-      // Limpiar el estado
       setInsumoAEliminar(null);
     }
   };
 
-  // Obtener nombre del insumo por ID
   const obtenerNombreInsumo = (idInsumo) => {
     const insumo = insumosDisponibles.find(ins => ins.idInsumo === idInsumo);
     return insumo ? insumo.nombreInsumo : 'Insumo no encontrado';
   };
 
-  // Obtener unidad de medida del insumo por ID
   const obtenerUnidadInsumo = (idInsumo) => {
     const insumo = insumosDisponibles.find(ins => ins.idInsumo === idInsumo);
     return insumo ? insumo.unidadMedida : 'N/A';
@@ -222,7 +196,6 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
         Gestiona los insumos necesarios para preparar "{producto.nombreProducto}"
       </p>
 
-      {/* Sección para agregar insumo */}
       <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
         <h3 className="cursor-pointer text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Agregar Insumo
@@ -274,7 +247,6 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
         </div>
       </div>
 
-      {/* Tabla de insumos del producto */}
       <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
         <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4">
           Insumos del Producto ({insumosProducto.length})
@@ -366,7 +338,6 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
         )}
       </div>
 
-      {/* Botones de acción */}
       <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
         <button
           onClick={onClose}
@@ -376,7 +347,6 @@ export const ModalReceta = ({ producto, onClose, onGuardar }) => {
         </button>
       </div>
 
-      {/* Modal de confirmación para eliminar insumo */}
       <ModalConfirmacion
         visible={confirmacionEliminar.confirmacionVisible}
         onCerrar={cancelarEliminacion}

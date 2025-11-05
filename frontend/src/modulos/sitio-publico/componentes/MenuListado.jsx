@@ -2,7 +2,6 @@ import TarjetaProducto from "./TarjetaProducto";
 
 const MenuListado = ({ productos, cargando, error, categoriaSeleccionada }) => {
 
-  // Estado de carga
   if (cargando) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -14,13 +13,11 @@ const MenuListado = ({ productos, cargando, error, categoriaSeleccionada }) => {
     );
   }
 
-  // Estado de error
   if (error) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="text-center">
-          <div className="text-red-500 text-lg mb-2">⚠️</div>
-          <p className="text-gray-100">{error}</p>
+          <p className="text-gray-100">No se encontraron los productos</p>
           <button 
             onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -32,7 +29,6 @@ const MenuListado = ({ productos, cargando, error, categoriaSeleccionada }) => {
     );
   }
 
-  // Estado sin productos
   if (!productos || productos.length === 0) {
     return (
       <div className="flex justify-center items-center py-12">

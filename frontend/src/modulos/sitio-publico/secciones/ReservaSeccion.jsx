@@ -3,10 +3,8 @@ import FormularioReserva from "../componentes/FormularioReserva";
 const ReservaSeccion = () => {
   return (
     <section id="reservaciones" className="relative overflow-hidden fondo-cortando-pollo">
-      {/* <div className="fondo-cortando-pollo relative"> */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 lg:py-4">
           <div className="flex flex-col lg:flex-row lg:items-center lg:min-h-[75vh]">
-            {/*texto (arriba en móvil, izquierda en escritorrio) */}
             <div className="text-white text-center lg:text-left mb-10 lg:mb-0 lg:pr-12 lg:w-1/2">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 EL SABOR DE LOS MEJORES<br />
@@ -24,16 +22,11 @@ const ReservaSeccion = () => {
                 </p>
               </div>
             </div>
-
-            {/* formulario - (abajo en móvil y la derecha para escritorio) */}
             <div className="lg:w-1/2 flex justify-center lg:justify-end">
               <FormularioReserva />
             </div>
           </div>
         </div>
-      {/* </div> */}
-
-      {/*texto adicional solo para movil y tablet */}
       <div className="lg:hidden bg-gray-900 p-8">
         <div className="max-w-7xl mx-auto">
           <div className="w-24 h-1 bg-red-500 mb-6 mx-auto lg:mx-0"></div>

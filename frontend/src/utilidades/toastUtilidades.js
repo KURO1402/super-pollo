@@ -1,11 +1,7 @@
-// src/utils/toastUtils.js
-
 import { toast } from 'react-toastify';
 
-// ALERTAS BÁSICAS
 export const mostrarAlerta = {
 
-  // Alerta de exito
   exito: (mensaje, opciones = {}) => {
     toast.success(mensaje, {
       position: "top-right",
@@ -17,7 +13,6 @@ export const mostrarAlerta = {
       ...opciones,
     });
   },
-  // Alerta de error
   error: (mensaje, opciones = {}) => {
     toast.error(mensaje, {
       position: "top-right",
@@ -29,7 +24,6 @@ export const mostrarAlerta = {
       ...opciones,
     });
   },
-  //Alerta de advertencia
   advertencia: (mensaje, opciones = {}) => {
     toast.warning(mensaje, {
       position: "top-right",
@@ -41,7 +35,6 @@ export const mostrarAlerta = {
       ...opciones,
     });
   },
-  // Alerta de informacion
   info: (mensaje, opciones = {}) => {
     toast.info(mensaje, {
       position: "top-right",
@@ -54,7 +47,6 @@ export const mostrarAlerta = {
     });
   },
 
-  // Alerta de carga
   promesa: (promesa, mensajes = {}) => {
     return toast.promise(
       promesa,
@@ -70,34 +62,26 @@ export const mostrarAlerta = {
   },
 };
 
-// ALERTAS PARA OPERACIONES CRUD
 
 export const alertasCRUD = {
-  // Crear
   creado: (entidad = 'Registro') => {
     mostrarAlerta.exito(`${entidad} creado exitosamente`);
   },
 
-  // Actualizar
   actualizado: (entidad = 'Registro') => {
     mostrarAlerta.exito(`${entidad} actualizado exitosamente`);
   },
 
-  // Eliminar
   eliminado: (entidad = 'Registro') => {
     mostrarAlerta.exito(`${entidad} eliminado exitosamente`);
   },
 
-  // Error genérico
   errorOperacion: (accion = 'realizar la operación') => {
     mostrarAlerta.error(`Error al ${accion}. Intente nuevamente`);
   },
 };
 
-// ALERTAS ESPECÍFICAS PARA POLLERÍA
-
 export const alertasAdministrador = {
-  // Ventas
   ventaRegistrada: (monto) => {
     mostrarAlerta.exito(`Venta registrada: S/ ${monto.toFixed(2)}`);
   },
@@ -106,7 +90,6 @@ export const alertasAdministrador = {
     mostrarAlerta.advertencia('Venta cancelada');
   },
 
-  // Reservas
   reservaCreada: () => {
     mostrarAlerta.exito('Reserva creada exitosamente');
   },
@@ -123,7 +106,6 @@ export const alertasAdministrador = {
     mostrarAlerta.advertencia('La mesa no está disponible en ese horario');
   },
 
-  // Stock
   stockBajo: (producto) => {
     mostrarAlerta.advertencia(`Stock bajo: ${producto}`);
   },
@@ -136,7 +118,6 @@ export const alertasAdministrador = {
     mostrarAlerta.exito('Stock actualizado correctamente');
   },
 
-  // Caja
   cajaAbierta: () => {
     mostrarAlerta.info('Caja aperturada correctamente');
   },
@@ -145,7 +126,6 @@ export const alertasAdministrador = {
     mostrarAlerta.exito(`Caja cerrada - Total: S/ ${monto.toFixed(2)}`);
   },
 
-  // Usuarios
   usuarioCreado: () => {
     mostrarAlerta.exito('Usuario creado exitosamente');
   },
@@ -158,10 +138,6 @@ export const alertasAdministrador = {
     mostrarAlerta.exito('Contraseña cambiada exitosamente');
   },
 };
-
-// ==========================================
-// ALERTAS DE VALIDACIÓN
-// ==========================================
 
 export const alertasValidacion = {
   campoRequerido: (campo) => {
@@ -180,8 +156,6 @@ export const alertasValidacion = {
     mostrarAlerta.advertencia(`${campo} debe estar entre ${min} y ${max}`);
   },
 };
-
-// ALERTAS DE AUTENTICACIÓN
 
 export const alertasAuth = {
   bienvenido: (nombre) => {
@@ -205,7 +179,6 @@ export const alertasAuth = {
   },
 };
 
-// ALERTAS DE RED
 export const alertasRed = {
   sinConexion: () => {
     mostrarAlerta.error('Sin conexión a internet', {
@@ -227,7 +200,6 @@ export const alertasRed = {
   },
 };
 
-// ALERTA PERSONALIZADA
 
 export const alertaPersonalizada = (contenido, tipo = 'default', opciones = {}) => {
   const tiposValidos = ['success', 'error', 'warning', 'info', 'default'];
@@ -240,8 +212,6 @@ export const alertaPersonalizada = (contenido, tipo = 'default', opciones = {}) 
   });
 };
 
-// CONTROL DE TOASTS
-
 export const controlarToasts = {
   cerrarTodos: () => {
     toast.dismiss();
@@ -251,6 +221,4 @@ export const controlarToasts = {
     toast.dismiss(toastId);
   },
 };
-
-// Exportación por defecto
 export default mostrarAlerta;

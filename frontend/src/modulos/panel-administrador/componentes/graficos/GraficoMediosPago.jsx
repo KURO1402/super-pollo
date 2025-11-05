@@ -21,14 +21,14 @@ const GraficoMediosPago = () => {
     const cargarDatos = async () => {
       try {
         const resultado = await obtenerPorcentajeMediosPagoServicio();
-        // Transformar datos para Recharts
+
         const datosFormateados = resultado.map(item => ({
           name: item.nombreMedioPago,
           value: parseFloat(item.porcentaje)
         }));
         setData(datosFormateados);
       } catch (error) {
-        console.error("Error al cargar porcentaje de medios de pago:", error);
+        
       } finally {
         setCargando(false);
       }

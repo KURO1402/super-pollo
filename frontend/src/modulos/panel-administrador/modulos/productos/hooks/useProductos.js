@@ -14,7 +14,6 @@ export const useProductos = () => {
       setProductos(respuesta.productos || []);
     } catch (err) {
       setError(err.message);
-      console.error('Error al obtener productos:', err);
     } finally {
       setCargando(false);
     }

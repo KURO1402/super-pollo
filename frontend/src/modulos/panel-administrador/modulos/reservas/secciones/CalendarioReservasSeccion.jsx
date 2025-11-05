@@ -6,11 +6,10 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from '@fullcalendar/core/locales/es';
 import { useState, useRef, useEffect } from "react";
-import { FiClock, FiUsers, FiPlus, FiLoader, FiCalendar } from "react-icons/fi";
+import { FiClock, FiUsers, FiLoader, FiCalendar } from "react-icons/fi";
 
 import Modal from "../../../componentes/modal/Modal";
 import { useModal } from "../../../hooks/useModal";
-import { estadosReserva } from "../data-temporal/mockReservas";
 import FormularioReserva from "../componentes/FormularioReservas";
 import { ModalEditarReserva } from "../componentes/ModalEditarReserva";
 import { listarReservacionesServicio } from "../servicios/reservacionesServicio";
@@ -36,11 +35,8 @@ const CalendarioReservasSeccion = () => {
       const reservaciones = await listarReservacionesServicio();
       setReservas(Array.isArray(reservaciones) ? reservaciones : []);
     } catch (error) {
-      console.error('Error al cargar reservas:', error);
 
-      // Si el backend devuelve 404, interpretamos que no hay reservas (no mostramos alerta)
       if (error.response?.status === 404) {
-        console.info('No hay reservas registradas actualmente.');
         setReservas([]);
         return;
       }
@@ -49,7 +45,6 @@ const CalendarioReservasSeccion = () => {
     }
   };
 
-  // Función para verificar si una fecha es hoy o posterior
   const esFechaValida = (fecha) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
@@ -60,7 +55,6 @@ const CalendarioReservasSeccion = () => {
     return fechaComparar >= hoy;
   };
 
-  // Función para convertir reserva a evento del calendario
   const convertirReservaAEvento = (reserva) => {
     const fecha = new Date(reserva.fechaReservacion);
     const fechaStr = fecha.toISOString().split('T')[0];
@@ -84,9 +78,9 @@ const CalendarioReservasSeccion = () => {
 
   const getColorPorEstado = (estado) => {
     const colores = {
-      pendiente: '#f59e0b', // amber-500
-      pagado: '#10b981', // green-500
-      cancelado: '#ef4444', // red-500
+      pendiente: '#f59e0b',
+      pagado: '#10b981',
+      cancelado: '#ef4444',
     };
     return colores[estado] || '#f59e0b';
   };
@@ -115,7 +109,6 @@ const CalendarioReservasSeccion = () => {
     return estilos[estado] || estilos.pendiente;
   };
 
-  // Función para obtener el label del estado
   const getLabelEstado = (estado) => {
     const labels = {
       pendiente: "Pendiente",
@@ -126,7 +119,6 @@ const CalendarioReservasSeccion = () => {
   };
 
   const abrirNuevaReserva = () => {
-    // Para nueva reserva, establecer la fecha mínima como hoy
     const hoy = new Date().toISOString().split('T')[0];
     setReservaSeleccionada({
       fechaReservacion: hoy,
@@ -141,7 +133,6 @@ const CalendarioReservasSeccion = () => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    // Permitir selección de hoy y fechas futuras
     if (fechaSel < hoy) {
       mostrarAlerta.advertencia("No se pueden reservar fechas anteriores a hoy");
       return;
@@ -167,14 +158,12 @@ const CalendarioReservasSeccion = () => {
     try {
       setGuardando(true);
 
-      // Validar que la fecha sea hoy o posterior
       if (!esFechaValida(datos.fechaReservacion)) {
         mostrarAlerta.advertencia("No se pueden crear reservas para fechas anteriores a hoy");
         setGuardando(false);
         return;
       }
 
-      // Asegurar que solo se usen los tres estados permitidos
       const estadosPermitidos = ['pendiente', 'pagado', 'cancelado'];
       if (!estadosPermitidos.includes(datos.estadoReservacion)) {
         datos.estadoReservacion = 'pendiente';
@@ -185,7 +174,7 @@ const CalendarioReservasSeccion = () => {
         idReservacion: Date.now(),
         fechaCreacion: new Date().toISOString(),
         nombresUsuario: datos.nombreCliente || 'Cliente Nuevo',
-        numeroMesa: datos.idMesa // Para compatibilidad con la visualización
+        numeroMesa: datos.idMesa
       };
       setReservas((prev) => [...prev, nuevaReserva]);
       mostrarAlerta.exito("Reserva creada exitosamente");
@@ -193,7 +182,6 @@ const CalendarioReservasSeccion = () => {
       modalNuevaReserva.cerrar();
       setReservaSeleccionada(null);
     } catch (error) {
-      console.error('Error al guardar reserva:', error);
       mostrarAlerta.error("Error al guardar la reserva");
     } finally {
       setGuardando(false);
@@ -202,20 +190,17 @@ const CalendarioReservasSeccion = () => {
 
   const manejarGuardarReservaEditada = async (datosActualizados) => {
     try {
-      // Actualizar el estado local con los datos actualizados
       setReservas((prev) => prev.map((r) =>
         r.idReservacion === datosActualizados.idReservacion
           ? { ...r, ...datosActualizados, numeroMesa: datosActualizados.idMesa }
           : r
       ));
 
-      // Recargar las reservas para asegurar que tenemos los datos más recientes
       await cargarReservas();
 
       modalEditarReserva.cerrar();
       setReservaSeleccionada(null);
     } catch (error) {
-      console.error('Error al actualizar reserva en el calendario:', error);
       mostrarAlerta.error("Error al actualizar la reserva");
     }
   };
@@ -251,7 +236,6 @@ const CalendarioReservasSeccion = () => {
     .filter(r => r.estadoReservacion !== "cancelado")
     .map(convertirReservaAEvento);
 
-  // Fecha mínima para el calendari
   const fechaMinima = new Date().toISOString().split("T")[0];
 
   return (
@@ -265,7 +249,6 @@ const CalendarioReservasSeccion = () => {
           Visualiza y gestiona todas las reservas programadas
         </p>
 
-        {/* Leyenda de estados */}
         <div className="flex flex-wrap gap-4 mt-4">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-yellow-500 rounded"></div>
@@ -278,7 +261,6 @@ const CalendarioReservasSeccion = () => {
         </div>
       </div>
 
-      {/* Calendario */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         {cargando ? (
           <div className="flex items-center justify-center h-96">
@@ -310,7 +292,6 @@ const CalendarioReservasSeccion = () => {
                   click: abrirNuevaReserva,
                 },
               }}
-              // configuración para restringir selección de fechas pasadas
               validRange={{
                 start: fechaMinima
               }}
@@ -318,7 +299,7 @@ const CalendarioReservasSeccion = () => {
                 const fechaSeleccionada = new Date(selectInfo.startStr);
                 const hoy = new Date();
                 hoy.setHours(0, 0, 0, 0);
-                return fechaSeleccionada >= hoy; // permite hoy y fechas futuras
+                return fechaSeleccionada >= hoy; 
               }}
               buttonText={{
                 today: "Hoy",
@@ -340,7 +321,6 @@ const CalendarioReservasSeccion = () => {
         )}
       </div>
 
-      {/* modal para Nueva Reserva */}
       <Modal
         estaAbierto={modalNuevaReserva.estaAbierto}
         onCerrar={modalNuevaReserva.cerrar}
@@ -355,7 +335,6 @@ const CalendarioReservasSeccion = () => {
           onSubmit={manejarGuardarNuevaReserva}
           onCancelar={modalNuevaReserva.cerrar}
           guardando={guardando}
-          // pasar solo los tres estados permitidos
           estadosPermitidos={[
             { valor: 'pendiente', label: 'Pendiente' },
             { valor: 'pagado', label: 'Pagado' },
@@ -364,7 +343,6 @@ const CalendarioReservasSeccion = () => {
         />
       </Modal>
 
-      {/* Modal para editar Reserva */}
       <Modal
         estaAbierto={modalEditarReserva.estaAbierto}
         onCerrar={modalEditarReserva.cerrar}

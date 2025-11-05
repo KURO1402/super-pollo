@@ -1,4 +1,3 @@
-// componentes/categorias/TablaCategorias.jsx
 import { FiLayers } from "react-icons/fi";
 import { Tabla } from "../../../componentes/tabla/Tabla";
 import FilaCategoria from "./FilaCategoria";

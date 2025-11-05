@@ -1,16 +1,9 @@
-// librerias externas
 import { useForm } from "react-hook-form";
-// servicios para consumir APIs
 import { obtenerTiposComprobantes } from "../servicios/comprobantesService";
-// hook react
 import { useEffect, useState } from "react";
-// componentes reutilizables
 import Modal from "../../../componentes/modal/Modal";
-//customs hooks
 import { useModal } from "../../../hooks/useModal";
-// componentes del propio módulo
 import { FormularioCliente } from "./FormularioCliente";
-// utilidades
 import { obtenerFechaActual } from "../../../utilidades/fechaActualUtils";
 
 export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
@@ -21,19 +14,14 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
   useEffect(() => {
     const cargarTiposDocumento = async () => {
       try {
-        // guardamos los tipos de comprobantes optenidos de esa funcion
         const tipos = await obtenerTiposComprobantes();
-        // lo guardamos en su estado
         setTiposComprobantes(tipos);
       } catch (error) {
-        console.error('Error al cargar tipos de documento:', error);
       }
     };
-    // ejecutamos
     cargarTiposDocumento();
   }, []);
 
-  // usamos nuestra fecha actual de utils
   const fechaActual = obtenerFechaActual() 
 
   const {
@@ -56,18 +44,15 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
 
   const manejarEnvioFormulario = async (datos) => {
   try {
-    // Crear objeto con datos del formulario + cliente completo si existe
     const datosParaEnviar = {
       ...datos,
-      ...(clienteCompleto && { datosCliente: clienteCompleto }) // incluimos al cliente si existe
+      ...(clienteCompleto && { datosCliente: clienteCompleto })
     };
     
-    console.log("Datos del formulario:", datosParaEnviar);
     await alEnviar(datosParaEnviar); 
     reset(); 
-    setClienteCompleto(null); // Limpiar cliente después del envío
+    setClienteCompleto(null);
   } catch (error) {
-    console.error('Error al enviar el formulario:', error);
   }
 };
 
@@ -80,12 +65,8 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
   };
 
   const manejarGuardarCliente = (datosCliente) => {
-    console.log("Cliente guardado:", datosCliente);
-    // Actualizar formulario
     setValue("clienteDenominacion", datosCliente.nombre);
-    // guardamos el cliente conpleto en el estado
     setClienteCompleto(datosCliente);
-    // Pasar el cliente al componente padre
     if (onClienteAgregado) {
       onClienteAgregado(datosCliente);
     }
@@ -99,18 +80,14 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
         onSubmit={handleSubmit(manejarEnvioFormulario)}
         className="w-full bg-white dark:bg-gray-900 p-2"
       >
-        {/* Header */}
         <div className="mb-4 flex items-center space-x-2">
-          {/* Ícono y título */}
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Nuevo Comprobante 
           </h1>
         </div>
         <div className="mx-auto bg-gray-100 dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Sección izquierda: Tipo comprobante, cliente y observaciones */}
             <div className="space-y-4">
-              {/* Tipo de comprobante y serie */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -139,7 +116,6 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
                 </div>
               </div>
               
-              {/* Cliente */}
               <div>
                 <div className="flex items-center mb-2">
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -159,7 +135,6 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
                 />
               </div>
               
-              {/* Observaciones */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Observaciones
@@ -173,10 +148,8 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
               </div>
             </div>
 
-            {/* Sección derecha: Detalles */}
             <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Columna 1 */}
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -212,7 +185,6 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
                   </div>
                 </div>
 
-                {/* Columna 2 */}
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -257,7 +229,6 @@ export const FormularioComprobante = ({ alEnviar, onClienteAgregado  }) => {
             </div>
           </div>
         </div>
-        {/* Botón Guardar */}
         <div className="mt-6 flex justify-end">
           <button
             type="submit"

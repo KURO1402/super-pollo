@@ -1,4 +1,3 @@
-// componentes/ModalActualizarCorreo.jsx
 import { useState } from "react";
 import { FiMail, FiLock } from "react-icons/fi";
 import { actualizarCorreoUsuarioServicio } from "../servicios/usuariosServicios";
@@ -22,30 +21,29 @@ const ModalActualizarCorreo = ({ idUsuario, correoActual, onClose, onCorreoActua
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    if (!validarFormulario()) return;
-  
     setCargando(true);
-  
+
     try {
       const datosEnvio = {
-        clave: formData.clave,
-        nuevaClave: formData.nuevaClave
+        nuevoCorreo: formData.nuevoCorreo,
+        clave: formData.clave
       };
-  
+
       const resultado = await actualizarCorreoUsuarioServicio(idUsuario, datosEnvio);
-  
-      mostrarAlerta.exito(resultado.mensaje || "Contraseña actualizada exitosamente");
+
+      mostrarAlerta.exito(resultado.mensaje || "Correo actualizado exitosamente");
       onClose();
-  
+      if (onCorreoActualizado) {
+        onCorreoActualizado(formData.nuevoCorreo);
+      }
+
     } catch (error) {
-      console.error("Error al actualizar contraseña:", error);
-  
       const mensajeBackend =
         error.response?.data?.mensaje ||
         error.response?.data?.error ||  
         error.message ||                
-        "Error desconocido al actualizar la contraseña";
-  
+        "Error desconocido al actualizar el correo";
+
       mostrarAlerta.error(mensajeBackend);
     } finally {
       setCargando(false);
@@ -60,7 +58,6 @@ const ModalActualizarCorreo = ({ idUsuario, correoActual, onClose, onCorreoActua
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Correo Actual */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Correo actual
@@ -69,8 +66,6 @@ const ModalActualizarCorreo = ({ idUsuario, correoActual, onClose, onCorreoActua
             <p className="text-sm text-gray-600 dark:text-gray-400">{correoActual}</p>
           </div>
         </div>
-
-        {/* Nuevo Correo */}
         <div>
           <label htmlFor="nuevoCorreo" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Nuevo correo electrónico
@@ -91,8 +86,6 @@ const ModalActualizarCorreo = ({ idUsuario, correoActual, onClose, onCorreoActua
             />
           </div>
         </div>
-
-        {/* Contraseña Actual */}
         <div>
           <label htmlFor="clave" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Contraseña actual
@@ -113,15 +106,12 @@ const ModalActualizarCorreo = ({ idUsuario, correoActual, onClose, onCorreoActua
             />
           </div>
         </div>
-
-        {/* Nota importante */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
           <p className="text-sm text-blue-700 dark:text-blue-300">
             <strong>Importante:</strong> Debes verificar el nuevo correo electrónico antes de que sea activado.
           </p>
         </div>
 
-        {/* Botones */}
         <div className="flex justify-end space-x-3 pt-4">
           <BotonSimple
             funcion={onClose}

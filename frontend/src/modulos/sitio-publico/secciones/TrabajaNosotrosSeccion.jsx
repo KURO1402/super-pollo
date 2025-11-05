@@ -6,7 +6,6 @@ const TrabajaNosotrosSection = () => {
   return (
     <section id="trabaja" className="bg-azul-primario py-16 md:py-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* encabezado */}
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-100 mb-6">
             TRABAJA CON NOSOTROS
@@ -15,7 +14,6 @@ const TrabajaNosotrosSection = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/*contenido principal */}
           <div className="space-y-8">
             <p className="text-xl text-gray-300 leading-relaxed">
               EN NUESTRO RESTAURANTE CREEMOS EN EL TALENTO Y LA PASIÓN DE NUESTRA GENTE. 
@@ -33,11 +31,9 @@ const TrabajaNosotrosSection = () => {
               PARA HABLAR POR WHATSAPP.
             </p>
 
-            {/*boton de Whatsapp */}
             <BotonWhatsapp />
           </div>
 
-          {/* Imagen */}
           <div className="flex justify-center">
             <img
               src={PersonasJuntas} 
@@ -47,7 +43,6 @@ const TrabajaNosotrosSection = () => {
           </div>
         </div>
 
-        {/* linea divisoria y contacto */}
         <div className="border-t border-gray-700 mt-16 pt-8 text-center">
           <h3 className="text-2xl font-semibold text-white mb-4">Contáctanos</h3>
           <p className="text-gray-400">

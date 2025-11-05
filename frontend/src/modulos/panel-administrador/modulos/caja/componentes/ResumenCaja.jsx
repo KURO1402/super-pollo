@@ -41,7 +41,6 @@ const ResumenCaja = ({ caja, formatCurrency, onAbrirCaja, onCerrarCaja, loading 
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Saldo Inicial */}
         <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
@@ -56,7 +55,6 @@ const ResumenCaja = ({ caja, formatCurrency, onAbrirCaja, onCerrarCaja, loading 
           </div>
         </div>
 
-        {/* Ingresos */}
         <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
@@ -71,7 +69,6 @@ const ResumenCaja = ({ caja, formatCurrency, onAbrirCaja, onCerrarCaja, loading 
           </div>
         </div>
 
-        {/* Egresos */}
         <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
@@ -86,7 +83,6 @@ const ResumenCaja = ({ caja, formatCurrency, onAbrirCaja, onCerrarCaja, loading 
           </div>
         </div>
 
-        {/* Saldo Actual */}
         <div className={`rounded-lg p-4 ${
           caja.saldoActual >= 0 
             ? "bg-emerald-50 dark:bg-emerald-900/20" 

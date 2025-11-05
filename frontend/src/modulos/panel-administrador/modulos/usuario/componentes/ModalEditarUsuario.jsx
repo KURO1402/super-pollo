@@ -1,4 +1,4 @@
-import { FiSave, FiX, FiLoader, FiUser, FiShield } from "react-icons/fi";
+import { FiSave, FiX, FiLoader, FiShield } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { actualizarRolUsuarioServicio, listarRolesServicio, obtenerUsuarioPorIdServicio } from "../servicios/usuariosServicios";
@@ -33,7 +33,6 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
         });
       }
     } catch (error) {
-      console.error('Error al cargar usuario:', error);
       mostrarAlerta.error("Error al cargar los datos del usuario");
       onClose();
     } finally {
@@ -53,7 +52,6 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
         setRoles([]);
       }
     } catch (error) {
-      console.error("Error al cargar roles:", error);
       mostrarAlerta.error("Error al cargar los roles");
       setRoles([]);
     } finally {
@@ -65,27 +63,23 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
     try {
       setGuardando(true);
       
-      // Preparar datos según lo que espera el backend
-      const idRolNuevo = parseInt(data.nuevoRol); // Convertir a número
+      const idRolNuevo = parseInt(data.nuevoRol);
 
-      // Validar que se haya seleccionado un rol diferente
       if (usuario && usuario.idRol === idRolNuevo) {
         mostrarAlerta.advertencia("El usuario ya tiene asignado este rol");
         return;
       }
 
-      // Llamar al servicio específico para cambiar rol
       const respuesta = await actualizarRolUsuarioServicio(idUsuario, idRolNuevo);
       
       if (respuesta.ok) {
         mostrarAlerta.exito(respuesta.mensaje || "Rol de usuario actualizado exitosamente");
         
-        // Llamar al callback con los datos actualizados
         if (onUsuarioActualizado) {
           onUsuarioActualizado({
             ...usuario,
             idRol: idRolNuevo,
-            rol: roles.find(rol => rol.idRol === idRolNuevo) // Actualizar objeto rol completo
+            rol: roles.find(rol => rol.idRol === idRolNuevo)
           });
         }
         
@@ -95,9 +89,7 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
       }
       
     } catch (error) {
-      console.error('Error al actualizar rol de usuario:', error);
       
-      // Manejar errores específicos del backend
       if (error.message.includes("Usted mismo no puede modificar su rol")) {
         mostrarAlerta.error("No puedes modificar tu propio rol");
       } else if (error.message.includes("El usuario especificado no existe")) {
@@ -126,7 +118,6 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
   return (
     <form onSubmit={handleSubmit(onSubmitUsuario)} className="p-6">
 
-      {/* Campo para cambiar el rol */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           <div className="flex items-center gap-2">
@@ -170,7 +161,6 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
         </p>
       </div>
 
-      {/* Nota importante */}
       <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
         <h4 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-1">
           Importante
@@ -180,7 +170,6 @@ export const ModalEditarUsuario = ({ idUsuario, onClose, onUsuarioActualizado })
         </p>
       </div>
 
-      {/* Botones de acción */}
       <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
         <button
           type="button"

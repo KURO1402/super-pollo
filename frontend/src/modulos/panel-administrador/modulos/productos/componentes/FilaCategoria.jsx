@@ -1,4 +1,3 @@
-// componentes/categorias/FilaCategoria.jsx
 import { FiEdit2 } from "react-icons/fi";
 
 const FilaCategoria = ({ 

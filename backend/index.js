@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true, limit: "50kb" }));
 app.use(helmet());
 
 const corsOptions = {
-  origin: 'https://superpollohyo.com',
+  origin: 'http://localhost:5173',
   credentials: true,
 };
 

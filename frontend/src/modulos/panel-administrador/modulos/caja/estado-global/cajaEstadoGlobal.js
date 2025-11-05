@@ -2,9 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export const cajaEstadoGlobal = create(
-  persist( // para percistir los datos aun que se cambie de página 
+  persist( 
     (set, get) => ({
-      // Estado inicial
       caja: {
         idCaja: null,
         estado: "cerrada",
@@ -16,7 +15,6 @@ export const cajaEstadoGlobal = create(
       },
       loading: false,
       error: null,
-      // función para calcular totales de los movimientos
       calcularTotales: (movimientos) => {
         let ingresos = 0;
         let egresos = 0;
@@ -32,14 +30,12 @@ export const cajaEstadoGlobal = create(
         return { ingresos, egresos };
       },
 
-      // acciones para setear la caja, manejar los diferentes servicios
       setCaja: (cajaData) => set({ 
         caja: { ...get().caja, ...cajaData },
         error: null 
       }),
 
       setCajaCompleta: (cajaData) => {
-        // Calcular totales desde los movimientos
         const { ingresos, egresos } = get().calcularTotales(cajaData.movimientos || []);
         
         const cajaCompleta = {
@@ -74,7 +70,6 @@ export const cajaEstadoGlobal = create(
         const state = get();
         const movimientosActualizados = [nuevoMovimiento, ...state.caja.movimientos];
         
-        // Calcular nuevos totales
         let nuevosIngresos = state.caja.ingresos;
         let nuevosEgresos = state.caja.egresos;
 
@@ -97,7 +92,6 @@ export const cajaEstadoGlobal = create(
           error: null
         });
       },
-      // accion para cerrar caja y resetear los estados
       abrirCaja: (cajaData) => set({ 
         caja: {
           idCaja: cajaData.idCaja,      
@@ -112,7 +106,7 @@ export const cajaEstadoGlobal = create(
 
       cerrarCaja: () => set({
         caja: {
-          idCaja: null, // eliminar el id
+          idCaja: null,
           estado: "cerrada",
           saldoInicial: 0,
           saldoActual: 0,
@@ -128,10 +122,8 @@ export const cajaEstadoGlobal = create(
 
       limpiarError: () => set({ error: null }),
 
-      // Para visualizar el estado si hay algun problema 
       getEstado: () => {
         const state = get();
-        console.log('Estado actual de caja:', state.caja);
         return state;
       }
     }),

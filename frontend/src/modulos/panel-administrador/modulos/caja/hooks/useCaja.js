@@ -1,4 +1,3 @@
-// hooks/useCaja.js
 import mostrarAlerta from "../../../../../utilidades/toastUtilidades";
 import { cajaEstadoGlobal } from "../estado-global/cajaEstadoGlobal";
 import { 
@@ -49,46 +48,36 @@ export const useCaja = () => {
     }
   };
 
-
-  // Función para abrir caja
   const handleAbrirCaja = async (montoInicial) => {
     try {
       setLoading(true);
       limpiarError();
 
-      // Validar entrada
       const monto = Number(montoInicial);
       if (isNaN(monto) || monto < 0) {
         throw new Error("El monto inicial debe ser un número válido y positivo");
       }
 
-      // Llamar al servicio
       const response = await abrirCajaServicio({ montoInicial: monto });
 
       const { idCaja } = response;
 
-      // Actualizar el estado global con Zustand
       abrirCaja({
         idCaja,
         saldoInicial: monto,
         saldoActual: monto,
       });
 
-      // Cargar datos iniciales de la caja
       await cargarDatosCaja();
 
-      // Retornar la respuesta si otro componente la necesita
       return response;
     } catch (error) {
-      console.error("[handleAbrirCaja] Error:", error);
       setError(error.message || "Error al abrir caja");
     } finally {
       setLoading(false);
     }
   };
 
-
-  // Función para cerrar caja
   const handleCerrarCaja = async () => {
     try {
       setLoading(true);
@@ -109,7 +98,6 @@ export const useCaja = () => {
     }
   };
 
-  // Función para registrar ingreso
   const handleRegistrarIngreso = async (data) => {
     try {
       setLoading(true);
@@ -137,7 +125,6 @@ export const useCaja = () => {
     }
   };
 
-  // Función para registrar egreso
   const handleRegistrarEgreso = async (data) => {
     try {
       setLoading(true);
@@ -163,7 +150,6 @@ export const useCaja = () => {
     }
   };
 
-  // Función para registrar arqueo
   const handleRegistrarArqueo = async (data) => {
     try {
       setLoading(true);
@@ -185,12 +171,9 @@ export const useCaja = () => {
   };
 
   return {
-    // Estado
     caja,
     loading,
     error,
-    
-    // Acciones
     cargarDatosCaja,
     handleAbrirCaja,
     handleCerrarCaja,

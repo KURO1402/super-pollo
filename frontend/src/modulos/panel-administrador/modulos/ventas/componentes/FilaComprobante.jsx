@@ -1,7 +1,6 @@
 import { FiFileText, FiCheckCircle, FiXCircle, FiEye, FiDownload, FiUser } from "react-icons/fi";
 
 export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante }) => {
-  // Determinar color según tipo de comprobante
   const getColorComprobante = () => {
     if (venta.nombreTipoComprobante === "Factura") {
       return {
@@ -21,7 +20,6 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
     }
   };
 
-  // Determinar estado SUNAT
   const getEstadoSunat = () => {
     if (venta.aceptadaPorSunat === 1) {
       return {
@@ -40,7 +38,6 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
     }
   };
 
-  // Color para método de pago
   const getColorMetodoPago = () => {
     const metodo = venta.nombreMedioPago?.toLowerCase() || '';
     if (metodo.includes('efectivo')) {
@@ -61,7 +58,6 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
 
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
-      {/* Comprobante */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <div className={`p-2 rounded-lg ${colorComprobante.bg} ${colorComprobante.text}`}>
@@ -78,7 +74,6 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
         </div>
       </td>
 
-      {/* Cliente */}
       <td className="px-6 py-4 whitespace-nowrap">
       <div className="flex items-center gap-3">
         <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400">
@@ -96,7 +91,6 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
           {venta.usuarioRegistro}
         </div>
       </td>
-      {/* Método de Pago */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-xs text-gray-500 dark:text-gray-400">
           S/ {parseFloat(venta.totalVenta).toFixed(2)}  
@@ -106,7 +100,6 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
         </span>
       </td>
 
-      {/* Fechas */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-900 dark:text-white">
           {venta.fechaEmision}
@@ -116,7 +109,6 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
         </div>
       </td>
 
-      {/* Estado SUNAT */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${estado.bg} ${estado.text}`}>
           {estado.icono}
@@ -124,7 +116,6 @@ export const FilaComprobante = ({ venta, onVerDetalle, onDescargarComprobante })
         </div>
       </td>
 
-      {/* Acciones */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <button 

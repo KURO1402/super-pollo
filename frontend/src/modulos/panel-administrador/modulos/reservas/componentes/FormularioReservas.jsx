@@ -38,7 +38,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
   const fechaReservaWatch = watch("fechaReservacion");
   const horaReservacionWatch = watch("horaReservacion");
 
-  // Cargar productos disponibles al inicializar
   useEffect(() => {
     const cargarProductos = async () => {
       try {
@@ -46,7 +45,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
         const respuesta = await obtenerProductosServicio();
         setProductosDisponibles(respuesta.productos);
       } catch (error) {
-        console.error('Error al cargar productos:', error);
         mostrarAlerta.error('Error al cargar los productos disponibles');
         setProductosDisponibles([]);
       } finally {
@@ -79,7 +77,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
     }
   }, [reservaInicial, reset]);
 
-  // Cargar mesas disponibles cuando cambien fecha y hora
   useEffect(() => {
     const cargarMesasDisponibles = async () => {
       if (fechaReservaWatch && horaReservacionWatch) {
@@ -91,7 +88,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
           );
           setMesasDisponibles(mesas.mesas || []);
         } catch (error) {
-          console.error('Error al cargar mesas disponibles:', error);
           mostrarAlerta.error('Error al cargar las mesas disponibles');
           setMesasDisponibles([]);
         } finally {
@@ -105,7 +101,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
     cargarMesasDisponibles();
   }, [fechaReservaWatch, horaReservacionWatch]);
 
-  // Manejar selección de producto
   const handleSeleccionarProducto = (e) => {
     const idProducto = parseInt(e.target.value);
     const productoSeleccionado = productosDisponibles.find(p => p.idProducto === idProducto);
@@ -125,7 +120,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
     }
   };
 
-  // Agregar producto a la lista
   const handleAgregarProducto = () => {
     if (!nuevoProducto.idProducto) {
       mostrarAlerta.advertencia('Por favor, seleccione un producto');
@@ -140,7 +134,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
     const productoExistente = productosSeleccionados.find(p => p.idProducto === nuevoProducto.idProducto);
     
     if (productoExistente) {
-      // Si el producto ya existe, actualizar cantidad
       setProductosSeleccionados(prev => prev.map(p => 
         p.idProducto === nuevoProducto.idProducto 
           ? { ...p, cantidadProductoReservacion: p.cantidadProductoReservacion + nuevoProducto.cantidadProductoReservacion }
@@ -148,7 +141,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
       ));
       mostrarAlerta.exito('Cantidad actualizada correctamente');
     } else {
-      // Agregar nuevo producto
       const productoCompleto = {
         ...nuevoProducto,
         nombreProducto: productosDisponibles.find(p => p.idProducto === nuevoProducto.idProducto)?.nombreProducto || 'Producto'
@@ -157,7 +149,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
       mostrarAlerta.exito('Producto agregado correctamente');
     }
 
-    // Resetear formulario
     setNuevoProducto({
       idProducto: '',
       cantidadProductoReservacion: 1, 
@@ -166,14 +157,12 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
     setMostrarAgregarProducto(false);
   };
 
-  // Eliminar producto
   const handleEliminarProducto = (index) => {
     const producto = productosSeleccionados[index];
     setProductosSeleccionados(prev => prev.filter((_, i) => i !== index));
     mostrarAlerta.exito(`${producto.nombreProducto} eliminado de la reserva`);
   };
 
-  // Actualizar cantidad de producto existente
   const handleActualizarCantidad = (index, nuevaCantidad) => {
     if (nuevaCantidad < 0) return;
     
@@ -182,7 +171,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
     ));
   };
 
-  // Calcular total
   const calcularTotal = () => {
     return productosSeleccionados.reduce((total, producto) => 
       total + (producto.precioUnitario * producto.cantidadProductoReservacion), 0
@@ -216,20 +204,17 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
 
   const procesarEnvio = async (data) => {
     try {
-      // Validar que haya al menos un producto
       if (productosSeleccionados.length === 0) {
         mostrarAlerta.advertencia('Debe agregar al menos un producto a la reserva');
         return;
       }
 
-      // Validar que todos los productos tengan cantidad mayor a 0
       const productosInvalidos = productosSeleccionados.some(producto => producto.cantidadProductoReservacion <= 0);
       if (productosInvalidos) {
         mostrarAlerta.advertencia('Todos los productos deben tener una cantidad mayor a 0');
         return;
       }
 
-      // Preparar datos para el backend
       const datosParaBackend = {
         fechaReservacion: data.fechaReservacion,
         horaReservacion: data.horaReservacion + ':00',
@@ -247,7 +232,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
       mostrarAlerta.exito('Reserva creada exitosamente');
       onCancelar();
     } catch (error) {
-      console.error('Error al procesar reserva:', error);
       const mensajeError = error.response?.data?.message || error.response?.data?.mensaje || 'Error al crear la reserva';
       mostrarAlerta.error(mensajeError);
     }
@@ -256,7 +240,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
   return (
     <form onSubmit={handleSubmit(procesarEnvio)} className="space-y-4">
 
-      {/* Fecha y Hora */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -315,7 +298,7 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
                   </optgroup>
                 </select>
                 {errors.horaReservacion && (
-                  <p className="text-xs text-red-500 mt-1">⚠️ {errors.horaReservacion.message}</p>
+                  <p className="text-xs text-red-500 mt-1"> {errors.horaReservacion.message}</p>
                 )}
               </>
             )}
@@ -323,7 +306,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
         </div>
       </div>
 
-      {/* Cantidad de Personas y Mesa */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -402,7 +384,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
         </div>
       </div>
 
-      {/* Gestión de Productos */}
       <div className="border-t pt-4">
         <div className="flex justify-between items-center mb-3">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -419,7 +400,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
           </button>
         </div>
 
-        {/* Loading de productos */}
         {cargandoProductos && (
           <div className="flex items-center justify-center py-4">
             <FiLoader className="animate-spin h-5 w-5 text-blue-600 mr-2" />
@@ -427,7 +407,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
           </div>
         )}
 
-        {/* Formulario para agregar producto */}
         {mostrarAgregarProducto && !cargandoProductos && (
           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg mb-3 space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -465,7 +444,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
               </div>
             </div>
             
-            {/* Mostrar precio y subtotal */}
             {nuevoProducto.idProducto && (
               <div className="text-xs text-gray-600 dark:text-gray-400 p-2 bg-white dark:bg-gray-700 rounded border">
                 <strong>Precio unitario:</strong> S/ {nuevoProducto.precioUnitario}
@@ -494,7 +472,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
           </div>
         )}
 
-        {/* Lista de productos seleccionados */}
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {productosSeleccionados.length === 0 ? (
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
@@ -548,7 +525,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
           )}
         </div>
 
-        {/* Total */}
         {productosSeleccionados.length > 0 && (
           <div className="flex justify-between items-center pt-3 mt-3 border-t border-gray-200 dark:border-gray-600">
             <span className="text-sm font-semibold text-gray-900 dark:text-white">Total:</span>
@@ -559,7 +535,6 @@ const FormularioReserva = ({ reservaInicial, onCancelar, guardando }) => {
         )}
       </div>
 
-      {/* Botones */}
       <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
         <button
           type="button"

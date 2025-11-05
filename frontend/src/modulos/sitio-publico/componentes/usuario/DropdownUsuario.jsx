@@ -7,9 +7,8 @@ import {
   FaSignOutAlt,
   FaChevronDown
 } from 'react-icons/fa';
-import { useAutenticacionGlobal } from '../../../../app/estado-global/autenticacionGlobal'; // importamos el estado global
+import { useAutenticacionGlobal } from '../../../../app/estado-global/autenticacionGlobal'; 
 import { mostrarAlerta } from '../../../../utilidades/toastUtilidades';
-// se crea el componente
 const DropdownUsuario = ({ usuario, mobile = false }) => {
   const [dropdownAbierto, setDropdownAbierto] = useState(false);
   const dropdownRef = useRef(null);
@@ -29,12 +28,11 @@ const DropdownUsuario = ({ usuario, mobile = false }) => {
 
   const handleLogout = () => {
     logout();
-    mostrarAlerta.exito('Sesión cerrada correctamente'); // ← Mensaje de éxito
+    mostrarAlerta.exito('Sesión cerrada correctamente');
     navigate('/');
     setDropdownAbierto(false);
   };
 
-  // Opciones SOLO para usuarios normales
   const opciones = [
     {
       icono: <FaUser className="w-4 h-4" />,
@@ -132,7 +130,6 @@ const DropdownUsuario = ({ usuario, mobile = false }) => {
             </p>
           </div>
 
-          {/* Opciones del menú */}
           <div className="py-1">
             {opciones.map((opcion, index) => (
               opcion.ruta ? (

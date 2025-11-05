@@ -10,11 +10,9 @@ import useScrollParaSecciones from "../hooks/useScrollParaSecciones";
 const Inicio = () => {
   const locacionRuta = useLocation();
   const { scrollToSection } = useScrollParaSecciones();
-  // Manejar scroll cuando se carga la página con state
   useEffect(() => {
     const section = locacionRuta.state?.scrollTo;
     if (section) {
-      // Scroll inmediato si viene de otra página
       scrollToSection(section);
     }
   }, [locacionRuta, scrollToSection]);

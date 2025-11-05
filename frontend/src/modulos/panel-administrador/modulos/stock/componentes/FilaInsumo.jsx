@@ -2,7 +2,7 @@ import { FiPackage, FiAlertTriangle, FiEdit, FiTrash2 } from "react-icons/fi";
 
 export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
   const handleEliminarClick = () => {
-    onEliminarInsumo(insumo); //
+    onEliminarInsumo(insumo); 
   };
   const getEstadoStock = (stock) => {
     const actual = parseFloat(stock) || 0;
@@ -43,7 +43,6 @@ export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
 
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
-      {/* Nombre del Insumo */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <div className='p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'>
@@ -57,28 +56,24 @@ export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
         </div>
       </td>
 
-      {/* Categoría */}
       <td className="px-6 py-4 whitespace-nowrap">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium  bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400">
           Insumo
         </span>
       </td>
 
-      {/* Stock Actual */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-medium text-gray-900 dark:text-white">
           {insumo.stockInsumo}
         </div>
       </td>
 
-      {/* Unidad de Medida */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-900 dark:text-white">
           {insumo.unidadMedida}
         </div>
       </td>
 
-      {/* Estado del Stock */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
           estado.color === 'red' 
@@ -94,7 +89,6 @@ export const FilaInsumo = ({ insumo, onEditarStock, onEliminarInsumo  }) => {
         </div>
       </td>
 
-      {/* Acciones */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <button 
