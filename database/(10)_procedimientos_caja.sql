@@ -49,11 +49,11 @@ BEGIN
     SET v_idCaja = LAST_INSERT_ID();
 
     -- Registrar evento de apertura
-    INSERT INTO eventosCaja (tipoEvento, saldoEvento, idCaja, idUsuario)
+    INSERT INTO eventoscaja (tipoEvento, saldoEvento, idCaja, idUsuario)
     VALUES ('Apertura', p_saldoInicial, v_idCaja, p_idUsuario);
 
     -- Registrar movimiento de ingreso por saldo inicial
-    INSERT INTO movimientosCaja (tipoMovimiento, montoMovimiento, descripcionMovCaja, idCaja, idUsuario, idVenta)
+    INSERT INTO movimientoscaja (tipoMovimiento, montoMovimiento, descripcionMovCaja, idCaja, idUsuario, idVenta)
     VALUES ('Ingreso', p_saldoInicial, 'Saldo inicial de apertura', v_idCaja, p_idUsuario, NULL);
 
     -- Confirmar cambios
@@ -100,7 +100,7 @@ BEGIN
     WHERE idCaja = v_idCaja;
 
     -- Registrar el evento de cierre con el saldo actual
-    INSERT INTO eventosCaja (tipoEvento, saldoEvento, idCaja, idUsuario)
+    INSERT INTO eventoscaja (tipoEvento, saldoEvento, idCaja, idUsuario)
     VALUES ('Cierre', v_saldoFinal, v_idCaja, p_idUsuario);
 
     -- Confirmar transacción
@@ -160,7 +160,7 @@ BEGIN
     END IF;
 
     -- Insertar el movimiento
-    INSERT INTO movimientosCaja (
+    INSERT INTO movimientoscaja (
         tipoMovimiento,
         montoMovimiento,
         descripcionMovCaja,
@@ -231,7 +231,7 @@ BEGIN
     END IF;
 
     -- Insertar el movimiento
-    INSERT INTO movimientosCaja (
+    INSERT INTO movimientoscaja (
         tipoMovimiento,
         montoMovimiento,
         descripcionMovCaja,
@@ -296,7 +296,7 @@ BEGIN
     END IF;
 
     -- 3️⃣ Insertar el arqueo
-    INSERT INTO arqueosCaja (
+    INSERT INTO arqueoscaja (
         montoFisico,
         montoTarjeta,
         montoBilleteraDigital,
@@ -333,7 +333,7 @@ BEGIN
         DATE_FORMAT(mc.fechaMovimiento, '%d/%m/%Y') AS fecha,
         DATE_FORMAT(mc.fechaMovimiento, '%H:%i') AS hora,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM movimientosCaja mc
+    FROM movimientoscaja mc
     INNER JOIN usuarios u ON mc.idUsuario = u.idUsuario
     WHERE mc.idCaja = p_idCaja
     ORDER BY mc.fechaMovimiento DESC;
@@ -353,7 +353,7 @@ BEGIN
         DATE_FORMAT(mc.fechaMovimiento, '%d/%m/%Y') AS fecha,
         DATE_FORMAT(mc.fechaMovimiento, '%H:%i') AS hora,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM movimientosCaja mc
+    FROM movimientoscaja mc
     INNER JOIN usuarios u ON mc.idUsuario = u.idUsuario
     ORDER BY mc.fechaMovimiento DESC
     LIMIT p_limit OFFSET p_offset;
@@ -371,7 +371,7 @@ BEGIN
         DATE_FORMAT(mc.fechaMovimiento, '%d/%m/%Y') AS fecha,
         DATE_FORMAT(mc.fechaMovimiento, '%H:%i') AS hora,
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM movimientosCaja mc
+    FROM movimientoscaja mc
     INNER JOIN usuarios u ON mc.idUsuario = u.idUsuario
     WHERE mc.idVenta = p_idVenta
     ORDER BY mc.fechaMovimiento DESC;
@@ -399,10 +399,10 @@ BEGIN
     FROM caja c
     INNER JOIN (
         SELECT idCaja, MAX(idArqueoCaja) AS ultimoArqueo
-        FROM arqueosCaja
+        FROM arqueoscaja
         GROUP BY idCaja
     ) ult ON c.idCaja = ult.idCaja
-    INNER JOIN arqueosCaja ac ON ac.idArqueoCaja = ult.ultimoArqueo
+    INNER JOIN arqueoscaja ac ON ac.idArqueoCaja = ult.ultimoArqueo
     INNER JOIN usuarios u ON ac.idUsuario = u.idUsuario
     WHERE c.estadoCaja = 'cerrada'
     ORDER BY c.fechaCaja DESC
@@ -426,7 +426,7 @@ BEGIN
         ac.estadoCaja,
         DATE_FORMAT(c.fechaCaja, '%d/%m/%Y') AS fechaCaja,      -- Fecha en formato dd/mm/yyyy
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM arqueosCaja ac
+    FROM arqueoscaja ac
     INNER JOIN caja c ON ac.idCaja = c.idCaja
     INNER JOIN usuarios u ON ac.idUsuario = u.idUsuario
     ORDER BY ac.fechaArqueo DESC
@@ -450,7 +450,7 @@ BEGIN
         ac.estadoCaja,
         DATE_FORMAT(c.fechaCaja, '%d/%m/%Y') AS fechaCaja,      -- Fecha en formato dd/mm/yyyy
         CONCAT(u.nombresUsuario, ' ', u.apellidosUsuario) AS nombreUsuario
-    FROM arqueosCaja ac
+    FROM arqueoscaja ac
     INNER JOIN caja c ON ac.idCaja = c.idCaja
     INNER JOIN usuarios u ON ac.idUsuario = u.idUsuario
     WHERE ac.idCaja = p_idCaja
