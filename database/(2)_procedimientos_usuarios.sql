@@ -35,7 +35,7 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO rolUsuarios(nombreRol)
+    INSERT INTO rolusuarios(nombreRol)
     VALUES (p_nombreRol);
 
     COMMIT;
@@ -45,7 +45,7 @@ END //
 CREATE PROCEDURE listarRoles()
 BEGIN
     SELECT idRol, nombreRol 
-    FROM rolUsuarios;
+    FROM rolusuarios;
 END //
 
 CREATE PROCEDURE obtenerRolPorId(
@@ -55,7 +55,7 @@ BEGIN
     SELECT 
         idRol,
         nombreRol
-    FROM rolUsuarios
+    FROM rolusuarios
     WHERE idRol = p_idRol;
 END //
 
@@ -73,7 +73,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE rolUsuarios
+    UPDATE rolusuarios
     SET nombreRol = p_nombreRol
     WHERE idRol = p_idRol;
 
@@ -88,7 +88,7 @@ END //
 CREATE PROCEDURE listarTipoDocumento()
 BEGIN
     SELECT idTipoDocumento, nombreTipoDocumento
-    FROM tipoDocumento;
+    FROM tipodocumento;
 END //
 
 /* ============================================================
@@ -243,8 +243,8 @@ BEGIN
         u.idTipoDocumento,
         td.nombreTipoDocumento
     FROM usuarios u
-    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
-    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
+    LEFT JOIN rolusuarios r ON u.idRol = r.idRol
+    LEFT JOIN tipodocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
       AND u.idUsuario <> p_idUsuario
     ORDER BY u.idUsuario DESC;
@@ -268,8 +268,8 @@ BEGIN
         u.idTipoDocumento,
         td.nombreTipoDocumento
     FROM usuarios u
-    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
-    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
+    LEFT JOIN rolusuarios r ON u.idRol = r.idRol
+    LEFT JOIN tipodocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
       AND u.idUsuario <> p_idUsuario
     ORDER BY u.idUsuario DESC
@@ -292,8 +292,8 @@ BEGIN
         u.idTipoDocumento,
         td.nombreTipoDocumento
     FROM usuarios u
-    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
-    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
+    LEFT JOIN rolusuarios r ON u.idRol = r.idRol
+    LEFT JOIN tipodocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
       AND u.idUsuario = p_idUsuario;
 END //
@@ -315,8 +315,8 @@ BEGIN
         u.idTipoDocumento,
         td.nombreTipoDocumento
     FROM usuarios u
-    LEFT JOIN rolUsuarios r ON u.idRol = r.idRol
-    LEFT JOIN tipoDocumento td ON u.idTipoDocumento = td.idTipoDocumento
+    LEFT JOIN rolusuarios r ON u.idRol = r.idRol
+    LEFT JOIN tipodocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
       AND u.idUsuario <> p_idUsuario
       AND (
@@ -341,7 +341,7 @@ CREATE PROCEDURE contarTipoDocumentoPorId(
 )
 BEGIN
     SELECT COUNT(*) AS total
-    FROM tipoDocumento
+    FROM tipodocumento
     WHERE idTipoDocumento = p_idTipoDocumento;
 END //
 
@@ -376,7 +376,7 @@ BEGIN
     SELECT 
         idTipoDocumento,
         nombreTipoDocumento
-    FROM tipoDocumento
+    FROM tipodocumento
     WHERE idTipoDocumento = p_idTipoDocumento;
 END //
 
