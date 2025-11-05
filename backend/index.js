@@ -26,7 +26,7 @@ const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas")
 
 const app = express();
 
-/* app.set('trust proxy', true); */
+app.set('trust proxy', true); 
 
 app.use(limitador);
 app.use(express.json({ limit: "50kb" }));
@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true, limit: "50kb" }));
 app.use(helmet());
 
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: 'https://superpollohyo.com',
   credentials: true,
 };
 
