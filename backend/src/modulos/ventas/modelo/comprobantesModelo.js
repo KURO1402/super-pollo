@@ -17,6 +17,7 @@ const obtenerTiposComprobantesModel = async () => {
 const obtenerSerieComprobanteModel = async (idComprobante) => {
   let conexion;
   try {
+    idComprobante
     conexion = await pool.getConnection();
     const [rows] = await conexion.query(`CALL obtenerSeriePorTipoComprobante(?)`, [idComprobante]);
 

@@ -51,5 +51,15 @@ const validarTelefono = (valor) => {
   }
 }
 
+const validarFormatoFecha = (fecha) => {
+  const regex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+  return regex.test(fecha);
+};
 
-module.exports = { validarCorreo, validarDocumento, validarTelefono };
+const validarFormatoHora = (hora) => {
+  const regex = /^(0[1-9]|1[0-2]):[0-5]\d\s?(AM|PM)$/i;
+  return regex.test(hora);
+}
+
+
+module.exports = { validarCorreo, validarDocumento, validarTelefono, validarFormatoFecha, validarFormatoHora };

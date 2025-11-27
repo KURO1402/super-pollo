@@ -1,22 +1,36 @@
 USE super_pollo;
 
 /* ELIMINAR PROCEDIMIENTOS SI YA EXISTEN */
-DROP PROCEDURE IF EXISTS insertarReservacion;
-DROP PROCEDURE IF EXISTS listarReservaciones;
-DROP PROCEDURE IF EXISTS obtenerReservacion;
-DROP PROCEDURE IF EXISTS actualizarReservacion;
-DROP PROCEDURE IF EXISTS insertarPago;
-DROP PROCEDURE IF EXISTS actualizarPago;
-DROP PROCEDURE IF EXISTS obtenerPago;
-DROP PROCEDURE IF EXISTS insertarDetalleReservacion;
-DROP PROCEDURE IF EXISTS obtenerDetalleReservacion;
 DROP PROCEDURE IF EXISTS listarMesasDisponibles;
-DROP PROCEDURE IF EXISTS obtenerReservasPorUsuario;
+DROP PROCEDURE IF EXISTS registrarReservacion;
 
 DELIMITER //
 
-/* PROCEDIMIENTO ALMACENADO insertarReservacion */
-CREATE PROCEDURE insertarReservacion(
+CREATE PROCEDURE listarMesasDisponibles (
+    IN p_fecha DATE,
+    IN p_horaInicio TIME
+)
+BEGIN
+    SET @horaFin = ADDTIME(p_horaInicio, '01:30:00');
+
+    SELECT m.*
+    FROM mesas m
+    WHERE m.idMesa NOT IN (
+        SELECT rm.idMesa
+        FROM reservaciones r
+        INNER JOIN reservacion_mesas rm 
+            ON r.idReservacion = rm.idReservacion
+        WHERE r.fechaReservacion = p_fecha
+        AND r.estadoReservacion IN ('pendiente','pagado')
+        AND (
+            p_horaInicio < r.horaFin
+            AND @horaFin > r.horaInicio
+        )
+    );
+END//
+
+/* PROCEDIMIENTO ALMACENADO registrarReservacion */
+CREATE PROCEDURE registrarReservacion (
     IN p_fechaReservacion DATE,
     IN p_horaReservacion TIME,
     IN p_cantidadPersonas INT,
@@ -24,190 +38,32 @@ CREATE PROCEDURE insertarReservacion(
     IN p_idMesa INT
 )
 BEGIN
-    INSERT INTO reservaciones(
-        fechaReservacion, horaReservacion, cantidadPersonas,
-        estadoReservacion, fechaCreacion, idUsuario, idMesa
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error en la transacción de reserva. Se realizó un ROLLBACK.';
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO reservaciones (
+        fechaReservacion,
+        horaReservacion,
+        cantidadPersonas,
+        idUsuario,
+        idMesa
     )
     VALUES (
-        p_fechaReservacion, p_horaReservacion, p_cantidadPersonas,
-        'pendiente', NOW(), p_idUsuario, p_idMesa
+        p_fechaReservacion,
+        p_horaReservacion,
+        p_cantidadPersonas,
+        p_idUsuario,
+        p_idMesa
     );
-    -- Devolvemos el ID recién generado
-    SELECT LAST_INSERT_ID() AS idReservacion;
+
+    COMMIT;
+    SELECT "Reserva registrada correctamente" AS mensaje;
 END //
-
-/* PROCEDIMIENTO ALMACENADO listarReservaciones (20 en 20) */
-CREATE PROCEDURE listarReservaciones(
-    IN p_pagina INT /* Parámetro de entrada que indica el número de página que solicita el cliente */
-)
-BEGIN
-    DECLARE v_offset INT; /* Declaras una variable para calcular cuántas filas saltar */
-    SET v_offset = (p_pagina - 1) * 20; /* Calcula cuántas filas saltar por pagina */
-
-    SELECT 
-        r.idReservacion, r.fechaReservacion, r.horaReservacion,
-        r.cantidadPersonas, r.estadoReservacion, r.fechaCreacion,
-        u.nombresUsuario, m.numeroMesa
-    FROM reservaciones r
-    INNER JOIN usuarios u ON r.idUsuario = u.idUsuario
-    INNER JOIN mesas m ON r.idMesa = m.idMesa
-    ORDER BY r.fechaCreacion DESC
-    LIMIT 20 OFFSET v_offset;
-END //
-
-/* PROCEDIMIENTO ALMACENADO obtenerReservacion (por ID) */
-CREATE PROCEDURE obtenerReservacion(
-    IN p_idReservacion INT
-)
-BEGIN
-    SELECT 
-        r.idReservacion,
-        r.fechaReservacion,
-        r.horaReservacion,
-        r.cantidadPersonas,
-        r.estadoReservacion,
-        r.fechaCreacion,
-        r.idUsuario,
-        r.idMesa,
-        u.nombresUsuario,
-        m.numeroMesa
-    FROM reservaciones r
-    INNER JOIN usuarios u ON r.idUsuario = u.idUsuario
-    INNER JOIN mesas m ON r.idMesa = m.idMesa
-    WHERE r.idReservacion = p_idReservacion;
-END //
-
-/* PROCEDIMIENTO ALMACENADO actualizarReservacion */
-CREATE PROCEDURE actualizarReservacion(
-    IN p_idReservacion INT,
-    IN p_fechaReservacion DATE,
-    IN p_horaReservacion TIME,
-    IN p_cantidadPersonas INT,
-    IN p_estadoReservacion ENUM('pendiente','pagado','cancelado'),
-    IN p_idMesa INT
-)
-BEGIN
-    UPDATE reservaciones
-    SET 
-        fechaReservacion = p_fechaReservacion,
-        horaReservacion = p_horaReservacion,
-        cantidadPersonas = p_cantidadPersonas,
-        estadoReservacion = p_estadoReservacion,
-        idMesa = p_idMesa
-    WHERE idReservacion = p_idReservacion;
-END //
-
-/* PROCEDIMIENTO ALMACENADO insertarPago (de Reservacion)*/
-CREATE PROCEDURE insertarPago(
-    IN p_montoTotal DECIMAL(10,2),
-    IN p_montoPagado DECIMAL(10,2),
-    IN p_porcentajePago INT,
-    IN p_idTransaccion VARCHAR(100),
-    IN p_estadoPago ENUM('pendiente','confirmado','fallido'),
-    IN p_idReservacion INT
-)
-BEGIN
-    INSERT INTO pago(
-        montoTotal, montoPagado, porcentajePago,
-        idTransaccion, fechaPago, estadoPago, idReservacion
-    )
-    VALUES (
-        p_montoTotal, p_montoPagado, p_porcentajePago,
-        p_idTransaccion, NOW(), p_estadoPago, p_idReservacion
-    );
-END //
-
-/* PROCEDIMIENTO ALMACENADO actualizarPago */
-CREATE PROCEDURE actualizarPago(
-    IN p_idTransaccion VARCHAR(100),
-    IN p_estadoPago ENUM('pendiente','confirmado','fallido')
-)
-BEGIN
-    UPDATE pago
-    SET estadoPago = p_estadoPago
-    WHERE idTransaccion = p_idTransaccion;
-END //
-
-/* PROCEDIMIENTO ALMACENADO obtenerPago (por ID de Reservacion) */
-CREATE PROCEDURE obtenerPago(
-    IN p_idReservacion INT
-)
-BEGIN
-    SELECT 
-        idPago, montoTotal, montoPagado, porcentajePago,
-        idTransaccion, fechaPago, estadoPago, idReservacion
-    FROM pago
-    WHERE idReservacion = p_idReservacion;
-END //
-
-/* PROCEDIMIENTO ALMACENADO insertarDetalleReservacion */
-CREATE PROCEDURE insertarDetalleReservacion(
-    IN p_cantidadProductoReservacion INT,
-    IN p_precioUnitario DECIMAL(10,2),
-    IN p_idReservacion INT,
-    IN p_idProducto INT
-)
-BEGIN
-    INSERT INTO detallereservaciones(
-        cantidadProductoReservacion, precioUnitario,
-        idReservacion, idProducto
-    )
-    VALUES (
-        p_cantidadProductoReservacion, p_precioUnitario,
-        p_idReservacion, p_idProducto
-    );
-END //
-
-/* PROCEDIMIENTO ALMACENADO obtenerDetalleReservacion (por ID de Reservacion) */
-CREATE PROCEDURE obtenerDetalleReservacion(
-    IN p_idReservacion INT
-)
-BEGIN
-    SELECT 
-        dr.idDetalleReservacion, dr.cantidadProductoReservacion,
-        dr.precioUnitario, p.nombreProducto
-    FROM detallereservaciones dr
-    INNER JOIN productos p ON dr.idProducto = p.idProducto
-    WHERE dr.idReservacion = p_idReservacion;
-END //
-
-/* PROCEDIMIENTO ALMACENADO para obtener las mesa disponibles  */
-CREATE PROCEDURE listarMesasDisponibles(
-  IN fechaBuscada DATE,
-  IN horaBuscada TIME
-)
-BEGIN
-  SELECT 
-    m.idMesa, 
-    m.numeroMesa, 
-    m.capacidad
-  FROM mesas m
-  WHERE 
-    m.estadoMesa = 'disponible'
-    AND m.idMesa NOT IN (
-      SELECT r.idMesa
-      FROM reservaciones r
-      WHERE DATE(r.fechaReservacion) = fechaBuscada
-        AND TIME(r.horaReservacion) <= horaBuscada
-        AND ADDTIME(r.horaReservacion, '02:00:00') > horaBuscada
-    )
-  ORDER BY m.numeroMesa;
-END //
-
-CREATE PROCEDURE obtenerReservasPorUsuario(IN p_idUsuario INT)
-BEGIN
-    SELECT 
-        r.idReservacion,
-        DATE_FORMAT(r.fechaReservacion, '%d-%m-%Y') AS fecha,
-        DATE_FORMAT(r.horaReservacion, '%H:%i') AS hora,
-        r.cantidadPersonas AS numero_personas,
-        m.numeroMesa AS mesa,
-        r.estadoReservacion AS estado,
-        DATE_FORMAT(r.fechaCreacion, '%d-%m-%Y %H:%i') AS fecha_registro
-    FROM reservaciones r
-    INNER JOIN mesas m ON r.idMesa = m.idMesa
-    WHERE r.idUsuario = p_idUsuario
-    ORDER BY r.fechaReservacion DESC, r.horaReservacion DESC;
-END //
-
 DELIMITER ;

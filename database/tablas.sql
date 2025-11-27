@@ -171,22 +171,19 @@ CREATE TABLE reservaciones (
     horaReservacion TIME NOT NULL,
     cantidadPersonas INT NOT NULL,
     estadoReservacion ENUM('pendiente','pagado','cancelado') NOT NULL DEFAULT 'pendiente',
-    fechaCreacion DATETIME NOT NULL,
+    fechaCreacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idUsuario INT,
-    idMesa INT,
-    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario),
+    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
+);
+
+CREATE TABLE reservacion_mesas (
+    idReservacion INT NOT NULL,
+    idMesa INT NOT NULL,
+    PRIMARY KEY (idReservacion, idMesa),
+    FOREIGN KEY (idReservacion) REFERENCES reservaciones(idReservacion),
     FOREIGN KEY (idMesa) REFERENCES mesas(idMesa)
 );
 
-CREATE TABLE detalleReservaciones (
-    idDetalleReservacion INT PRIMARY KEY AUTO_INCREMENT,
-    cantidadProductoReservacion INT NOT NULL,
-    precioUnitario DECIMAL(10,2) NOT NULL,
-    idReservacion INT,
-    idProducto INT,
-    FOREIGN KEY (idReservacion) REFERENCES reservaciones(idReservacion),
-    FOREIGN KEY (idProducto) REFERENCES productos(idProducto)
-);
 
 CREATE TABLE pago (
     idPago INT PRIMARY KEY AUTO_INCREMENT,

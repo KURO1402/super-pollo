@@ -330,7 +330,7 @@ DELIMITER //
             END AS estadoSunat
         FROM ventas v
         LEFT JOIN comprobantes c ON c.idVenta = v.idVenta
-        LEFT JOIN tipoComprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
+        LEFT JOIN tipocomprobantes tc ON tc.idTipoComprobante = v.idTipoComprobante
         LEFT JOIN mediopago mp ON mp.idMedioPago = v.idMedioPago
         LEFT JOIN usuarios u ON u.idUsuario = v.idUsuario
         ORDER BY v.idVenta DESC
@@ -548,7 +548,7 @@ BEGIN
         DATE_FORMAT(c.fechaEnvio, '%d-%m-%Y %H:%i:%s') AS fechaEnvio
     FROM comprobantes c
     INNER JOIN tipocomprobantes tc ON tc.idTipoComprobante = c.idTipoComprobante
-    WHERE c.idVenta = 1
+    WHERE c.idVenta = p_idVenta
     ORDER BY c.idComprobante DESC;
 END //
 

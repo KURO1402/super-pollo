@@ -1,28 +1,20 @@
 const express = require("express");
 
 const {
-  registrarReservacionController,
-  listarReservacionesController,
-  obtenerReservacionController,
-  actualizarReservacionController,
-  insertarPagoController,
-  obtenerPagoController,
-  obtenerDetalleReservacionController,
-  listarMesasDisponiblesController,
-  obtenerReservasPorUsuarioController
+  registrarReservacionController
 } = require("./reservacionesControlador.js");
 
-const { crearPreferencia } = require("../../servicios/mercadoPago.js");
+//const { crearPreferencia } = require("../../servicios/mercadoPago.js");
 
-const mercadoPagoWebhook = require("../../servicios/mercadoPagoWebhook.js");
+//const mercadoPagoWebhook = require("../../servicios/mercadoPagoWebhook.js");
 
 const { autenticacionToken, verificarRoles } = require("../../middlewares/autenticacionMiddleware")
 
 const router = express.Router();
 
-router.post("/", autenticacionToken, registrarReservacionController);
+router.post("/registrar-reservacion", autenticacionToken, registrarReservacionController);
 
-router.get("/", autenticacionToken, verificarRoles(1,2), listarReservacionesController);
+/*router.get("/", autenticacionToken, verificarRoles(1,2), listarReservacionesController);
 router.get("/reservas-usuario", autenticacionToken, obtenerReservasPorUsuarioController);
 
 router.get("/:id", autenticacionToken, verificarRoles(1,2), obtenerReservacionController);
@@ -49,6 +41,6 @@ router.post("/:idReservacion/crear-preferencia", autenticacionToken, async (req,
   }
 });
 
-router.use("/mercadopago/webhook", autenticacionToken, mercadoPagoWebhook);
+router.use("/mercadopago/webhook", autenticacionToken, mercadoPagoWebhook);*/
 
 module.exports = router;

@@ -26,8 +26,6 @@ const usuariosRoutes = require("./src/modulos/usuarios/usuarioRutas")
 
 const app = express();
 
-app.set('trust proxy', true); 
-
 app.use(limitador);
 app.use(express.json({ limit: "50kb" }));
 app.use(express.urlencoded({ extended: true, limit: "50kb" }));
