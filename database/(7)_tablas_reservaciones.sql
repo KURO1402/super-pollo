@@ -19,7 +19,6 @@ CREATE TABLE reservaciones (
     horaInicio TIME NOT NULL,
     horaFin TIME NOT NULL,
     cantidadPersonas INT NOT NULL,
-    mesasNecesarias INT NOT NULL,
     estadoReservacion ENUM('pendiente','pagado','cancelado','expirado') NOT NULL DEFAULT 'pendiente',
     codigoAcceso VARCHAR(10) NOT NULL,
     fechaCreacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

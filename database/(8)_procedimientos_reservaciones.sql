@@ -3,6 +3,7 @@ USE super_pollo;
 /* ELIMINAR PROCEDIMIENTOS SI YA EXISTEN */
 DROP PROCEDURE IF EXISTS listarMesasDisponibles;
 DROP PROCEDURE IF EXISTS registrarReservacion;
+DROP PROCEDURE IF EXISTS registrarReservacionMesa;
 
 DELIMITER //
 
@@ -30,40 +31,50 @@ BEGIN
 END//
 
 /* PROCEDIMIENTO ALMACENADO registrarReservacion */
-CREATE PROCEDURE registrarReservacion (
+CREATE PROCEDURE registrarReservacion(
     IN p_fechaReservacion DATE,
-    IN p_horaReservacion TIME,
+    IN p_horaInicio TIME,
+    IN p_horaFin TIME,
     IN p_cantidadPersonas INT,
-    IN p_idUsuario INT,
+    IN p_codigoAcceso VARCHAR(10),
+    IN p_fechaExpiracionPago DATETIME,
+    IN p_idUsuario INT
+)
+BEGIN
+    DECLARE v_idReserva INT; 
+    INSERT INTO reservaciones (
+        fechaReservacion,
+        horaInicio,
+        horaFin,
+        cantidadPersonas,
+        codigoAcceso,
+        fechaExpiracionPago,
+        idUsuario
+    ) VALUES (
+        p_fechaReservacion,
+        p_horaInicio,
+        p_horaFin,
+        p_cantidadPersonas,
+        p_codigoAcceso,
+        p_fechaExpiracionPago,
+        p_idUsuario
+    );
+    SET v_idReserva = LAST_INSERT_ID();
+    SELECT v_idReserva AS idReserva;
+END // 
+
+CREATE PROCEDURE registrarReservacionMesa(
+    IN p_idReservacion INT,
     IN p_idMesa INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error en la transacción de reserva. Se realizó un ROLLBACK.';
-    END;
-
-    START TRANSACTION;
-
-    INSERT INTO reservaciones (
-        fechaReservacion,
-        horaReservacion,
-        cantidadPersonas,
-        idUsuario,
+    INSERT INTO reservacion_mesas (
+        idReservacion,
         idMesa
-    )
-    VALUES (
-        p_fechaReservacion,
-        p_horaReservacion,
-        p_cantidadPersonas,
-        p_idUsuario,
+    ) VALUES (
+        p_idReservacion,
         p_idMesa
     );
-
-    COMMIT;
-    SELECT "Reserva registrada correctamente" AS mensaje;
 END //
+
 DELIMITER ;

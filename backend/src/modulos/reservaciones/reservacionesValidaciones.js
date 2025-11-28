@@ -1,4 +1,3 @@
-const { listarMesasDisponiblesModel } = require("./reservacionesModelo");
 const { validarFormatoFecha, validarFormatoHora } = require("../../utilidades/validaciones")
 
 const validarDatosReservacion = async (datos) => {
@@ -18,26 +17,6 @@ const validarDatosReservacion = async (datos) => {
 
   if (!Array.isArray(mesas) || mesas.length === 0) {
     throw Object.assign(new Error("Seleccione una mesa"), { status: 400 });
-  }
-
-  const mesasDisponibles = await listarMesasDisponiblesModel(
-    fechaReservacion,
-    horaReservacion
-  );
-
-  const idsDisponibles = new Set(mesasDisponibles.map(m => m.idMesa));
-
-  for (const mesa of mesas) {
-    if (!mesa.idMesa || typeof mesa.idMesa !== "number") {
-      throw Object.assign(new Error("Seleccione una mesa válida"), { status: 400 });
-    }
-
-    if (!idsDisponibles.has(mesa.idMesa)) {
-      throw Object.assign(
-        new Error(`La mesa ${mesa.idMesa} no está disponible, seleccione otra mesa`),
-        { status: 400 }
-      );
-    }
   }
 
   if(!cantidadPersonas || typeof cantidadPersonas !== "number" || cantidadPersonas === 0){

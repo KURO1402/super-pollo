@@ -1,5 +1,6 @@
 const {
-  registrarReservacionModel
+  registrarReservacionModel,
+  listarMesasDisponiblesModel
 } = require("./reservacionesModelo.js");
 
 const { convertirA24Horas } = require("../../helpers/formatearTiempo")
@@ -11,17 +12,64 @@ const {
 
 const registrarReservacionService = async (datos, idUsuario) => {
   await validarDatosReservacion(datos);
-  const {horaReservacion} = datos
+
+  const { fechaReservacion, horaReservacion, mesas } = datos;
+
   const horaFormateada = convertirA24Horas(horaReservacion);
-  const resultado = await registrarReservacionModel(datos, horaFormateada, idUsuario);
+  const mesasDisponibles = await listarMesasDisponiblesModel(
+    fechaReservacion,
+    horaFormateada
+  );
+
+  const idsDisponibles = new Set(mesasDisponibles.map(m => m.idMesa));
+
+  for (const mesa of mesas) {
+    if (!mesa.idMesa || typeof mesa.idMesa !== "number") {
+      throw Object.assign(new Error("Seleccione una mesa válida"), { status: 400 });
+    }
+
+    if (!idsDisponibles.has(mesa.idMesa)) {
+      throw Object.assign(
+        new Error(`La mesa ${mesa.idMesa} no está disponible, seleccione otra mesa`),
+        { status: 400 }
+      );
+    }
+  }
+
+  const [h, m] = horaFormateada.split(":").map(Number);
+  const fechaHoraFin = new Date();
+  fechaHoraFin.setHours(h);
+  fechaHoraFin.setMinutes(m + 90);
+  fechaHoraFin.setSeconds(0);
+
+  const horaFin = fechaHoraFin.toTimeString().slice(0, 8);
+
+  const codigoAcceso = Math.floor(100000 + Math.random() * 900000).toString();
+
+  const fechaExpiracion = new Date();
+  fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 20);
+
+  const expiracionPago = fechaExpiracion
+    .toISOString()
+    .slice(0, 19)
+    .replace("T", " ");
+
+  // ✅ REGISTRAR EN BASE DE DATOS
+  const resultado = await registrarReservacionModel(
+    datos,
+    horaFormateada,
+    horaFin,
+    codigoAcceso,
+    expiracionPago,
+    idUsuario
+  );
 
   return {
     ok: true,
     mensaje: "Reservación registrada correctamente",
-    idReservacion: resultado
+    codigo: codigoAcceso
   };
 };
-
 
 module.exports = {
   registrarReservacionService
