@@ -9,20 +9,38 @@ const Paso1DatosBasicos = () => {
   const [diasVisibles, setDiasVisibles] = useState([]);
   const [indiceInicio, setIndiceInicio] = useState(0);
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
+  const [diasAMostrar, setDiasAMostrar] = useState(5);
 
   const horaForm = watch('hora');
   const personasForm = watch('personas') || 2;
   const fechaForm = watch('fecha');
 
-  // Función para verificar si hoy ya paso el horario de reservas
+  // Función para ajustar número de días visibles según el ancho de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) { 
+        setDiasAMostrar(3);
+      } else if (window.innerWidth < 1024) { 
+        setDiasAMostrar(4);
+      } else { 
+        setDiasAMostrar(5);
+      }
+    };
+
+    handleResize(); // Ejecutar al montar
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Funcion para verificar si hoy ya paso el horario de reservas
   const hoyEstaDisponible = () => {
     const ahora = new Date();
     const horaActual = ahora.getHours();
-    // Si ya pasó de las 8 PM hoy no está disponible
+    // Si ya paso de las 8pm hoy no está disponible
     return horaActual < 20;
   };
 
-  //funcion para validar si una hora esta disponible para reserva
+  // Función para validar si una hora esta disponible para reserva
   const validarDisponibilidadHora = (fecha, hora) => {
     const ahora = new Date();
     const fechaReserva = new Date(`${fecha}T${hora}:00`);
@@ -42,7 +60,6 @@ const Paso1DatosBasicos = () => {
 
   useEffect(() => {
     if (fechaForm) {
-
       const horariosFiltrados = horasDisponibles.map(horario => ({
         ...horario,
         disponible: validarDisponibilidadHora(fechaForm, horario.value)
@@ -85,7 +102,7 @@ const Paso1DatosBasicos = () => {
     }
   }, [setValue]);
 
-  const diasAMostrar = diasVisibles.slice(indiceInicio, indiceInicio + 5);
+  const diasSlice = diasVisibles.slice(indiceInicio, indiceInicio + diasAMostrar);
 
   const handleAnterior = () => {
     if (indiceInicio > 0) {
@@ -94,7 +111,7 @@ const Paso1DatosBasicos = () => {
   };
 
   const handleSiguiente = () => {
-    if (indiceInicio < diasVisibles.length - 5) {
+    if (indiceInicio < diasVisibles.length - diasAMostrar) {
       setIndiceInicio(indiceInicio + 1);
     }
   };
@@ -138,18 +155,18 @@ const Paso1DatosBasicos = () => {
   const hoyDisponible = hoyEstaDisponible();
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">
+    <div className="space-y-6 lg:space-y-8 max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
+      <div className="text-center mb-6 lg:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
           Datos de la Reservación
         </h2>
-        <p className="text-gray-400">
+        <p className="text-gray-400 text-sm sm:text-base">
           Selecciona la fecha, hora y número de personas
         </p>
         {!hoyDisponible && (
-          <div className="mt-4 p-3 bg-blue-600/10 border border-blue-600/30 rounded-lg inline-flex items-center gap-2">
-            <FiAlertCircle className="w-4 h-4 text-blue-400" />
-            <p className="text-blue-400 text-sm">
+          <div className="mt-4 p-3 bg-blue-600/10 border border-blue-600/30 rounded-lg flex items-center gap-2 max-w-2xl mx-auto">
+            <FiAlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0" />
+            <p className="text-blue-400 text-sm text-left">
               Las reservas para hoy ya no están disponibles. Por favor selecciona una fecha a partir de mañana.
             </p>
           </div>
@@ -204,37 +221,37 @@ const Paso1DatosBasicos = () => {
         })} 
       />
 
-      <div className="bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-700">
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-red-600/10 rounded-xl flex items-center justify-center">
-              <FiCalendar className="w-5 h-5 text-red-600" />
+      <div className="bg-gray-800 rounded-xl lg:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-700">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-600/10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <FiCalendar className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
             </div>
-            <h3 className="text-xl font-semibold text-white">Selecciona una Fecha</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-white">Selecciona una Fecha</h3>
           </div>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-xs sm:text-sm">
             {hoyDisponible 
               ? "Elige el día de tu reserva" 
               : "Las reservas comienzan a partir de mañana"}
           </p>
         </div>
 
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={handleAnterior}
             disabled={indiceInicio === 0}
-            className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${
+            className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition-all flex-shrink-0 ${
               indiceInicio === 0
                 ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                 : 'bg-gray-700 text-white hover:bg-gray-600'
             }`}
           >
-            <FiChevronLeft className="w-5 h-5" />
+            <FiChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          <div className="flex gap-2 flex-1 justify-center">
-            {diasAMostrar.map((dia, index) => {
+          <div className="flex gap-1 sm:gap-2 flex-1 justify-center overflow-hidden">
+            {diasSlice.map((dia, index) => {
               const ahora = new Date();
               const fechaDia = new Date(dia.isoString);
               const esPasado = fechaDia < new Date(ahora.toISOString().split('T')[0]);
@@ -246,7 +263,7 @@ const Paso1DatosBasicos = () => {
                   type="button"
                   onClick={() => !esPasado && handleSeleccionarFecha(dia)}
                   disabled={esPasado}
-                  className={`px-5 py-3 rounded-full transition-all min-w-[90px] ${
+                  className={`px-3 py-2 sm:px-4 sm:py-3 rounded-xl sm:rounded-full transition-all min-w-[70px] sm:min-w-[80px] lg:min-w-[90px] flex flex-col items-center ${
                     esPasado
                       ? 'bg-gray-900 text-gray-500 cursor-not-allowed opacity-50'
                       : fechaSeleccionada === dia.isoString
@@ -254,23 +271,23 @@ const Paso1DatosBasicos = () => {
                       : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   }`}
                 >
-                  <div className="text-xs uppercase font-medium opacity-80">
+                  <div className="text-[10px] sm:text-xs uppercase font-medium opacity-80">
                     {dia.diaSemana}
                   </div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {dia.dia}
                   </div>
-                  <div className="text-xs uppercase opacity-80">
+                  <div className="text-[10px] sm:text-xs uppercase opacity-80">
                     {dia.mes}
                   </div>
                   {esHoyDia && (
-                    <div className="text-[10px] text-green-400 mt-1">
+                    <div className="text-[8px] sm:text-[10px] text-green-400 mt-0.5 sm:mt-1">
                       Hoy
                     </div>
                   )}
                   {esPasado && (
-                    <div className="text-[10px] text-red-400 mt-1">
-                      No disponible
+                    <div className="text-[8px] sm:text-[10px] text-red-400 mt-0.5 sm:mt-1">
+                      No disp.
                     </div>
                   )}
                 </button>
@@ -281,21 +298,21 @@ const Paso1DatosBasicos = () => {
           <button
             type="button"
             onClick={handleSiguiente}
-            disabled={indiceInicio >= diasVisibles.length - 5}
-            className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${
-              indiceInicio >= diasVisibles.length - 5
+            disabled={indiceInicio >= diasVisibles.length - diasAMostrar}
+            className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition-all flex-shrink-0 ${
+              indiceInicio >= diasVisibles.length - diasAMostrar
                 ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                 : 'bg-gray-700 text-white hover:bg-gray-600'
             }`}
           >
-            <FiChevronRight className="w-5 h-5" />
+            <FiChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {esHoy() && (
           <div className="mt-4 p-3 bg-yellow-600/10 border border-yellow-600/30 rounded-lg flex items-center gap-2 justify-center">
-            <FiAlertCircle className="w-4 h-4 text-yellow-400" />
-            <p className="text-yellow-400 text-sm">
+            <FiAlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+            <p className="text-yellow-400 text-sm text-center sm:text-left">
               Estás reservando para hoy. Recuerda que necesitas al menos 2 horas de anticipación.
             </p>
           </div>
@@ -306,22 +323,22 @@ const Paso1DatosBasicos = () => {
         )}
       </div>
 
-      <div className="bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-700">
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-red-600/10 rounded-xl flex items-center justify-center">
-              <FiClock className="w-5 h-5 text-red-600" />
+      <div className="bg-gray-800 rounded-xl lg:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-700">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-600/10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <FiClock className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
             </div>
-            <h3 className="text-xl font-semibold text-white">Selecciona el Horario</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-white">Selecciona el Horario</h3>
           </div>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-xs sm:text-sm">
             {esHoy() 
               ? "Horarios disponibles con al menos 2 horas de anticipación" 
               : "Elige la hora de tu reserva"}
           </p>
         </div>
 
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
           {horariosDisponibles.map((horario) => (
             <button
               key={horario.value}
@@ -332,7 +349,7 @@ const Paso1DatosBasicos = () => {
                 }
               }}
               disabled={!horario.disponible}
-              className={`py-4 px-6 rounded-xl font-semibold transition-all relative ${
+              className={`py-3 px-4 sm:py-4 sm:px-6 rounded-lg sm:rounded-xl font-semibold transition-all relative text-sm sm:text-base ${
                 !horario.disponible
                   ? 'bg-gray-900 text-gray-500 cursor-not-allowed opacity-50'
                   : horaForm === horario.value
@@ -350,7 +367,7 @@ const Paso1DatosBasicos = () => {
 
         {esHoy() && (
           <div className="mt-4 text-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-xs sm:text-sm">
               Los horarios no disponibles están marcados con un punto rojo
             </p>
           </div>
@@ -361,18 +378,18 @@ const Paso1DatosBasicos = () => {
         )}
       </div>
 
-      <div className="bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-700">
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-red-600/10 rounded-xl flex items-center justify-center">
-              <FiUsers className="w-5 h-5 text-red-600" />
+      <div className="bg-gray-800 rounded-xl lg:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-700">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-600/10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <FiUsers className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
             </div>
-            <h3 className="text-xl font-semibold text-white">Número de Personas</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-white">Número de Personas</h3>
           </div>
-          <p className="text-gray-400 text-sm">¿Cuántas personas asistirán?</p>
+          <p className="text-gray-400 text-xs sm:text-sm">¿Cuántas personas asistirán?</p>
         </div>
 
-        <div className="flex items-center justify-center gap-6">
+        <div className="flex items-center justify-center gap-4 sm:gap-6">
           <button
             type="button"
             onClick={() => {
@@ -381,7 +398,7 @@ const Paso1DatosBasicos = () => {
               }
             }}
             disabled={personasForm <= 2}
-            className={`w-12 h-12 rounded-full font-bold text-2xl transition-all ${
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full font-bold text-xl sm:text-2xl transition-all flex-shrink-0 ${
               personasForm <= 2
                 ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                 : 'bg-red-600 text-white hover:bg-red-700 active:scale-95'
@@ -390,11 +407,11 @@ const Paso1DatosBasicos = () => {
             -
           </button>
 
-          <div className="bg-gray-700 px-12 py-6 rounded-2xl min-w-[150px] text-center">
-            <div className="text-5xl font-bold text-white">
+          <div className="bg-gray-700 px-6 py-4 sm:px-12 sm:py-6 rounded-xl sm:rounded-2xl min-w-[120px] sm:min-w-[150px] text-center">
+            <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
               {personasForm}
             </div>
-            <div className="text-gray-400 text-sm mt-2">
+            <div className="text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2">
               {personasForm === 1 ? 'persona' : 'personas'}
             </div>
           </div>
@@ -407,7 +424,7 @@ const Paso1DatosBasicos = () => {
               }
             }}
             disabled={personasForm >= 12}
-            className={`w-12 h-12 rounded-full font-bold text-2xl transition-all ${
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full font-bold text-xl sm:text-2xl transition-all flex-shrink-0 ${
               personasForm >= 12
                 ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                 : 'bg-green-600 text-white hover:bg-green-700 active:scale-95'
@@ -428,14 +445,14 @@ const Paso1DatosBasicos = () => {
         />
 
         {mensajePersonas && (
-          <div className={`mt-6 p-4 rounded-xl text-center ${
+          <div className={`mt-4 sm:mt-6 p-3 sm:p-4 rounded-lg sm:rounded-xl text-center ${
             mensajePersonas.tipo === 'info' 
               ? 'bg-blue-600/10 border border-blue-600/30' 
               : mensajePersonas.tipo === 'warning'
               ? 'bg-yellow-600/10 border border-yellow-600/30'
               : 'bg-red-600/10 border border-red-600/30'
           }`}>
-            <p className={`text-sm font-medium ${
+            <p className={`text-xs sm:text-sm font-medium ${
               mensajePersonas.tipo === 'info' 
                 ? 'text-blue-400' 
                 : mensajePersonas.tipo === 'warning'
@@ -448,7 +465,7 @@ const Paso1DatosBasicos = () => {
         )}
 
         {errors.personas && (
-          <p className="text-red-500 text-sm mt-4 text-center">{errors.personas.message}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-4 text-center">{errors.personas.message}</p>
         )}
       </div>
     </div>
