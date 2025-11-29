@@ -1,5 +1,4 @@
 export const horasDisponibles = [
-    { value: "", label: "Seleccionar hora" },
     { value: "12:00", label: "12:00 PM" },
     { value: "13:00", label: "1:00 PM" },
     { value: "15:00", label: "2:00 PM" },
