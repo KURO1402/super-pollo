@@ -1,226 +1,396 @@
-import { FiShoppingCart, FiTrash, FiPlus, FiMinus, FiLoader } from "react-icons/fi";
-import { FaUtensils } from "react-icons/fa";
+import { useState, useEffect } from 'react';
+import { FiCheck } from "react-icons/fi";
+import { MdTableBar, MdDoorFront, MdStairs } from "react-icons/md";
 import { reservaEstadoGlobal } from "../../estado-global/reservaEstadoGlobal";
-import { useProductos } from "../../../panel-administrador/modulos/productos/hooks/useProductos";
-import { useEffect } from "react";
 
-const Paso2Productos = () => {
-  const {
-    datos, 
-    agregarProducto, 
-    quitarProducto, 
-    actualizarCantidad,
-    getSubtotal,
-    getTotal,
-    setProductosMenu
-  } = reservaEstadoGlobal();
+const Paso2SeleccionMesas = () => {
+  const { datos, updateDatos } = reservaEstadoGlobal();
+  const [pisoActual, setPisoActual] = useState(1);
+  const [mesasSeleccionadas, setMesasSeleccionadas] = useState([]);
+  const [error, setError] = useState('');
+  
+  const personasForm = datos.personas || 2;
+  const fechaForm = datos.fecha;
+  const horaForm = datos.hora;
 
-  const { productos, cargando, error} = useProductos();
+  // Calcular número de mesas necesarias
+  const mesasNecesarias = Math.ceil(personasForm / 4);
 
-  const subtotal = getSubtotal();
-  const total = getTotal();
+  // Mesas del primer piso
+  const mesasPrimerPiso = Array.from({ length: 12 }, (_, i) => ({
+    id: i + 1,
+    numero: `1-${i + 1}`,
+    capacidad: 4,
+    piso: 1,
+    disponible: true
+  }));
+
+  // Mesas del segundo piso (5 mesas, capacidad 8 c/u)
+  const mesasSegundoPiso = Array.from({ length: 5 }, (_, i) => ({
+    id: i + 13,
+    numero: `2-${i + 1}`,
+    capacidad: 8,
+    piso: 2,
+    disponible: true
+  }));
+
+  const mesasActuales = pisoActual === 1 ? mesasPrimerPiso : mesasSegundoPiso;
 
   useEffect(() => {
-    if (productos.length > 0) {
-      setProductosMenu(productos);
+    // Cargar mesas previamente seleccionadas si existen
+    if (datos.mesas && datos.mesas.length > 0) {
+      setMesasSeleccionadas(datos.mesas);
     }
-  }, [productos, setProductosMenu]);
+  }, []);
 
-  const productoEnCarrito = (productoId) => {
-    return datos.productos.some(p => p.idProducto === productoId);
+  useEffect(() => {
+    // Si cambia el número de personas limpiar selección si excede
+    if (mesasSeleccionadas.length > mesasNecesarias) {
+      const nuevaSeleccion = mesasSeleccionadas.slice(0, mesasNecesarias);
+      setMesasSeleccionadas(nuevaSeleccion);
+      updateDatos({ mesas: nuevaSeleccion });
+    }
+  }, [personasForm, mesasNecesarias]);
+
+  useEffect(() => {
+    // Validar seleccion de mesas
+    if (mesasSeleccionadas.length === 0) {
+      setError('Debes seleccionar al menos una mesa');
+    } else if (mesasSeleccionadas.length < mesasNecesarias) {
+      setError(`Necesitas seleccionar ${mesasNecesarias} ${mesasNecesarias === 1 ? 'mesa' : 'mesas'}`);
+    } else {
+      setError('');
+    }
+  }, [mesasSeleccionadas, mesasNecesarias]);
+
+  const handleSeleccionarMesa = (mesa) => {
+    if (!mesa.disponible) return;
+
+    let nuevaSeleccion;
+    const estaSeleccionada = mesasSeleccionadas.some(m => m.numero === mesa.numero);
+
+    if (estaSeleccionada) {
+      // Deseleccionar
+      nuevaSeleccion = mesasSeleccionadas.filter(m => m.numero !== mesa.numero);
+    } else {
+      // Seleccionar si no se ha alcanzado el limite
+      if (mesasSeleccionadas.length < mesasNecesarias) {
+        nuevaSeleccion = [...mesasSeleccionadas, mesa];
+      } else {
+        // Reemplazar la ultima seleccionada
+        nuevaSeleccion = [...mesasSeleccionadas.slice(0, -1), mesa];
+      }
+    }
+
+    setMesasSeleccionadas(nuevaSeleccion);
+    updateDatos({ mesas: nuevaSeleccion });
   };
 
-  const getCantidadEnCarrito = (productoId) => {
-    const producto = datos.productos.find(p => p.idProducto === productoId);
-    return producto ? producto.cantidad : 0;
+  const esMesaSeleccionada = (mesa) => {
+    return mesasSeleccionadas.some(m => m.numero === mesa.numero);
   };
+
+  const capacidadTotal = mesasSeleccionadas.reduce((total, mesa) => total + mesa.capacidad, 0);
 
   return (
-    <div className="space-y-8">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">
-          Selecciona tus Productos
+    <div className="space-y-6 md:space-y-8 max-w-7xl mx-auto px-4 md:px-0">
+      <div className="text-center mb-6 md:mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+          Selecciona tus Mesas
         </h2>
-        <p className="text-gray-400">
-          Elige los platos y bebidas para tu reserva
+        <p className="text-sm md:text-base text-gray-400">
+          Elige las mesas para tu reserva de {personasForm} {personasForm === 1 ? 'persona' : 'personas'}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-yellow-600/20 rounded-xl flex items-center justify-center">
-              <FaUtensils className="w-6 h-6 text-yellow-600" />
+      <div className="bg-gray-800 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border border-gray-700">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <MdTableBar className="w-5 h-5 md:w-6 md:h-6 text-red-600" />
+              <h3 className="text-lg md:text-xl font-semibold text-white">
+                Mesas Requeridas: {mesasNecesarias}
+              </h3>
             </div>
-            <h3 className="text-xl font-semibold text-white">Nuestro Menú</h3>
+            <p className="text-xs md:text-sm text-gray-400">
+              Capacidad seleccionada: {capacidadTotal} personas
+            </p>
           </div>
 
-          {cargando ? (
-            <div className="text-center py-12">
-              <FiLoader className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
-              <p className="text-gray-400">Cargando menú...</p>
-            </div>
-          ) : error ? (
-            <div className="text-center py-8 bg-red-500/10 rounded-lg">
-              <p className="text-red-500">Error al cargar el menú: {error}</p>
-            </div>
-          ) : productos.length === 0 ? (
-            <div className="text-center py-12">
-              <FaUtensils className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg">No hay productos disponibles</p>
-            </div>
-          ) : (
-            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-              {productos.map(producto => {
-                const enCarrito = productoEnCarrito(producto.idProducto);
-                const cantidad = getCantidadEnCarrito(producto.idProducto);
-                
-                return (
-                  <div 
-                    key={producto.idProducto} 
-                    className={`flex justify-between items-center p-4 border rounded-xl transition-all ${
-                      enCarrito 
-                        ? "border-green-500 bg-green-500/5" 
-                        : "border-gray-600 hover:border-blue-500 hover:bg-gray-700/50"
-                    }`}
-                  >
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-white text-lg">{producto.nombreProducto }</h4>
-                      {producto.descripcion && (
-                        <p className="text-sm text-gray-400 mt-1">{producto.descripcion}</p>
-                      )}
-                      <p className="text-lg font-bold text-red-600 mt-2">S/ {producto.precio}</p>
-                      {enCarrito && (
-                        <p className="text-sm text-green-500 mt-1">
-                          ✓ En carrito: {cantidad} {cantidad === 1 ? 'unidad' : 'unidades'}
-                        </p>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => agregarProducto(producto)}
-                      disabled={enCarrito && cantidad >= 10}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors cursor-pointer ${
-                        enCarrito && cantidad >= 10
-                          ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                          : enCarrito
-                          ? "bg-green-600 hover:bg-green-700 text-white"
-                          : "bg-red-600 hover:bg-red-700 text-white"
-                      }`}
-                    >
-                      {enCarrito && cantidad >= 10 ? "Límite" : "Agregar"}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          {/* Switch de Pisos */}
+          <div className="flex items-center gap-2 bg-gray-700 rounded-full p-1 w-full md:w-auto">
+            <button
+              type="button"
+              onClick={() => setPisoActual(1)}
+              className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full font-semibold transition-all flex-1 md:flex-initial justify-center ${
+                pisoActual === 1
+                  ? 'bg-red-600 text-white shadow-lg'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              <MdDoorFront className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="text-sm md:text-base">Piso 1</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPisoActual(2)}
+              className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full font-semibold transition-all flex-1 md:flex-initial justify-center ${
+                pisoActual === 2
+                  ? 'bg-red-600 text-white shadow-lg'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              <MdStairs className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="text-sm md:text-base">Piso 2</span>
+            </button>
+          </div>
         </div>
 
-        <div className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-700">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-green-600/10 rounded-xl flex items-center justify-center">
-              <FiShoppingCart className="w-6 h-6 text-green-600" />
+        <div className="flex flex-wrap gap-3 md:gap-4 text-xs md:text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-gray-700 border-2 border-gray-500 rounded"></div>
+            <span className="text-gray-300">Disponible</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-red-600 border-2 border-red-500 rounded"></div>
+            <span className="text-gray-300">Seleccionada</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-gray-600 border-2 border-gray-500 rounded opacity-50"></div>
+            <span className="text-gray-300">No disponible</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl md:rounded-2xl p-4 md:p-8 shadow-lg border border-gray-700 overflow-x-auto">
+        <div className="min-w-[700px]">
+          <div className="flex items-center justify-between mb-6 md:mb-8">
+            <div className="flex items-center gap-3 bg-blue-600/10 border border-blue-600/30 rounded-lg px-4 py-2">
+              <MdDoorFront className="w-6 h-6 text-blue-400" />
+              <span className="text-blue-400 font-semibold text-sm md:text-base">Entrada</span>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold text-white">Tu Pedido</h3>
-              <p className="text-sm text-gray-400">
-                {datos.productos.length} {datos.productos.length === 1 ? 'producto' : 'productos'} seleccionados
+            <div className="text-center">
+              <h4 className="text-lg md:text-xl font-bold text-white">
+                {pisoActual === 1 ? 'Primer Piso' : 'Segundo Piso'}
+              </h4>
+              <p className="text-xs md:text-sm text-gray-400">
+                {pisoActual === 1 ? '12 mesas • 4 personas c/u' : '5 mesas • 8 personas c/u'}
               </p>
             </div>
+            <div className="w-24"></div>
           </div>
 
-          {datos.productos.length === 0 ? (
-            <div className="text-center py-12">
-              <FiShoppingCart className="w-20 h-20 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg mb-2">Tu carrito está vacío</p>
-              <p className="text-gray-500 text-sm">
-                Agrega productos del menú para continuar
-              </p>
+          {pisoActual === 1 ? (
+            <div className="space-y-8 md:space-y-12">
+              <div className="grid grid-cols-6 gap-3 md:gap-6">
+                {mesasPrimerPiso.slice(0, 6).map((mesa) => {
+                  const seleccionada = esMesaSeleccionada(mesa);
+                  return (
+                    <button
+                      key={mesa.id}
+                      type="button"
+                      onClick={() => handleSeleccionarMesa(mesa)}
+                      disabled={!mesa.disponible}
+                      className={`relative aspect-square rounded-xl transition-all transform hover:scale-105 ${
+                        !mesa.disponible
+                          ? 'bg-gray-600 border-2 border-gray-500 opacity-50 cursor-not-allowed'
+                          : seleccionada
+                          ? 'bg-red-600 border-2 border-red-400 shadow-lg shadow-red-600/50'
+                          : 'bg-gray-700 border-2 border-gray-500 hover:border-red-400 hover:bg-gray-600'
+                      }`}
+                    >
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
+                        <MdTableBar className={`w-6 h-6 md:w-8 md:h-8 mb-1 ${
+                          seleccionada ? 'text-white' : 'text-gray-400'
+                        }`} />
+                        <span className={`text-xs md:text-sm font-bold ${
+                          seleccionada ? 'text-white' : 'text-gray-300'
+                        }`}>
+                          {mesa.numero}
+                        </span>
+                        <span className="text-[10px] md:text-xs text-gray-400">
+                          {mesa.capacidad}p
+                        </span>
+                        {seleccionada && (
+                          <div className="absolute top-1 right-1 bg-white rounded-full p-0.5">
+                            <FiCheck className="w-3 h-3 text-red-600" />
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="h-1 bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+
+              <div className="grid grid-cols-6 gap-3 md:gap-6">
+                {mesasPrimerPiso.slice(6, 12).map((mesa) => {
+                  const seleccionada = esMesaSeleccionada(mesa);
+                  return (
+                    <button
+                      key={mesa.id}
+                      type="button"
+                      onClick={() => handleSeleccionarMesa(mesa)}
+                      disabled={!mesa.disponible}
+                      className={`relative aspect-square rounded-xl transition-all transform hover:scale-105 ${
+                        !mesa.disponible
+                          ? 'bg-gray-600 border-2 border-gray-500 opacity-50 cursor-not-allowed'
+                          : seleccionada
+                          ? 'bg-red-600 border-2 border-red-400 shadow-lg shadow-red-600/50'
+                          : 'bg-gray-700 border-2 border-gray-500 hover:border-red-400 hover:bg-gray-600'
+                      }`}
+                    >
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
+                        <MdTableBar className={`w-6 h-6 md:w-8 md:h-8 mb-1 ${
+                          seleccionada ? 'text-white' : 'text-gray-400'
+                        }`} />
+                        <span className={`text-xs md:text-sm font-bold ${
+                          seleccionada ? 'text-white' : 'text-gray-300'
+                        }`}>
+                          {mesa.numero}
+                        </span>
+                        <span className="text-[10px] md:text-xs text-gray-400">
+                          {mesa.capacidad}p
+                        </span>
+                        {seleccionada && (
+                          <div className="absolute top-1 right-1 bg-white rounded-full p-0.5">
+                            <FiCheck className="w-3 h-3 text-red-600" />
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           ) : (
-            <>
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                {datos.productos.map(producto => (
-                  <div 
-                    key={producto.idProducto} 
-                    className="flex justify-between items-center p-4 border border-gray-600 rounded-xl bg-gray-700/30"
-                  >
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-white text-sm leading-tight">
-                        {producto.nombreProducto}
-                      </h4>
-                      <p className="text-red-600 font-bold text-sm">
-                        S/ {producto.precio} c/u
-                      </p>
-                      <p className="text-green-500 text-xs">
-                        Total: S/ {(producto.precio * producto.cantidad).toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2 bg-gray-600 rounded-lg p-1">
-                        <button
-                          onClick={() => actualizarCantidad(producto.idProducto, producto.cantidad - 1)}
-                          disabled={producto.cantidad <= 1}
-                          className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
-                            producto.cantidad <= 1
-                              ? "bg-gray-500 text-gray-400 cursor-not-allowed"
-                              : "bg-gray-500 hover:bg-gray-400 text-white cursor-pointer"
-                          }`}
-                        >
-                          <FiMinus className="w-3 h-3" />
-                        </button>
-                        <span className="font-semibold w-6 text-center text-white text-sm">
-                          {producto.cantidad}
+            <div className="space-y-8 md:space-y-12">
+              <div className="grid grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
+                {mesasSegundoPiso.slice(0, 3).map((mesa) => {
+                  const seleccionada = esMesaSeleccionada(mesa);
+                  return (
+                    <button
+                      key={mesa.id}
+                      type="button"
+                      onClick={() => handleSeleccionarMesa(mesa)}
+                      disabled={!mesa.disponible}
+                      className={`relative aspect-square rounded-xl transition-all transform hover:scale-105 ${
+                        !mesa.disponible
+                          ? 'bg-gray-600 border-2 border-gray-500 opacity-50 cursor-not-allowed'
+                          : seleccionada
+                          ? 'bg-red-600 border-2 border-red-400 shadow-lg shadow-red-600/50'
+                          : 'bg-gray-700 border-2 border-gray-500 hover:border-red-400 hover:bg-gray-600'
+                      }`}
+                    >
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
+                        <MdTableBar className={`w-8 h-8 md:w-10 md:h-10 mb-1 ${
+                          seleccionada ? 'text-white' : 'text-gray-400'
+                        }`} />
+                        <span className={`text-sm md:text-base font-bold ${
+                          seleccionada ? 'text-white' : 'text-gray-300'
+                        }`}>
+                          {mesa.numero}
                         </span>
-                        <button
-                          onClick={() => actualizarCantidad(producto.idProducto, producto.cantidad + 1)}
-                          disabled={producto.cantidad >= 10}
-                          className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
-                            producto.cantidad >= 10
-                              ? "bg-gray-500 text-gray-400 cursor-not-allowed"
-                              : "bg-gray-500 hover:bg-gray-400 text-white cursor-pointer"
-                          }`}
-                        >
-                          <FiPlus className="w-3 h-3" />
-                        </button>
+                        <span className="text-xs md:text-sm text-gray-400">
+                          {mesa.capacidad}p
+                        </span>
+                        {seleccionada && (
+                          <div className="absolute top-2 right-2 bg-white rounded-full p-1">
+                            <FiCheck className="w-4 h-4 text-red-600" />
+                          </div>
+                        )}
                       </div>
-                      <button
-                        onClick={() => quitarProducto(producto.idProducto)}
-                        className="text-red-500 hover:text-red-700 transition-colors p-1 cursor-pointer"
-                        title="Eliminar producto"
-                      >
-                        <FiTrash className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
 
-              <div className="mt-6 p-4 bg-gray-700 rounded-xl border border-gray-600">
-                <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-600">
-                  <span className="text-gray-400">Subtotal:</span>
-                  <span className="font-bold text-white">S/ {subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between items-center text-lg font-bold">
-                  <span className="text-white">Total a pagar:</span>
-                  <span className="text-red-600 text-xl">S/ {total.toFixed(2)}</span>
-                </div>
-                <div className="mt-3 text-xs text-gray-400 text-center">
-                  El anticipo del 60% se calculará en el siguiente paso
-                </div>
-              </div>
+              <div className="h-1 bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
 
-              <div className="mt-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
-                <p className="text-yellow-500 text-sm text-center">
-                  Listo para continuar - {datos.productos.length} {datos.productos.length === 1 ? 'producto' : 'productos'} seleccionados
-                </p>
+              <div className="grid grid-cols-2 gap-6 md:gap-8 max-w-2xl mx-auto">
+                {mesasSegundoPiso.slice(3, 5).map((mesa) => {
+                  const seleccionada = esMesaSeleccionada(mesa);
+                  return (
+                    <button
+                      key={mesa.id}
+                      type="button"
+                      onClick={() => handleSeleccionarMesa(mesa)}
+                      disabled={!mesa.disponible}
+                      className={`relative aspect-square rounded-xl transition-all transform hover:scale-105 ${
+                        !mesa.disponible
+                          ? 'bg-gray-600 border-2 border-gray-500 opacity-50 cursor-not-allowed'
+                          : seleccionada
+                          ? 'bg-red-600 border-2 border-red-400 shadow-lg shadow-red-600/50'
+                          : 'bg-gray-700 border-2 border-gray-500 hover:border-red-400 hover:bg-gray-600'
+                      }`}
+                    >
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
+                        <MdTableBar className={`w-8 h-8 md:w-10 md:h-10 mb-1 ${
+                          seleccionada ? 'text-white' : 'text-gray-400'
+                        }`} />
+                        <span className={`text-sm md:text-base font-bold ${
+                          seleccionada ? 'text-white' : 'text-gray-300'
+                        }`}>
+                          {mesa.numero}
+                        </span>
+                        <span className="text-xs md:text-sm text-gray-400">
+                          {mesa.capacidad}p
+                        </span>
+                        {seleccionada && (
+                          <div className="absolute top-2 right-2 bg-white rounded-full p-1">
+                            <FiCheck className="w-4 h-4 text-red-600" />
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
+
+      {mesasSeleccionadas.length > 0 && (
+        <div className="bg-gray-800 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border border-gray-700">
+          <h4 className="text-base md:text-lg font-semibold text-white mb-3 md:mb-4">
+            Mesas Seleccionadas
+          </h4>
+          <div className="flex flex-wrap gap-2 md:gap-3">
+            {mesasSeleccionadas.map((mesa) => (
+              <div
+                key={mesa.numero}
+                className="flex items-center gap-2 bg-red-600/10 border border-red-600/30 rounded-lg px-3 md:px-4 py-2"
+              >
+                <MdTableBar className="w-4 h-4 text-red-400" />
+                <span className="text-sm md:text-base text-white font-medium">
+                  Mesa {mesa.numero}
+                </span>
+                <span className="text-xs md:text-sm text-gray-400">
+                  ({mesa.capacidad}p)
+                </span>
+              </div>
+            ))}
+          </div>
+          
+          {mesasSeleccionadas.length >= mesasNecesarias && (
+            <div className="mt-4 bg-green-600/10 border border-green-600/30 rounded-lg p-3">
+              <p className="text-green-400 text-sm md:text-base text-center font-medium">
+                ✓ Perfecto! Has seleccionado {mesasSeleccionadas.length} {mesasSeleccionadas.length === 1 ? 'mesa' : 'mesas'} con capacidad total de {capacidadTotal} personas
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {error && mesasSeleccionadas.length < mesasNecesarias && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center">
+          <p className="text-red-500 text-sm md:text-base">{error}</p>
+        </div>
+      )}
     </div>
   );
 };
 
-export default Paso2Productos;
+export default Paso2SeleccionMesas;
