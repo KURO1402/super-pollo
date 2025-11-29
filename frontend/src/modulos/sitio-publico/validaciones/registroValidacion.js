@@ -53,16 +53,6 @@ export const registroValidacion = yup.object().shape({
     .required('Debes confirmar tu contraseña')
     .oneOf([yup.ref('clave')], 'Las contraseñas no coinciden'),
   
-  idTipoDocumento: yup
-    .number()
-    .required('El tipo de documento es obligatorio')
-    .typeError('Debe seleccionar un tipo de documento'),
-   
-  numeroDocumentoUsuario: yup
-    .string()
-    .required('El número de documento es obligatorio')
-    .matches(/^\d{8,12}$/, 'El documento debe contener entre 8 y 12 dígitos'), 
-  
   telefonoUsuario: yup
     .string()
     .required('El número de teléfono es obligatorio')

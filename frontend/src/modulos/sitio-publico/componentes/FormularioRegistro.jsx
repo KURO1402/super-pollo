@@ -9,11 +9,9 @@ import CampoSelect from './CampoSelect';
 import { registroValidacion } from '../validaciones/registroValidacion';
 import { useEffect, useState } from 'react'; 
 
-import { obtenerTiposDocumento } from '../servicios/tiposDocService.js';
 import { Link } from 'react-router-dom';
 
 const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
-  const [tiposDocumento, setTiposDocumento] = useState([]);
   const {
     register, 
     handleSubmit,
@@ -27,25 +25,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
       idTipoDocumento: 1,
     },
   });
-
-  useEffect(() => {
-    const cargarTiposDocumento = async () => {
-      try {
-        let tipos = await obtenerTiposDocumento();
-
-        tipos = tipos.filter(
-          tipo => tipo.nombreTipoDocumento.toLowerCase() !== 'ruc'
-        );
-
-        setTiposDocumento(tipos);
-      } catch (error) {
-        setTiposDocumento([
-          { idTipoDocumento: 1, nombreTipoDocumento: 'DNI' }
-        ]);
-      }
-    };
-    cargarTiposDocumento();
-  }, []);
 
   const manejarEnvioFormulario = async (datos) => {
     try {
@@ -112,30 +91,6 @@ const FormularioRegistro = ({ alEnviar, estaCargando = false }) => {
           registro={register}
           error={errors.confirmarClave}
         />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <CampoSelect
-          id="idTipoDocumento"
-          nombre="idTipoDocumento"
-          etiqueta="Tipo de Documento"
-          placeholder="Selecciona el tipo"
-          opciones={tiposDocumento}
-          icono={FaIdCard}
-          registro={register}
-          error={errors.idTipoDocumento}
-        />
-
-        <CampoEntrada
-          id="numeroDocumentoUsuario"
-          nombre="numeroDocumentoUsuario"
-          etiqueta="Número de Documento"
-          marcadorPosicion="Ingresa tu número de documento"
-          icono={FaIdCard}
-          registro={register}
-          error={errors.numeroDocumentoUsuario}
-        />
-
       </div>
 
       <CampoEntrada
