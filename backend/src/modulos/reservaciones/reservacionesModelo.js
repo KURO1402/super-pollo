@@ -40,7 +40,7 @@ const registrarReservacionModel = async (
 
     await conexion.commit();
 
-    return idReserva;
+    return "Reserva registrada exitosamente";
 
   } catch (err) {
     if (conexion) await conexion.rollback();

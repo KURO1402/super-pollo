@@ -7,6 +7,7 @@ const { convertirA24Horas } = require("../../helpers/formatearTiempo")
 const {
   validarDatosReservacion
 } = require("./reservacionesValidaciones.js");
+const { validarFormatoFecha, validarFormatoHora } = require("../../utilidades/validaciones");
 
 //const { registrarIngresoCajaModel } = require("../caja/cajaModelo.js");
 
@@ -49,12 +50,8 @@ const registrarReservacionService = async (datos, idUsuario) => {
   const fechaExpiracion = new Date();
   fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 20);
 
-  const expiracionPago = fechaExpiracion
-    .toISOString()
-    .slice(0, 19)
-    .replace("T", " ");
+  const expiracionPago = fechaExpiracion.toISOString().slice(0, 19).replace("T", " ");
 
-  // ✅ REGISTRAR EN BASE DE DATOS
   const resultado = await registrarReservacionModel(
     datos,
     horaFormateada,
@@ -66,11 +63,27 @@ const registrarReservacionService = async (datos, idUsuario) => {
 
   return {
     ok: true,
-    mensaje: "Reservación registrada correctamente",
+    mensaje: resultado,
     codigo: codigoAcceso
   };
 };
 
+const listarMesasDisponiblesService = async (fechaReserva, horaReserva) => {
+  if (!fechaReserva || typeof fechaReserva !== "string" || !fechaReserva.trim() || !validarFormatoFecha(fechaReserva)) {
+    throw Object.assign(new Error("Se necesita la fecha de reserva"), { status: 400 });
+  }
+  if (!horaReserva || typeof horaReserva !== "string" || !horaReserva.trim() || !validarFormatoHora(horaReserva)) {
+    throw Object.assign(new Error("Se necesita la hora de reserva"), { status: 400 });
+  }
+  const horaFormateada = convertirA24Horas(horaReserva);
+  const mesasDisponibles = await listarMesasDisponiblesModel(fechaReserva, horaFormateada);
+  return {
+    ok: true,
+    mesas: mesasDisponibles
+  }
+}
+
 module.exports = {
-  registrarReservacionService
+  registrarReservacionService,
+  listarMesasDisponiblesService
 };

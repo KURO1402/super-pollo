@@ -28,7 +28,7 @@ BEGIN
             AND @horaFin > r.horaInicio
         )
     );
-END//
+END //
 
 /* PROCEDIMIENTO ALMACENADO registrarReservacion */
 CREATE PROCEDURE registrarReservacion(

@@ -1,7 +1,8 @@
 const express = require("express");
 
 const {
-  registrarReservacionController
+  registrarReservacionController,
+  listarMesasDisponiblesController
 } = require("./reservacionesControlador.js");
 
 //const { crearPreferencia } = require("../../servicios/mercadoPago.js");
@@ -14,8 +15,8 @@ const router = express.Router();
 
 router.post("/registrar-reservacion", autenticacionToken, registrarReservacionController);
 
-/*router.get("/", autenticacionToken, verificarRoles(1,2), listarReservacionesController);
-router.get("/reservas-usuario", autenticacionToken, obtenerReservasPorUsuarioController);
+router.get("/mesas-disponibles", autenticacionToken, listarMesasDisponiblesController);
+/*router.get("/reservas-usuario", autenticacionToken, obtenerReservasPorUsuarioController);
 
 router.get("/:id", autenticacionToken, verificarRoles(1,2), obtenerReservacionController);
 
