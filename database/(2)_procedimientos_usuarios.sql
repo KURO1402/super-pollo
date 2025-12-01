@@ -5,7 +5,6 @@ DROP PROCEDURE IF EXISTS insertarRol;
 DROP PROCEDURE IF EXISTS listarRoles;
 DROP PROCEDURE IF EXISTS obtenerRolPorId;
 DROP PROCEDURE IF EXISTS actualizarRol;
-DROP PROCEDURE IF EXISTS listarTipoDocumento;
 DROP PROCEDURE IF EXISTS listarUsuariosPaginacion;
 DROP PROCEDURE IF EXISTS actualizarUsuario;
 DROP PROCEDURE IF EXISTS actualizarClaveUsuario;
@@ -16,9 +15,7 @@ DROP PROCEDURE IF EXISTS obtenerClaveUsuario;
 DROP PROCEDURE IF EXISTS listarUsuarios;
 DROP PROCEDURE IF EXISTS buscarUsuariosPorValor;
 DROP PROCEDURE IF EXISTS contarUsuariosActivos;
-DROP PROCEDURE IF EXISTS contarTipoDocumentoPorId;
 DROP PROCEDURE IF EXISTS actualizarRolUsuario;
-DROP PROCEDURE IF EXISTS obtenerTipoDocumentoPorId;
 
 DELIMITER //
 
@@ -82,27 +79,16 @@ BEGIN
 END //
 
 /* ============================================================
-   📁 SECCIÓN 2: TIPO DE DOCUMENTO
-   ============================================================ */
-
-CREATE PROCEDURE listarTipoDocumento()
-BEGIN
-    SELECT idTipoDocumento, nombreTipoDocumento
-    FROM tipodocumento;
-END //
-
-/* ============================================================
    📁 SECCIÓN 3: USUARIOS
    ============================================================ */
 
 -- Procedimiento para actualizar datos de un usuario
+--Modificado
 CREATE PROCEDURE actualizarUsuario(
     IN p_idUsuario INT,
     IN p_nombresUsuario VARCHAR(50),
     IN p_apellidosUsuario VARCHAR(50),
-    IN p_numeroDocumentoUsuario VARCHAR(12),
-    IN p_telefonoUsuario VARCHAR(15),
-    IN p_idTipoDocumento INT
+    IN p_telefonoUsuario VARCHAR(15)
 )
 BEGIN
     -- 🔹 Manejador de errores SQL
@@ -120,9 +106,7 @@ BEGIN
     SET 
         nombresUsuario = p_nombresUsuario,
         apellidosUsuario = p_apellidosUsuario,
-        numeroDocumentoUsuario = p_numeroDocumentoUsuario,
-        telefonoUsuario = p_telefonoUsuario,
-        idTipoDocumento = p_idTipoDocumento
+        telefonoUsuario = p_telefonoUsuario
     WHERE idUsuario = p_idUsuario;
 
     COMMIT;
@@ -227,6 +211,7 @@ BEGIN
     WHERE idUsuario = p_idUsuario;
 END //
 
+--Modificado
 CREATE PROCEDURE listarUsuarios(
     IN p_idUsuario INT
 )
@@ -236,20 +221,17 @@ BEGIN
         u.nombresUsuario,
         u.apellidosUsuario,
         u.correoUsuario,
-        u.numeroDocumentoUsuario,
         u.telefonoUsuario,
         u.idRol,
-        r.nombreRol,
-        u.idTipoDocumento,
-        td.nombreTipoDocumento
+        r.nombreRol
     FROM usuarios u
     LEFT JOIN rolusuarios r ON u.idRol = r.idRol
-    LEFT JOIN tipodocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
       AND u.idUsuario <> p_idUsuario
     ORDER BY u.idUsuario DESC;
 END //
 
+--Modificado
 CREATE PROCEDURE listarUsuariosPaginacion(
     IN p_limit INT,
     IN p_offset INT,
@@ -261,21 +243,18 @@ BEGIN
         u.nombresUsuario,
         u.apellidosUsuario,
         u.correoUsuario,
-        u.numeroDocumentoUsuario,
         u.telefonoUsuario,
         u.idRol,
-        r.nombreRol,
-        u.idTipoDocumento,
-        td.nombreTipoDocumento
+        r.nombreRol
     FROM usuarios u
     LEFT JOIN rolusuarios r ON u.idRol = r.idRol
-    LEFT JOIN tipodocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
       AND u.idUsuario <> p_idUsuario
     ORDER BY u.idUsuario DESC
     LIMIT p_limit OFFSET p_offset;
 END //
 
+--Modificado
 CREATE PROCEDURE seleccionarUsuarioId(
     IN p_idUsuario INT
 )
@@ -285,19 +264,16 @@ BEGIN
         u.nombresUsuario,
         u.apellidosUsuario,
         u.correoUsuario,
-        u.numeroDocumentoUsuario,
         u.telefonoUsuario,
         u.idRol,
-        r.nombreRol,
-        u.idTipoDocumento,
-        td.nombreTipoDocumento
+        r.nombreRol
     FROM usuarios u
     LEFT JOIN rolusuarios r ON u.idRol = r.idRol
-    LEFT JOIN tipodocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
       AND u.idUsuario = p_idUsuario;
 END //
 
+--Modificado
 CREATE PROCEDURE buscarUsuariosPorValor(
     IN p_valor VARCHAR(100),
     IN p_idUsuario INT
@@ -308,15 +284,11 @@ BEGIN
         u.nombresUsuario,
         u.apellidosUsuario,
         u.correoUsuario,
-        u.numeroDocumentoUsuario,
         u.telefonoUsuario,
         u.idRol,
-        r.nombreRol,
-        u.idTipoDocumento,
-        td.nombreTipoDocumento
+        r.nombreRol
     FROM usuarios u
     LEFT JOIN rolusuarios r ON u.idRol = r.idRol
-    LEFT JOIN tipodocumento td ON u.idTipoDocumento = td.idTipoDocumento
     WHERE u.estadoUsuario = 1
       AND u.idUsuario <> p_idUsuario
       AND (
@@ -333,16 +305,6 @@ BEGIN
     SELECT COUNT(*) AS totalUsuariosActivos
     FROM usuarios
     WHERE estadoUsuario = 1;
-END //
-
-
-CREATE PROCEDURE contarTipoDocumentoPorId(
-    IN p_idTipoDocumento INT
-)
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM tipodocumento
-    WHERE idTipoDocumento = p_idTipoDocumento;
 END //
 
 CREATE PROCEDURE actualizarRolUsuario(
@@ -367,17 +329,6 @@ BEGIN
     COMMIT;
     
     SELECT 'Rol de usuario cambiado exitosamente' AS mensaje;
-END //
-
-CREATE PROCEDURE obtenerTipoDocumentoPorId(
-    IN p_idTipoDocumento INT
-)
-BEGIN
-    SELECT 
-        idTipoDocumento,
-        nombreTipoDocumento
-    FROM tipodocumento
-    WHERE idTipoDocumento = p_idTipoDocumento;
 END //
 
 DELIMITER ;

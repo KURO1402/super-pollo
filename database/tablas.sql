@@ -8,11 +8,6 @@ CREATE TABLE rolUsuarios (
     nombreRol VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE tipoDocumento (
-    idTipoDocumento INT PRIMARY KEY AUTO_INCREMENT,
-    nombreTipoDocumento VARCHAR(50) NOT NULL
-);
-
 CREATE TABLE medioPago (
     idMedioPago INT PRIMARY KEY AUTO_INCREMENT,
     nombreMedioPago VARCHAR(50) NOT NULL
@@ -31,19 +26,17 @@ CREATE TABLE correlativos (
     FOREIGN KEY (idTipoComprobante) REFERENCES tipoComprobantes(idTipoComprobante),
     UNIQUE KEY (idTipoComprobante)
 );
+--Modificado
 CREATE TABLE usuarios (
     idUsuario INT PRIMARY KEY AUTO_INCREMENT,
     nombresUsuario VARCHAR(50) NOT NULL,
     apellidosUsuario VARCHAR(50) NOT NULL,
     correoUsuario VARCHAR(50) NOT NULL UNIQUE,
     clave CHAR(60) NOT NULL,
-    numeroDocumentoUsuario VARCHAR(12) NOT NULL,
-    telefonoUsuario VARCHAR(15) NOT NULL,
+    telefonoUsuario VARCHAR(15) NULL,
     estadoUsuario TINYINT(1) NOT NULL DEFAULT 1,
     idRol INT DEFAULT 3,
-    idTipoDocumento INT,
-    FOREIGN KEY (idRol) REFERENCES rolUsuarios(idRol),
-    FOREIGN KEY (idTipoDocumento) REFERENCES tipoDocumento(idTipoDocumento)
+    FOREIGN KEY (idRol) REFERENCES rolUsuarios(idRol)
 );
 
 CREATE TABLE verificacionCorreos (
@@ -253,12 +246,6 @@ INSERT INTO rolUsuarios (nombreRol) VALUES
 ('Superadministrador'), 
 ('Administrador'), 
 ('Usuario');
-
--- Insertar tipos de documento
-INSERT INTO tipoDocumento (nombreTipoDocumento) VALUES 
-('DNI'), 
-('Carné de extranjería'), 
-('RUC');
 
 -- Insertar tipos de comprobantes
 INSERT INTO tipoComprobantes (nombreTipoComprobante, serie) VALUES

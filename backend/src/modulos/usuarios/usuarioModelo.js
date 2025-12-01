@@ -65,7 +65,7 @@ const  consultarUsuarioPorIdModel = async (id) => {
         if (conexion) conexion.release();
     }
 };
-
+//Modificado
 const actualizarUsuarioModel = async (datos, idUsuario) => {
     let conexion;
     try {
@@ -74,20 +74,16 @@ const actualizarUsuarioModel = async (datos, idUsuario) => {
         const {
             nombresUsuario,
             apellidosUsuario,
-            numeroDocumentoUsuario,
-            telefonoUsuario,
-            idTipoDocumento
+            telefonoUsuario
         } = datos;
 
         const [rows] = await conexion.execute(
-            "CALL actualizarUsuario(?, ?, ?, ?, ?, ?)",
+            "CALL actualizarUsuario(?, ?, ?, ?)",
             [
                 idUsuario,
                 nombresUsuario,
                 apellidosUsuario,
-                numeroDocumentoUsuario,
-                telefonoUsuario,
-                idTipoDocumento
+                telefonoUsuario
             ]
         );
 
@@ -159,7 +155,7 @@ const eliminarUsuarioModel = async (idUsuario, estado) => {
     } catch (error) {
         throw new Error("Error al eliminar el usaurio en la base de datos.");
     } finally {
-        if (conexion) conexion.release
+        if (conexion) conexion.release();
     }
 };
 
@@ -174,7 +170,7 @@ const recuperarUsuarioModel = async (idUsuario, estado) => {
     } catch (error) {
         throw new Error("Error al recuperar usuario de la base de datos.");
     } finally {
-        if (conexion) conexion.release
+        if (conexion) conexion.release();
     }
 };
 
@@ -231,25 +227,6 @@ const contarUsuariosActivosModel = async () => {
     }
 };
 
-const contarTipoDocumentoPorIdModel = async (idTipoDocumento) => {
-    let conexion;
-    try {
-        conexion = await pool.getConnection();
-
-        const [result] = await conexion.execute(
-            "CALL contarTipoDocumentoPorId(?)",
-            [idTipoDocumento]
-        );
-
-        return result[0][0]?.total || 0;
-
-    } catch (err) {
-        throw new Error("Error al obtener el numero total de tipos de documento.");
-    } finally {
-        if (conexion) conexion.release();
-    }
-};
-
 const actualizarRolUsuarioModel = async (idUsuario, idRolNuevo) => {
     let conexion;
     try {
@@ -264,23 +241,6 @@ const actualizarRolUsuarioModel = async (idUsuario, idRolNuevo) => {
 
     } catch (err) {
         throw new Error("Error al actualizar el rol del usuario en la base de datos.");
-    } finally {
-        if (conexion) conexion.release();
-    }
-};
-
-const obtenerTipoDocumentoPorIdModel = async (idTipoDocumento) => {
-    let conexion;
-    try {
-        conexion = await pool.getConnection();
-        const [rows] = await conexion.execute(
-            "CALL obtenerTipoDocumentoPorId(?)",
-            [idTipoDocumento]
-        );
-        return rows[0][0]; // el primer resultset
-    } catch (err) {
-        console.error("Error en obtenerTipoDocumentoPorIdModel:", err.message);
-        throw new Error("Error al obtener tipo de documento.");
     } finally {
         if (conexion) conexion.release();
     }
@@ -302,7 +262,5 @@ module.exports = {
     listarUsuariosPaginacionModel,
     buscarUsuariosPorValorModel,
     contarUsuariosActivosModel,
-    contarTipoDocumentoPorIdModel,
-    actualizarRolUsuarioModel,
-    obtenerTipoDocumentoPorIdModel
+    actualizarRolUsuarioModel
 }

@@ -1,4 +1,4 @@
-const { validarTelefono, validarDocumento, validarCorreo} = require("../../utilidades/validaciones");
+const { validarTelefono, validarCorreo} = require("../../utilidades/validaciones");
 
 const validarActualizarUsuario = (datos, idUsuario) => {
     if (!datos || typeof datos !== "object") {
@@ -11,9 +11,7 @@ const validarActualizarUsuario = (datos, idUsuario) => {
     const {
         nombresUsuario,
         apellidosUsuario,
-        numeroDocumentoUsuario,
-        telefonoUsuario,
-        idTipoDocumento
+        telefonoUsuario
     } = datos;
 
     if (!idUsuario || typeof idUsuario !== "number") {
@@ -37,28 +35,26 @@ const validarActualizarUsuario = (datos, idUsuario) => {
         );
     }
 
-    if (!numeroDocumentoUsuario || typeof numeroDocumentoUsuario !== "string" || !numeroDocumentoUsuario.trim()) {
+    // VALIDACIÓN TELEFONO
+    // Caso 1: El usuario NO envió telefono (no modificarlo)
+    if (telefonoUsuario === undefined) {
+        return;
+    }
+
+    // Caso 2: El usuario quiere borrar el telefono ("" o null)
+    if (telefonoUsuario === "" || telefonoUsuario === null) {
+        datos.telefonoUsuario = null;
+        return;
+    }
+
+    // Caso 3: El usuario envió un número → debe validarse
+    if (typeof telefonoUsuario !== "string" || !telefonoUsuario.trim()) {
         throw Object.assign(
-            new Error("El número de documento es obligatorio y debe ser un texto válido"),
+            new Error("El teléfono debe ser un texto válido"),
             { status: 400 }
         );
     }
 
-    if (!telefonoUsuario || typeof telefonoUsuario !== "string" || !telefonoUsuario.trim()) {
-        throw Object.assign(
-            new Error("El teléfono del usuario es obligatorio y debe ser un texto válido"),
-            { status: 400 }
-        );
-    }
-
-    if (!idTipoDocumento || typeof idTipoDocumento !== "number") {
-        throw Object.assign(
-            new Error("El tipo de documento es obligatorio y debe ser numérico"),
-            { status: 400 }
-        );
-    }
-
-    validarDocumento(idTipoDocumento, numeroDocumentoUsuario);
     validarTelefono(telefonoUsuario);
 };
 
