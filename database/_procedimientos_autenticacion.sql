@@ -15,9 +15,7 @@ CREATE PROCEDURE insertarUsuario(
     IN p_apellidosUsuario VARCHAR(50),
     IN p_correoUsuario VARCHAR(50),
     IN p_clave CHAR(60),
-    IN p_numeroDocumentoUsuario VARCHAR(12),
-    IN p_telefonoUsuario VARCHAR(15),
-    IN p_idTipoDocumento INT
+    IN p_telefonoUsuario VARCHAR(15)
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -34,18 +32,14 @@ BEGIN
         apellidosUsuario, 
         correoUsuario, 
         clave, 
-        numeroDocumentoUsuario, 
-        telefonoUsuario, 
-        idTipoDocumento
+        telefonoUsuario
     )
     VALUES (
         p_nombresUsuario, 
         p_apellidosUsuario, 
         p_correoUsuario, 
-        p_clave, 
-        p_numeroDocumentoUsuario, 
-        p_telefonoUsuario, 
-        p_idTipoDocumento
+        p_clave,
+        p_telefonoUsuario
     );
 
     SELECT 

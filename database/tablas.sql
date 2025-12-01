@@ -26,7 +26,7 @@ CREATE TABLE correlativos (
     FOREIGN KEY (idTipoComprobante) REFERENCES tipoComprobantes(idTipoComprobante),
     UNIQUE KEY (idTipoComprobante)
 );
---Modificado
+-- Modificado
 CREATE TABLE usuarios (
     idUsuario INT PRIMARY KEY AUTO_INCREMENT,
     nombresUsuario VARCHAR(50) NOT NULL,

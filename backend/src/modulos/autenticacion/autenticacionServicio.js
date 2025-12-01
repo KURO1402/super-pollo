@@ -11,16 +11,11 @@ const {
   actualizarVerificacionCorreoModel 
 } = require("./autenticacionModelo.js");
 
-const { obtenerTipoDocumentoPorIdModel } = require("../usuarios/usuarioModelo");
 const { validarCorreo } = require('../../utilidades/validaciones.js');
 const enviarCorreoVerificacion = require("../../helpers/enviarCorreo")
 
 const registrarUsuarioService = async (datos) => {
   registrarUsuarioValidacion(datos);
-  const tipoDoc = await obtenerTipoDocumentoPorIdModel(datos.idTipoDocumento);
-  if(!tipoDoc || tipoDoc.nombreTipoDocumento === "RUC" || tipoDoc.nombreTipoDocumento === "ruc"){
-    throw Object.assign(new Error("Tipo de documento invalido."), { status: 409 });
-  }
   const usuarioExistente = await seleccionarUsuarioCorreoModel(datos.correoUsuario);
 
   if (usuarioExistente.length > 0) {

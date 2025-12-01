@@ -1,4 +1,4 @@
-const { validarCorreo, validarDocumento, validarTelefono } = require("../../utilidades/validaciones.js");
+const { validarCorreo, validarTelefono } = require("../../utilidades/validaciones.js");
 
 const registrarUsuarioValidacion = (datos) => {
   const lanzarError = (mensaje, status = 400) => {
@@ -14,9 +14,6 @@ const registrarUsuarioValidacion = (datos) => {
     "apellidosUsuario",
     "correoUsuario",
     "clave",
-    "numeroDocumentoUsuario",
-    "telefonoUsuario",
-    "idTipoDocumento",
     "aceptoTerminos"
   ];
 
@@ -29,8 +26,10 @@ const registrarUsuarioValidacion = (datos) => {
   }
 
   validarCorreo(datos.correoUsuario);
-  validarDocumento(datos.idTipoDocumento, datos.numeroDocumentoUsuario);
-  validarTelefono(datos.telefonoUsuario);
+  
+  if (datos.telefonoUsuario) {
+    validarTelefono(datos.telefonoUsuario);
+  }
 
   if (datos.clave.length < 8) {
     lanzarError("La contraseña debe tener al menos 8 caracteres.");

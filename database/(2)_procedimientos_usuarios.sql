@@ -83,7 +83,7 @@ END //
    ============================================================ */
 
 -- Procedimiento para actualizar datos de un usuario
---Modificado
+-- Modificado
 CREATE PROCEDURE actualizarUsuario(
     IN p_idUsuario INT,
     IN p_nombresUsuario VARCHAR(50),
@@ -211,7 +211,7 @@ BEGIN
     WHERE idUsuario = p_idUsuario;
 END //
 
---Modificado
+-- Modificado
 CREATE PROCEDURE listarUsuarios(
     IN p_idUsuario INT
 )
@@ -231,7 +231,7 @@ BEGIN
     ORDER BY u.idUsuario DESC;
 END //
 
---Modificado
+-- Modificado
 CREATE PROCEDURE listarUsuariosPaginacion(
     IN p_limit INT,
     IN p_offset INT,
@@ -254,7 +254,7 @@ BEGIN
     LIMIT p_limit OFFSET p_offset;
 END //
 
---Modificado
+-- Modificado
 CREATE PROCEDURE seleccionarUsuarioId(
     IN p_idUsuario INT
 )
@@ -273,7 +273,7 @@ BEGIN
       AND u.idUsuario = p_idUsuario;
 END //
 
---Modificado
+-- Modificado
 CREATE PROCEDURE buscarUsuariosPorValor(
     IN p_valor VARCHAR(100),
     IN p_idUsuario INT

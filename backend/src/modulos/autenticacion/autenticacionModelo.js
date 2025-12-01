@@ -2,32 +2,30 @@ const pool = require("../../config/conexionDB.js");
 
 const registrarUsuarioModel = async (datos, claveEncriptada) => {
 
-    const { nombresUsuario,
+    const { 
+        nombresUsuario,
         apellidosUsuario,
         correoUsuario,
-        numeroDocumentoUsuario,
-        telefonoUsuario,
-        idTipoDocumento } = datos;
+        telefonoUsuario 
+    } = datos;
 
     let conexion;
     try {
         conexion = await pool.getConnection();
 
-        const [result] = await conexion.execute("CALL insertarUsuario(?, ? ,?, ?, ?, ?, ?)",
+        const [result] = await conexion.execute("CALL insertarUsuario(?, ? ,?, ?, ?)",
             [
                 nombresUsuario,
                 apellidosUsuario,
                 correoUsuario,
                 claveEncriptada,
-                numeroDocumentoUsuario,
-                telefonoUsuario,
-                idTipoDocumento,
+                telefonoUsuario || null 
             ]
         );
 
         const usuarioNuevo = result[0][0]
-
         return usuarioNuevo;
+
     } catch (err) {
 
         throw new Error("Error al insertar usuario en la base de datos");
@@ -74,7 +72,7 @@ const validarCodigoVerificacionCorreoModel = async (correo, codigo) => {
 
     } finally {
 
-        conexion.release();
+        if (conexion) conexion.release();
 
     }
 };
@@ -99,7 +97,7 @@ const actualizarVerificacionCorreoModel = async (correo, codigo) => {
 
     } finally {
 
-        conexion.release();
+        if (conexion) conexion.release();
 
     }
 };
