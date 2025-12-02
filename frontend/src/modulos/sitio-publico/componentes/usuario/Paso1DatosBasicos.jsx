@@ -4,7 +4,7 @@ import { FiClock, FiUsers, FiChevronLeft, FiChevronRight, FiCalendar, FiAlertCir
 import { horasDisponibles } from '../../mocks/horaReserva';
 
 const Paso1DatosBasicos = () => {
-  const { register, formState: { errors }, watch, setValue, trigger } = useFormContext();
+  const { register, formState: { errors }, watch, setValue, trigger, setError, clearErrors } = useFormContext();
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
   const [diasVisibles, setDiasVisibles] = useState([]);
   const [indiceInicio, setIndiceInicio] = useState(0);
@@ -15,7 +15,7 @@ const Paso1DatosBasicos = () => {
   const personasForm = watch('personas') || 2;
   const fechaForm = watch('fecha');
 
-  // Función para ajustar número de días visibles según el ancho de pantalla
+  // Ajustar número de días visibles según el ancho de pantalla
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) { 
@@ -27,37 +27,35 @@ const Paso1DatosBasicos = () => {
       }
     };
 
-    handleResize(); // Ejecutar al montar
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Funcion para verificar si hoy ya paso el horario de reservas
+  // Verificar si hoy ya pasó el horario de reservas
   const hoyEstaDisponible = () => {
     const ahora = new Date();
     const horaActual = ahora.getHours();
-    // Si ya paso de las 8pm hoy no está disponible
-    return horaActual < 20;
+    return horaActual < 20; // Si ya pasó de las 8pm, hoy no está disponible
   };
 
-  // Función para validar si una hora esta disponible para reserva
+  // Validar si una hora está disponible para reserva
   const validarDisponibilidadHora = (fecha, hora) => {
     const ahora = new Date();
     const fechaReserva = new Date(`${fecha}T${hora}:00`);
     
-    // Si es para hoy verificar antelación minima de 2 horas
     const hoy = new Date();
     const esHoy = fecha === hoy.toISOString().split('T')[0];
     
     if (esHoy) {
       const diferenciaHoras = (fechaReserva - ahora) / (1000 * 60 * 60);
-      return diferenciaHoras >= 2;
+      return diferenciaHoras >= 2; // Mínimo 2 horas de anticipación
     }
     
-    // Para dias futuros todas las horas están disponibles
     return true;
   };
 
+  // Filtrar horarios disponibles según la fecha
   useEffect(() => {
     if (fechaForm) {
       const horariosFiltrados = horasDisponibles.map(horario => ({
@@ -73,6 +71,7 @@ const Paso1DatosBasicos = () => {
     }
   }, [fechaForm, horaForm, setValue]);
 
+  // Generar días disponibles
   useEffect(() => {
     const dias = [];
     const hoy = new Date();
@@ -83,7 +82,7 @@ const Paso1DatosBasicos = () => {
     for (let i = diaInicial; i < 14 + diaInicial; i++) {
       const fecha = new Date(hoy);
       fecha.setDate(hoy.getDate() + i);
-      dias.push({
+      dias.push({ 
         fecha: fecha,
         dia: fecha.getDate(),
         mes: fecha.toLocaleDateString('es-ES', { month: 'short' }),
@@ -124,22 +123,35 @@ const Paso1DatosBasicos = () => {
 
   const calcularMensajePersonas = (personas) => {
     if (personas <= 4) {
-      return null;
-    } else if (personas === 5) {
       return {
         tipo: 'info',
-        texto: 'Puedes agregar una silla adicional a tu mesa'
+        texto: 'Puedes elegir una mesa de 4 personas',
+        icono: '✓'
       };
-    } else if (personas < 12) {
-      const mesasNecesarias = Math.ceil(personas / 4);
+    } else if (personas <= 8) {
+      return {
+        tipo: 'success',
+        texto: 'Puedes elegir una mesa de 8 personas',
+        icono: '✓'
+      };
+    } else if (personas <= 12) {
+      const mesasNecesarias = Math.ceil(personas / 8);
       return {
         tipo: 'warning',
-        texto: `Necesitarás reservar ${mesasNecesarias} mesas (capacidad máxima: 4 personas por mesa)`
+        texto: `Necesitarás aproximadamente ${mesasNecesarias} mesas para ${personas} personas`,
+        icono: '⚠️'
+      };
+    } else if (personas <= 16) {
+      return {
+        tipo: 'warning',
+        texto: 'Necesitarás múltiples mesas. Te recomendamos 2 mesas de 8 personas',
+        icono: '⚠️'
       };
     } else {
       return {
         tipo: 'error',
-        texto: 'Para grupos mayores a 12 personas, contacta directamente con el restaurante'
+        texto: 'Para grupos mayores a 16 personas, contacta directamente con el restaurante',
+        icono: '📞'
       };
     }
   };
@@ -221,6 +233,7 @@ const Paso1DatosBasicos = () => {
         })} 
       />
 
+      {/* SELECTOR DE FECHA */}
       <div className="bg-gray-800 rounded-xl lg:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-700">
         <div className="mb-4 sm:mb-6">
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
@@ -255,7 +268,6 @@ const Paso1DatosBasicos = () => {
               const ahora = new Date();
               const fechaDia = new Date(dia.isoString);
               const esPasado = fechaDia < new Date(ahora.toISOString().split('T')[0]);
-              const esHoyDia = dia.esHoy;
               
               return (
                 <button
@@ -280,16 +292,6 @@ const Paso1DatosBasicos = () => {
                   <div className="text-[10px] sm:text-xs uppercase opacity-80">
                     {dia.mes}
                   </div>
-                  {esHoyDia && (
-                    <div className="text-[8px] sm:text-[10px] text-green-400 mt-0.5 sm:mt-1">
-                      Hoy
-                    </div>
-                  )}
-                  {esPasado && (
-                    <div className="text-[8px] sm:text-[10px] text-red-400 mt-0.5 sm:mt-1">
-                      No disp.
-                    </div>
-                  )}
                 </button>
               );
             })}
@@ -323,6 +325,7 @@ const Paso1DatosBasicos = () => {
         )}
       </div>
 
+      {/* SELECTOR DE HORA */}
       <div className="bg-gray-800 rounded-xl lg:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-700">
         <div className="mb-4 sm:mb-6">
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
@@ -378,6 +381,7 @@ const Paso1DatosBasicos = () => {
         )}
       </div>
 
+      {/* SELECTOR DE PERSONAS */}
       <div className="bg-gray-800 rounded-xl lg:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-700">
         <div className="mb-4 sm:mb-6">
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
@@ -419,13 +423,13 @@ const Paso1DatosBasicos = () => {
           <button
             type="button"
             onClick={() => {
-              if (personasForm < 12) {
+              if (personasForm < 20) {
                 setValue('personas', personasForm + 1, { shouldValidate: true });
               }
             }}
-            disabled={personasForm >= 12}
+            disabled={personasForm >= 20}
             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full font-bold text-xl sm:text-2xl transition-all flex-shrink-0 ${
-              personasForm >= 12
+              personasForm >= 20
                 ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                 : 'bg-green-600 text-white hover:bg-green-700 active:scale-95'
             }`}
@@ -439,7 +443,7 @@ const Paso1DatosBasicos = () => {
           {...register("personas", { 
             required: "El número de personas es requerido",
             min: { value: 2, message: "Mínimo 2 personas" },
-            max: { value: 12, message: "Máximo 12 personas para reserva online" },
+            max: { value: 20, message: "Máximo 20 personas para reserva online" },
             valueAsNumber: true
           })}
         />
@@ -448,6 +452,8 @@ const Paso1DatosBasicos = () => {
           <div className={`mt-4 sm:mt-6 p-3 sm:p-4 rounded-lg sm:rounded-xl text-center ${
             mensajePersonas.tipo === 'info' 
               ? 'bg-blue-600/10 border border-blue-600/30' 
+              : mensajePersonas.tipo === 'success'
+              ? 'bg-green-600/10 border border-green-600/30'
               : mensajePersonas.tipo === 'warning'
               ? 'bg-yellow-600/10 border border-yellow-600/30'
               : 'bg-red-600/10 border border-red-600/30'
@@ -455,11 +461,13 @@ const Paso1DatosBasicos = () => {
             <p className={`text-xs sm:text-sm font-medium ${
               mensajePersonas.tipo === 'info' 
                 ? 'text-blue-400' 
+                : mensajePersonas.tipo === 'success'
+                ? 'text-green-400'
                 : mensajePersonas.tipo === 'warning'
                 ? 'text-yellow-400'
                 : 'text-red-400'
             }`}>
-              {mensajePersonas.texto}
+              {mensajePersonas.icono} {mensajePersonas.texto}
             </p>
           </div>
         )}
