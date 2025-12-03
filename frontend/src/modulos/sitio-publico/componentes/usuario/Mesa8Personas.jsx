@@ -1,18 +1,17 @@
-import React from 'react';
 import { FiCheck, FiUsers } from 'react-icons/fi';
 
 const Mesa8Personas = ({ 
-  numero, 
-  id, 
-  seleccionada = false, 
-  disponible = true,
-  onClick 
-}) => {
-  const handleClick = () => {
-    if (disponible && onClick) {
-      onClick({ id, numero, capacidad: 8 });
-    }
-  };
+    numero, 
+    id, 
+    seleccionada = false, 
+    disponible = true,
+    onClick 
+  }) => {
+    const handleClick = () => {
+      if (disponible && onClick) {
+        onClick({ id, numero, capacidad: 8 });
+      }
+    };
 
   return (
     <button
@@ -21,7 +20,6 @@ const Mesa8Personas = ({
       disabled={!disponible}
       className="relative w-85 h-35 group" 
     >
-      {/* Fondo con efecto de iluminación */}
       <div className={`absolute inset-0 rounded-2xl transition-all duration-300 transform
         ${seleccionada 
           ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-xl shadow-amber-500/30' 
@@ -42,8 +40,7 @@ const Mesa8Personas = ({
             : 'border-gray-700'
         }`}>
         
-        {/* Sillas superiores (4 sillas) - POSICIONES FIJAS Y MEJOR DISTRIBUIDAS */}
-        {/* Silla superior izquierda 1 */}
+        {/* Silla superior izquierda  */}
         <div className="absolute -top-6 left-8">
           <div className={`w-6 h-5 rounded-md transition-all duration-300 relative
             ${seleccionada 
@@ -56,7 +53,7 @@ const Mesa8Personas = ({
           </div>
         </div>
         
-        {/* Silla superior izquierda 2 */}
+        {/* Silla superior derech */}
         <div className="absolute -top-6 left-24">
           <div className={`w-6 h-5 rounded-md transition-all duration-300 relative
             ${seleccionada 
@@ -69,7 +66,7 @@ const Mesa8Personas = ({
           </div>
         </div>
         
-        {/* Silla superior derecha 1 */}
+        {/* Silla superior derecha */}
         <div className="absolute -top-6 right-24">
           <div className={`w-6 h-5 rounded-md transition-all duration-300 relative
             ${seleccionada 
@@ -82,7 +79,7 @@ const Mesa8Personas = ({
           </div>
         </div>
         
-        {/* Silla superior derecha 2 */}
+        {/* Silla superior derecha */}
         <div className="absolute -top-6 right-8">
           <div className={`w-6 h-5 rounded-md transition-all duration-300 relative
             ${seleccionada 

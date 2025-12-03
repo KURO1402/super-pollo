@@ -20,7 +20,6 @@ const Mesa4Personas = ({
       disabled={!disponible}
       className="relative w-45 h-35 group"
     >
-      {/* Fondo con efecto de iluminación */}
       <div className={`absolute inset-0 rounded-2xl transition-all duration-300 transform
         ${seleccionada 
           ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-xl shadow-red-500/30' 
@@ -41,7 +40,7 @@ const Mesa4Personas = ({
             : 'border-gray-700'
         }`}>
         
-        {/* Silla superior izquierda - POSICIONADA EN LA ESQUINA */}
+        {/* Silla superior izquierda*/}
         <div className="absolute -top-4 left-4"> {/* Posición fija en lugar de porcentaje */}
           <div className={`w-6 h-5 rounded-md transition-all duration-300 relative
             ${seleccionada 
@@ -57,7 +56,7 @@ const Mesa4Personas = ({
         </div>
         
         {/* Silla superior derecha */}
-        <div className="absolute -top-4 right-4"> {/* Posición fija */}
+        <div className="absolute -top-4 right-4">
           <div className={`w-6 h-5 rounded-md transition-all duration-300 relative
             ${seleccionada 
               ? 'bg-gradient-to-b from-red-300 to-red-400 shadow-md shadow-red-300/30' 
@@ -70,7 +69,7 @@ const Mesa4Personas = ({
         </div>
         
         {/* Silla inferior izquierda */}
-        <div className="absolute -bottom-4 left-4"> {/* Posición fija */}
+        <div className="absolute -bottom-4 left-4"> 
           <div className={`w-6 h-5 rounded-md transition-all duration-300 relative
             ${seleccionada 
               ? 'bg-gradient-to-t from-red-300 to-red-400 shadow-md shadow-red-300/30' 
@@ -78,14 +77,13 @@ const Mesa4Personas = ({
             }`}>
             {/* Respaldo de la silla */}
             <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-4 h-1.5 rounded-b-md bg-gradient-to-t from-gray-800 to-gray-700"></div>
-            {/* Patas de la silla */}
             <div className="absolute -top-0.5 left-1/4 w-1 h-0.5 rounded-t bg-gray-800"></div>
             <div className="absolute -top-0.5 right-1/4 w-1 h-0.5 rounded-t bg-gray-800"></div>
           </div>
         </div>
         
         {/* Silla inferior derecha */}
-        <div className="absolute -bottom-4 right-4"> {/* Posición fija */}
+        <div className="absolute -bottom-4 right-4">
           <div className={`w-6 h-5 rounded-md transition-all duration-300 relative
             ${seleccionada 
               ? 'bg-gradient-to-t from-red-300 to-red-400 shadow-md shadow-red-300/30' 
@@ -97,7 +95,6 @@ const Mesa4Personas = ({
           </div>
         </div>
         
-        {/* Mesa central con efecto 3D */}
         <div className={`absolute inset-4 flex items-center justify-center rounded-lg
           ${seleccionada ? 'bg-gradient-to-br from-red-400/90 to-red-500/90' : 'bg-gradient-to-br from-gray-700 to-gray-800'}`}>
           

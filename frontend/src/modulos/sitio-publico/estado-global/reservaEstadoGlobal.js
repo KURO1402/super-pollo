@@ -8,28 +8,27 @@ export const reservaEstadoGlobal = create((set, get) => ({
     fecha: '',
     hora: '',
     personas: 2,
-    mesa: '',
-    productos: [],
+    mesas: [], // Array de objetos { id, numero, capacidad, piso, disponible }
   },
   
-  productosMenu: [],
   mesasDisponibles: [],
   cargandoMesas: false,
   errorMesas: null,
 
+  // Cambiar paso
   setPaso: (paso) => set({ 
     pasoActual: Math.max(1, Math.min(3, paso)) 
   }),
-  setProductosMenu: (producto) => set({ productoMenu : producto}),
   
+  // Actualizar datos de reserva
   updateDatos: (nuevosDatos) => set((state) => ({ 
     datos: { 
       ...state.datos, 
-      ...nuevosDatos,
-      productos: nuevosDatos.productos !== undefined ? nuevosDatos.productos : state.datos.productos
+      ...nuevosDatos
     } 
   })),
 
+  // Buscar mesas disponibles (opcional - para futuras implementaciones)
   buscarMesasDisponibles: async (fecha, hora) => {
     if (!fecha || !hora) {
       set({ 
@@ -46,8 +45,9 @@ export const reservaEstadoGlobal = create((set, get) => ({
       
       const mesasTransformadas = respuesta.mesas.map(mesa => ({
         id: mesa.idMesa,
-        numero: `Mesa ${mesa.numeroMesa}`,
-        capacidad: mesa.capacidad
+        numero: mesa.numeroMesa.toString(),
+        capacidad: mesa.capacidad,
+        disponible: true
       }));
 
       set({ 
@@ -65,103 +65,68 @@ export const reservaEstadoGlobal = create((set, get) => ({
     }
   },
 
+  // Limpiar mesas
   limpiarMesas: () => set({ 
     mesasDisponibles: [],
-    datos: { ...get().datos, mesa: '' }
+    datos: { ...get().datos, mesas: [] }
   }),
 
-  agregarProducto: (producto) => set((state) => {
-    const existe = state.datos.productos.find(p => p.idProducto === producto.idProducto);
-    
-    if (existe) {
-      return {
-        datos: {
-          ...state.datos,
-          productos: state.datos.productos.map(p =>
-            p.idProducto === producto.idProducto 
-              ? { ...p, cantidad: (p.cantidad || 0) + 1 } 
-              : p
-          )
-        }
-      };
-    } else {
-      return {
-        datos: {
-          ...state.datos,
-          productos: [...state.datos.productos, { 
-            ...producto, 
-            cantidad: 1 
-          }]
-        }
-      };
-    }
-  }),
-
-  quitarProducto: (productoId) => set((state) => ({
-    datos: {
-      ...state.datos,
-      productos: state.datos.productos.filter(p => p.idProducto !== productoId)
-    }
-  })),
-
-  actualizarCantidad: (productoId, nuevaCantidad) => set((state) => {
-    const cantidad = Math.max(0, parseInt(nuevaCantidad) || 0);
-    
-    if (cantidad === 0) {
-      return {
-        datos: {
-          ...state.datos,
-          productos: state.datos.productos.filter(p => p.idProducto !== productoId)
-        }
-      };
-    } else {
-      return {
-        datos: {
-          ...state.datos,
-          productos: state.datos.productos.map(p =>
-            p.idProducto === productoId ? { ...p, cantidad } : p
-          )
-        }
-      };
-    }
-  }),
-
-  getSubtotal: () => {
+  // Calcular costo total de mesas (S/ 15 por mesa)
+  getCostoMesas: () => {
     const { datos } = get();
-    return datos.productos.reduce((total, producto) => {
-      const precio = producto.precio || 0;
-      const cantidad = producto.cantidad || 0;
-      return total + (precio * cantidad);
-    }, 0);
+    const COSTO_POR_MESA = 15;
+    return (datos.mesas?.length || 0) * COSTO_POR_MESA;
   },
 
+  // Calcular anticipo (50% del costo de mesas)
   getAnticipo: () => {
-    const subtotal = get().getSubtotal();
-    return Math.round(subtotal * 0.5 * 100) / 100; 
+    const costoMesas = get().getCostoMesas();
+    return Math.round(costoMesas * 0.5 * 100) / 100; 
   },
 
+  // Obtener total (igual al costo de mesas)
   getTotal: () => {
-    return get().getSubtotal();
+    return get().getCostoMesas();
   },
 
+  // Calcular saldo pendiente
+  getSaldoPendiente: () => {
+    const total = get().getTotal();
+    const anticipo = get().getAnticipo();
+    return total - anticipo;
+  },
+
+  // Validar si puede avanzar del Paso 1
   puedeAvanzarPaso1: () => {
     const { datos } = get();
-    return datos.fecha && datos.hora && datos.mesa && datos.personas > 0;
+    return datos.fecha && datos.hora && datos.personas >= 2;
   },
 
+  // Validar si puede avanzar del Paso 2
   puedeAvanzarPaso2: () => {
     const { datos } = get();
-    return datos.productos.length > 0;
+    
+    // Verificar que haya mesas seleccionadas
+    if (!datos.mesas || datos.mesas.length === 0) {
+      return false;
+    }
+    
+    // Verificar que la capacidad total sea suficiente
+    const capacidadTotal = datos.mesas.reduce((total, mesa) => total + mesa.capacidad, 0);
+    return capacidadTotal >= datos.personas;
   },
 
+  // Resetear reserva
   resetReserva: () => set({
     pasoActual: 1,
     datos: {
       fecha: '',
       hora: '',
       personas: 2,
-      mesa: '',
-      productos: [],
-    }
+      mesas: [],
+    },
+    mesasDisponibles: [],
+    cargandoMesas: false,
+    errorMesas: null
   })
 }));

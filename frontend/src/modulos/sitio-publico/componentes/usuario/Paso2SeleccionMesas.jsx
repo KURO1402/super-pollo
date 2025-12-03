@@ -1,7 +1,7 @@
+
 import { useState, useEffect } from 'react';
-import { FiCheck, FiArrowUp } from "react-icons/fi";
 import { BiMaleFemale } from "react-icons/bi";
-import { MdTableBar, MdDoorFront, MdStairs, MdTv, MdKitchen, MdLocalAtm } from "react-icons/md";
+import { MdTableBar, MdDoorFront, MdStairs, MdTv, MdLocalAtm } from "react-icons/md";
 import { GiStairs, GiKitchenKnives } from "react-icons/gi";
 import { PiOven } from "react-icons/pi";
 import { RiBookShelfLine } from "react-icons/ri";
@@ -20,86 +20,53 @@ const Paso2SeleccionMesas = () => {
   
   const personasForm = datos.personas || 2;
 
-  // PRIMER PISO - Distribución real del croquis
+  // PRIMER PISO - 10 mesas de 4 personas + 1 mesa de 8 personas
   const mesasPrimerPiso = [
-    // Zona izquierda superior (1 mesa)
-    { id: 1, numero: '1', capacidad: 4, piso: 1, zona: 'superior-izquierda', tipo: 'mediana', disponible: true },
-    
-    // Zona izquierda media (2 mesas)
-    { id: 2, numero: '2', capacidad: 4, piso: 1, zona: 'media-izquierda', tipo: 'mediana', disponible: true },
-    { id: 3, numero: '3', capacidad: 4, piso: 1, zona: 'media-izquierda', tipo: 'mediana', disponible: true },
-    
-    // Zona izquierda inferior (4 mesas alineadas)
-    { id: 4, numero: '4', capacidad: 4, piso: 1, zona: 'inferior-izquierda', tipo: 'mediana', disponible: true },
-    { id: 5, numero: '5', capacidad: 4, piso: 1, zona: 'inferior-izquierda', tipo: 'mediana', disponible: true },
-    { id: 6, numero: '6', capacidad: 4, piso: 1, zona: 'inferior-izquierda', tipo: 'mediana', disponible: true },
-    { id: 7, numero: '7', capacidad: 4, piso: 1, zona: 'inferior-izquierda', tipo: 'mediana', disponible: true },
-    
-    // Zona derecha inferior (4 mesas pequeñas)
-    { id: 8, numero: '8', capacidad: 4, piso: 1, zona: 'inferior-derecha', tipo: 'mediana', disponible: true },
-    { id: 9, numero: '9', capacidad: 4, piso: 1, zona: 'inferior-derecha', tipo: 'mediana', disponible: true },
-    { id: 10, numero: '10', capacidad: 4, piso: 1, zona: 'inferior-derecha', tipo: 'mediana', disponible: true },
-    { id: 11, numero: '11', capacidad: 4, piso: 1, zona: 'inferior-derecha', tipo: 'mediana', disponible: true },
-    
-    // Zona derecha (mesa grande)
-    { id: 12, numero: '12', capacidad: 8, piso: 1, zona: 'media-derecha', tipo: 'grande', disponible: true },
+    { id: 1, numero: '1', capacidad: 4, piso: 1, disponible: true },
+    { id: 2, numero: '2', capacidad: 4, piso: 1, disponible: true },
+    { id: 3, numero: '3', capacidad: 4, piso: 1, disponible: true },
+    { id: 4, numero: '4', capacidad: 4, piso: 1, disponible: true },
+    { id: 5, numero: '5', capacidad: 4, piso: 1, disponible: true },
+    { id: 6, numero: '6', capacidad: 4, piso: 1, disponible: true },
+    { id: 7, numero: '7', capacidad: 4, piso: 1, disponible: true },
+    { id: 8, numero: '8', capacidad: 4, piso: 1, disponible: true },
+    { id: 9, numero: '9', capacidad: 4, piso: 1, disponible: true },
+    { id: 10, numero: '10', capacidad: 4, piso: 1, disponible: true },
+    { id: 11, numero: '11', capacidad: 8, piso: 1, disponible: true },
   ];
 
-  // SEGUNDO PISO - Distribución real
+  // SEGUNDO PISO - 2 mesas de 4 personas + 3 mesas de 8 personas
   const mesasSegundoPiso = [
-    { id: 13, numero: '1', capacidad: 8, piso: 2, zona: 'superior-derecha', tipo: 'grande', disponible: true },
-    { id: 14, numero: '2', capacidad: 8, piso: 2, zona: 'superior-centro', tipo: 'grande', disponible: true },
-    { id: 15, numero: '3', capacidad: 8, piso: 2, zona: 'superior-izquierda', tipo: 'grande', disponible: true },
-    { id: 16, numero: '4', capacidad: 8, piso: 2, zona: 'inferior-derecha', tipo: 'grande', disponible: true },
-    { id: 17, numero: '5', capacidad: 8, piso: 2, zona: 'inferior-izquierda', tipo: 'grande', disponible: true },
+    { id: 12, numero: '12', capacidad: 8, piso: 2, disponible: true },
+    { id: 13, numero: '13', capacidad: 4, piso: 2, disponible: true },
+    { id: 14, numero: '14', capacidad: 8, piso: 2, disponible: true },
+    { id: 15, numero: '15', capacidad: 8, piso: 2, disponible: true },
+    { id: 16, numero: '16', capacidad: 4, piso: 2, disponible: false },
+    { id: 17, numero: '17', capacidad: 8, piso: 2, disponible: true },
   ];
 
-  const mesasActuales = pisoActual === 1 ? mesasPrimerPiso : mesasSegundoPiso;
-  
-  const calcularMesasNecesarias = () => {
-    let personasRestantes = personasForm;
-    let mesasRequeridas = 0;
-    
-    while (personasRestantes > 4) {
-      mesasRequeridas++;
-      personasRestantes -= 8;
-    }
-    
-    if (personasRestantes > 0) {
-      mesasRequeridas++;
-    }
-    
-    return Math.max(1, mesasRequeridas);
-  };
-
-  const mesasNecesarias = calcularMesasNecesarias();
-
+  // Cargar mesas del estado global al montar
   useEffect(() => {
     if (datos.mesas && datos.mesas.length > 0) {
       setMesasSeleccionadas(datos.mesas);
     }
   }, []);
 
-  useEffect(() => {
-    if (mesasSeleccionadas.length > mesasNecesarias) {
-      const nuevaSeleccion = mesasSeleccionadas.slice(0, mesasNecesarias);
-      setMesasSeleccionadas(nuevaSeleccion);
-      updateDatos({ mesas: nuevaSeleccion });
-    }
-  }, [personasForm, mesasNecesarias]);
-
+  // Validar capacidad
   useEffect(() => {
     const capacidadTotal = mesasSeleccionadas.reduce((total, mesa) => total + mesa.capacidad, 0);
     
     if (mesasSeleccionadas.length === 0) {
       setError('Debes seleccionar al menos una mesa');
     } else if (capacidadTotal < personasForm) {
-      setError(`La capacidad actual es ${capacidadTotal}. Necesitas ${personasForm} personas`);
+      const faltante = personasForm - capacidadTotal;
+      setError(`Capacidad insuficiente. Faltan ${faltante} ${faltante === 1 ? 'persona' : 'personas'}`);
     } else {
       setError('');
     }
   }, [mesasSeleccionadas, personasForm]);
 
+  // Manejar selección de mesa
   const handleSeleccionarMesa = (mesa) => {
     if (!mesa.disponible) return;
 
@@ -109,115 +76,25 @@ const Paso2SeleccionMesas = () => {
     if (estaSeleccionada) {
       nuevaSeleccion = mesasSeleccionadas.filter(m => m.id !== mesa.id);
     } else {
-      nuevaSeleccion = [...mesasSeleccionadas, mesa];
+      nuevaSeleccion = [...mesasSeleccionadas, { ...mesa, piso: pisoActual }];
     }
 
     setMesasSeleccionadas(nuevaSeleccion);
     updateDatos({ mesas: nuevaSeleccion });
   };
 
-  const esMesaSeleccionada = (mesa) => {
-    return mesasSeleccionadas.some(m => m.id === mesa.id);
+  // Verificar si una mesa está seleccionada
+  const esMesaSeleccionada = (mesaId) => {
+    return mesasSeleccionadas.some(m => m.id === mesaId);
+  };
+
+  // Obtener mesa por ID
+  const getMesaPorId = (mesaId) => {
+    const todasLasMesas = [...mesasPrimerPiso, ...mesasSegundoPiso];
+    return todasLasMesas.find(m => m.id === mesaId);
   };
 
   const capacidadTotal = mesasSeleccionadas.reduce((total, mesa) => total + mesa.capacidad, 0);
-
-  const MesaButton = ({ mesa, size = 'normal' }) => {
-    const seleccionada = esMesaSeleccionada(mesa);
-    
-    return (
-      <button
-        type="button"
-        onClick={() => handleSeleccionarMesa(mesa)}
-        disabled={!mesa.disponible}
-        className={`relative rounded-xl transition-all transform hover:scale-105 ${
-          mesa.tipo === 'grande' ? 'aspect-[1.5/1]' : 'aspect-square'
-        } ${
-          !mesa.disponible
-            ? 'bg-gray-600 border-2 border-gray-500 opacity-50 cursor-not-allowed'
-            : seleccionada
-            ? 'bg-red-600 border-2 border-red-400 shadow-lg shadow-red-600/50'
-            : 'bg-gray-700 border-2 border-gray-500 hover:border-red-400 hover:bg-gray-600'
-        }`}
-      >
-        {/* Representación de mesa con sillas */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {/* Mesa central */}
-          <div className={`w-16 h-8 ${mesa.tipo === 'grande' ? 'w-24 h-12' : 'w-14 h-8'} rounded-md ${
-            seleccionada ? 'bg-red-400' : 'bg-gray-500'
-          } flex items-center justify-center`}>
-            <span className={`${mesa.tipo === 'grande' ? 'text-base' : 'text-sm'} font-bold ${
-              seleccionada ? 'text-white' : 'text-gray-800'
-            }`}>
-              {mesa.numero}
-            </span>
-          </div>
-          
-          {/* Sillas para mesa de 4 personas */}
-          {mesa.capacidad === 4 && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <div className="w-5 h-4 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
-                <div className="w-5 h-4 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -left-3 top-1/2 transform -translate-y-1/2">
-                <div className="w-4 h-5 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -right-3 top-1/2 transform -translate-y-1/2">
-                <div className="w-4 h-5 bg-gray-600 rounded-sm"></div>
-              </div>
-            </div>
-          )}
-          
-          {/* Sillas para mesa de 8 personas */}
-          {mesa.capacidad === 8 && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="absolute -top-3 left-1/4 transform -translate-x-1/2">
-                <div className="w-4 h-3 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -top-3 left-3/4 transform -translate-x-1/2">
-                <div className="w-4 h-3 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -bottom-3 left-1/4 transform -translate-x-1/2">
-                <div className="w-4 h-3 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -bottom-3 left-3/4 transform -translate-x-1/2">
-                <div className="w-4 h-3 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -left-3 top-1/4 transform -translate-y-1/2">
-                <div className="w-3 h-4 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -left-3 top-3/4 transform -translate-y-1/2">
-                <div className="w-3 h-4 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -right-3 top-1/4 transform -translate-y-1/2">
-                <div className="w-3 h-4 bg-gray-600 rounded-sm"></div>
-              </div>
-              <div className="absolute -right-3 top-3/4 transform -translate-y-1/2">
-                <div className="w-3 h-4 bg-gray-600 rounded-sm"></div>
-              </div>
-            </div>
-          )}
-        </div>
-        
-        {/* Indicador de selección */}
-        {seleccionada && (
-          <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 z-10 shadow-lg">
-            <FiCheck className="w-3 h-3 text-red-600" />
-          </div>
-        )}
-        
-        {/* Texto capacidad */}
-        <div className="absolute bottom-1 left-0 right-0 text-center">
-          <span className={`text-[10px] font-medium ${seleccionada ? 'text-white' : 'text-gray-400'}`}>
-            {mesa.capacidad} pers.
-          </span>
-        </div>
-      </button>
-    );
-  };
 
   return (
     <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto px-4 md:px-0">
@@ -287,10 +164,11 @@ const Paso2SeleccionMesas = () => {
         </div>
       </div>
 
-      {/* CROQUIS DEL PRIMER PISO */}
+      {/* CROQUIS DEL RESTAURANTE */}
       <div className="bg-gray-900 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border border-gray-700 overflow-x-auto">
         <div className="min-w-[1000px]">
           {pisoActual === 1 ? (
+            // PRIMER PISO
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center gap-3 bg-gray-800/50 border border-gray-700 rounded-full px-8 py-3">
@@ -298,16 +176,13 @@ const Paso2SeleccionMesas = () => {
                 </div>
               </div>
 
-              {/* DISTRIBUCIÓN PRINCIPAL - 3 columnas */}
               <div className="grid grid-cols-12 gap-6">
                 
-                {/* COLUMNA IZQUIERDA (30%) - Cocina completa */}
+                {/* COLUMNA IZQUIERDA - Cocina completa */}
                 <div className="col-span-3">
-                  <div className="border-2 border-gray-600 rounded-xl p-6 h-150">
-                    <div className="flex flex-col items-center justify-center h-full">
-                    </div>
-                  </div>
-                  <div className="bg-gradient-to-b from-gray-800 to-gray-900 border-2 border-gray-600 rounded-xl p-6 ">
+                  <div className="border-2 border-gray-600 rounded-xl p-6 h-150"></div>
+                  
+                  <div className="bg-gradient-to-b from-gray-800 to-gray-900 border-2 border-gray-600 rounded-xl p-6">
                     <div className="flex flex-col items-center justify-center h-full">
                       <div className="flex items-center gap-3 mb-3">
                         <BiMaleFemale className="w-10 h-10 text-gray-400" />
@@ -339,7 +214,6 @@ const Paso2SeleccionMesas = () => {
                       </div>
                     </div>
 
-                    {/* Zona de preparación central */}
                     <div className="absolute top-20 left-0 right-0 h-40 flex items-center justify-center">
                       <div className="text-center">
                         <h3 className="text-orange-300 font-bold text-2xl mb-2">COCINA</h3>
@@ -347,7 +221,6 @@ const Paso2SeleccionMesas = () => {
                       </div>
                     </div>
                     
-                    {/* Estantes inferiores */}
                     <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-r from-orange-900/40 to-orange-800/30 border-t-2 border-orange-500/50 rounded-b-xl">
                       <div className="flex items-center justify-center h-full gap-4"> 
                         <GiKitchenKnives className="w-8 h-8 text-orange-300" />
@@ -358,15 +231,28 @@ const Paso2SeleccionMesas = () => {
                   </div>
                 </div>
 
+                {/* COLUMNA CENTRAL IZQUIERDA */}
                 <div className='col-span-2 space-y-8'>
                   <div className='mt-17'>
-                    <Mesa4Personas id={10} numero={10}/>
+                    <Mesa4Personas 
+                      id={10} 
+                      numero="10"
+                      seleccionada={esMesaSeleccionada(10)}
+                      disponible={mesasPrimerPiso[9].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(10))}
+                    />
                   </div>
-                    <Mesa4Personas id={8} numero={8}/>
+                  <Mesa4Personas 
+                    id={8} 
+                    numero="8"
+                    seleccionada={esMesaSeleccionada(8)}
+                    disponible={mesasPrimerPiso[7].disponible}
+                    onClick={() => handleSeleccionarMesa(getMesaPorId(8))}
+                  />
                 </div>
+
+                {/* COLUMNA CENTRAL */}
                 <div className="col-span-5 space-y-8">
-                  
-                  {/* TV en pared frontal */}
                   <div className="bg-gradient-to-r from-purple-900/30 to-purple-800/20 border-2 border-purple-500/60 rounded-xl p-4 h-10">
                     <div className="flex items-center justify-center gap-4 h-full">
                       <MdTv className="w-10 h-10 text-purple-300" />
@@ -377,17 +263,45 @@ const Paso2SeleccionMesas = () => {
                   </div>
 
                   <div className='ml-70'>
-                    <Mesa8Personas id={11} numero={11}/>
+                    <Mesa8Personas 
+                      id={11} 
+                      numero="11"
+                      seleccionada={esMesaSeleccionada(11)}
+                      disponible={mesasPrimerPiso[10].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(11))}
+                    />
                   </div>
+                  
                   <div className='ml-30 mt-97'>
-                    <Mesa4Personas id={5} numero={5}/>  
+                    <Mesa4Personas 
+                      id={5} 
+                      numero="5"
+                      seleccionada={esMesaSeleccionada(5)}
+                      disponible={mesasPrimerPiso[4].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(5))}
+                    />  
                   </div>
+                  
                   <div className='ml-30'>
-                    <Mesa4Personas id={3} numero={3}/>
+                    <Mesa4Personas 
+                      id={3} 
+                      numero="3"
+                      seleccionada={esMesaSeleccionada(3)}
+                      disponible={mesasPrimerPiso[2].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(3))}
+                    />
                   </div>
+                  
                   <div className='ml-30'>
-                    <Mesa4Personas id={1} numero={1}/>
+                    <Mesa4Personas 
+                      id={1} 
+                      numero="1"
+                      seleccionada={esMesaSeleccionada(1)}
+                      disponible={mesasPrimerPiso[0].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(1))}
+                    />
                   </div>
+                  
                   <div className="bg-gradient-to-b from-blue-900/30 to-blue-800/20 border-2 border-blue-500/60 rounded-xl p-6 h-20 mt-26">
                     <div className="flex items-center justify-center h-full">
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mr-4">
@@ -396,28 +310,60 @@ const Paso2SeleccionMesas = () => {
                       <h3 className="text-blue-200 font-bold text-xl">ENTRADA</h3>
                     </div>
                   </div>
-
                 </div>
 
-                {/* COLUMNA DERECHA (30%) - Entrada y servicios */}
+                {/* COLUMNA DERECHA */}
                 <div className="col-span-2 space-y-6">
                   <div className='mt-62'>
-                    <Mesa4Personas id={9} numero={9}/>
+                    <Mesa4Personas 
+                      id={9} 
+                      numero="9"
+                      seleccionada={esMesaSeleccionada(9)}
+                      disponible={mesasPrimerPiso[8].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(9))}
+                    />
                   </div>
+                  
                   <div className='mt-8'>
-                    <Mesa4Personas id={7} numero={7}/>
+                    <Mesa4Personas 
+                      id={7} 
+                      numero="7"
+                      seleccionada={esMesaSeleccionada(7)}
+                      disponible={mesasPrimerPiso[6].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(7))}
+                    />
                   </div>
+                  
                   <div className='mt-8'>
-                    <Mesa4Personas id={6} numero={6}/>
+                    <Mesa4Personas 
+                      id={6} 
+                      numero="6"
+                      seleccionada={esMesaSeleccionada(6)}
+                      disponible={mesasPrimerPiso[5].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(6))}
+                    />
                   </div>
+                  
                   <div className='mt-8'>
-                   <Mesa4Personas id={4} numero={4}/>
+                    <Mesa4Personas 
+                      id={4} 
+                      numero="4"
+                      seleccionada={esMesaSeleccionada(4)}
+                      disponible={mesasPrimerPiso[3].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(4))}
+                    />
                   </div>
+                  
                   <div className='mt-8'>
-                   <Mesa4Personas id={2} numero={2}/>
+                    <Mesa4Personas 
+                      id={2} 
+                      numero="2"
+                      seleccionada={esMesaSeleccionada(2)}
+                      disponible={mesasPrimerPiso[1].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(2))}
+                    />
                   </div>
                     
-                  {/* Caja registradora */}
                   <div className="bg-gradient-to-b from-yellow-900/30 to-yellow-800/20 border-2 border-yellow-500/60 rounded-xl p-6 h-40">
                     <div className="flex flex-col items-center justify-center h-full">
                       <MdLocalAtm className="w-12 h-12 text-yellow-300 mb-3" />
@@ -429,10 +375,8 @@ const Paso2SeleccionMesas = () => {
               </div>
             </div>
           ) : (
-
             // SEGUNDO PISO
             <div className="space-y-6">
-              {/* CABECERA */}
               <div className="text-center mb-6">
                 <div className="inline-flex items-center gap-3 bg-gray-800/50 border border-gray-700 rounded-full px-8 py-3">
                   <h2 className="text-2xl font-bold text-white">SEGUNDO PISO</h2>
@@ -443,9 +387,21 @@ const Paso2SeleccionMesas = () => {
                 <div className="col-span-5">
                   <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
                     <div className='mt-10'>
-                      <Mesa8Personas id={15} numero={15}/>
+                      <Mesa8Personas 
+                        id={15} 
+                        numero="15"
+                        seleccionada={esMesaSeleccionada(15)}
+                        disponible={mesasSegundoPiso[3].disponible}
+                        onClick={() => handleSeleccionarMesa(getMesaPorId(15))}
+                      />
                       <div className='mt-15'>
-                        <Mesa8Personas id={12} numero={12}/>
+                        <Mesa8Personas 
+                          id={12} 
+                          numero="12"
+                          seleccionada={esMesaSeleccionada(12)}
+                          disponible={mesasSegundoPiso[0].disponible}
+                          onClick={() => handleSeleccionarMesa(getMesaPorId(12))}
+                        />
                       </div>
                     </div>
                   </div>
@@ -469,7 +425,6 @@ const Paso2SeleccionMesas = () => {
                         <p className="text-gray-400 text-sm">Desde primer piso</p>
                       </div>
                     </div>
-                    
                   </div>
                 </div>
 
@@ -482,10 +437,23 @@ const Paso2SeleccionMesas = () => {
                       </div>
                     </div>
                   </div>
+                  
                   <div className='mt-16'>
-                    <Mesa4Personas id={16} numero={16}/>
+                    <Mesa4Personas 
+                      id={16} 
+                      numero="16"
+                      seleccionada={esMesaSeleccionada(16)}
+                      disponible={mesasSegundoPiso[4].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(16))}
+                    />
                     <div className='mt-15'>
-                      <Mesa4Personas id={13} numero={13}/>
+                      <Mesa4Personas 
+                        id={13} 
+                        numero="13"
+                        seleccionada={esMesaSeleccionada(13)}
+                        disponible={mesasSegundoPiso[1].disponible}
+                        onClick={() => handleSeleccionarMesa(getMesaPorId(13))}
+                      />
                     </div>
                   </div>
                   <div className="w-150 h-px bg-gray-400 mt-48"></div>
@@ -493,10 +461,22 @@ const Paso2SeleccionMesas = () => {
 
                 <div className="col-span-4 mr-0">
                   <div className='mt-16'>
-                    <Mesa8Personas id={17} numero={17}/>
-                    <div className='mt-15'>
-                      <Mesa8Personas id={14} numero={14}/>
-                    </div>
+                    <Mesa8Personas 
+                      id={17} 
+                      numero="17"
+                      seleccionada={esMesaSeleccionada(17)}
+                      disponible={mesasSegundoPiso[4].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(17))}
+                    />
+                  </div>
+                  <div className='mt-15'>
+                    <Mesa8Personas 
+                      id={14} 
+                      numero="14"
+                      seleccionada={esMesaSeleccionada(14)}
+                      disponible={mesasSegundoPiso[0].disponible}
+                      onClick={() => handleSeleccionarMesa(getMesaPorId(14))}
+                    />
                   </div>
                 </div>
               </div>
@@ -527,10 +507,10 @@ const Paso2SeleccionMesas = () => {
                   >
                     <MdTableBar className="w-4 h-4 text-red-400" />
                     <span className="text-sm font-medium text-white">
-                      Mesa {mesa.numero}
+                      Mesa {mesa.numero} (Piso {mesa.piso})
                     </span>
                     <span className="text-xs text-gray-400 ml-2">
-                      ({mesa.capacidad}p)
+                      {mesa.capacidad}p
                     </span>
                   </div>
                 ))}

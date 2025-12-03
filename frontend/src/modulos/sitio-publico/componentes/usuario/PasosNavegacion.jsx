@@ -6,7 +6,7 @@ const PasosNavegacion = () => {
 
   const pasos = [
     { numero: 1, nombre: "Datos Básicos" },
-    { numero: 2, nombre: "Productos" },
+    { numero: 2, nombre: "Selección de Mesas" },
     { numero: 3, nombre: "Confirmación" }
   ];
 
